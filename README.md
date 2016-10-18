@@ -1,9 +1,10 @@
 # PYroMat
-** Thermodynamic tools for Python **
-** Author: Chris Martin **
-** Contact: [crm28@psu.edu](mailto:crm28@psu.edu) **
 
-PYroMat is a flexible platform for conveniently working with thermodynamic data.  [Come read more.](https://chmarti1.github.io/PYroMat/)
+**Thermodynamic tools for Python<br>
+Author: Chris Martin<br>
+Contact: [crm28@psu.edu](mailto:crm28@psu.edu)**
+
+PYroMat is a flexible platform for conveniently working with thermodynamic data.  The ever expanding collection of substances includes data for the properties people need most, exposed in an intuitively designed object interface [Come read more.](https://chmarti1.github.io/PYroMat/)
 
 ## Installation
 Unpack the distribution and navigate into the root distribution directory.
