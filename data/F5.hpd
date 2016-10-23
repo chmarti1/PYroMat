@@ -1,0 +1,11 @@
+{
+    "bymass": false, 
+    "class": "mixture", 
+    "contents": {
+        "H2": 5.0, 
+        "N2": 95.0
+    }, 
+    "doc": "5% H2 by volume and balance N2.  Commonly used in the welding and cutting industry.", 
+    "fromfile": "C:\\Users\\crm28\\WinPython-64bit-2.7.10.2\\python-2.7.10.amd64\\lib\\site-packages\\pyro\\data\\F5.hpd", 
+    "id": "F5"
+}

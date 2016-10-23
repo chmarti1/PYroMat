@@ -1,0 +1,150 @@
+At load, PYro searches for configuration files that allow users to make persistent changes to the package's behavior.  The values set in these files are loaded into the \verb|config| dictionary in the base package, where they can be accessed or altered from the command line.
+
+The \verb|load_config()| function found in the \verb|utility| module is responsible for dealing with all configuration files.  It is called automatically when the PYro package is first loaded, but it can also be called from the command line to re-parse the configuration files.  More information is provided in section \ref{sec:loadconfig}.
+
+\section{\texttt{config} Dictionary}
+Most parameters defined in the \verb|config| dictionary are mandatory for the PYro package to work properly.  There are precautions taken against deleting or renaming entries while parsing config files, but users should take great care if they are editing \verb|config| from the command line or in their own scripts.
+
+Entries of the \verb|config| dictionary that are not intended for editing (such as the package version or installation directory) are scalar entries (strings, booleans, integers, or floats), while entries that are lists are intended to be user configurable.  Every time one of those parameters is discovered in a config file, rather than overwriting the old values, the \verb|load_config()| appends the new values to the list.  
+
+This approach has a number of advantages.
+\begin{enumerate}
+\item The functions responsible for parsing configuration files need no special instructions or knowledge about legal values for each parameter.  That is relegated to the functions and methods that depend on them, making it possible for users to create configuration parameters for their own data classes.
+\item A complete history for all values of each parameter is available.  That makes it trivial to revert to default values from the command line.
+\item No special allowance need be made for parameters that allow more than one value (such as \verb|config_file|, \verb|dat_dir|, etc\ldots).
+\end{enumerate}
+
+The biggest disadvantage of this approach is that reading parameters in the \verb|config| dictionary can be annoying.  For example, the \verb|dat_verbose| parameter is a simple boolean parameter indicating whether the \verb|dat| module should operate verbosely.  A good algorithm should tolerate of the possibility that a well intentioned user overwrites the list in this parameter with the command
+\begin{verbatim}
+>>> pyro.config['dat_verbose'] = True
+\end{verbatim}
+
+To streamline the series of checks necessary to retrieve a single parameter, the \verb|get_config()| function is provided in the \verb|utility| module.  Described in section \ref{sec:getconfig}, this function does its best to interpret \verb|config| entries as scalars and returns the value.
+
+\section{Writing a Config File}
+Configuration files are written as Python code.  Parameters are assigned like variables
+\begin{verbatim}
+# This is my configuration file
+config_verbose = True
+config_file = '/etc/pyro_conf.py'
+dat_dir = ['/my/data/directory', '/my/other/data/directory']
+
+# These are my custom parameters!
+my_param = 'This is my parameter'
+\end{verbatim}
+
+These are executed in an encapsulated environment, and all local variables are checked against the current configuration dictionary.  New parameters are created as user-configurable parameter lists, and existing parameters are automatically appended to the existing lists.  Attempts to write to existing parameters that are read-only will result in a warning.
+
+If the above code were included in a configuration file, the resulting \verb|config| dictionary entries might appear:
+\begin{verbatim}
+install_dir : '/home/chris/py/pyro'
+config_file : ['/home/chris/py/pyro/defaults.py', '/etc/pyro_conf.py']
+config_verbose : [False, True]
+reg_exist_fatal : [False]
+reg_verbose : [True]
+dat_verbose : [True]
+dat_overwrite : [True]
+dat_exist_fatal : [False]
+reg_overwrite : [True]
+reg_dir : ['/home/chris/py/pyro/registry']
+version : '1.0'
+dat_dir : ['/home/chris/py/pyro/data', '/my/data/directory', '/my/other/data/directory']
+my_param : ['This is my parameter']
+dat_recursive : [True]
+\end{verbatim}
+Note that the \verb|dat_dir| and \verb|config_file| entries alike were simply appended to the default list even though one was written as a string and the other as a list of strings.
+
+The following is a brief description of each default entry in alphabetical order.
+
+\subsection{\texttt{config\_file}}
+This is a list of configuration files to be loaded by the \verb|load_config()| function.  This is a meta-parameter, in the sense that it affects the behavior of the \verb|load_config()| function, but can also modified by the configuration files.
+
+The first file loaded is always \verb|defaults.py| in the package installation directory.  If the system admin chooses to add a configuration file (like the \verb|/etc/pyro_conf.py| example above), this is where it should be added.
+
+After parsing each file, \verb|load_config()| checks for new entries to \verb|config_file| list, so configuration files can be daisy-chained to one another.  To prevent circular references, a history of all files loaded so far is also kept, and redundant references are ignored with a warning.
+
+\subsection{\texttt{config\_verbose}}
+This parameter is a boolean flag indicating whether the \verb|load_config()| function should operate verbosely.  It is False by default, but when True, the function prints a summary of config files and parameters discovered.  This can be useful for debugging.
+
+\subsection{\texttt{dat\_dir}}
+This parameter is a list of all directories in which to look for the \verb|*.hpd| (Hot-Py-Data) files that define PYro data entries.  By default, it contains only the \verb|data| directory in the base installation directory.
+
+\subsection{\texttt{dat\_overwrite}}
+This parameter is a boolean flag indicating whether the \verb|load()| function should overwrite existing data definitions with new data definitions with the same identifier string.  By default it is True to allow users to overwrite built-in data with their own.
+
+\subsection{\texttt{dat\_recursive}}
+This parameter is a boolean flag indicating whether the \verb|load()| function should recurse into sub directories when searching for data files.  By default, it is True.
+
+\subsection{\texttt{dat\_verbose}}
+This parameter is a boolean flag indicating whether the \verb|load()| function should operate verbosely.  If True, the function will print a summary of directories scanned and \verb|*.hpd| files discovered.  This can be useful for debugging.
+
+\subsection{\texttt{dat\_exist\_fatal}}
+This parameter is a boolean flag indicating whether the \verb|load()| function should throw an error if redundant data entries are found.  By default it is False to allow users to overwrite built-in data with their own.
+
+\subsection{\texttt{def\_P}}
+The \verb|_vectorize()| function provided by the \verb|__basetest__| class will use this value if the pressure is set to \verb|None|.  As a result, data classes that use \verb|_vectorize()| will have a consistent but configurable default condition.
+
+\subsection{\texttt{def\_T}}
+Just like with the \verb|def_P| parameter, the \verb|_vectorize()| function provided by the \verb|__basetest__| class will use this value if the temperature is set to \verb|None|.  As a result, data classes that use \verb|_vectorize()| will have a consistent but configurable default condition.
+
+\subsection{\texttt{install\_dir}}
+This is a read-only entry indicating the installation directory for the PYro package.  It can be useful for constructing a relative path.
+
+\subsection{\texttt{reg\_dir}}
+This parameter is a list of all directories in which to look for \verb|*.py| files to examine for class definitions to add to the PYro registry.  By default, it contains only the \verb|registry| directory in the base installation directory.
+
+\subsection{\texttt{reg\_exist\_fatal}}
+This parameter is a boolean flag indicating whether registry files creating a class that already exists should result in an error.  By default, this is False, so users can overwrite the default classes with their own if they wanted to.
+
+\subsection{\texttt{reg\_overwrite}}
+This parameter is a boolean flag indicating whether the \verb|regload()| function should overwrite existing class definitions with new definitions of the same class name.  By default, it is True to allow users to overwrite built-in classes with their own.
+
+\subsection{\texttt{reg\_verbose}}
+This parameter is a boolean flag indicating whether the \verb|reg_load()| function should operate verbosely.  If true, the function will print a summary of files and directories scanned, and the class definitions discovered.  This can be useful for debugging.
+
+\subsection{\texttt{version}}
+This read-only string indicates the package version.
+
+\section{\texttt{load\_config()}}\label{sec:loadconfig}
+The \verb|load_config()| function is exposed by the \verb|utility| module.  It is responsible for parsing all configuration files.  If it is called with no arguments, it reloads the configuration options from scratch, starting with the defaults, and working through all config files named.
+
+When called with a path to a configuration file as its only argument, it loads that file only, appending its parameters to the existing configuration options.  This can be useful for debugging config files.
+
+To force \verb|load_config()| to run verbosely, set the \verb|config_verbose| parameter to True.  This can also be quite useful for debugging config files.
+
+\section{\texttt{get\_config()}}\label{sec:getconfig}
+The \verb|get_config()| function is a shortcut for accessing parameters in the \verb|config| dictionary that are interpreted as scalars rather than lists.  This is particularly useful for users who want to write their own classes that depend on \verb|config| parameters.  Parameters that are lists are identified only by their last (most recent) value, and scalar parameters are returned verbatim.
+
+The function requires a string argument, which is treated as the name of the parameter to be retrieved.  It accepts two optional arguments, \verb|dtype| and \verb|verbose|.  The \verb|dtype| parameter is treated as a class to which the result value is forced.  The \verb|verbose| parameter is a boolean flag which, when set False, suppresses warnings if the parameter is not found or if there are problems interpreting its value.
+\begin{verbatim}
+>>> pyro.utility.get_config( 'reg_verbose', dtype=bool )
+False
+>>> pyro.utility.get_config( 'junk', verbose=False)
+>>> pyro.utility.get_config( 'junk' )
+PYro WARN:: Parameter "junk" does not appear in the PYro
+PYro WARN:: configuration file.
+\end{verbatim}
+
+\section{A Note about Security}
+System administrators who want to create an installation of PYro for all users should use great caution in how they edit the PYro configuration.  PYro is extremely naive about the files users supply to it.  Configuration files are executed as a script by the \verb|load_config()| function, and registered class definitions are also executed.  That means that they have all the permissions of the current user.  System administrators should take great care not to allow users to run one another's configuration files unless they are trusted users.
+
+For example, if I were a user with malicious intent, I could write a script with the following commands:
+\begin{verbatim}
+>>> import os
+>>> os.remove('~/*')
+\end{verbatim}
+so that the contents of the user's home directory will be deleted if that user has the misfortune to include my configuration script.  This same vulnerability exists in the registry class definitions as well.  
+
+In most implementations, this will never be an issue.    The configuration and registry files are deliberately insecure to allow developers as much power and flexibility as possible.  While this may change in future releases, the current design philosophy emphasizes flexibility over security.
+
+There are multiple solutions, but all of them rely on the system admin to be aware of the problem.
+\begin{enumerate}
+\item Use the default install, which only references the built-in files and directories.
+\item Make sure user writable config files are only accessed by the users that own them.  This can be done by flexible references, e.g.
+\begin{verbatim}
+config_file = '~/pyro_conf.py'
+reg_dir = '~/pyroreg'
+\end{verbatim}
+\end{enumerate}
+
+These measures are already taken in the default installation.  Future releases may have measures to protect against these types of problems, but it is important to keep these potential problems in mind while tweaking the package's configuration.

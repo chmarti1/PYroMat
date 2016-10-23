@@ -1,0 +1,69 @@
+<html>
+<head>
+    <title>PYro</title>
+    <link rel="stylesheet" type="text/css" href="pyro.css">
+    <meta name="description" content="thermodynamic properties in python">
+    <meta name="keywords" content="python,thermo,thermodynamic,property,properties">
+    <meta name="author" content="C.R. Martin">
+</head>
+<body>
+
+<div id="menu">
+<img src="fig/PYro_Orange_Small.png" alt="PYro Icon" style="width:150;height:150">
+<div class="menuitem"><a href="https://sourceforge.net/projects/pyro/">Download</a></div>
+<div class="menuitem"><a href="./pyrodoc.pdf">Documentation</a></div>
+<div class="menuitem"><a href="./examples.html">Examples</a></div>
+<div class="menuitem"><a href="https://sourceforge.net/p/pyro/discussion/?source=navbar">Discussion</a></div>
+</div>
+
+
+<div id="content">
+<h1 class="title">PYro</h1>
+<h2 class="title">Thermodynamic Computational Tools<br> for Python</h2>
+<hr>
+<p>
+PYro is a flexible platform for calculating thermodynamic properties in Python.  If you are a Python user who also works with thermodynamic calculations, it could be the tool for you.  From students to researchers, a free standard interface for conveniently retrieving thermodynamic property data can make all our lives easier. With that in mind, PYro is designed for everything from quick property calculations to being embedded in larger models. 
+</p>
+<p>
+Download, share, contribute, comment, enjoy!
+</p>
+
+
+<img src="fig/d.png" width=300><img src="fig/brayton.png" width=300>
+
+<h3>Features</h3>
+<p>
+Version 1.2 of PYro contains 79 substances with data for multi-phase substances, imperfect gases, and mixtures.  PYro is made unique by its capacity for retrieving data from different sources stored in different formats with a standard interface; making the peculiarities of the data invisible to the user.  Whether stored as tabulated data or curve fits, primary source data are managed automatically by classes that encapsulate interaction in a standard command interface.  Detailed citations for original sources provide the traceability needed for professional applications, and a flexible user-configurable back-end allows users to pop the hood to write their own data and classes.
+</p>
+<p>
+As of version 1.2, PYro includes multi-phase data for steam with refrigerants on the way.  The new psolve() function also lets users invert properties for applications like cycle analysis or flame temperature calculations.
+</p>
+<h3>Interface</h3>
+<p>
+When a user wants to work with a substance, the user requests an object that represents that substance (say Argon).  These objects have their own methods for calculating enthalpy, entropy, density, specific volume, molecular weight, internal energy, and others from temperature and pressure.
+</p>
+<div class="code">>>> import pyro</div>
+<div class="code">>>> S = pyro.get('steam')</div>
+<div class="code">>>> air = pyro.get('air')</div>
+<p>
+Once retrieved, these objects provide the interface for the data.
+</p>
+<div class="code">>>> # This retrieves the saturation enthalpies for steam at 900K</div>
+<div class="code">>>> hliq, hvap = S.hs(T=900.)</div>
+<div class="code">>>> # This retrieves the specific heat of air at 432K</div>
+<div class="code">>>> C = air.cp(T=432.)</div>
+<p>
+For a more extensive idea of what PYro can do, check out the <a href="examples.html">examples</a>.
+</p>
+
+<hr>
+<div id="contact">
+Authored By:<br>
+Christopher R. Martin, Ph.D.<br>
+Assistant Professor of Mechanical Engineering<br>
+The Pennsylvania State University, Penn State Altoona<br>
+<a href="mailto:crm28@psu.edu">crm28@psu.edu</a>
+</div>
+</div>
+</body>
+</html>

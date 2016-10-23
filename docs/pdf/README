@@ -1,0 +1,17 @@
+Welcome to the PYro sourceforge distribution.
+
+The files are organized in directories by version.  In each version's directory
+you will find a pyro-X.X.zip and pyro-X.X.tar.bz2 containing identical 
+data, and a pyrodoc-vX.X.pdf containing detailed documentation for PYro's 
+installation, configuration, use, and even how to develop for PYro.
+
+My intent is that old versions be maintained here in perpetuity so users can 
+always revert to or take code from older implementations.
+
+As always, please leave your comments.  I'll be as responsive as I can.
+
+Regards,
+Christopher R. Martin, PhD
+Assistant Professor of Mechanical Engineering
+The Pennsylvania State University,
+Penn State Altoona

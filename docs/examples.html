@@ -1,0 +1,55 @@
+<html>
+<head>
+    <title>PYro Examples</title>
+    <link rel="stylesheet" type="text/css" href="pyro.css">
+</head>
+<body>
+
+
+<div id="menu">
+<a href="index.html"><img src="fig/PYro_Orange_Small.png" alt="PYro Icon" style="width:150;height:150"></a>
+<div class="menuitem"><a href="https://sourceforge.net/projects/pyro/">Download</a></div>
+<div class="menuitem"><a href="./pyrodoc.pdf">Documentation</a></div>
+<div class="menuitem"><a href="examples.html"><b>Examples</b></a></div>
+<div class="menuitem"><a href="https://sourceforge.net/p/pyro/discussion/?source=navbar">Discussion</a></div>
+</div>
+
+<div id="content">
+<h2>Examples</h2>
+<p><a href="#phase">Phase Changes in Steam</a></p>
+<p><a href="#brayton">Brayton Cycle Analysis</a></p>
+<p><a href="#rankine">Rankine Cycle Analysis</a></p>
+
+
+<h3><a name="phase">Phase Changes in Steam</a></h3>
+<p>
+Numpy compatibility makes it possible to quickly generate beautiful visualizations of thermodynamic properties with matplotlib.  
+</p>
+<a href="src/steamtest.py">Source</a>
+<p>
+<img src="fig/s.png" alt="Entropy vs T and p" width=500>
+<img src="fig/h.png" alt="Enthalpy vs T and p" width=500>
+<img src="fig/d.png" alt="Density vs T and p" width=500>
+<p>
+
+<h3><a name="brayton">Brayton Cycle Analysis</a></h3>
+<p>
+Jet engines and gas turbines are implementations of the Brayton cycle.  PYro's psolve() makes it easy to automate cycle analysis.
+</p>
+<a href="src/brayton.py">Source</a>
+<p>
+<img src="fig/brayton.png" alt="Brayton cycle analysis" width=500>
+</p>
+
+<h3><a name="rankine">Rankine Cycle Analysis</a></h3>
+<p>
+What could be a more classic example of the power of thermodynamics than a steam engine?  Today, the Rankine cycle is still essential to nuclear, coal plants, and integrated gas turbine combined cycle power plants.  This example uses a boiler and superheater to bring the turbine outlet to saturated conditions.
+</p>
+<a href="src/rankine.py">Source</a>
+<p>
+<img src="fig/rankine_ts.png" alt="Rankine cycle analysis" width=500>
+<img src="fig/rankine_pv.png" alt="Rankine cycle analysis" width=500>
+</p>
+
+</div>
+</body>

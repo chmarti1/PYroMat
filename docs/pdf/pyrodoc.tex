@@ -1,0 +1,81 @@
+%
+%   Hotpy Documentation
+%
+
+\documentclass{book}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{esint}
+
+\hypersetup{colorlinks, allcolors=blue, linkcolor=magenta}
+
+\def\version{1.2}
+\def\package{pyro-\version{}}
+\def\lpackage{\package{}.tar.bz2}
+\def\wpackage{\package{}.zip}
+\def\classes{4}
+\def\species{79}
+
+
+\begin{document}
+
+\frontmatter
+% Begin Title Page
+\begin{center}
+\vspace{2in}
+\includegraphics{fig/PYro_Black_MedSmall}\\
+\vspace{0.5in}
+{\Huge PYro}\\
+\vspace{0.5in}
+{\huge Thermodynamic Computational Tools for Python}\\
+\vspace{0.2in}
+Version \version{}\\
+\vspace{1in}
+{\Large Christopher Martin}\\
+{\large Assistant Professor of Mechanical Engineering}\\
+{\large The Pennsylvania State University, Altoona College}\\
+\vspace{1in}
+{\large April 2016}
+\end{center}
+% End Title Page
+\pagebreak
+
+\begin{center}
+\mbox{}\\
+\vspace{3in}
+Thanks go to the talented Janet Montgomery\\
+for developing the PYro icon.\\
+\vspace{0.5in}
+\url{https://www.behance.net/janetmontgomery}
+\end{center}
+
+\pagebreak
+
+\tableofcontents
+\mainmatter
+
+\chapter{Introduction}\label{sec:intro}
+\include{hp_intro}
+
+\chapter{Examples}\label{sec:examples}
+\include{hp_examples}
+
+\chapter{Package Structure}\label{sec:struct}
+\include{hp_struct}
+
+\chapter{Configuration}\label{sec:config}
+\include{hp_config}
+
+\chapter{Writing New Data Files}\label{sec:data}
+\include{hp_data}
+
+\chapter{Writing New Data Classes}\label{sec:classes}
+\include{hp_class}
+
+\appendix
+\chapter{A Very Brief Review of Thermodynamics}\label{sec:thermo}
+\include{hp_thermo}
+
+\end{document}

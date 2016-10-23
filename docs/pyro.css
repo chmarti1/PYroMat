@@ -1,0 +1,40 @@
+    .title {
+        text-align:center;
+    }
+
+    #menu {
+        width:200px;
+        text-align:center;
+        position:fixed;
+        top:100;left:0;
+    }
+
+    a:link, a:visited, a:active {
+        color:#ef5423;
+        text-decoration:underline;
+    }
+
+    a:hover {
+        color:blue;
+    }
+
+    #content {
+        width:600px;
+        text-align:justify;
+        position:relative;
+        left:200px;
+    }
+
+    #contact {
+        text-align:center;
+        font-size:80%;
+    }
+
+    .menuitem {
+        margin-top:20px;
+        margin-bottom:20px;
+    }
+    
+    .code {
+        font-family:Monospace;
+    }

@@ -1,0 +1,11 @@
+{
+    "bymass": false, 
+    "class": "mixture", 
+    "contents": {
+        "Ar": 65.0, 
+        "H2": 35.0
+    }, 
+    "doc": "35% H2 by volume and balance Ar.  Commonly used in the welding and cutting industry.", 
+    "fromfile": "C:\\Users\\crm28\\WinPython-64bit-2.7.10.2\\python-2.7.10.amd64\\lib\\site-packages\\pyro\\data\\H35.hpd", 
+    "id": "H35"
+}

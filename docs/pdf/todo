@@ -1,0 +1,28 @@
+A to do list for future PYro releases
+
+* Better in-line documentation!
+A user familiar with Python and the foundations of thermodynamics should be able to import the package and use it without any prior reading on the organization of the package.
+
+* Refrigerants
+More multi-phase substances like refrigerants.  Maybe copy data from CoolProp?
+
+* Better psolve() implementation
+Implement a 1D solver?  Implement a 2D bisection algorithm?  What is the good way to do this?
+
+* Solids
+PVC, steels, aluminum, brass, tungsten, copper
+Implement as a function of T and p?  Could get weird.
+
+* Tools for visualization
+Making beautiful plots requires some advanced programming with matplotlib.  Attach a separate tool for automating it.
+
+* Test vectorization extensively
+Improve vectorization support.  Extend to multi-dimensional vectors.
+
+* Amalgamation class
+Knit together steam and H2O.  Create a generalized amalgamation class for doing that kind of thing.
+
+* Matlab support
+Elegant implementation in Matlab.
+
+

@@ -1,0 +1,29 @@
+{
+    "C1": [
+        0.8144470453839682, 
+        0.003922756692816957, 
+        -3.22403974758673e-06, 
+        1.3580871081057688e-09, 
+        -2.330547374794707e-13
+    ], 
+    "C2": [
+        2.0300890766594306, 
+        0.0009315114668555787, 
+        -3.313570533515162e-07, 
+        5.28139457595941e-11, 
+        -3.1208264980813606e-15
+    ], 
+    "Pref": 1.0, 
+    "Tmax": 5000.0, 
+    "Tmin": 300.0, 
+    "Tsplit": 1382.0, 
+    "class": "igfit", 
+    "doc": "These data are adapted from the GRI-Mech website,\n\nhttp://www.me.berkeley.edu/gri-mech/\n\nand are credited to\n\nB.J. McBride, S. Gordon, and M.A. Reno, 'Coefficients for Calculating\nThermodynamic and Transport Properties of Individual Species', NASA Report\nTM-4513, October 1993\n\nA. Burcat and B. McBride, '1994 Ideal Gas Thermodynamic Data for\nCombustion and Air- Pollution Use', Technion Report TAE 697, December 1993\n\nAdaptation by Chris Martin (c)2015.\n\nUnits are supplied in: energy kJ temperature K mass kg molar kmol\n", 
+    "fromfile": "/home/chris/py/pyro/data/HCNO.hpd", 
+    "h1": 5937.428117179837, 
+    "h2": 5527.35837532757, 
+    "id": "HCNO", 
+    "mw": 27.02534, 
+    "s1": 3.3021450526593235, 
+    "s2": -3.178271955377427
+}
