@@ -1,17 +1,21 @@
 import pyromat as pyro
-import sys
+import os, sys
 import numpy as np
 
 with open('test.log','w+') as writeto:
 
-    writeto.write(
-        "Found installation:\n" +
-        "  " + pyro.config['install_dir'] + "\n"
-    )
+    writeto.write("PYroMat Validation Report\n")
+    writeto.write("  Version: {:s}\n".format(pyro.config['version']))
+    writeto.write("  Installation: {:s}\n".format(pyro.config['install_dir']))
+    writeto.write("  Found {:d} species\n".format(len(pyro.dat.data)))
 
-    writeto.write(
-        "Found {:d} species\n\n".format(len(pyro.dat.data))
-    )
+    # Python version
+    writeto.write("Python version: {:s}\n".format(sys.version.split()[0]))
+    # Operating system
+    writeto.write("Running in a {:s} environment\n".format(os.name))
+    if os.name=='posix':
+        writeto.write("  {0:s} {2:s} {4:s}\n".format(*os.uname()))
+    writeto.write('\n')
 
     # Test the igfit class
     species = 'O2'
