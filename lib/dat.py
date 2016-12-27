@@ -1,16 +1,16 @@
-"""PYRO.DAT
+"""PYROMAT.DAT
 
 Responsible for handling all data operations, the data
 module supplies a dictionary where all loaded data are
 housed, and a number of methods for data manipulation
 and diagnostics.
 
-Chris Martin (c) 2015
+Chris Martin (c) 2015,2017
 """
 
 
 # load the root of the module
-import pyro
+import pyromat as pyro
 utility = pyro.utility
 reg = pyro.reg
 
@@ -38,28 +38,26 @@ data = {}
 #############################
 def load(datasource=None, check=None, verbose=None):
     """Import all *.hpd files in a directory
-    pyro.load()
+    load()
         or
-    pyro.load('/path/to/files/')
+    load('/path/to/files/')
         or
-    pyro.load('/path/to/file.hpd')
+    load('/path/to/file.hpd')
         or
-    info = pyro.load(check=True)
+    info = load(check=True)
 
-By default, load() will use the values in
-pyro.constants.DATADIR to find the files to 
-load. Alternatively, if the first argument can
-be an explicit path to a file or a directory in
-which to find files.  All *.hpd files will be
-opened.
+By default, load() will use the values in pyro.config{'dat_dir'} to 
+find the files to load.  PYroMat automatically adds the 'data' directory
+found in the installation directory.  Alternatively, if the first 
+argument can be an explicit path to a file or a directory in which to 
+find files.  All *.hpd files will be opened.
 
-The pyro.config parameters that affect load()
-are:
+The pyro.config parameters that affect load() are:
 'dat_verbose'
     Print messages to stdout? Override by setting
     the 'verbose' keyword argument.
 'dat_exist_fatal'
-    Raise an error if a data set already exists
+    Raise an error if a data set already exists 
     in memory?  (default=False)
 'dat_overwrite'
     Overwrite existing data? (default=True)
@@ -70,11 +68,9 @@ The separate keyword argument, 'check' prompts
 load() to run a data test instead of actually
 loading data.
 
-If load() is run in 'check' mode, it returns 
-information about the data files and data cur-
-rently in memory.  The returned parameters are
-contained in a dictionary with the following 
-keys:
+If load() is run in 'check' mode, it returns information about the data
+files and data currently in memory.  The returned parameters are 
+contained in a dictionary with the following keys:
 
 changed
     A list of identifiers whose data in memory
@@ -110,7 +106,10 @@ data
     exist_overwrite = utility.get_config('dat_overwrite',dtype=bool)
     recursive = utility.get_config('dat_recursive',dtype=bool)
 
-
+    # If the load function is called with check=True, then it's time to 
+    # make a few changes to the typical operation.  All recursive calls
+    # will be called with check equal to the dictionary containing the
+    # check results. 
     if check:
         if not isinstance(check, dict):
             check = {'changed':[], 'added':pyro.dat.data.keys(), 'removed':[], 'redundant':{}, 'suppressed':[], 'bad':[], 'data':{}}
@@ -129,29 +128,29 @@ data
 
     # load is recursive. Unless load is called explicitly
     # with a path to a file to load, it will expand directories and
-    # call itself with specific file names.  This is a little 
-    # clumsy, but it prevents multiple copies of the same algorithm
-    # and saves an extra helper function.
+    # call itself with specific file names.  This arrangement prevents 
+    # multiple copies of the same algorithm and saves an extra helper 
+    # function.
     if datasource:
         datasource=utility.os.path.abspath(datasource)
         # if the data source is a directory
         if utility.os.path.isdir(datasource):
-            datasource+=utility.os.sep
             # list the contents of the directory
             contents = utility.os.listdir(datasource)
             contents.sort()
             out='In directory ' + repr(datasource) + ' found files: '
             for this in contents:
+                this_long = utility.os.path.join(datasource,this)
                 # if recursion is enabled, and we come across a directory
-                if recursive and utility.os.path.isdir(datasource+this):
+                if recursive and utility.os.path.isdir(this_long):
                     #
                     # recurse into sub-directories
-                    load(datasource+this,check=check,verbose=verbose)
+                    load(this_long,check=check,verbose=verbose)
                 # if this is a file and it has the .hpd extension
                 elif len(this)>4 and this[-4:]=='.hpd':
                     #
                     # recurse with the actual file name
-                    load(datasource+this,check=check,verbose=verbose)
+                    load(this_long,check=check,verbose=verbose)
 
                     # assemble an output string
                     if verbose:
@@ -160,7 +159,7 @@ data
                 elif check and len(this)>5 and this[-5:]=='.hpd~':
                     #
                     # note if there are suppressed files
-                    SUP.append(datasource+this)
+                    SUP.append(this_long)
 
             if verbose:
                 utility.print_line('',lead)
@@ -188,7 +187,7 @@ data
                 except:
                     return
 
-
+            # Log the file source in the loaded data dictionary
             temp['fromfile'] = datasource
 
             # test for existance
@@ -242,7 +241,7 @@ data
                 dataclass = reg.registry[temp['class']]
             else:
                 utility.print_error('Species ' + repr(temp['id']) + ' called for data class ' + repr(temp['class']) + '.  That class does not exist in the registry.  The data file is corrupt or out of date.')
-                raise utility.PyroDataError()
+                raise utility.PMDataError()
             # write the data
             loadto[temp['id']] = dataclass(temp)
 
@@ -330,19 +329,17 @@ def new(newdata):
     """Create a new data entry
     new(newdata)
 
-Creates a new entry in the HotPy data dictionary
-for a substance defined by the 'newdata' dictionary.
+Creates a new entry in the HotPy data dictionary for a substance defined
+by the 'newdata' dictionary.
 
-The dictionary should have the data elements 
-necessary for defining its type.  The minimum elements
-are 'id', 'class', and 'doc', establishing the name,
-type, and description for the entry respectively.
-Additionally, the data dictionary should have whatever
-data is required by the class.
+The dictionary should have the data elements necessary for defining its
+type.  The minimum elements are 'id', 'class', and 'doc', establishing 
+the name, type, and description for the entry respectively.  
+Additionally, the data dictionary should have whatever data is required 
+by the class.
 
-The new() function will load the data element into
-the data dictionary and add the 'fromfile'
-descriptor as if it had been created by the load()
+The new() function will load the data element into the data dictionary 
+and add the 'fromfile' descriptor as if it had been created by the load()
 function. 
 """
     lead = 'new-> '

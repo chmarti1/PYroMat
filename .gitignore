@@ -3,3 +3,7 @@
 
 # Ignore log files
 *.log
+
+# Ignore the build directory
+build
+build/*

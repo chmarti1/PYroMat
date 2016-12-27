@@ -1,4 +1,4 @@
-"""PYro utility module
+"""PYroMat utility module
 
 This is a collection of miscelaneous objects that are used by the 
 package, but that users don't need to access explicitly.  These modules
@@ -8,7 +8,7 @@ from crowding out the functions and modules that users will need most.
 Developers interested in adding their own data or classes may need to 
 learn what lies herein, but most users will never need to care.
 
-Chris Martin (c) 2015
+Chris Martin (c) 2015,2017
 """
 
 import json
@@ -17,7 +17,7 @@ import numpy as np
 import os
 import time
 # point back to the root package
-import pyro
+import pyromat as pyro
 
 
 
@@ -27,7 +27,7 @@ import pyro
 ####################################
 # Error handling
 #   These are classes and functions
-# for Pyro error handling
+# for PYroMat error handling
 ####################################
 class Error(Exception):
     def __init__(self, value=''):
@@ -37,23 +37,27 @@ class Error(Exception):
 
 
 # if the data dictionary seems to be corrupt
-class PyroDataError(Error):
+# This error is raised in the data do not include the required parameters or
+# if the values in those parameters do not conform to PYroMat's requirements.
+class PMDataError(Error):
     pass
 
 # if there is an error loading files
-class PyroFileError(Error):
+# This error class is raised if file loading is inhibited by permission errors,
+# file-not-found, or any other OS problems
+class PMFileError(Error):
     pass
 
 # if there is an illegal combination of parameters
-class PyroParamError(Error):
-    pass
-
-# user input doesn't make sense!
-class PyroInputError(Error):
+# This error class is intended to be used if methods/functions are called with 
+# parameters or values that don't make sense.
+class PMParamError(Error):
     pass
 
 # An anylitical algorithm has failed with an error
-class PyroAnalysisError(Error):
+# This error class is reserved for high level algorithms that may experience
+# failures; e.g. an iterative algorithm that fails to converge.
+class PMAnalysisError(Error):
     pass
 
 
@@ -130,7 +134,11 @@ Checks for unrecognized parameters and illegal values.
         # if loadconfig is called without a filename, then this is the root call
 
         # assign default configuration parameters
-        install_dir = os.path.abspath(pyro.__path__[0])
+        install_dir = os.path.dirname( pyro.__file__ )
+        # Below was the installation directory deteciton method for version 1.2
+        # The path attribute is controlled by the import system, but the master
+        # __init__ file location is under the pyromat package's control.
+        # install_dir = os.path.abspath(pyro.__path__[0])
         default_config = os.path.join( install_dir, 'defaults.py')
 
         pyro.config = {
@@ -159,7 +167,7 @@ Checks for unrecognized parameters and illegal values.
                 print_error(
 'The default config file was missing.  Unable to create one at "' + 
 default_config + '".  Check for a permissions error.')
-                raise PyroFileError(default_config)
+                raise PMFileError(default_config)
 
         try:
             load_config( default_config, verbose=verbose )
@@ -168,7 +176,7 @@ default_config + '".  Check for a permissions error.')
             print_error(
 'There was an error loading the default configuration file, "' + 
 default_config + '". Check its permissions and syntax.')
-            raise PyroFileError(default_config)
+            raise PMFileError(default_config)
 
         
         k = 1
@@ -211,7 +219,7 @@ class to which to force the answer dtype(value)
     if not param in pyro.config:
         if verbose:
             print_warning(
-'Parameter "' + param + '" does not appear in the Pyro configuration file.')
+'Parameter "' + param + '" does not appear in the PYroMat configuration file.')
         return None
 
     if isinstance(pyro.config[param], list):
@@ -221,7 +229,7 @@ class to which to force the answer dtype(value)
     else:
         if verbose:
             print_warning(
-'Could not retrieve a valid value for the Pyro configuration parameter "' + 
+'Could not retrieve a valid value for the PYroMat configuration parameter "' + 
 param + '."')
         return None
 
@@ -302,10 +310,10 @@ then 'print_lines' returns -1.
 
 
 def print_error(text):
-    sys.stdout.write(split_lines(text,lead='Pyro ERR:: '))
+    sys.stdout.write(split_lines(text,lead='PYroMat ERR:: '))
 
 def print_warning(text):
-    sys.stdout.write(split_lines(text,lead='Pyro WARN:: '))
+    sys.stdout.write(split_lines(text,lead='PYroMat WARN:: '))
 
 def print_line(text, lead):
     sys.stdout.write(split_lines(text,lead))
@@ -333,7 +341,7 @@ Suppress printing errors to stdout by setting the
         print_error(
 'Failed to open file ' + repr(filename) + 
 '. The file does not exist, or there may be a permissions problem.')
-        raise PyroFileError(filename)
+        raise PMFileError(filename)
 
     # parse the file
     try:
@@ -342,7 +350,7 @@ Suppress printing errors to stdout by setting the
         print_error('Could not parse file ' + repr(filename) + 
             '. Try replacing the file from a fresh installation.')
         fil.close()
-        raise PyroFileError(filename)
+        raise PMFileError(filename)
     fil.close()
 
 
@@ -359,7 +367,7 @@ Suppress printing errors to stdout by setting the
 'File ' + repr(filename) + ' is missing the essential entry, ' + 
 repr(mh) + '.')
         if failure:
-            raise PyroFileError(filename)
+            raise PMFileError(filename)
 
     return readin
 
@@ -389,14 +397,14 @@ files in the search path as part of its output.
     # not already suppressed
     if (len(path)<=4) or (path[-4:]!='.hpd'):
         print_error('File ' + path + ' is not a *.hpd file.')
-        raise PyroFileError('Suppression failed.')
+        raise PMFileError('Suppression failed.')
     try:
         os.rename(path,path+'~')
         if verbose:
             sys.stdout.write('Suppressed file ' + path + '\n')
     except:
         print_error('Failed to rename file ' + path + '.  Check permissions.')
-        raise PyroFileError('Suppression failed.')
+        raise PMFileError('Suppression failed.')
 
 
 
@@ -417,14 +425,14 @@ The modification will allow load() to see the file.
     # already suppressed
     if (len(path)<=5) or (path[-5:]!='.hpd~'):
         print_error('File ' + path + ' is not a suppressed *.hpd file.')
-        raise PyroFileError('Revival failed.')
+        raise PMFileError('Revival failed.')
     try:
         os.rename(path,path[:-1])
         if verbose:
             sys.stdout.write('Revived file ' + path + '\n')
     except:
         print_error('Failed to revive file ' + path + '.  Check permissions.')
-        raise PyroFileError('Revival failed.')
+        raise PMFileError('Revival failed.')
 
 
 
@@ -614,7 +622,7 @@ The maximum number of iterations is limited by the parameter 'N', and is
             # calculate the motion of the approximation
             dX = np.linalg.solve(J,-np.array((f0,g0)))
         except:
-            raise PyroParamError('The constraints appear to be incompatible.')
+            raise PMParamError('The constraints appear to be incompatible.')
         
         
         Ttest = T + dX[0]
@@ -645,5 +653,5 @@ The maximum number of iterations is limited by the parameter 'N', and is
         go = abs(f0)>=fprec or abs(g0)>=gprec
         
     if count==N:
-        raise PyroAnalysisError('newtoniter() failed to converge.')
+        raise PMAnalysisError('newtoniter() failed to converge.')
     return (T,p)

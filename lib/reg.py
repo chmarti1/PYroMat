@@ -1,4 +1,4 @@
-"""Pyro data class registry
+"""PYroMat data class registry
 
 The registry is a dicitonary that resides within the 'reg' module.
 It holds the classes responsible for interpreting thermodynamic
@@ -6,7 +6,7 @@ data.  When data is loaded, each file is required to contain a
 'class' string, which will be used as a key to look up the class
 object intended to be used with the data. 
 
-When the Pyro package is loaded, all *.py files in the 'reg' 
+When the PYroMat package is loaded, all *.py files in the 'reg' 
 directory are run, and the definitions in them are incorporated
 into the registry dictionary.
 
@@ -17,10 +17,11 @@ class members.  User definitions should always point back to the
 __basedata__ as a parent.  For ease of editing, '_example.py' shows
 an example of a user-defined data class.
 
-Chris Martin (c) 2015
+Chris Martin (c) 2015,2017
 """
 
-import pyro
+# bring in the root package
+import pyromat as pyro
 
 
 # initialize the registry dicitonary

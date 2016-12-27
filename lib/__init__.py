@@ -1,29 +1,30 @@
-"""PYro    Thermodynamic property calculator for Python
+"""PYroMat    Thermodynamic property calculator for Python
 
-PYro includes a user-expandable library of thermodynamic
+PYroMat includes a user-expandable library of thermodynamic
 data on species and a suite of functions for working with 
 them.  That includes calculating properties of pure sub-
 stances and mixtures.
 
-Chris Martin (c) 2015
+Chris Martin (c) 2015, 2017
 Released under the GNU General Publice License v3.0
   http://www.gnu.org/licenses/gpl-3.0.en.html
 
 *** Available data ***
 
-Upon import, PYro automatically sets out to find its
+Upon import, PYroMat automatically sets out to find its
 constituent data files, and loads them into memory. Each
 file contains data on a single substance or mixture, and
 a summary of files discovered is printed.
 
 For information on a single species or to print a summary
-of available data, see the PYro.info() function.
+of available data, see the info() function.
 
 *** Retrieving data ***
 
 To get started, retrieve a substance that is of interest
 and commit it to a variable that you will use later. The
 command below retrieves an object for Argon.
+  >>> import pyromat as pyro
   >>> Ar = pyro.get('Ar')
 
 Once created, these objects can be called on to recover
@@ -67,7 +68,7 @@ one of them is a scalar.
 *** Structure ***
 
 All functions to which users are expected to need direct
-access are exposed at the root level of the PYro package,
+access are exposed at the root level of the PYroMat package,
 so that >>> dir(pyro) should expose all the functions 
 typically needed.
 
@@ -82,11 +83,11 @@ returned by the pyro.get() function.  Functions to help
 users customize their data directories are located here.
 For more, see the pyro.dat documentation.
 
-pyro.reg is a module for handling the PYro object class 
-definitions in a modular but transparent way.  PYro is 
+pyro.reg is a module for handling the PYroMat object class 
+definitions in a modular but transparent way.  PYroMat is 
 designed so that users can create their own data files and
 even their own data classes without needing to modify the 
-PYro code.  The class registry located in pyro.reg is
+PYroMat code.  The class registry located in pyro.reg is
 where these classes reside.  They are called on to create
 the class objects found in the pyro.dat data dictionary.
 
@@ -100,10 +101,10 @@ cluttering out more commonly used functions.
 # utility.load_config() checks this value to establish the read-only version
 # setup.py looks for this line to establish the version at install
 # MUST be unindented
-__version__ = "1.2"
+__version__ = "1.3"
 
 
-# loading the PYro utility functions
+# loading the PYroMat utility functions
 from . import utility
 
 config = {}
@@ -133,7 +134,7 @@ Returns a substance data class for the substance named.
         return dat.data[name]
     
     utility.print_error('No substance named "' + str(name) + '" was found in the loaded data.')
-    raise utility.PyroInputError('Invaid substance name.')
+    raise utility.PMParamError('Invaid substance name.')
 
 
 
@@ -161,7 +162,7 @@ for the substance named.
     if name:
         if not (name in dat.data):    
             utility.print_error('No substance named "' + str(name) + '" was found in the loaded dat.')
-            raise utility.PyroInputError('Invaid substance name.')
+            raise utility.PMParamError('Invaid substance name.')
 
         utility.sys.stdout.write( '***\nInformation summary for substance: "' + name + '"\n***\n' )
 
@@ -182,7 +183,7 @@ for the substance named.
     else:
 
         # Print a version summary
-        utility.sys.stdout.write('  PYro\nThermodynamic computational tools for Python\n')
+        utility.sys.stdout.write('  PYroMat\nThermodynamic computational tools for Python\n')
         utility.sys.stdout.write('version: ' + str(config['version']) + '\n')
 
         # Generate a table of existing data
