@@ -1,7 +1,19 @@
+# In addition to a number of other tests, this test script was used to validate
+# the core class behaviors.  When executed, it produces a log file, test.log,
+# which summarizes the test results.
+#
+#   $python test.py
+#
+# In this script, objects are called up and various parameters are tested 
+# against hard-coded expected values obtained from sources also listed in the
+# log file.  Each test is "passed" when errors between the "true" value and the
+# PYroMat value is less than the fractional "error_threshold" parameter.
+
 import pyromat as pyro
 import os, sys
 import numpy as np
 import time
+
 
 # Global parameter... what error is acceptable .001 = .1%
 error_threshold = .001
@@ -31,6 +43,7 @@ from the Tp test.  Examples are in test.py.
     test = pyro.get(species)
     sys.stdout.write("Testing " + str(test) + "..")
     outfile.write("Validation of {:s}\n".format(str(test)))
+    outfile.write("  Error failure threshold {:%}\n".format(error_threshold))
     error = False
 
     for argname in args:
