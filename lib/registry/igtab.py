@@ -60,7 +60,8 @@ applications.
             a = 0
             b = int(N-1)
             while b-1>a:
-                c = (a+b)/2
+                # v1.3 added int() to force integer in Python3
+                c = int((a+b)/2)
                 if T < X[c]:
                     b = c
                 else:

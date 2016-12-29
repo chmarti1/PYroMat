@@ -19,5 +19,7 @@ Original Release, including ideal gas data
 - Cleaned up some code in the data module (functionality should not change)
 - Eliminated the input error class and reverted to the parameter error
 - Changed the method for detecting the installation directory utility.load_config()
+- Eliminated a bug that caused the IGTAB class _lookup() method to fail in Python3
+
 
 
