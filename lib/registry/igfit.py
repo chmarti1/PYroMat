@@ -24,7 +24,14 @@ class igfit(__basedata__):
         'Pref',     # reference pressure (usually 1.01325bar)
         'mw',       # molecular weight
         ]
-    
+
+    def __init__(self,*arg,**kwarg):
+        super(self.__class__,self).__init__(*arg,**kwarg)
+
+        # Define inverstion routines
+        self.T_h = pyro.solve.solve1n('T',
+            f=self.h, df=self.cp,
+            param_lim = (self.data['Tmin'], self.data['Tmax']))
     
     #
     # IGFIT evaluation functions
@@ -243,3 +250,4 @@ class igfit(__basedata__):
 
         return out
 
+        

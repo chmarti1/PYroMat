@@ -106,10 +106,12 @@ __version__ = "1.3"
 
 # loading the PYroMat utility functions
 from . import utility
-
+# load the configuration
 config = {}
 utility.load_config()
 
+# import the solver module
+from . import solve
 # import the dataclass registry
 from . import reg
 # import the module for handling data

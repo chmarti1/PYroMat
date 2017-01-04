@@ -262,80 +262,22 @@ element can be evaluated by the class methods.
 
 
     def psolve(self, Tinit=None, pinit=None, **kwargs):
-        """Solve for pressure and temperature given property values
-    (T,p) = subst.psolve( prop1=value1, prop2=value2 )
-    
-The properties specified in the keyword arguments to psolve() must 
-correspond to property methods the class posesses (such as cp, h, or s) 
-or to T or p themselves.  If only one property is encountered, then
-pressure is implicitly assumed to be the value specified by the 'def_P'
-configuration parameter (1.01325 by default).
-
-The behavior of psolve() is modifiable through some optional keywords:
- keyword    Description (default value)
- Tinit      Initial temperature guess   (None, uses def_T)
- Tprec      Temperature fractional precision (0.1K)
- pinit      Initial pressure guess (None, uses def_P)
- pprec      Pressure precision (.001bar)
-
-*** For Developers ***
-To do its job, the __basedata__ implementation of psolve uses a modified 
-two-dimensional newton-raphson method.  That works fine in most data 
-classes, but it will struggle if there are discontinuities (like with 
-phase changes.)  If you're developing for multi-phase data, you might 
-need to write your own implementation of psolve.
+        """*OBSOLETE* simply returns an error.
+PSOLVE() was obsoleted in version 1.4 to improve numerical performance
+and stability.  Use SOLVE1(), SOLVE2(), or a class specific solver.  If
+it is vital to have psolve() support, install version 1.3.
 """
-        if len(kwargs)==1:
-            kwargs['p'] = pyro.utility.get_config('def_p')
-        elif len(kwargs)==0:
-            raise pyro.utility.PyroInputError('Constraints are required.')
-        elif len(kwargs)>2:
-            raise pyro.utility.PyroInputError(
-                'Only two constraints may be specified.')
-        
-        # constrained properties
-        constr = set(kwargs.keys())
-        fun = []
-        
-        # construct a list with the property functions
-        # and their respective target values
-        if 'T' in constr:
-            fun.append((
-                (lambda T,p: T),    # a function that returns the temperature
-                kwargs['T'],         # the temperature constraint
-                0.1
-                ))
-            constr.remove('T')
-        if 'p' in constr:
-            fun.append((
-                (lambda T,p: p),    # a function that returns the pressure
-                kwargs['p'],         # the pressure constraint
-                .0001
-                ))
-            constr.remove('p')
-        # If there are no constraints left, then T and p were constrained
-        # Just return the values directly
-        if len(constr)==0:
-            return (fun[0][1],fun[1][1])
-        # Now add the constraints
-        for this in constr:
-            fun.append((
-                self.__getattribute__(this),
-                kwargs[this],
-                .0001
-                ))
+        raise pyro.utility.PMAnalysisError(
+            "PSOLVE() was obsoleted in version 1.4\n" +
+            "Use solve1() solve2() or a class-specific solver\n")
 
-        Tinit = pyro.utility.get_config('def_T')
-        pinit = pyro.utility.get_config('def_p')
-        return pyro.utility.newtoniter(
-            f=fun[0][0], fval=fun[0][1], fprec=fun[0][2],
-            g=fun[1][0], gval=fun[1][1], gprec=fun[0][2],
-            T=Tinit, p=pinit )
+
+
+
+
 #
 #   Go load the contents of the reg directory
 #
-
-
 def regload(verbose = None):
     """regload - reloads the data class registry
 

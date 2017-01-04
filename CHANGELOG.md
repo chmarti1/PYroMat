@@ -21,6 +21,5 @@ Original Release, including ideal gas data
 - Changed the method for detecting the installation directory utility.load_config()
 - Eliminated a bug that caused the IGTAB class _lookup() method to fail in Python3
 
-
-
-
+## Version 1.4:
+- solve1(), solve2(), and the class-specific solvers obsoleted psolve()
