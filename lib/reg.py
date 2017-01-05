@@ -342,21 +342,21 @@ pyro.config parameters that affect the behavior of regload() are
                         # if the class is already registered, either raise 
                         # an exception, or throw a warning
                         if new in registry:
-                            fullfil = pyro.utility.os.path.abspath( thisfile )
+                            fullfile = pyro.utility.os.path.abspath( thisfile )
                             if exist_fatal:
                                 pyro.utility.print_error(
 'Encountered a redundant definition for data class "' + new + '" in file "' + 
-fullfil + '"')
+fullfile + '"')
                                 raise pyro.utility.PyroFileError()
                             elif exist_overwrite:
                                 pyro.utility.print_warning(
 'Overwriting a redundant definition for data class "' + new + 
-'" with the definition in file "' + fullfil + '"')
+'" with the definition in file "' + fullfile + '"')
                                 registry[new] = temp[new]
                             else:
                                 pyro.utility.print_warning(
 'Ignoring a redundant definition for data class "' + new + '" in file "' + 
-fullfil + '"')
+fullfile + '"')
 
                         # if everything is fine, add the class to the registry
                         else:

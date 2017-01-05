@@ -32,7 +32,15 @@ class igfit(__basedata__):
         self.T_h = pyro.solve.solve1n('T',
             f=self.h, df=self.cp,
             param_lim = (self.data['Tmin'], self.data['Tmax']))
+
+        def ds(T,p=None):
+            return self.cp(T,p)/T 
+
+        self.T_s = pyro.solve.solve1n('T',
+            f=self.s, df=ds,
+            param_lim = (self.data['Tmin'], self.data['Tmax']))
     
+        # p_s is defined explicitly
     #
     # IGFIT evaluation functions
     #
@@ -250,4 +258,14 @@ class igfit(__basedata__):
 
         return out
 
-        
+    def p_s(self,s,T=None):
+        """Pressure as a function of entropy
+    p = igfit_instance.p_s(s)
+        or
+    p = igfit_instance.p_s(s,T)
+
+Returns the pressure as a function of entropy and temperature.
+"""
+        def_p = pyro.utility.get_config('def_p')
+        s0 = self.s(T=T,p=def_p)
+        return def_p * pyro.utility.np.exp((s0 - s)/self.R())

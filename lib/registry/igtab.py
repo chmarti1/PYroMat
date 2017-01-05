@@ -74,13 +74,74 @@ applications.
                 # use cubic interpolation
                 X = X[a-1:a+3]
                 Y = Y[a-1:a+3]
-                TX = T - X
                 out = 0.
                 for ii in range(4):
                     term = Y[ii]
                     for jj in range(4):
                         if ii!=jj:
                             term *= (T - X[jj])/(X[ii] - X[jj])
+                    out += term
+                return out
+
+
+    def _ilookup(self,y,Y):
+        """Perform an array of inverse table lookups
+    igt._ilookup(y,Y)
+
+For points inside the data table, performs cubic interpolation.  For 
+points at the extrema of the table, performs linear interpolation.  
+Values outside the table's range will be returned as nan.
+
+y must be a numpy array.  If it is a single-element array, then the 
+lookup is performed right away.  If it is a multi-element array, then
+the algorithm loops through the individual elements and recurses to 
+perform the lookups individually.  
+
+There are alternative approaches where y is sorted and lookups are 
+performed in batches based on how they fall between table entries.  
+The overhead for this kind of approach is relatively high, making the 
+much simpler element-by-element approach preferable for most 
+applications.
+"""
+        # if y is an array, loop through the elements
+        # and recurse into each to perform the lookup
+        if y.size > 1:
+            out = pyro.utility.np.zeros( y.shape )
+            for k in range(y.size):
+                out[k] = self._lookup(y[k],Y)
+            return out
+        else:
+            y.squeeze()
+            X = self.data['T']
+            N = len(X)
+            # check that the element is in the table's range
+            if y<Y[0] or y>Y[-1]:
+                return float('nan')
+
+            # search for the correct element with bisection
+            a = 0
+            b = int(N-1)
+            while b-1>a:
+                # v1.3 added int() to force integer in Python3
+                c = int((a+b)/2)
+                if y < Y[c]:
+                    b = c
+                else:
+                    a = c
+            # if the element is at the extrema
+            if (a==0) or (b==N-1):
+                # use linear interpolation/extrapolation
+                return X[a] + (y-Y[a])*(X[b]-X[a])/(Y[b]-Y[a])
+            else:
+                # use cubic interpolation
+                X = X[a-1:a+3]
+                Y = Y[a-1:a+3]
+                out = 0.
+                for ii in range(4):
+                    term = X[ii]
+                    for jj in range(4):
+                        if ii!=jj:
+                            term *= (y - Y[jj])/(Y[ii] - Y[jj])
                     out += term
                 return out
 
@@ -116,6 +177,10 @@ applications.
         (T,p) = self._vectorize(T,p)
         return self._lookup(T,self.data['h'])
 
+    def T_h(self,h,p=None):
+        """Temperature from Enthalpy"""
+        return self._ilookup(pyro.utility.np.array(h), self.data['h'])
+
         
     def e(self,T=None,p=None):
         """Internal energy"""
@@ -145,3 +210,21 @@ applications.
         Pref = self.data['Pref']
         return (self._lookup(T,self.data['s']) 
             - self.R()*pyro.utility.np.log(p/Pref))
+
+    def T_s(self,s,p=None):
+        """Temperature from Entropy, given pressure"""
+        Pref = self.data['Pref']
+        s0 = pyro.utility.np.array(s)
+        if p is None:
+            def_p = pyro.utility.get_config('def_p')
+            s0 += self.R()*pyro.utility.np.log(def_p/Pref)
+        else:
+            s0 += self.R()*pyro.utility.np.log(p/Pref)
+        return self._ilookup(s0, self.data['s'])
+
+    def p_s(self,s,T=None):
+        """Pressure from Entropy, given temperature"""
+        Pref = self.data['Pref']
+        s0 = self.s(T=T,p=Pref)
+        return pyro.utility.np.exp((s0-s)/self.R())
+
