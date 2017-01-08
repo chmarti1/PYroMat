@@ -1,7 +1,8 @@
 
 
 class if97(__basedata__):
-    
+
+
     def _peval(self,x,y,A,order=2):
         """Polynomial evaluation
     (p, dpdx, dpdy) = _peval(x,y,A)
@@ -176,6 +177,30 @@ calculate.
         return (pi,t,g,-gp,gt,gpp,-gpt,gtt)
 
 
+    def _th1(self,h,p):
+        """Temperature from enthalpy and pressure
+    T = _th1(h,p)
+
+Applies the inverse relations for region 1 to calculate temperature from
+enthalpy and pressure.
+"""
+        eta = h/2500.
+        pi = p/10.
+        T,_,_,_,_,_ = self._peval(pi, eta+1.,self.data['th1'],order=0)
+        return T
+
+
+    def _ts1(self,s,p):
+        """Temperature from entropy and pressure
+    T = _th1(s,p)
+
+Applies the inverse relations for region 1 to calculate temperature from
+entropy and pressure.
+"""
+        pi = p/10.
+        T,_,_,_,_,_ = self._peval(pi, s+2.,self.data['ts1'],order=0)
+        return T
+
 
     def _g2(self,T,p,order=2):
         """Gibbs energy in region 2
@@ -205,10 +230,82 @@ calculate.
         return pi,t,g,gp,gt,gpp,gpt,gtt
 
 
+    def _th2a(self,h,p):
+        """Temperature from enthalpy and pressure
+    T = _th2a(h,p)
 
-    def _f3(self,T,p,order=2,epsilon=1e-6):
+Applies the inverse relations for region 2a to calculate temperature from
+enthalpy and pressure.
+"""
+        eta = h/2000.
+        pi = p/10.
+        T,_,_,_,_,_ = self._peval(pi, eta-2.1,self.data['th2a'],order=0)
+        return T
+
+    def _th2b(self,h,p):
+        """Temperature from enthalpy and pressure
+    T = _th2b(h,p)
+
+Applies the inverse relations for region 2b to calculate temperature from
+enthalpy and pressure.
+"""
+        eta = h/2000.
+        pi = p/10.
+        T,_,_,_,_,_ = self._peval(pi-2., eta-2.6,self.data['th2b'],order=0)
+        return T
+
+    def _th2c(self,h,p):
+        """Temperature from enthalpy and pressure
+    T = _th2c(h,p)
+
+Applies the inverse relations for region 2c to calculate temperature from
+enthalpy and pressure.
+"""
+        eta = h/2000.
+        pi = p/10.
+        T,_,_,_,_,_ = self._peval(pi+25., eta-1.8,self.data['th2c'],order=0)
+        return T
+
+    def _ts2a(self,s,p):
+        """Temperature from entropy and pressure
+    T = _ts2a(s,p)
+
+Applies the inverse relations for region 2a to calculate temperature from
+enthalpy and pressure.
+"""
+        sigma = s/2.
+        pi = p/10.
+        T,_,_,_,_,_ = self._peval(pi**.25, sigma-2.,self.data['ts2a'],order=0)
+        return T
+
+    def _ts2b(self,s,p):
+        """Temperature from entropy and pressure
+    T = _ts2b(s,p)
+
+Applies the inverse relations for region 2b to calculate temperature from
+enthalpy and pressure.
+"""
+        sigma = s/.7853
+        pi = p/10.
+        T,_,_,_,_,_ = self._peval(pi, 10.-sigma,self.data['ts2b'],order=0)
+        return T
+
+    def _ts2c(self,s,p):
+        """Temperature from entropy and pressure
+    T = _ts2c(s,p)
+
+Applies the inverse relations for region 2c to calculate temperature from
+enthalpy and pressure.
+"""
+        sigma = s/2.9251
+        pi = p/10.
+        T,_,_,_,_,_ = self._peval(pi, 2.-sigma,self.data['ts2c'],order=0)
+        return T
+
+
+    def _f3(self,T,p,order=2):
         """Helmholtz free energy for region 3
-    f,fx,fy,fxx,fxy,fyy,delta = _d3(T,p,order=2,epsilon=1e-6)
+    f,fx,fy,fxx,fxy,fyy,delta = _d3(T,p,order=2)
 
 """
         np = pyro.utility.np
@@ -223,7 +320,7 @@ calculate.
             fyy = np.zeros(T.shape)
             for index in range(T.size):
                 (n[index], t[index], f[index],fx[index],fy[index],fxx[index],
-                 fxy[index], fyy[index]) = self._f3(T[index],p[index],epsilon=epsilon)
+                 fxy[index], fyy[index]) = self._f3(T[index],p[index])
             return n,t,f,fx,fy,fxx,fxy,fyy
             
         # static configuration parameters
@@ -273,6 +370,112 @@ calculate.
         return (nc,t) + tuple(values)
 
 
+    def _th3(self,h,p,Tinit,dinit=500.):
+        """Temperature from enthalpy and pressure in regime 3
+    T = _th3(h,p,Tinit,dinit)
+
+Unlike the other region evaluation functions, _th3 does NOT accept 
+arrays.  It requires initial values for temperature (Tinit) and 
+density (dinit).
+
+The IF-97 document does not supply inverse relationships in regime 3.  
+Instead, _th3 uses Newton iteration to match enthalpy and pressure.
+In order to know that the point lies in region 3, the controlling 
+algorithm will already need to have evaluated the enthalpy at the 
+region 3 boundary with region 1 and region 2 with pressure p.
+"""
+        # Define some important constants
+        R = self.data['R']      # ideal gas constant
+        dc = self.data['dc']    # critical density
+        Tc = self.data['Tc']    # critical temperature
+        r3 = self.data['r3'][1:]    # poly coefficients
+        A = self.data['r3'][0][2]   # natural log coefficient
+        maxiter = 30  # maximum iterations
+        epsilon = 1e-6
+
+        # nondimensionalize parameters
+        pp = p * 1e2 / (dc * R * Tc)   # dimensionless target pressure
+        hh = h / (R * Tc)   # dimensionless target enthalpy (sortof)
+        n = dinit/dc        # dimensionless density (delta)
+        t = Tc/Tinit        # dimensionless temperature (tau)
+
+        for count in range(maxiter):
+            f,fx,fy,fxx,fxy,fyy = self._peval(n,t,r3)
+            # Modify the function and its derivatives to include the
+            # logarithmic terms.  
+            f += A*pyro.utility.np.log(n)
+            DLN = A/n
+            fx += DLN
+            fxx -= DLN/n
+
+            ptest = n*n*fx/t - pp
+            htest = n*fx/t + fy - hh
+            if abs(ptest)<epsilon*pp and abs(htest)<epsilon*hh:
+                return Tc/t
+            dpdn = n/t * (2.*fx + n*fxx)
+            dpdt = n*n/t * (fxy - fx/t)
+            dhdn = fxy + (fx + n*fxx)/t
+            dhdt = fyy + n/t*(fxy - fx/t)
+            dx = pyro.utility.np.linalg.solve(
+                [[dpdn, dpdt],[dhdn, dhdt]], [-ptest, -htest])
+            n += dx[0]
+            t += dx[1]
+        raise pyro.utility.PMAnalysisError('Steam _TH3 failed to converge.')
+
+
+
+    def _ts3(self,s,p,Tinit,dinit=500.):
+        """Temperature from entropy and pressure in regime 3
+    T = _ts3(h,p,Tinit,dinit)
+
+Unlike the other region evaluation functions, _ts3 does NOT accept 
+arrays.  It requires initial values for temperature (Tinit) and 
+density (dinit).
+
+The IF-97 document does not supply inverse relationships in regime 3.  
+Instead, _th3 uses Newton iteration to match enthalpy and pressure.
+In order to know that the point lies in region 3, the controlling 
+algorithm will already need to have evaluated the enthalpy at the 
+region 3 boundary with region 1 and region 2 with pressure p.
+"""
+        # Define some important constants
+        R = self.data['R']      # ideal gas constant
+        dc = self.data['dc']    # critical density
+        Tc = self.data['Tc']    # critical temperature
+        r3 = self.data['r3'][1:]    # poly coefficients
+        A = self.data['r3'][0][2]   # natural log coefficient
+        maxiter = 30  # maximum iterations
+        epsilon = 1e-6
+
+        # nondimensionalize parameters
+        pp = p * 1e2 / (dc * R * Tc)   # dimensionless target pressure
+        ss = s / R          # dimensionless target enthalpy
+        n = dinit/dc        # dimensionless density (delta)
+        t = Tc/Tinit        # dimensionless temperature (tau)
+
+        for count in range(maxiter):
+            f,fx,fy,fxx,fxy,fyy = self._peval(n,t,r3)
+            # Modify the function and its derivatives to include the
+            # logarithmic terms.  
+            f += A*pyro.utility.np.log(n)
+            DLN = A/n
+            fx += DLN
+            fxx -= DLN/n
+
+            ptest = n*n*fx/t - pp
+            stest = t*fy - f - ss
+            if abs(ptest)<epsilon*pp and abs(stest)<epsilon*ss:
+                return Tc/t
+            dpdn = n/t * (2.*fx + n*fxx)
+            dpdt = n*n/t * (fxy - fx/t)
+            dsdn = t*fxy - fx
+            dsdt = t*fyy
+            dx = pyro.utility.np.linalg.solve(
+                [[dpdn, dpdt],[dsdn, dsdt]], [-ptest, -stest])
+            n += dx[0]
+            t += dx[1]
+        raise pyro.utility.PMAnalysisError('Steam _TH3 failed to converge.')
+
 
     def _g5(self,T,p,order=2):
         """Gibbs energy in region 5
@@ -302,10 +505,27 @@ calculate.
         return pi,t,g,gp,gt,gpp,gpt,gtt
 
 
+    def _b23(self,T=None,p=None):
+        """Calculate the 2-3 T,p boundary
+    p = _b23(T=T)
+        or
+    T = _b23(p=p)
+Which ever is supplied (T or p), _b23 supplies the other.  Uses the B23
+equations 5 and 6 modified for pressure in bar.
+"""
+        if T is not None:
+            n = self.data['b23']
+            return (n[2]*T + n[1])*T + n[0]
+        elif p is not None:
+            n = self.data['b23']
+            return n[3] + pyro.utility.np.sqrt((p-n[4])/n[2])
+        else:
+            raise Exception('_b23 requires either T or p')
+
 
     def _region(self,T,p,root=True):
         """Identify the region in the IF97 model
-    r,d = mps._region(T,p)
+    r = mps._region(T,p)
     
 Returns an array, r, matching the shape of T and identifying the region
 of each element of the T,p pair.  Implicitly, T and p must be numpy 
@@ -348,15 +568,8 @@ failure to comply may give unpredictable results.
         elif T>T32:
             return 2
         elif T>T13:
-            # these coefficients were modified from the original IF97 report's
-            # B23 equation (section 4 page 5 equation 5) to produce a pressure 
-            # in bar rather than MPa
-            n1 = 0.34805185628969e4
-            n2 = -0.11671859879975e2
-            n3 = 0.10192970039326e-1
-            ptest = (n3*T + n2)*T + n1
-    
-            if p<ptest:
+            # Test pressure against the 2-3 boundary
+            if p<self._b23(T=T):
                 return 2
             else:
                 # we're in region 3.  Calculate the density using a 
@@ -400,10 +613,10 @@ Return the saturation pressure as a function of temperature.
         if not isinstance(T,np.ndarray):
             T = np.array(T)
         if (T < self.data['Tt']).any():
-            raise pyro.utility.PyroInputError(
+            raise pyro.utility.PMParamError(
             'Saturation properties are not available below the triple point.')
         if (T > self.data['Tc']).any():
-            raise pyro.utility.PyroInputError(
+            raise pyro.utility.PMParamError(
             'Saturation properties are not available above the critical point.')
         # revert to a float if possible
         if T.size==1:
@@ -436,10 +649,10 @@ Returns the saturation temperature as a function of pressure.
         if not isinstance(p,np.ndarray):
             p = np.array(p)
         if (p < self.data['pt']).any():
-            raise pyro.utility.PyroInputError(
+            raise pyro.utility.PMParamError(
             'Saturation properties are not available below the triple point.')
         if (p > self.data['pc']).any():
-            raise pyro.utility.PyroInputError(
+            raise pyro.utility.PMParamError(
             'Saturation properties are not available above the critical point.')
         # revert to a float if possible
         if p.size==1:
