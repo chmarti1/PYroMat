@@ -325,7 +325,7 @@ pyro.config parameters that affect the behavior of regload() are
                     pyro.utility.print_line('Examining file "' + thisfile + '"', lead)
                 try:
                     with open(thisfile,'r') as ff:
-                        exec(compile(ff.read(),thisfile,'exec'),globals(),temp)
+                        exec(compile(ff.read(),thisfile,'exec'),temp)
                     # In Python 2.7, this used to work
                     # Use exec() for 3.4 compatibility
                     # execfile(thisfile,globals(),temp)
@@ -371,4 +371,4 @@ fullfile + '"')
 
 
 
-regload()
+

@@ -1,10 +1,11 @@
+import pyromat as pyro
 ######################
 ##                  ##
 ##  Mixture class   ##
 ##                  ##
 ######################
 
-class mixture(__basedata__):
+class mixture(pyro.reg.__basedata__):
     
     mandatory = [
         'id',       # pyro-mandatory species identifier string

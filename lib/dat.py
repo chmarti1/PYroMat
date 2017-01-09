@@ -572,9 +572,3 @@ for a decision.
 
 
 
-#
-# Run the load function
-#
-load()
-
-

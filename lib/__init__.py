@@ -117,7 +117,8 @@ from . import reg
 # import the module for handling data
 from . import dat
 
-
+reg.regload()
+dat.load()
 
 
 

@@ -1,6 +1,7 @@
+import pyromat as pyro
+import numpy as np
 
-
-class if97(__basedata__):
+class if97(pyro.reg.__basedata__):
 
 
     def _peval(self,x,y,A,order=2):
@@ -210,7 +211,6 @@ Calculates the dimensionless gibbs free energy and its derivatives in
 region 1.  The 'order' keyword indicates the number of derivatives to
 calculate.
 """
-        np = pyro.utility.np
         # apply the region 2 scaling
         t = 540./T
         pi = p/10.
@@ -308,7 +308,6 @@ enthalpy and pressure.
     f,fx,fy,fxx,fxy,fyy,delta = _d3(T,p,order=2)
 
 """
-        np = pyro.utility.np
         if T.ndim>0:
             n = np.zeros(T.shape)
             t = np.zeros(T.shape)
@@ -403,7 +402,7 @@ region 3 boundary with region 1 and region 2 with pressure p.
             f,fx,fy,fxx,fxy,fyy = self._peval(n,t,r3)
             # Modify the function and its derivatives to include the
             # logarithmic terms.  
-            f += A*pyro.utility.np.log(n)
+            f += A*np.log(n)
             DLN = A/n
             fx += DLN
             fxx -= DLN/n
@@ -416,7 +415,7 @@ region 3 boundary with region 1 and region 2 with pressure p.
             dpdt = n*n/t * (fxy - fx/t)
             dhdn = fxy + (fx + n*fxx)/t
             dhdt = fyy + n/t*(fxy - fx/t)
-            dx = pyro.utility.np.linalg.solve(
+            dx = np.linalg.solve(
                 [[dpdn, dpdt],[dhdn, dhdt]], [-ptest, -htest])
             n += dx[0]
             t += dx[1]
@@ -457,7 +456,7 @@ region 3 boundary with region 1 and region 2 with pressure p.
             f,fx,fy,fxx,fxy,fyy = self._peval(n,t,r3)
             # Modify the function and its derivatives to include the
             # logarithmic terms.  
-            f += A*pyro.utility.np.log(n)
+            f += A*np.log(n)
             DLN = A/n
             fx += DLN
             fxx -= DLN/n
@@ -470,7 +469,7 @@ region 3 boundary with region 1 and region 2 with pressure p.
             dpdt = n*n/t * (fxy - fx/t)
             dsdn = t*fxy - fx
             dsdt = t*fyy
-            dx = pyro.utility.np.linalg.solve(
+            dx = np.linalg.solve(
                 [[dpdn, dpdt],[dsdn, dsdt]], [-ptest, -stest])
             n += dx[0]
             t += dx[1]
@@ -485,7 +484,6 @@ Calculates the dimensionless gibbs free energy and its derivatives in
 region 5.  The 'order' keyword indicates the number of derivatives to
 calculate.
 """
-        np = pyro.utility.np
         # apply the region 5 scaling
         t = 1000./T
         pi = p/10.
@@ -518,7 +516,7 @@ equations 5 and 6 modified for pressure in bar.
             return (n[2]*T + n[1])*T + n[0]
         elif p is not None:
             n = self.data['b23']
-            return n[3] + pyro.utility.np.sqrt((p-n[4])/n[2])
+            return n[3] + np.sqrt((p-n[4])/n[2])
         else:
             raise Exception('_b23 requires either T or p')
 
@@ -532,7 +530,6 @@ of each element of the T,p pair.  Implicitly, T and p must be numpy
 arrays with compatible sizes.  _region() doesn't test this condition, so
 failure to comply may give unpredictable results.
 """
-        np = pyro.utility.np
         nan = -1
         # test for multi-element arrays
         if root:
@@ -607,7 +604,6 @@ failure to comply may give unpredictable results.
     ps(T)
 Return the saturation pressure as a function of temperature.
 """
-        np = pyro.utility.np
         if T is None:
             T = pyro.utility.get_config('def_T')
         if not isinstance(T,np.ndarray):
@@ -643,7 +639,6 @@ Return the saturation pressure as a function of temperature.
     Ts(p)
 Returns the saturation temperature as a function of pressure.
 """
-        np = pyro.utility.np
         if p is None:
             p = pyro.utility.get_config('def_p')
         if not isinstance(p,np.ndarray):
@@ -693,7 +688,6 @@ functions to return their values for temperature and pressure, set the
 
     (T,p,hL,hV) = hs(..., tp=True)
 """
-        np = pyro.utility.np
         R = self.data['R']
         # ensure that one property is defined
         # use the default pressure when in doubt
@@ -741,7 +735,6 @@ functions to return their values for temperature and pressure, set the
 
     (T,p,eL,eV) = es(..., tp=True)
 """
-        np = pyro.utility.np
         R = self.data['R']
         # ensure that one property is defined
         # use the default pressure when in doubt
@@ -789,7 +782,6 @@ functions to return their values for temperature and pressure, set the
 
     (T,p,dL,dV) = ds(..., tp=True)
 """
-        np = pyro.utility.np
         R = self.data['R']
         # ensure that one property is defined
         # use the default pressure when in doubt
@@ -835,7 +827,6 @@ functions to return their values for temperature and pressure, set the
 
     (T,p,dL,dV) = ds(..., tp=True)
 """
-        np = pyro.utility.np
         R = self.data['R']
         # ensure that one property is defined
         # use the default pressure when in doubt
@@ -882,7 +873,6 @@ This funciton calculates these three common properties together to save
 the substantial computational overhead in cases where multiple 
 properties are needed.  
 """
-        np = pyro.utility.np
         R = self.data['R']
         if x is None:
             T,p,h = self._vectorize(T,p,out_init=True,allow_scalar=False)
@@ -942,7 +932,6 @@ properties are needed.
         """Enthalpy (kJ/kg)
     h(T,p)
 """
-        np = pyro.utility.np
         # if x is unspecified, proceed as normal
         if x is None:
             T,p,h = self._vectorize(T,p,out_init=True,allow_scalar=False)
@@ -987,7 +976,6 @@ properties are needed.
         """Density (kg/m**3)
     d(T,p)
 """
-        np = pyro.utility.np
         if x is None:
             T,p,d = self._vectorize(T,p,out_init=True,allow_scalar=False)
             r = self._region(T,p)
@@ -1032,7 +1020,6 @@ properties are needed.
         """Entropy (kJ/kg/K)
         s(T,p)
 """
-        np = pyro.utility.np
         if x is None:
             T,p,s = self._vectorize(T,p,out_init=True,allow_scalar=False)
             r = self._region(T,p)
@@ -1077,7 +1064,6 @@ properties are needed.
         """Internal Energy (kJ/kg)
         e(T,p)
 """
-        np = pyro.utility.np
         if x is None:
             T,p,e = self._vectorize(T,p,out_init=True,allow_scalar=False)
             r = self._region(T,p)
@@ -1120,7 +1106,6 @@ properties are needed.
         """Constant pressure specific heat (kJ/kg)
         cp(T,p)
 """
-        np = pyro.utility.np
         T,p,cp = self._vectorize(T,p,out_init=True,allow_scalar=False)
         r = self._region(T,p)
         R = self.data['R']
@@ -1153,7 +1138,6 @@ properties are needed.
         """Constant volume specific heat (kJ/kg)
         cv(T,p)
 """
-        np = pyro.utility.np
         T,p,cv = self._vectorize(T,p,out_init=True,allow_scalar=False)
         r = self._region(T,p)
         R = self.data['R']

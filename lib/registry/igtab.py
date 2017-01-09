@@ -1,10 +1,11 @@
+import pyromat as pyro
 ##############################################
 ##                                          ##
 ##  Ideal Gas Tabular Data Class            ##
 ##                                          ##
 ##############################################
 
-class igtab(__basedata__):
+class igtab(pyro.reg.__basedata__):
     """Ideal gas tabular data class
 """
 
@@ -44,7 +45,7 @@ applications.
         # if T is an array, loop through the elements
         # and recurse into each to perform the lookup
         if T.size > 1:
-            out = pyro.utility.np.zeros( T.shape )
+            out = np.zeros( T.shape )
             for k in range(T.size):
                 out[k] = self._lookup(T[k],Y)
             return out
@@ -106,7 +107,7 @@ applications.
         # if y is an array, loop through the elements
         # and recurse into each to perform the lookup
         if y.size > 1:
-            out = pyro.utility.np.zeros( y.shape )
+            out = np.zeros( y.shape )
             for k in range(y.size):
                 out[k] = self._lookup(y[k],Y)
             return out
@@ -179,7 +180,7 @@ applications.
 
     def T_h(self,h,p=None):
         """Temperature from Enthalpy"""
-        return self._ilookup(pyro.utility.np.array(h), self.data['h'])
+        return self._ilookup(np.array(h), self.data['h'])
 
         
     def e(self,T=None,p=None):
@@ -209,22 +210,22 @@ applications.
         (T,p) = self._vectorize(T,p)
         Pref = self.data['Pref']
         return (self._lookup(T,self.data['s']) 
-            - self.R()*pyro.utility.np.log(p/Pref))
+            - self.R()*np.log(p/Pref))
 
     def T_s(self,s,p=None):
         """Temperature from Entropy, given pressure"""
         Pref = self.data['Pref']
-        s0 = pyro.utility.np.array(s)
+        s0 = np.array(s)
         if p is None:
             def_p = pyro.utility.get_config('def_p')
-            s0 += self.R()*pyro.utility.np.log(def_p/Pref)
+            s0 += self.R()*np.log(def_p/Pref)
         else:
-            s0 += self.R()*pyro.utility.np.log(p/Pref)
+            s0 += self.R()*np.log(p/Pref)
         return self._ilookup(s0, self.data['s'])
 
     def p_s(self,s,T=None):
         """Pressure from Entropy, given temperature"""
         Pref = self.data['Pref']
         s0 = self.s(T=T,p=Pref)
-        return pyro.utility.np.exp((s0-s)/self.R())
+        return np.exp((s0-s)/self.R())
 

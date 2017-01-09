@@ -1,9 +1,10 @@
+import pyromat as pyro
 ##############################################
 ##                                          ##
 ##  Ideal Gas Curve Fit Evaluation Class    ##
 ##                                          ##
 ##############################################
-class igfit(__basedata__):
+class igfit(pyro.reg.__basedata__):
     """Ideal gas specific heat curve fit data class
 """
 
@@ -58,7 +59,7 @@ class igfit(__basedata__):
         N = T.size
 
         if N==1:
-            out = pyro.utility.np.zeros(())
+            out = np.zeros(())
 
             if T<=Tsplit:
                 for k in range(4,-1,-1):
@@ -76,7 +77,7 @@ class igfit(__basedata__):
             # number of elements
             N = T.size
             # initialize the output
-            out = pyro.utility.np.zeros(T.shape)
+            out = np.zeros(T.shape)
 
             T1 = T[I1]
             T2 = T[I2]
@@ -123,7 +124,7 @@ class igfit(__basedata__):
         N = T.size
 
         if N==1:
-            out = pyro.utility.np.zeros(())
+            out = np.zeros(())
 
             if T<Tmin or T>Tmax:
                 out = float('nan')
@@ -146,7 +147,7 @@ class igfit(__basedata__):
             # number of elements
             N = T.size
             # initialize the output
-            out = pyro.utility.np.zeros(T.shape)
+            out = np.zeros(T.shape)
 
             T1 = T[I1]
             T2 = T[I2]
@@ -204,8 +205,6 @@ class igfit(__basedata__):
         s1 = self.data['s1']
         s2 = self.data['s2']
         Pref = self.data['Pref']
-
-        np = pyro.utility.np
 
         N = T.size
 
@@ -268,4 +267,4 @@ Returns the pressure as a function of entropy and temperature.
 """
         def_p = pyro.utility.get_config('def_p')
         s0 = self.s(T=T,p=def_p)
-        return def_p * pyro.utility.np.exp((s0 - s)/self.R())
+        return def_p * np.exp((s0 - s)/self.R())
