@@ -323,50 +323,39 @@ enthalpy and pressure.
             return n,t,f,fx,fy,fxx,fxy,fyy
             
         # static configuration parameters
-        Niter = 20
         R = self.data['R']      # ideal gas constant
         dc = self.data['dc']    # critical density
         Tc = self.data['Tc']    # critical temperature
-        r3 = self.data['r3'][1:]    # poly coefficients
-        A = self.data['r3'][0][2]   # natural log coefficient
-        
-        # initialization        
-        N = 20
+        A = self.data['r3ln']   # natural log coefficient
+        maxiter = 30    # maximum permitted iterations   
+        epsilon = 1e-6  # iteration precision            
+
+        # Initialization
+        dinit = 500.    # works pretty well everywhere
+
         # nondimensionalize parameters
         pp = p * 1e2 / (dc * R * T)   # dimensionless target pressure
         t = Tc / T              # dimensionless temperature inverse
-        # create a helper funciton to calculate the pressure
-        # _pfromd() quietly updates N, pt, dpt, and enew
-        # it is also responsible for evaluating the curve fit
-        # and its derivatives in the third region
-        def _pfromd(nnew):
+        n = dinit / dc          # dimensionless density
+
+        # Start the iteration
+        for count in range(maxiter):
             # Evaluate the curve fit polynomial terms
-            f,fx,fy,fxx,fxy,fyy = self._peval(nnew,t,r3)
+            f,fx,fy,fxx,fxy,fyy = self._peval(n,t,self.data['r3'],order=2)
             # Modify the function and its derivatives to include the
             # logarithmic terms.  
-            f += A*np.log(nnew)
-            DLN = A/nnew
+            f += A*np.log(n)
+            DLN = A/n
             fx += DLN
-            fxx -= DLN/nnew
-            # Calculate the dimensionless pressure
-            pc = nnew*nnew*fx
-            # aggregate the values
-            values = (f,fx,fy,fxx,fxy,fyy)
-            return pc, values
+            fxx -= DLN/n
 
-        # use bisection to find dimensionless density
-        na = 0.10       # minimum dimensionless density
-        nb = 2.33       # maximum dimensionless density
-        # continue until we exceed the iteration limit
-        for index in range(N):
-            nc = 0.5*(na+nb)
-            pc,values = _pfromd(nc)
-            if pc>pp:
-                nb = nc
-            else:
-                na = nc
-            
-        return (nc,t) + tuple(values)
+            ptest = n*n*fx - pp
+            # Test for convergence
+            if abs(ptest)<epsilon*pp:
+                return n,t,f,fx,fy,fxx,fxy,fyy
+            dpdn = (2.*fx + n*fxx)*n
+            n -= ptest/dpdn
+
 
 
     def _th3(self,h,p,Tinit,dinit=500.):
@@ -387,8 +376,7 @@ region 3 boundary with region 1 and region 2 with pressure p.
         R = self.data['R']      # ideal gas constant
         dc = self.data['dc']    # critical density
         Tc = self.data['Tc']    # critical temperature
-        r3 = self.data['r3'][1:]    # poly coefficients
-        A = self.data['r3'][0][2]   # natural log coefficient
+        A = self.data['r3ln']   # natural log coefficient
         maxiter = 30  # maximum iterations
         epsilon = 1e-6
 
@@ -399,7 +387,7 @@ region 3 boundary with region 1 and region 2 with pressure p.
         t = Tc/Tinit        # dimensionless temperature (tau)
 
         for count in range(maxiter):
-            f,fx,fy,fxx,fxy,fyy = self._peval(n,t,r3)
+            f,fx,fy,fxx,fxy,fyy = self._peval(n,t,self.data['r3'])
             # Modify the function and its derivatives to include the
             # logarithmic terms.  
             f += A*np.log(n)
@@ -441,8 +429,7 @@ region 3 boundary with region 1 and region 2 with pressure p.
         R = self.data['R']      # ideal gas constant
         dc = self.data['dc']    # critical density
         Tc = self.data['Tc']    # critical temperature
-        r3 = self.data['r3'][1:]    # poly coefficients
-        A = self.data['r3'][0][2]   # natural log coefficient
+        A = self.data['r3ln']   # natural log coefficient
         maxiter = 30  # maximum iterations
         epsilon = 1e-6
 
@@ -453,7 +440,7 @@ region 3 boundary with region 1 and region 2 with pressure p.
         t = Tc/Tinit        # dimensionless temperature (tau)
 
         for count in range(maxiter):
-            f,fx,fy,fxx,fxy,fyy = self._peval(n,t,r3)
+            f,fx,fy,fxx,fxy,fyy = self._peval(n,t,self.data['r3'])
             # Modify the function and its derivatives to include the
             # logarithmic terms.  
             f += A*np.log(n)
@@ -569,10 +556,7 @@ failure to comply may give unpredictable results.
             if p<self._b23(T=T):
                 return 2
             else:
-                # we're in region 3.  Calculate the density using a 
-                # bisection algorithm
-                pa = pmax
-                pb = ptest
+                # we're in region 3.
                 return 3
         else:
             if p<self.ps(T):
