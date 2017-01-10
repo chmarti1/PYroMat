@@ -224,3 +224,41 @@ with open('test.log','w+') as writeto:
     reference = {'Ts': np.array([.372755919e3, .453035632e3, .584149488e3])}
     runargtest(writeto,'steam',args,reference)
 
+
+    # Inverse relations
+    writeto.write( "Steam validation values for the inverse relations\n" +
+    "   Values are borrowed from the above tests, but run in reverse.\n" )
+
+    T = []
+    p = []
+    s = []
+    h = []
+    # Values from Region 1
+    T += [300., 300., 500.]
+    p += [30., 800., 30.]
+    s += [.392294792, .368563852, 2.58041912]
+    h += [115.331273, 184.142828, 975.542239]
+    # Values from Region 2
+    T += [300., 700., 700.]
+    p += [.035, .035, 300.]
+    s += [.852238967e1, .101749996e2, .517540298e1]
+    h += [.254991145e4, .333568375e4, .263149474e4]
+    # Values from Region 3
+    T += [650., 650., 750.]
+    p += [.255837018e3, .222930643e3, .783095639e3]
+    s += [.405427273e1, .485438792e1, .446971906e1]
+    h += [.186343019e4, .237512401e4, .225868845e4]
+    # Values from Region 5
+    T += [1500., 1500., 2000.]
+    p += [5., 300., 300.]
+    s += [.965408875e1, .772970133e1, .853640623e1]
+    h += [.521976855e4, .516723514e4, .657122604e4]
+
+    reference = {'T_h':T}
+    args = {'h':h, 'p':p}
+    runargtest(writeto,'steam',args,reference)
+
+    reference = {'T_s':T}
+    args = {'s':s, 'p':p}
+    runargtest(writeto,'steam',args,reference)
+

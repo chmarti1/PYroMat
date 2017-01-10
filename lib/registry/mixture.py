@@ -1,4 +1,5 @@
 import pyromat as pyro
+import numpy as np
 ######################
 ##                  ##
 ##  Mixture class   ##

@@ -1439,7 +1439,7 @@ conditions.  Non-saturated conditions are assigned quality -1.
                         # Region 3
                         thisT = T13 + (T23-T13)*(thiss-s13)/(s23-s13)
                         thisT = self._ts3(s=thiss, p=thisp, Tinit=thisT)
-                    elif thiss<self._b2bc(p=thisp):
+                    elif thiss<s2bc:
                         # Region 2c
                         thisT = self._ts2c(s=thiss,p=thisp)
                     else:

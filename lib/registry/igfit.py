@@ -1,4 +1,5 @@
 import pyromat as pyro
+import numpy as np
 ##############################################
 ##                                          ##
 ##  Ideal Gas Curve Fit Evaluation Class    ##
