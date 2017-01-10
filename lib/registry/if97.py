@@ -359,7 +359,7 @@ enthalpy and pressure.
 
 
     def _th3(self,h,p,Tinit,dinit=500.):
-        """Temperature from enthalpy and pressure in regime 3
+        """Temperature from enthalpy and pressure in region 3
     T = _th3(h,p,Tinit,dinit)
 
 Unlike the other region evaluation functions, _th3 does NOT accept 
@@ -412,7 +412,7 @@ region 3 boundary with region 1 and region 2 with pressure p.
 
 
     def _ts3(self,s,p,Tinit,dinit=500.):
-        """Temperature from entropy and pressure in regime 3
+        """Temperature from entropy and pressure in region 3
     T = _ts3(h,p,Tinit,dinit)
 
 Unlike the other region evaluation functions, _ts3 does NOT accept 
@@ -490,6 +490,72 @@ calculate.
         return pi,t,g,gp,gt,gpp,gpt,gtt
 
 
+    def _th5(self,h,p,Tinit):
+        """Temperature from enthalpy and pressure in region 5
+    T = _th5(h,p,Tinit)
+
+Unlike the other region evaluation functions, _th5 does NOT accept 
+arrays.  It requires an initial value for temperature (Tinit).
+
+The IF-97 document does not supply inverse relationships in regime 5.  
+Instead, _th5 uses Newton iteration to match enthalpy and pressure.
+In order to know that the point lies in region 5, the controlling 
+algorithm will already need to have evaluated the enthalpy at the 
+region 5 boundary with region 2 with pressure p.
+"""
+        # Define some important constants
+        R = self.data['R']      # ideal gas constant
+        ps = 10.        # pressure scale
+        Ts = 1000.      # temperature scale
+        maxiter = 30    # maximum iterations
+        epsilon = 1e-6
+        # nondimensional terms
+        t = Ts/Tinit
+        hh = h/R/Ts
+
+        for count in range(maxiter):
+            _,_,g,gp,gt,gpp,gpt,gtt = self._g5(T=Ts/t, p=p, order=2)
+            htest = gt - hh
+            if abs(htest)<epsilon*hh:
+                return Ts/t
+            dhdt = gtt
+            t -= htest/dhdt
+        raise pyro.utility.PMAnalysisError('Steam _th5() failed to converge.')
+
+
+    def _ts5(self,s,p,Tinit):
+        """Temperature from entropy and pressure in region 5
+    T = _ts5(s,p,Tinit)
+
+Unlike the other region evaluation functions, _ts5 does NOT accept 
+arrays.  It requires an initial value for temperature (Tinit).
+
+The IF-97 document does not supply inverse relationships in regime 5.  
+Instead, _th5 uses Newton iteration to match entropy and pressure.
+In order to know that the point lies in region 5, the controlling 
+algorithm will already need to have evaluated the enthalpy at the 
+region 5 boundary with region 2 with pressure p.
+"""
+        # Define some important constants
+        R = self.data['R']      # ideal gas constant
+        ps = 10.        # pressure scale
+        Ts = 1000.      # temperature scale
+        maxiter = 30    # maximum iterations
+        epsilon = 1e-6
+        # nondimensional terms
+        t = Ts/Tinit
+        ss = s/R
+
+        for count in range(maxiter):
+            _,_,g,gp,gt,gpp,gpt,gtt = self._g5(T=Ts/t, p=p, order=2)
+            stest = t*gt - g - ss
+            if abs(stest)<epsilon*ss:
+                return Ts/t
+            dsdt = t*gtt
+            t -= stest/dsdt
+        raise pyro.utility.PMAnalysisError('Steam _ts5() failed to converge.')
+
+
     def _b23(self,T=None,p=None):
         """Calculate the 2-3 T,p boundary
     p = _b23(T=T)
@@ -506,6 +572,24 @@ equations 5 and 6 modified for pressure in bar.
             return n[3] + np.sqrt((p-n[4])/n[2])
         else:
             raise Exception('_b23 requires either T or p')
+
+
+    def _b2bc(self,h=None,p=None):
+        """Calculate the 2b-2c h,p boundary
+    h = _b2bc(p=p)
+        or
+    p = _b2bc(h=h)
+Which ever is supplied (h or p), _b2bc supplies the other.  Uses the B2bc
+equations 20 and 21 modified for pressure in bar.
+"""
+        if h is not None:
+            n = self.data['b2bc']
+            return (n[2]*h + n[1])*h + n[0]
+        elif p is not None:
+            n = self.data['b2bc']
+            return n[3] + np.sqrt((p-n[4])/n[2])
+        else:
+            raise Exception('_b2bc requires either h or p')
 
 
     def _region(self,T,p,root=True):
@@ -836,17 +920,6 @@ functions to return their values for temperature and pressure, set the
             return (T,p,sL,sV)
         return sL,sV        
         
-# To do...
-# Saturation properties:
-# hs()
-# es()
-# ds()
-# ss()
-# cps()
-# cvs()
-# General use functions:
-# psolve() <--- this one will take some care
-
 
 
     def hsd(self, T=None, p=None, x=None):
@@ -1163,3 +1236,238 @@ properties are needed.
         
 
 
+
+    def T_h(self,h,p=None,quality=False):
+        """Temperature calculated from enthalpy
+    T = T_h(h)
+        or
+    T = T_h(h,p)
+        or
+    T,x = T_h(h,p=None,quality=False)
+
+Calculates temperature from the enthalpy and pressure.
+
+When quality is set to True, T_h also returns the quality of saturated 
+conditions.  Non-saturated conditions are assigned quality -1.
+"""
+        h,p,T = self._vectorize(h,p,out_init=True,allow_scalar=False,def_T=-1.)
+        N = h.size
+        x = np.zeros(T.shape)
+        # First, figure out what region we're in.  We need to use a custom 
+        # region-finding routine since we're in h,p coordinates and not T,p
+        # Comments describe the process relative to the inverse region diagram 
+        # in the IF-97 report on page 21 (Figure 2)
+        T13 = 623.15    # vertical boundary between regions 2 and 3
+        p2ab = 40.      # horizontal boundary between regions 2a and 2b
+        p3 = 165.292    # The bottom of region 3
+        pmax = 1000.    # The top of the IF-97 region
+        p5max = 500.       # The top of region 5
+        T25 = 1073.15    # Left edge of region 5
+        T5max = 2273.15    # Right edge of region 5
+
+        for index in range(N):
+            thish = h[index]
+            thisp = p[index]
+            thisT = -1.
+            thisx = -1.
+            if thisp < p3:
+                Ts,_,hL,hV = self.hs(p=thisp,tp=True)
+                if thish<hL:
+                    # Region 1
+                    thisT = self._th1(h=thish,p=thisp)
+                elif thish<hV:
+                    # Saturation
+                    thisT = Ts
+                    thisx = (thish-hL)/(hV-hL)
+                elif thisp<p2ab:
+                    h25 = self.h(T=T25,p=thisp)
+                    if thish<h25:
+                        # Region 2a
+                        thisT = self._th2a(h=thish,p=thisp)
+                    else:
+                        # Region 5
+                        h5 = self.h(T=T5max,p=thisp)
+                        if thish>h5:
+                            raise pyro.utility.PMParamError(
+                            'Steam T_h(): the state is not in the IF-97 domain.')
+                        thisT = T25 + (T5max-T25)*(thish-h25)/(h5-h25)
+                        thisT = self._th5(h=thish, p=thisp, Tinit=thisT)
+                elif thish<self._b2bc(p=thisp):
+                    # Region 2c
+                    thisT = self._th2c(h=thish, p=thisp)
+                else:
+                    h25 = self.h(T=T25,p=thisp)
+                    if thish<h25:
+                        # Region 2b
+                        thisT = self._th2b(h=thish, p=thisp)
+                    else:
+                        # Region 5
+                        h5 = self.h(T=T5max,p=thisp)
+                        if thish>h5:
+                            raise pyro.utility.PMParamError(
+                            'Steam T_h(): the state is not in the IF-97 domain.')
+                        thisT = T25 + (T5max-T25)*(thish-h25)/(h5-h25)
+                        thisT = self._th5(h=thish, p=thisp, Tinit=thisT)
+            elif thisp < pmax:
+                h13 = self.h(T=T13, p=thisp)
+                if thish<h13:
+                    # Region 1
+                    thisT = self._th1(h=thish,p=thisp)
+                else:
+                    T23 = self._b23(p=thisp)
+                    h23 = self.h(T=T23,p=thisp)
+                    if thish<h23:
+                        # Region 3
+                        thisT = T13 + (T23-T13)*(thish-h13)/(h23-h13)
+                        thisT = self._th3(h=thish, p=thisp, Tinit=thisT)
+                    elif thish<self._b2bc(p=thisp):
+                        # Region 2c
+                        thisT = self._th2c(h=thish,p=thisp)
+                    else:
+                        h25 = self.h(T=T25,p=thisp)
+                        if thish<h25:
+                            # Region 2b
+                            thisT = self._th2b(h=thish,p=thisp)
+                        elif thisp<p5max:
+                            # Region 5
+                            h5 = self.h(T=T5max,p=thisp)
+                            if thish>h5:
+                                raise pyro.utility.PMParamError(
+                                'Steam T_h(): the state is not in the IF-97 ' +
+                                'domain.')
+                            thisT = T25 + (T5max-T25)*(thish-h25)/(h5-h25)
+                            thisT = self._th5(h=thish, p=thisp, Tinit=thisT)
+                        else:
+                            raise pyro.utility.PMParamError(
+                            'Steam T_h(): the state is not in the IF-97 domain.')
+            else:
+                raise pyro.utility.PMParamError(
+                'Steam T_h(): pressure is above the IF-97 maximum (1000bar)')
+  
+            T[index] = thisT
+            x[index] = thisx
+        if T.size==1:
+            T = np.float(T)
+            x = np.float(x)
+        if quality:
+            return T,x
+        return T
+
+
+
+    def T_s(self,s,p=None,quality=False):
+        """Temperature calculated from entropy
+    T = T_s(h)
+        or
+    T = T_s(h,p)
+        or
+    T,x = T_s(s,p=None,quality=False)
+
+Calculates temperature from the entropy and pressure.
+
+When quality is set to True, T_s also returns the quality of saturated 
+conditions.  Non-saturated conditions are assigned quality -1.
+"""
+        s,p,T = self._vectorize(s,p,out_init=True,allow_scalar=False,def_T=-1.)
+        N = s.size
+        x = np.zeros(T.shape)
+        # First, figure out what region we're in.  We need to use a custom 
+        # region-finding routine since we're in s,p coordinates and not T,p
+        # Comments describe the process relative to the inverse region diagram 
+        # in the IF-97 report on page 21 (Figure 2)
+        T13 = 623.15    # vertical boundary between regions 2 and 3
+        p2ab = 40.      # horizontal boundary between regions 2a and 2b
+        s2bc = 5.85     # entropy boundary between regions 2b and 2c
+        p3 = 165.292    # The bottom of region 3
+        pmax = 1000.    # The top of the IF-97 region
+        p5max = 500.       # The top of region 5
+        T25 = 1073.15    # Left edge of region 5
+        T5max = 2273.15    # Right edge of region 5
+
+        for index in range(N):
+            thiss = s[index]
+            thisp = p[index]
+            thisT = -1.
+            thisx = -1.
+            if thisp < p3:
+                Ts,_,sL,sV = self.ss(p=thisp,tp=True)
+                if thiss<sL:
+                    # Region 1
+                    thisT = self._ts1(s=thiss,p=thisp)
+                elif thiss<sV:
+                    # Saturation
+                    thisT = Ts
+                    thisx = (thiss-sL)/(sV-sL)
+                elif thisp<p2ab:
+                    s25 = self.s(T=T25,p=thisp)
+                    if thiss<s25:
+                        # Region 2a
+                        thisT = self._ts2a(s=thiss,p=thisp)
+                    else:
+                        # Region 5
+                        s5 = self.s(T=T5max,p=thisp)
+                        if thiss>s5:
+                            raise pyro.utility.PMParamError(
+                            'Steam T_h(): the state is not in the IF-97 domain.')
+                        thisT = T25 + (T5max-T25)*(thiss-s25)/(s5-s25)
+                        thisT = self._ts5(s=thiss, p=thisp, Tinit=thisT)
+                elif thiss<s2bc:
+                    # Region 2c
+                    thisT = self._ts2c(s=thiss, p=thisp)
+                else:
+                    s25 = self.s(T=T25,p=thisp)
+                    if thiss<s25:
+                        # Region 2b
+                        thisT = self._ts2b(s=thiss, p=thisp)
+                    else:
+                        # Region 5
+                        s5 = self.s(T=T5max,p=thisp)
+                        if thiss>s5:
+                            raise pyro.utility.PMParamError(
+                            'Steam T_h(): the state is not in the IF-97 domain.')
+                        thisT = T25 + (T5max-T25)*(thiss-s25)/(s5-s25)
+                        thisT = self._ts5(s=thiss, p=thisp, Tinit=thisT)
+            elif thisp < pmax:
+                s13 = self.s(T=T13, p=thisp)
+                if thiss<s13:
+                    # Region 1
+                    thisT = self._ts1(s=thiss,p=thisp)
+                else:
+                    T23 = self._b23(p=thisp)
+                    s23 = self.s(T=T23,p=thisp)
+                    if thiss<s23:
+                        # Region 3
+                        thisT = T13 + (T23-T13)*(thiss-s13)/(s23-s13)
+                        thisT = self._ts3(s=thiss, p=thisp, Tinit=thisT)
+                    elif thiss<self._b2bc(p=thisp):
+                        # Region 2c
+                        thisT = self._ts2c(s=thiss,p=thisp)
+                    else:
+                        s25 = self.s(T=T25,p=thisp)
+                        if thiss<s25:
+                            # Region 2b
+                            thisT = self._ts2b(s=thiss,p=thisp)
+                        elif thisp<p5max:
+                            # Region 5
+                            s5 = self.s(T=T5max,p=thisp)
+                            if thiss>s5:
+                                raise pyro.utility.PMParamError(
+                                'Steam T_h(): the state is not in the IF-97 ' +
+                                'domain.')
+                            thisT = T25 + (T5max-T25)*(thiss-s25)/(s5-s25)
+                            thisT = self._ts5(s=thiss, p=thisp, Tinit=thisT)
+                        else:
+                            raise pyro.utility.PMParamError(
+                            'Steam T_h(): the state is not in the IF-97 domain.')
+            else:
+                raise pyro.utility.PMParamError(
+                'Steam T_h(): pressure is above the IF-97 maximum (1000bar)')
+  
+            T[index] = thisT
+            x[index] = thisx
+        if T.size==1:
+            T = np.float(T)
+            x = np.float(x)
+        if quality:
+            return T,x
+        return T
