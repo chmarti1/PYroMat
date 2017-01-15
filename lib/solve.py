@@ -93,7 +93,7 @@ when iterating.  They will still be passed, but without iteration.
         self.index=-1
         return self
 
-    def next(self):
+    def __next__(self):
         self.index+=1
         if self.index>=self.N:
             raise StopIteration
@@ -103,7 +103,9 @@ when iterating.  They will still be passed, but without iteration.
             return self.y[self.index], self.copy
         else:
             return self.y, self.copy
-        
+
+    next = __next__
+
 
 class _proto_solver_(object):
     """The prototype solver class
