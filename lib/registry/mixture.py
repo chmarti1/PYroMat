@@ -18,6 +18,20 @@ class mixture(pyro.reg.__basedata__):
 
 
 
+    def __init__(self,*arg,**kwarg):
+        # Call the basedata class
+        super(mixture,self).__init__(*arg,**kwarg)
+        
+        # Define inverstion routines
+        self.T_h = pyro.solve.solve1n('T',
+            f=self.h, df=self.cp, param_init=1000.)
+
+        def ds(T,p=None):
+            return self.cp(T,p)/T 
+
+        self.T_s = pyro.solve.solve1n('T',
+            f=self.s, df=ds, param_init=1000.)
+
 
     #
     # Class-specific tests at init

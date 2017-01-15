@@ -15,13 +15,8 @@ import numpy as np
 import time
 
 
-# Global parameter... what error is acceptable .001 = .1%
-error_threshold = .001
 
-
-
-
-def runargtest(outfile, species, args, reference):
+def runargtest(outfile, species, args, reference, error_threshold = .001):
     """Test properties for a species object given flexible arguments
     runargtest(outfile, species, args, reference)
 
@@ -29,7 +24,7 @@ outfile
     An open writable file to which to stream the results summary text.
 
 species
-    The string id of the species to load and test
+    The pyromat object to test or the string id of the object to get
 
 args
     A dictionary containing keyword arguments to pass to the methods identified
@@ -40,7 +35,12 @@ reference
 to the species.  The corresponding value to each key are the expected results
 from the Tp test.  Examples are in test.py.
 """
-    test = pyro.get(species)
+    if isinstance(species,str):
+        test = pyro.get(species)
+    elif issubclass(type(species),pyro.reg.__basedata__):
+        test = species
+    else:
+        raise Exception("Species needs to be a PYroMat ID string or a PYroMat object\n")
     sys.stdout.write("Testing " + str(test) + "..")
     outfile.write("Validation of {:s}\n".format(str(test)))
     outfile.write("  Error failure threshold {:%}\n".format(error_threshold))
@@ -138,6 +138,31 @@ with open('test.log','w+') as writeto:
     writeto.write("Diatomic iodine tabulated reference values found\n" + 
     "http://kinetics.nist.gov/janaf/html/I-027.html\n")
     runargtest(writeto,'I2',args,reference)
+
+    # Test the mixture class
+    T = [320., 1000., 1000.]
+    p = [1., 1., 5.]
+    h = [446.5, 1173., 1173.]
+    s = [3.956, 5.158, 4.696]
+    cp = [1.007, 1.141, 1.142]
+    writeto.write("Air properties were referenced against the CRC Handbook for"+
+        " Chemistry and\nPhysics 97th Edition ``Thermophysical Properties of" +
+        " Air''\nby Eric W. Lemon.\n"+
+        "Enthalpy and Entropy values were adjusted to match a 1 bar and 300K.\n")
+    air = pyro.get('air')
+    h = air.h(T=T[0],p=1.) - h[0] + np.array(h)
+    s = air.s(T=T[0],p=1.) - s[0] + np.array(s)
+    reference = {'cp':cp, 's':s, 'h':h}
+    args = {'T':T, 'p':p}
+    runargtest(writeto,air,args,reference, error_threshold=.005)
+
+    # Now the inverse
+    args = {'h':h, 'p':p}
+    reference = {'T_h':T}
+    runargtest(writeto,air,args,reference)
+    args = {'s':s, 'p':p}
+    reference = {'T_s':T}
+    runargtest(writeto,air,args,reference)
 
 
     # STEAM
