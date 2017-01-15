@@ -5,7 +5,7 @@
 #   Enjoy!
 #
 
-import pyro
+import pyromat as pyro
 import numpy as np
 import matplotlib.pyplot as plt
 

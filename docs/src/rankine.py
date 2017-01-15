@@ -1,4 +1,4 @@
-import pyro
+import pyromat as pyro
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -56,7 +56,7 @@ d1,d5 = steam.ds(p=p1,T=T1)
 # It is common to assume that T1=T2 since liquid is very close 
 # to incompressible.  To compare results, remove the comment 
 # from the second line below.
-T2,p2 = steam.psolve(p=p2,s=s1)
+T2 = steam.T_s(p=p2,s=s1)
 #T2 = T1
 h2,s2,d2 = steam.hsd(T=T2,p=p2)
 
@@ -72,7 +72,8 @@ d2s,d3 = steam.ds(T=T3,p=p3)
 
 # The turbine is an isentropic expansion to the low pressure
 # The superheater will end with the same entropy as s5
-T4,p4 = steam.psolve(s=s5,p=p2)
+p4 = p3
+T4 = steam.T_s(s=s5,p=p4)
 h4,s4,d4 = steam.hsd(T=T4,p=p4)
 # State (5) is already determined
 

@@ -5,7 +5,7 @@
 #   Enjoy!
 #
 
-import pyro
+import pyromat as pyro
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
@@ -36,7 +36,7 @@ eL,eV = S.es(T=Ts,p=ps)
 # can be difficult to provide accurately.
 
 # Now, crank out some surface plots
-T,p = meshgrid(Ts,ps)
+T,p = np.meshgrid(Ts,ps)
 NN = T.shape
 # Reshape T and p to be 1D vectors
 # As of v1.2, the steam class chokes on higher dimensional vectors
