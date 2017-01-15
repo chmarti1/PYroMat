@@ -326,35 +326,46 @@ enthalpy and pressure.
         R = self.data['R']      # ideal gas constant
         dc = self.data['dc']    # critical density
         Tc = self.data['Tc']    # critical temperature
+        r3 = self.data['r3']
         A = self.data['r3ln']   # natural log coefficient
-        maxiter = 30    # maximum permitted iterations   
-        epsilon = 1e-6  # iteration precision            
-
-        # Initialization
-        dinit = 500.    # works pretty well everywhere
-
+        
+        # initialization        
+        N = 14
         # nondimensionalize parameters
         pp = p * 1e2 / (dc * R * T)   # dimensionless target pressure
         t = Tc / T              # dimensionless temperature inverse
-        n = dinit / dc          # dimensionless density
-
-        # Start the iteration
-        for count in range(maxiter):
+        # create a helper funciton to calculate the pressure
+        # _pfromd() quietly updates N, pt, dpt, and enew
+        # it is also responsible for evaluating the curve fit
+        # and its derivatives in the third region
+        def _pfromd(nnew):
             # Evaluate the curve fit polynomial terms
-            f,fx,fy,fxx,fxy,fyy = self._peval(n,t,self.data['r3'],order=2)
+            f,fx,fy,fxx,fxy,fyy = self._peval(nnew,t,r3)
             # Modify the function and its derivatives to include the
             # logarithmic terms.  
-            f += A*np.log(n)
-            DLN = A/n
+            f += A*np.log(nnew)
+            DLN = A/nnew
             fx += DLN
-            fxx -= DLN/n
+            fxx -= DLN/nnew
+            # Calculate the dimensionless pressure
+            pc = nnew*nnew*fx
+            # aggregate the values
+            values = (f,fx,fy,fxx,fxy,fyy)
+            return pc, values
 
-            ptest = n*n*fx - pp
-            # Test for convergence
-            if abs(ptest)<epsilon*pp:
-                return n,t,f,fx,fy,fxx,fxy,fyy
-            dpdn = (2.*fx + n*fxx)*n
-            n -= ptest/dpdn
+        # use bisection to find dimensionless density
+        na = 0.10       # minimum dimensionless density
+        nb = 2.33       # maximum dimensionless density
+        # continue until we exceed the iteration limit
+        for index in range(N):
+            nc = 0.5*(na+nb)
+            pc,values = _pfromd(nc)
+            if pc>pp:
+                nb = nc
+            else:
+                na = nc
+            
+        return (nc,t) + tuple(values)
 
 
 
