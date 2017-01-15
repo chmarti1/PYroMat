@@ -101,7 +101,7 @@ cluttering out more commonly used functions.
 # utility.load_config() checks this value to establish the read-only version
 # setup.py looks for this line to establish the version at install
 # MUST be unindented
-__version__ = "1.4"
+__version__ = "1.4.1"
 
 
 # loading the PYroMat utility functions
