@@ -46,7 +46,7 @@ The result is a system that is easy to use from the command line, but
 with the performance needed for advanced modeling.""",
     author="Chris Martin",
     author_email="crm28@psu.edu",
-    url="https://chmarti1.github.io/PYroMat/",
+    url="https://pythonhosted.org/PYroMat/",
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Education',

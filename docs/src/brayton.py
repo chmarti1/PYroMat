@@ -29,7 +29,8 @@ pr = 12.
 #(2) Nothing about the compressor outlet is explicitly prescribed by design.
 # We'll have to calculate our way here.
 s1 = air.s(T1,p1)   # what was the entropy at (1)?
-T2,p2 = air.psolve(s=s1,p=p1*pr)    # find T2,p2 for s=s1 and p=p1*pr
+p2 = p1*pr
+T2 = air.T_s(s=s1,p=p2)    # find T2 for s=s1 and p=p1*pr
 # How much work did that require?
 wc = air.h(T2,p2) - air.h(T1,p1)
 
@@ -46,7 +47,9 @@ qh = air.h(T3,p3) - air.h(T2,p2)
 # The turbine outlet (4) is ambient pressure again, but its temperature
 # will be based on the turbine performance.
 s3 = air.s(T3,p3)
-T4,p4 = air.psolve(s=s3,p=p1)
+s4 = s3 # Isentropic expansion to p1
+p4 = p1
+T4 = air.T_s(s=s4,p=p4)
 # How much work did we get?
 wt = air.h(T3,p3) - air.h(T4,p4)
 # How much is left after we keep the compressor running?

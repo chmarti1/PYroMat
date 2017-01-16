@@ -7,3 +7,5 @@
 # Ignore the build directory
 build
 build/*
+dist
+dist/*
