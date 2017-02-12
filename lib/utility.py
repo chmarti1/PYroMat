@@ -92,7 +92,7 @@ Checks for unrecognized parameters and illegal values.
 
         temp_config = {}
         with open(filename,'r') as ff:
-            exec(compile(ff.read(),filename,'exec'),globals(),temp_config)
+            exec(compile(ff.read(),filename,'exec'),{},temp_config)
         # In Python 2.7, this used to work
         # Use exec() for 3.4 compatibility
         # execfile(filename,globals(),temp_config)

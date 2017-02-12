@@ -22,7 +22,7 @@
 #
 # The line "myparam = 'value'" in a config file will result in
 # >>> import pyromat as pyro
-# >>> pyro.config{'myparam'}
+# >>> pyro.config['myparam']
 # ['initial_value', 'value']
 #
 # where "initial_value" indicates the hard-coded default given to the 
@@ -32,7 +32,7 @@
 # the configuration parameters.  Thanks to the get_config() function, a
 # well-intentioned user who does this:
 #
-# >>> pyro.config{'myparam'} = 'value'
+# >>> pyro.config['myparam'] = 'value'
 #
 # will not cause any problems.  If load_config() is called again, this
 # parameter will now be treated as read-only, and config files will not 
@@ -54,7 +54,7 @@
 #
 #> config_file = '~/.pyromat/config.py'
 #
-#   buy you can always get explicit
+#   but you can always get explicit
 #
 #> config_file = ['/path/to/config1', '/path/to/config2']
 
@@ -94,7 +94,7 @@ dat_recursive = True
 
 #** Registry behavior **
 # By default, the registry will consist of class definitions found in 
-# "install_dir/reg".  However, users may want to define their own data
+# "install_dir/registry".  However, users may want to define their own data
 # classes from their own registry directories.  It is not possible to 
 # overwrite previous entries - you can only add additional registry
 # directories.
