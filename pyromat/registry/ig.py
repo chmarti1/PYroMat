@@ -11,7 +11,8 @@ class ig(pyro.reg.__basedata__):
 
         # Important constants
         self._pref_bar = 1.0
-        self._Ru = 8314.
+        self._R = None
+        self._mw = None
 
 #        # Define inverstion routines
 #        self.T_h = pyro.solve.solve1n('T',
@@ -88,6 +89,8 @@ Both arguments are optional, and will default to 'def_T' and 'def_p'
 configuration parameters if they are left undefined.  Ideal gas enthalpy
 is not actually a function of p, but it is permitted as an argument 
 for cross-compatibility between species' function calls.
+
+Returns unit_energy / unit_matter
 """
         # Check for default values
         if T is None:
@@ -124,6 +127,8 @@ for cross-compatibility between species' function calls.
     s(T,p)
 Both arguments are optional, and will default to 'def_T' and 'def_p'
 configuration parameters if they are left undefined. 
+
+Returns unit_energy / unit_matter / unit_temperature
 """
         # Check for default values
         if T is None:
@@ -165,24 +170,53 @@ configuration parameters if they are left undefined.
         return out
 
     def e(self,T=None,p=None):
-        """Internal Energy
+        """Energy
     e(T,p)
 Both arguments are optional, and will default to 'def_T' and 'def_p'
-configuration parameters if they are left undefined.  Ideal gas internal
-energy is not actually a function of p, but it is permitted as an argument 
+configuration parameters if they are left undefined.  Ideal gas enthalpy
+is not actually a function of p, but it is permitted as an argument 
 for cross-compatibility between species' function calls.
+
+Returns unit_energy / unit_matter
 """
+        # Check for default values
         if T is None:
             T = pyro.utility.get_config('def_T')
-        elif hasattr(T,'__iter__') and not isinstance(T,np.ndarray):
-            T = np.array(T)
-        return self.h(T,p) - T * self._Ru / self.data['mw'] / 1e3
+        # Don't bother checking for the p default value
+        # It's value isn't used in the calculation, and None will 
+        # still be broadcast correclty as a scalar.
+
+        # Perform temperature conversion
+        T = pyro.units.temperature_scale(T,to_units='K')
+
+        # Calculate a scaling factor for the output
+        scale = pyro.units.energy(from_units='kJ')
+        scale = pyro.units.matter(scale,self.data['mw'],from_units='mol',exponent=-1)
+
+        # Initialize the result based on T
+        # Since p doesn't play a role, the result can just be broadcast
+        # to match p's dimensions at the end
+        out = np.zeros_like(T)
+        # Create an iterator over T and out
+        it = np.nditer((T,out),op_flags=[['readonly'],['readwrite']])
+
+        for TT,oo in it:
+            C = self.data['C'][self._crange(TT)]
+            t = TT/1000.
+            oo[...] = C[5] + t*(C[0] + t*(C[1]/2. + t*(C[2]/3. + t*C[3]/4.)))
+            oo[...] -= C[4]/t
+            oo[...] -= pyro.units.const_Ru * 1e-3 * TT  # Convert h to e
+            oo[...] *= scale        #        ^  1e-3 from kJ->J
+        # Broadcast the result to match the dims of p
+        return np.broadcast_to(out, np.broadcast(T,p).shape)
 
     def d(self,T=None,p=None):
         """Density
     d(T,p)
 Both arguments are optional, and will default to 'def_T' and 'def_p'
 configuration parameters if they are left undefined.
+
+Returns unit_matter / unit_volume
 """
         # Check for default values
         if T is None:
@@ -194,7 +228,13 @@ configuration parameters if they are left undefined.
         elif hasattr(p,'__iter__') and not isinstance(p,np.ndarray):
             p = np.array(p)
         
-        return p * 1e5 * self.data['mw'] / self._Ru / T
+        p = pyro.units.pressure(p, to_units='Pa')
+        T = pyro.units.temperature_scale(T, to_units='K')
+        scale = pyro.units.volume(from_units='m3', exponent=-1)
+        scale = pyro.units.matter(scale, self.data['mw'], from_units='mol')
+
+        return scale * p / pyro.units.const_Ru / T
+
 
     def cv(self,T=None,p=None):
         """Constant-volume specific heat
@@ -204,30 +244,36 @@ configuration parameters if they are left undefined.  Ideal gas specific
 heat is not actually a function of p, but it is permitted as an argument 
 for cross-compatibility between species' function calls.
 """
-        return self.cp(T,p) - self._Ru / self.data['mw']/1e3
+        return self.cp(T,p) - self.R()
 
     def mw(self,T=None,p=None):
         """Molecular weight
     mw(T,p)
 Accepts temperature and pressure to conform with the property method 
-prototype.  Returns a broadcasted array that conforms to the shape of
-T and p.  This leverages Numpy's references for efficiency; only one
-scalar value is returned, but the wrapper class makes it appear like
-an array of any size.
+prototype, but ignores their values.  This method returns a scalar value
+in all cases.
+
+Returns unit_mass/unit_molar
 """
-        return np.broadcast_to(self.data['mw'], np.broadcast(T,p).shape)
+        if self._mw is None:
+            self._mw = pyro.units.mass(self.data['mw'],from_units='g')
+            self._mw = pyro.units.molar(self._mw,from_units='mol',exponent=-1)
+        return self._mw
 
     def R(self,T=None,p=None):
         """Ideal gas constant
     R(T,p)
 Accepts temperature and pressure to conform with the property method 
-prototype.  Returns a broadcasted array that conforms to the shape of
-T and p.  This leverages Numpy's references for efficiency; only one
-scalar value is returned, but the wrapper class makes it appear like
-an array of any size.
-"""
-        return self._Ru / self.mw(T,p)
+prototype, but ignores their values.  This method returns a scalar value
+in all cases.
 
+Returns unit_energy/unit_temperature/unit_matter
+"""
+        if self._R is None:
+            self._R = pyro.units.energy(pyro.units.const_Ru, from_units='J')
+            self._R = pyro.units.temperature(self._R, from_units='K', exponent=-1)
+            self._R = pyro.units.matter(self._R, self.data['mw'], from_units='mol', exponent=-1)
+        return self._R
 
     def k(self,T=None,p=None):
         """Specific heat ratio
@@ -238,4 +284,4 @@ heat ratio is not actually a function of p, but it is permitted as an
 argument for cross-compatibility between species' function calls.
 """
         cp = self.cp(T,p)
-        return cp/(cp-self._Ru/self.data['mw']/1e3)
+        return cp/(cp-self.R())
