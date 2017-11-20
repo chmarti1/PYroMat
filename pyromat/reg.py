@@ -90,18 +90,17 @@ based averages like the extensive properties.
 """
 
 
-    mandatory = ['id','class','doc']
+    mandatory = []
 
 
     def __init__(self,data):
         """Generic initializer for the base Pyro data class
   >>> bhd = pyro.utility.basePyrodata( data)
 """
-        self.data = data.copy()
-        self.__doc__ = self.data['doc']
+        #self.data = data.copy()
+        self.data = data
         self.__basetest__()
-        self.__test__()
-        
+        self.__doc__ = self.data['doc']
         
         
         
@@ -123,33 +122,26 @@ documentation for more details.
 """
 
         raise_error = False
-    
-        # Check that the mandatory list contains the essential Pyro entries
-        if not 'id' in self.mandatory:
-            self.mandatory.append('id')
-            pyro.utility.print_warning(
-'The ' + repr(self.__class__) + ' mandatory attribute list did not contain the ''id'' tag, so it was added durring test.  This is a requirement of all Pyro objects.  See the __basedata__ class documentation for more information.')
-        if not 'class' in self.mandatory:
-            self.mandatory.append('class')
-            pyro.utility.print_warning(
-'The ' + repr(self.__class__) + ' mandatory attribute list did not contain the ''id'' tag, so it was added durring test.  This is a requirement of all Pyro objects.  See the __basedata__ class documentation for more information.')
+        pyro_mandatory = ['id','class','doc','fromfile']
 
         # Make sure all the mandatory entries are present.
-        out = 'The ' + repr(self.__class__) + ' data does not contain the following mandatory entries: ' 
-        contents_error = False
+        missing = ''
+        for mh in pyro_mandatory:
+            if not mh in self.data:
+                missing += mh + ' '
+
         for mh in self.mandatory:
             if not mh in self.data:
-                out += mh + ', '
-                contents_error=True
-        if contents_error:
-            raise_error=True
-            out = out[:-2] + '. The data file may be corrupt.'
-            pyro.utility.print_error(out)
+                missing += mh + ' '
         
-        out = 'The ' + repr(self.__class__) + ' data structure does not contain the mandatory methods for Pyro compatibility.  The class is missing the following methods: '
-        if raise_error:
+        if missing:
+            message = \
+'Mandatory entries are missing from a ' + repr(self.__class__) + ' file: '
+            if 'fromfile' in self.data:
+                message += self.data['fromfile']
+            pyro.utility.print_error(message)
+            pyro.utility.print_error(missing)
             raise pyro.utility.PyroDataError()
-
 
 
     def _vectorize(self,T,p,out_init=False,allow_scalar=True,def_T=None,def_p=None):
@@ -245,19 +237,6 @@ developers may want to add an output initialization.
             return (T,p,pyro.utility.np.zeros(N))
         return (T,p)
 
-
-
-
-    def __test__(self):
-        """Perform class-specific data checks
-The last step of the __init__() function for the base class
-is to execute the __test__ function, so every class needs one.
-By default, it is empty, but it is intended to be redefined in
-each class to make specific checks on data types and formats.
-Basically, this is the bit of code that ensures that each data
-element can be evaluated by the class methods.
-"""
-        pass
 
 
 

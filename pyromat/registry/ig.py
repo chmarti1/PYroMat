@@ -53,7 +53,7 @@ for cross-compatibility between species' function calls.
 """
         # Check for default values
         if T is None:
-            T = pyro.utility.get_config('def_T')
+            T = pyro.config['def_T']
         # Don't bother checking for the p default value
         # It's value isn't used in the calculation, and None will 
         # still be broadcast correclty as a scalar.
@@ -94,7 +94,7 @@ Returns unit_energy / unit_matter
 """
         # Check for default values
         if T is None:
-            T = pyro.utility.get_config('def_T')
+            T = pyro.config['def_T']
         # Don't bother checking for the p default value
         # It's value isn't used in the calculation, and None will 
         # still be broadcast correclty as a scalar.
@@ -132,9 +132,9 @@ Returns unit_energy / unit_matter / unit_temperature
 """
         # Check for default values
         if T is None:
-            T = pyro.utility.get_config('def_T')
+            T = pyro.config['def_T']
         if p is None:
-            p = pyro.utility.get_config('def_p')
+            p = pyro.config['def_p']
         # Don't bother checking for the p default value
         # It's value isn't used in the calculation, and None will 
         # still be broadcast correclty as a scalar.
@@ -153,8 +153,6 @@ Returns unit_energy / unit_matter / unit_temperature
         # Since p doesn't play a role, the result can just be broadcast
         # to match p's dimensions at the end
         out = np.zeros(np.broadcast(T,p).shape)
-        # Calculate the gas constant
-        R = self._Ru / self.data['mw']
         # Create an iterator over T, p, and out
         it = np.nditer((T,p,out),op_flags=[['readonly'],['readonly'],['readwrite']])
 
@@ -164,7 +162,7 @@ Returns unit_energy / unit_matter / unit_temperature
             oo[...] = C[6] + C[0]*np.log(t)
             oo[...] += t*(C[1] + t*(C[2]/2. + t*C[3]/3.))
             oo[...] -= C[4]/t/t/2.
-            oo[...] -= R * np.log(pp/self._pref_bar)
+            oo[...] -= self.R() * np.log(pp/self._pref_bar)
             oo[...] *= scale
         # Broadcast the result to match the dims of p
         return out
@@ -181,7 +179,7 @@ Returns unit_energy / unit_matter
 """
         # Check for default values
         if T is None:
-            T = pyro.utility.get_config('def_T')
+            T = pyro.config['def_T']
         # Don't bother checking for the p default value
         # It's value isn't used in the calculation, and None will 
         # still be broadcast correclty as a scalar.
@@ -205,10 +203,11 @@ Returns unit_energy / unit_matter
             t = TT/1000.
             oo[...] = C[5] + t*(C[0] + t*(C[1]/2. + t*(C[2]/3. + t*C[3]/4.)))
             oo[...] -= C[4]/t
-            oo[...] -= pyro.units.const_Ru * 1e-3 * TT  # Convert h to e
-            oo[...] *= scale        #        ^  1e-3 from kJ->J
+            oo[...] -= TT * pyro.units.const_Ru
+            oo[...] *= scale
         # Broadcast the result to match the dims of p
         return np.broadcast_to(out, np.broadcast(T,p).shape)
+
 
     def d(self,T=None,p=None):
         """Density
@@ -220,20 +219,19 @@ Returns unit_matter / unit_volume
 """
         # Check for default values
         if T is None:
-            T = pyro.utility.get_config('def_T')
+            T = pyro.config['def_T']
         elif hasattr(T,'__iter__') and not isinstance(T,np.ndarray):
             T = np.array(T)
         if p is None:
-            p = pyro.utility.get_config('def_p')
+            p = pyro.config['def_p']
         elif hasattr(p,'__iter__') and not isinstance(p,np.ndarray):
             p = np.array(p)
         
         p = pyro.units.pressure(p, to_units='Pa')
         T = pyro.units.temperature_scale(T, to_units='K')
-        scale = pyro.units.volume(from_units='m3', exponent=-1)
-        scale = pyro.units.matter(scale, self.data['mw'], from_units='mol')
+        R = pyro.units.matter(pyro.units.const_Ru, self.data['mw'], from_units='mol', exponent=-1)
 
-        return scale * p / pyro.units.const_Ru / T
+        return p / R / T
 
 
     def cv(self,T=None,p=None):
@@ -255,10 +253,9 @@ in all cases.
 
 Returns unit_mass/unit_molar
 """
-        if self._mw is None:
-            self._mw = pyro.units.mass(self.data['mw'],from_units='g')
-            self._mw = pyro.units.molar(self._mw,from_units='mol',exponent=-1)
-        return self._mw
+        mw = pyro.units.mass(self.data['mw'],from_units='g')
+        mw = pyro.units.molar(mw,from_units='mol',exponent=-1)
+        return mw
 
     def R(self,T=None,p=None):
         """Ideal gas constant
@@ -269,11 +266,10 @@ in all cases.
 
 Returns unit_energy/unit_temperature/unit_matter
 """
-        if self._R is None:
-            self._R = pyro.units.energy(pyro.units.const_Ru, from_units='J')
-            self._R = pyro.units.temperature(self._R, from_units='K', exponent=-1)
-            self._R = pyro.units.matter(self._R, self.data['mw'], from_units='mol', exponent=-1)
-        return self._R
+        R = pyro.units.energy(pyro.units.const_Ru, from_units='J')
+        R = pyro.units.temperature(R, from_units='K', exponent=-1)
+        R = pyro.units.matter(R, self.data['mw'], from_units='mol', exponent=-1)
+        return R
 
     def k(self,T=None,p=None):
         """Specific heat ratio

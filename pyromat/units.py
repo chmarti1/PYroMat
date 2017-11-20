@@ -39,8 +39,6 @@ import pyromat as pyro
 import sys
 
 
-    
-
 class Conversion:
     """CONVERSION CLASS
 The unit conversion class simulates a function that converts a value of 
@@ -111,14 +109,14 @@ new system of units.
             if self.config_default is None:
                 raise pyro.utility.PMParamError('Missing from_units, and no default specified')
             else:
-                from_units = pyro.utility.get_config(self.config_default)
+                from_units = pyro.config[self.config_default]
         # Repeat for to_units.  Are they specified?
         if to_units is None:
             # If not, retrieve the configured default units
             if self.config_default is None:
                 raise pyro.utility.PMParamError('Missing from_units, and no default specified')
             else:
-                to_units = pyro.utility.get_config(self.config_default)
+                to_units = pyro.config[self.config_default]
 
         conv = self.table[to_units] / self.table[from_units]
         if exponent:
@@ -371,10 +369,10 @@ identically in J/kg/K and J/kg/C.
 
     # Check to be certain from_units is specified
     if from_units is None:
-        from_units = pyro.utility.get_config('unit_temperature')
+        from_units = pyro.config['unit_temperature']
     # Repeat for to_units.  Are they specified?
     if to_units is None:
-        to_units = pyro.utility.get_config('unit_temperature')
+        to_units = pyro.config['unit_temperature']
 
     if from_units == to_units:
         return value

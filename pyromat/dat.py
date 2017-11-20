@@ -329,8 +329,8 @@ def new(newdata):
     """Create a new data entry
     new(newdata)
 
-Creates a new entry in the HotPy data dictionary for a substance defined
-by the 'newdata' dictionary.
+Creates a new entry in the PYroMat data dictionary for a substance 
+defined by the 'newdata' dictionary.
 
 The dictionary should have the data elements necessary for defining its
 type.  The minimum elements are 'id', 'class', and 'doc', establishing 
