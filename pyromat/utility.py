@@ -30,11 +30,7 @@ import pyromat as pyro
 # for PYroMat error handling
 ####################################
 class Error(Exception):
-    def __init__(self, value=''):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
-
+    pass
 
 # if the data dictionary seems to be corrupt
 # This error is raised in the data do not include the required parameters or

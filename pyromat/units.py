@@ -365,6 +365,17 @@ conversion routine converts differential or relative temperatures.  For
 example, temperature_scale() would be used to assert that 300K is 26.85C,
 but temperature() could be used to show that specific heat is expressed
 identically in J/kg/K and J/kg/C.
+
+Instead of to_units or from_units, the string 'abs' may be passed.  This
+implies that the temperature scale should be converted to or from its 
+respective absolute scale.  This is useful to ensure an absolute 
+temperature when the actual system of units is uncertain.  For example,
+    T = temperature_scale(T, to_units = 'abs')
+    [... some code ...]
+    T = temperature_scale(T, from_units = 'abs')
+This sequence of operations will convert a temperature from the system 
+default to an absolute scale, perform some operation, and return to the
+original default scale.
 """
 
     # Check to be certain from_units is specified
@@ -376,6 +387,20 @@ identically in J/kg/K and J/kg/C.
 
     if from_units == to_units:
         return value
+    elif from_units == 'abs':
+        if to_units == 'C':
+            from_units = 'K'
+        elif to_units == 'F':
+            from_units = 'R'
+        else:
+            return value
+    elif to_units == 'abs':
+        if from_units == 'C':
+            to_units = 'K'
+        elif from_units == 'F':
+            to_units = 'R'
+        else:
+            return value
 
     if from_units == 'C':
         value += 273.15
