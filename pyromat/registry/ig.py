@@ -322,7 +322,7 @@ The following test criteria are used:
         T = np.array(self.data['Tlim'][1:-1])
         clow = self.cp(T-.01)
         chigh = self.cp(T+.01)
-        fail = ((clow-chigh)/chigh > .01)
+        fail = (abs(chigh-clow) > .001*chigh)
         if fail.any():
             subresult = False
             if report_level >= REP_VITAL:
