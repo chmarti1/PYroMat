@@ -428,7 +428,7 @@ enthalpy and pressure.
 
 
 
-    def _th3(self,h,p,Tinit,dinit=500.):
+    def _th3(self,h,p,Tinit=None,dinit=500.):
         """Temperature from enthalpy and pressure in region 3
     T = _th3(h,p,Tinit,dinit)
 
@@ -447,8 +447,11 @@ region 3 boundary with region 1 and region 2 with pressure p.
         dc = self.data['dc']    # critical density
         Tc = self.data['Tc']    # critical temperature
         A = self.data['r3ln']   # natural log coefficient
-        maxiter = 100  # maximum iterations
-        epsilon = 1e-6
+        maxiter = 200  # maximum iterations
+        epsilon = 1e-5
+        # This is the convergence threshold for error^2
+        # Computing the square of error saves the square root
+        threshold = epsilon*epsilon
 
         # nondimensionalize parameters
         pp = p * 1e2 / (dc * R * Tc)   # dimensionless target pressure
@@ -456,6 +459,10 @@ region 3 boundary with region 1 and region 2 with pressure p.
         n = dinit/dc        # dimensionless density (delta)
         t = Tc/Tinit        # dimensionless temperature (tau)
 
+        n_old = n
+        t_old = t
+        error_old = float('inf')
+        dx = np.array([0.,0.])
         for count in range(maxiter):
             f,fx,fy,fxx,fxy,fyy = self._peval(n,t,self.data['r3'])
             # Modify the function and its derivatives to include the
@@ -467,16 +474,38 @@ region 3 boundary with region 1 and region 2 with pressure p.
 
             ptest = n*n*fx/t - pp
             htest = n*fx/t + fy - hh
-            if abs(ptest)<epsilon*pp and abs(htest)<epsilon*hh:
+
+            # calculate the new square of error
+            # This is the 2D distance from the target point.
+            error = ptest*ptest + htest*htest
+
+            # Test for convergence
+            if error < threshold:
                 return Tc/t
-            dpdn = n/t * (2.*fx + n*fxx)
-            dpdt = n*n/t * (fxy - fx/t)
-            dhdn = fxy + (fx + n*fxx)/t
-            dhdt = fyy + n/t*(fxy - fx/t)
-            dx = np.linalg.solve(
-                [[dpdn, dpdt],[dhdn, dhdt]], [-ptest, -htest])
-            n += dx[0]
-            t += dx[1]
+            # If the error in both variables is not reduced, cut the step size
+            # in half and repeat: this is back-tracking along the line of 
+            # descent to look for a valley.
+            elif error >= error_old:
+                #print t,n,htest,ptest,'*'
+                dx /= 2.
+                n = n_old + dx[0]
+                t = t_old + dx[1]
+            # Otherwise, use the typical Newton algorithm
+            else:
+                #print t,n,htest,ptest
+                # Retire the current error and n,t values
+                error_old = error
+                n_old = n
+                t_old = t
+
+                dpdn = n/t * (2.*fx + n*fxx)
+                dpdt = n*n/t * (fxy - fx/t)
+                dhdn = fxy + (fx + n*fxx)/t
+                dhdt = fyy + n/t*(fxy - fx/t)
+                dx = np.linalg.solve(
+                    [[dpdn, dpdt],[dhdn, dhdt]], [-ptest, -htest])
+                n += dx[0]
+                t += dx[1]
         raise pyro.utility.PMAnalysisError('Steam _TH3 failed to converge. h=%f, p=%f'%(h,p))
 
 
@@ -1807,7 +1836,7 @@ conditions.  Non-saturated conditions are assigned quality -1.
                             'Steam T_h(): the state is not in the IF-97 domain.')
                         Tinit = T25 + (T5max-T25)*(h_-h25)/(h5-h25)
                         T_[...] = self._th5(h=h_, p=p_, Tinit=Tinit)
-            elif p_ < pmax:
+            elif p_ <= pmax:
                 # Calculate the enthalpy at the 1-3 boarder
                 pi,t,g,gp,gt,_,_,_ = self._g1(T13,p_,order=1)
                 h13 = R*T13 * t * gt
