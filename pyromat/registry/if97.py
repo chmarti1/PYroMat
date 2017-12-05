@@ -414,7 +414,7 @@ enthalpy and pressure.
 
         # use bisection to find dimensionless density
         na = 0.10       # minimum dimensionless density
-        nb = 2.33       # maximum dimensionless density
+        nb = 2.4        # maximum dimensionless density
         # continue until we exceed the iteration limit
         for index in range(N):
             nc = 0.5*(na+nb)
@@ -506,7 +506,7 @@ region 3 boundary with region 1 and region 2 with pressure p.
                     [[dpdn, dpdt],[dhdn, dhdt]], [-ptest, -htest])
                 n += dx[0]
                 t += dx[1]
-        raise pyro.utility.PMAnalysisError('Steam _TH3 failed to converge. h=%f, p=%f'%(h,p))
+        raise pyro.utility.PMAnalysisError('Steam _th3 failed to converge. h=%f, p=%f'%(h,p))
 
 
 
@@ -524,13 +524,17 @@ In order to know that the point lies in region 3, the controlling
 algorithm will already need to have evaluated the enthalpy at the 
 region 3 boundary with region 1 and region 2 with pressure p.
 """
+
         # Define some important constants
         R = self.data['R']      # ideal gas constant
         dc = self.data['dc']    # critical density
         Tc = self.data['Tc']    # critical temperature
         A = self.data['r3ln']   # natural log coefficient
-        maxiter = 30  # maximum iterations
-        epsilon = 1e-6
+        maxiter = 200  # maximum iterations
+        epsilon = 1e-5
+        # This is the convergence threshold for error^2
+        # Computing the square of error saves the square root
+        threshold = epsilon*epsilon
 
         # nondimensionalize parameters
         pp = p * 1e2 / (dc * R * Tc)   # dimensionless target pressure
@@ -538,6 +542,10 @@ region 3 boundary with region 1 and region 2 with pressure p.
         n = dinit/dc        # dimensionless density (delta)
         t = Tc/Tinit        # dimensionless temperature (tau)
 
+        n_old = n
+        t_old = t
+        error_old = float('inf')
+        dx = np.array([0.,0.])
         for count in range(maxiter):
             f,fx,fy,fxx,fxy,fyy = self._peval(n,t,self.data['r3'])
             # Modify the function and its derivatives to include the
@@ -549,17 +557,39 @@ region 3 boundary with region 1 and region 2 with pressure p.
 
             ptest = n*n*fx/t - pp
             stest = t*fy - f - ss
-            if abs(ptest)<epsilon*pp and abs(stest)<epsilon*ss:
+
+            # calculate the new square of error
+            # This is the 2D distance from the target point.
+            error = ptest*ptest + stest*stest
+
+            # Test for convergence
+            if error < threshold:
                 return Tc/t
-            dpdn = n/t * (2.*fx + n*fxx)
-            dpdt = n*n/t * (fxy - fx/t)
-            dsdn = t*fxy - fx
-            dsdt = t*fyy
-            dx = np.linalg.solve(
-                [[dpdn, dpdt],[dsdn, dsdt]], [-ptest, -stest])
-            n += dx[0]
-            t += dx[1]
-        raise pyro.utility.PMAnalysisError('Steam _TH3 failed to converge.')
+            # If the error in both variables is not reduced, cut the step size
+            # in half and repeat: this is back-tracking along the line of 
+            # descent to look for a valley.
+            elif error >= error_old:
+                #print t,n,htest,ptest,'*'
+                dx /= 2.
+                n = n_old + dx[0]
+                t = t_old + dx[1]
+            # Otherwise, use the typical Newton algorithm
+            else:
+                #print t,n,htest,ptest
+                # Retire the current error and n,t values
+                error_old = error
+                n_old = n
+                t_old = t
+
+                dpdn = n/t * (2.*fx + n*fxx)
+                dpdt = n*n/t * (fxy - fx/t)
+                dsdn = t*fxy - fx
+                dsdt = t*fyy
+                dx = np.linalg.solve(
+                    [[dpdn, dpdt],[dsdn, dsdt]], [-ptest, -stest])
+                n += dx[0]
+                t += dx[1]
+        raise pyro.utility.PMAnalysisError('Steam _ts3 failed to converge. s=%f, p=%f'%(s,p))
 
 
     def _g5(self,T,p,order=2):
@@ -1972,7 +2002,7 @@ conditions.  Non-saturated conditions are assigned quality -1.
                             'Steam T_h(): the state is not in the IF-97 domain.')
                         Tinit = T25 + (T5max-T25)*(s_-s25)/(s5-s25)
                         T_[...] = self._ts5(s=s_, p=p_, Tinit=Tinit)
-            elif p_ < pmax:
+            elif p_ <= pmax:
                 s13 = self.s(T=T13, p=p_)
                 if s_<s13:
                     # Region 1
@@ -1992,18 +2022,18 @@ conditions.  Non-saturated conditions are assigned quality -1.
                         if s_<s25:
                             # Region 2b
                             T_[...] = self._ts2b(s=s_,p=p_)
-                        elif p_<p5max:
+                        elif p_<=p5max:
                             # Region 5
                             s5 = self.s(T=T5max,p=p_)
                             if s_>s5:
                                 raise pyro.utility.PMParamError(
-                                'Steam T_h(): the state is not in the IF-97 ' +
+                                'Steam T_s(): the state is not in the IF-97 ' +
                                 'domain.')
                             Tinit = T25 + (T5max-T25)*(s_-s25)/(s5-s25)
                             T_[...] = self._ts5(s=s_, p=p_, Tinit=Tinit)
                         else:
                             raise pyro.utility.PMParamError(
-                            'Steam T_h(): the state is not in the IF-97 domain.')
+                            '*Steam T_s(): the state is not in the IF-97 domain.')
             else:
                 raise pyro.utility.PMParamError(
                 'Steam T_h(): pressure is above the IF-97 maximum (1000bar)')
