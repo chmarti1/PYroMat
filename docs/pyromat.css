@@ -9,6 +9,11 @@ h1 {
     font-family:sans-serif;
 }
 
+h2 {
+    font-size: 24pt;
+    font-family:sans-serif;
+}
+
 .section {
     margin: 0px 20px 0px 20px;
 }
@@ -65,8 +70,9 @@ a:hover {
 
 #content {
     width:700px;
+	height:100%;
     text-align:justify;
-    position:relative;
+    position:absolute;
     left:250px;
 }
 
