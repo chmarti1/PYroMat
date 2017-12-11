@@ -36,6 +36,33 @@ h1 {
     margin-bottom: 50px;
 }
 
+.toc0 {
+    text-align:left;
+    position: relative;
+    left: 10px;
+    color: var(--pyro-black, black);
+    font-family: serif;
+    padding: 2px;
+}
+
+.toc1 {
+    text-align:left;
+    position: relative;
+    left: 30px;
+    color: var(--pyro-black, black);
+    font-family: serif;
+    padding: 2px;
+}
+
+.toc2 {
+    text-align:left;
+    position: relative;
+    left: 50px;
+    color: var(--pyro-black, black);
+    font-family: serif;
+    padding: 2px;
+}
+
 .code {
     /*background-color: #ffeebb;*/
     background-color: var(--pyro-gray, gray);
@@ -46,8 +73,26 @@ h1 {
     color: black;
 }
 
+span.code{
+    /*background-color: #ffeebb;*/
+    background-color: var(--pyro-gray, gray);
+    margin-top:0;
+    margin-bottom:0;
+    padding: 3px;
+    font-family:Monospace;
+    color: black;
+}
+
+.figure{
+    width: 100%;
+    text-align:center;
+    position:static;
+}
+
 #menu {
     width:200px;
+    height:100%;
+    border:none;
     text-align:center;
     position:fixed;
     top:10;left:0;
@@ -65,9 +110,14 @@ a:hover {
 
 #content {
     width:700px;
+    height:100vh;
     text-align:justify;
     position:relative;
     left:250px;
+    top:0px;
+    padding:0 0 0 0;
+    margin:0 0 0 0;
+    border:none;
 }
 
 #contact {

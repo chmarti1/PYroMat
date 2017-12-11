@@ -5,7 +5,27 @@ import os
 
 
 class ig(pyro.reg.__basedata__):
-    """Ideal gas class using the Shomate equation of state"""
+    """Ideal gas class using the Shomate equation of state.
+This class exposes properties through member methods.  All property 
+functions accept temperature in PYroMat's unit_temperature and 
+pressure in PYroMat's unit_pressure.  The following are the member 
+methods and their unit conventions:
+  d()  density          (unit_matter / unit_volume)
+  e()  internal energy  (unit_energy / unit_matter)
+  h()  enthalpy         (unit_energy / unit_matter)
+  k()  spec. heat ratio (dless)
+  mw() molecular weight (unit_mass / unit_molar)
+  R()  gas constant     (unit_energy / unit_temperature / unit_matter)
+  s()  entropy          (unit_energy / unit_temperature / unit_matter)
+
+There are also routines to invert properties; e.g. calculating 
+temperature from enthalpy or from entropy and pressure.
+  T_h()  temperature from enthalpy
+  T_d()  temperature from density and pressure
+  T_s()  temperature from entropy and pressure
+  p_s()  pressure from entropy and temperature
+  p_d()  pressure from density and temperature
+"""
 
     def __init__(self,*arg,**kwarg):
         super(self.__class__,self).__init__(*arg,**kwarg)
@@ -668,7 +688,7 @@ for cross-compatibility between species' function calls.
 
 There is an optional parameter, hf, that is a boolean indicating whether
 the enthalpy of formation should be included in the enthalpy.  If hf is
-false, h() will calculate the enthalpy to be zero a T=273.15K
+false, h() will calculate the enthalpy to be zero a T=298.15K (25C)
 
 Accepts unit_temperature
         unit_pressure
@@ -746,7 +766,7 @@ Returns unit_energy / unit_matter / unit_temperature
             oo[...] = C[6] + C[0]*np.log(t)
             oo[...] += t*(C[1] + t*(C[2]/2. + t*C[3]/3.))
             oo[...] -= C[4]/t/t/2.
-            oo[...] -= self.R() * np.log(pp/self._pref_bar)
+            oo[...] -= pyro.units.const_Ru * np.log(pp/self._pref_bar)
             oo[...] *= scale
         # Broadcast the result to match the dims of p
         return out

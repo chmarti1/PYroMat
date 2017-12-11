@@ -249,7 +249,7 @@ Checks for unrecognized parameters and illegal values.
         # if load is called with a filename, this is a recursive call
         if filename:
             # if verbose is specified, override the configuration parameter
-            if verbose==None:
+            if verbose is None:
                 verbose = self['config_verbose']
                 
             if not os.path.isfile( filename ):
@@ -290,7 +290,11 @@ Checks for unrecognized parameters and illegal values.
             # and will have high precedence.
             cfiles = self.entries['config_file'].value
             while k<len(cfiles):
-                thisfile = os.path.abspath(cfiles[k])
+                # Expand references to the users' home directories
+                # and environment variables
+                thisfile = os.path.expanduser(cfiles[k])
+                thisfile = os.path.expandvars(thisfile)
+                thisfile = os.path.abspath(thisfile)
 
                 # If the config file is already in the found list, do not
                 # load it.  This could result in an endless loop.
@@ -313,6 +317,15 @@ for item in new_dictionary:
 """
         for item in new:
             self[item] = new[item]
+
+    def restore_default(self, item):
+        """Return a parameter to its default value
+    pmconfig.restore_default(item)
+
+This function is equivalent to
+pmconfig.entries[item].apply_default()
+"""
+        self.entries[item].apply_default()
 
 
     def __getitem__(self, item):

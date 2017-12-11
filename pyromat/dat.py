@@ -132,6 +132,10 @@ data
     # multiple copies of the same algorithm and saves an extra helper 
     # function.
     if datasource:
+        # Expand references to the users' home directories
+        # and environment variables
+        datasource = pyro.utility.os.path.expanduser(datasource)
+        datasource = pyro.utility.os.path.expandvars(datasource)
         datasource=utility.os.path.abspath(datasource)
         # if the data source is a directory
         if utility.os.path.isdir(datasource):

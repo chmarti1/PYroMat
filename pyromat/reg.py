@@ -289,6 +289,12 @@ pyro.config parameters that affect the behavior of regload() are
 
     # search each directory in the registry search path
     for loc in pyro.config['reg_dir']:
+        # Expand references to the users' home directories
+        # and environment variables
+        loc = pyro.utility.os.path.expanduser(loc)
+        loc = pyro.utility.os.path.expandvars(loc)
+        loc = pyro.utility.os.path.abspath(loc)
+
         cont = pyro.utility.os.listdir(loc)
         # modules to load should not begin with an underscore or period
         # modules to load should end with .py

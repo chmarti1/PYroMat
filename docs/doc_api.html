@@ -1,0 +1,204 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>PYroMat</title>
+    <link rel="stylesheet" type="text/css" href="./pyromat.css">
+    <meta name="description" content="thermodynamic properties in python">
+    <meta name="keywords" content="python,thermo,thermodynamic,property,properties">
+    <meta name="author" content="C.R. Martin">
+</head>
+<body>
+
+<iframe name="menu" id="menu" src="menu.html"></iframe>
+
+
+<div id="content">
+<div class="title">
+    <h1>PYroMat</h1>
+    <h2>API Documentation</h2>
+</div>
+
+<div id="toc" class=section>
+    <div class="toc0"><a href="#structure">Package structure</a></div>
+    <div class="toc0"><a href="#if">Interface layer</a></div>
+        <div class="toc1"><a href="#if_get">get() and info()</a></div>
+        <div class="toc1"><a href="#if_config">config[]</a></div>
+    <div class="toc0"><a href="#be">Back-end layer</a></div>
+        <div class="toc1"><a href="#be_reg">reg</a></div>
+        <div class="toc1"><a href="#be_dat">dat</a></div>
+        <div class="toc1"><a href="#be_units">units</a></div>
+        <div class="toc1"><a href="#be_utility">utility</a></div>
+    <div class="toc0"><a href="#obj">Data classes</a></div>
+        <div class="toc1"><a href="#obj_ig">Ideal gas (ig)</a></div>
+        <div class="toc1"><a href="#obj_igmix">Ideal gas mixture (igmix)</a></div>
+        <div class="toc1"><a href="#obj_if97">Steam (if97)</a></div>
+    <div class="toc0"><a href="#import">The import process</a></div>
+        <div class="toc1"><a href="#import_config">Loading the configuration</a></div>
+        <div class="toc1"><a href="#import_reg">Populating the registry</a></div>
+        <div class="toc1"><a href="#import_dat">Populating the data dictionary</a></div>
+</div>
+
+<h3 id="structure" class="subtitle">Package structure</h3>
+<div class="section">
+    <p>
+    The PYroMat package is constructed in two layers, with the user- or command-line layer forming the top and most powerful layer.  The base PYroMat modules provides a minimalist interface to the more sophisticated back-end.
+    </p>
+    <div class="figure">
+    <img width="100%" src="./fig/package.png" alt="Package Structure"></img>
+    Figure 1: The PYroMat package structure
+    </div>
+    <p>
+    When a user calls for an object like "ig.N2" (see the <a href="doc_intro.html">tutorial</a>), the <span class="code">get()</span> function reaches into the <span class="code">dat</span> module to see if PYroMat has any entries that match the ID the user requested.
+    </p>
+    <p>
+    All of the jobs needed to get the package to the point where such a thing is possible are parsed out to the various back-end layer modules.  The <span class="code">dat</span> module is responsible for seeking out data files, loading them, and associating them with the correct data object in its <span class="code">data</span> dictionary.
+    </p>
+    <p>
+    The <span class="code">reg</span> module is responsible for seeking out python files that might contain PYroMat object class definitions.  Candidate files are compiled and executed in their own name space.  Any class definitions that are children of the PYroMat <span class="code">__basedata__</span> prototype class are added to the <span class="code">registry</span> dictionary where the <span class="code">dat</span> module can find them.
+    </p>
+    <p>
+    The <span class="code">units</span> module's purpose is pretty self-explanatory, but its implementation is not.  It holds a collection of funcitons that are named for the types of unit conversions they can perform.  These functions are made special because they are aware of PYroMat's unit configuration options.  Users who want to see what options are available should call up the <span class="code">units.show()</span> function.  This module also has a collection of useful constants like the Boltzmann constant (<span class="code">const_k</span>), the universal gas constant (<span class="code">const_Ru</span>), and others.
+    </p>
+    <p>
+    Finally, the <span class="code">utility</span> module is a catch-all for every function, exception, class, and other miscelania that the package needs to operate.  That includes the configuration class on which the <span class="code">config</span> object is built, all exceptions, and file handling functions for loading, testing, and maintaining the data files.
+    </p>
+    <a href="#toc">Top</a>
+</div>
+
+<h3 id="if" class="subtitle">Interface layer</h3>
+<div class="section">
+    <p>
+    The vast majority of functionality a typical user will need are provided in the user layer by the individual <a href=#obj>data objects</a>.  The primary use of the interface layer is to lift all the tools that people will need to the surface and bury the tools people don't usually need in the back-end layer.
+    </p>
+    <h3 id="if_get">get() and info()</h3>
+        <p>
+        For the time being, there are only two functions that are used for interacting with the PYroMat data objects; <span class="code">get()</span> and <span class="code">info()</span>.  When called with no arguments, the <span class="code">info()</span> function prints a table of the IDs for all the available data objects.  If called with the ID string of one of those objects, the <span class="code">info()</span> function prints documentation for the object.  Usually this will include a description of the object and citations for the data source.
+        </p>
+        <p>
+        By far the most important member of the interface layer, the <span class="code">get()</span> function retrieves the data objects.  Really, a call to <span class="code">get(idstring)</span> is quite similar to <span class="code">pyromat.dat.data[idstring]</span>, but with some graceful error handling.
+        </p>
+    <h3 id="if_config">config[]</h3>
+        <p>
+        The configuration object, <span class="code">config</span>, manages all of the user-configurable behaviors of PYroMat.  That includes how data are loaded, which units should be used, and what temperature-pressure defaults should be used.  The <span class="code">config</span> object is an instance of the <span class="code">PMConfig</span> class and its entries are all <span class="code">PMConfigEntry</span> instances; both classes provided in <a href="#be_utility">utility</a> module.
+        </p>
+        <p>
+        The <span class="code">config</span> object is a wrapper for a dictionary, but with algorithms for building itself from user-written configuration files, with built-in default values, and with rules on acceptable values for each entry.  Entries remember whether they are read-only, they retain default values, and they raise exceptions if they are written with illegal values.  A complete list of the available configuration options and their current values is obtained simply be evoking the <span class="code">config</span> object at the command line.
+        </p>
+        <pre class="code">
+>>> pyro.config
+     config_file : ['/home/chris/Documents/PYroMat/pyromat/defaults.py']
+  config_verbose : False
+         dat_dir : ['/home/chris/Documents/PYroMat/pyromat/data']
+ dat_exist_fatal : False
+   dat_overwrite : True
+   dat_recursive : True
+     dat_verbose : False
+           def_T : 298.15
+           def_p : 1.01325
+     install_dir : '/home/chris/Documents/PYroMat/pyromat'
+         reg_dir : ['/home/chris/Documents/PYroMat/pyromat/registry']
+ reg_exist_fatal : False
+   reg_overwrite : True
+     reg_verbose : False
+     unit_energy : 'kJ'
+      unit_force : 'N'
+     unit_length : 'm'
+       unit_mass : 'kg'
+     unit_matter : 'kg'
+      unit_molar : 'kmol'
+   unit_pressure : 'bar'
+unit_temperature : 'K'
+       unit_time : 's'
+     unit_volume : 'm3'
+         version : '2.0.1'</pre>
+        <p>
+        The configuration entries are organized into several groups based on how they are used.  For example, entries beginning with <span class="code">reg_</span> and <span class="code">dat_</span> determine how <a href="#be_reg">class definitions</a> and <a href="#be_dat">data files</a> are loaded.  Entries beginning with <span class="code">unit_</span> specify the default units to be used by the <a href="#be_units">units</a> module.  <span class="code">def_T</span> and <span class="code">def_p</span> indicate the default temperature and pressure to be used by property methods when the arguments are omitted.
+        </p>
+        <p>
+        Some entries are read-only.
+        </p>
+        <pre class="code">
+>>> import pyromat as pyro
+>>> pyro.config['version']
+'2.0.1'
+>>> pyro.config['version'] = 42
+PYroMat ERR:: Failed to write to configuration parameter, 'version'
+(<class 'pyromat.utility.PMParamError'>, PMParamError('Entry is read-only.',), <traceback object at 0x7f30e5f7ca28>)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "pyromat/utility.py", line 347, in __setitem__
+    raise sys.exc_info()[1]
+pyromat.utility.PMParamError: Entry is read-only.</pre>
+        <p>
+        All entries are data-type specific.
+        </p>
+        <pre class="code">
+>>> pyro.config['def_T']
+298.15
+>>> pyro.config['def_T'] = 300.
+>>> pyro.config['def_T']
+300.0
+>>> pyro.config['def_T'] = 'This is NOT a temperature'
+PYroMat ERR:: Failed to write to configuration parameter, 'def_T'
+(<class 'pyromat.utility.PMParamError'>, PMParamError("Expected <type 'float'>, but got 'This is NOT a temperature'",), <traceback object at 0x7f30e5f7c9e0>)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "pyromat/utility.py", line 347, in __setitem__
+    raise sys.exc_info()[1]
+pyromat.utility.PMParamError: Expected <type 'float'>, but got 'This is NOT a temperature'</pre>
+        <p>
+        And some entries behave a little strangely when they're written to.  Instead of overwriting the old value, new values are appended to a list.  These are usually lists of directories or files where PYroMat should search for data.  They can be reset to safe defaults using the <span class="code">restore_defaults()</span> method.
+        </p>
+        <pre class="code">
+>>> pyro.config['config_file']
+['/home/chris/Documents/PYroMat/pyromat/defaults.py']
+>>> pyro.config['config_file'] = '/etc/pyromat/pyromat.py'
+>>> pyro.config['config_file']
+['/home/chris/Documents/PYroMat/pyromat/defaults.py', '/etc/pyromat/pyromat.py']
+>>> pyro.config.restore_default('config_file')
+>>> pyro.config['config_file']
+['/home/chris/Documents/PYroMat/pyromat/defaults.py']</pre>
+    <p>
+    Changes that are made in scripts and at the command line are lost when a user exists Python.  To make changes persistent, they should be placed in a configuration file.  The configuration process is described in detail <a href="#import_config">below</a>.
+    </p>
+
+    <a href="#toc">Top</a>
+</div>
+
+
+<h3 id="import" class="subtitle">The import process</h3>
+<div class="section">
+    <p>
+    When PYroMat is imported for the first time, the package goes through a series of steps to build up its capabilities from nothing.  At its core, PYroMat doesn't know the first thing about substances of any kind.  For each substance, there is a file somewhere that provides all the necessary property data and names a class in the PYroMat "registry" with the methods for interpreting the data.  In the same way, there is a file somewhere that contains the definition for each class in the registry.
+    </p>
+    <p>
+    Where do those files exist?  In what order should they be loaded?  What happens if there are redundant definitions?  How do users add their own files without having administrator priviledges?  All of these questions and more are addressed by the PYroMat configuration system.
+    </p>
+
+    <h3 id="import_config">Loading the configuration</h3>
+    <p>
+    The whole process begins with loading the system's configuration files.  Just like lots of other configuration systems, PYroMat uses parameter - value pairs.  Instead of using some other syntax, PYroMat configuration files are just Python scripts.  All variables defined in the local name space are written to the configuration object, <span class="code">config</span>.
+    </p>
+
+    <h3 id="import_config">Populating the registry</h3>
+
+    <h3 id="import_config">Populating the data dictionary</h3>
+    <a href="#toc">Top</a>
+</div>
+
+
+<h3 id="be" class="subtitle">Back-end layer</h3>
+<div class="section">
+
+    <a href="#toc">Top</a>
+</div>
+
+<h3 id="obj" class="subtitle">Data classes</h3>
+<div class="section">
+
+    <a href="#toc">Top</a>
+</div>
+</div>
+</body>
+</html>

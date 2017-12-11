@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+<head>
+    <title>PYroMat</title>
+    <link rel="stylesheet" type="text/css" href="pyromat.css">
+    <meta name="description" content="thermodynamic properties in python">
+    <meta name="keywords" content="python,thermo,thermodynamic,property,properties">
+    <meta name="author" content="C.R. Martin">
+</head>
+<body>
+
+<iframe name="menu" id="menu" src="menu.html"></iframe>
+
+<div id="content">
+<div class="title">
+    <h1>PYroMat</h1>
+    <h2>About</h2>
+</div>
+
+<h3 class="subtitle">Scope and Purpose</h3>
+<div class="section">
+    <p>
+    PYroMat is an open-source Python-based software platform for retrieving the physical properties of substances.  It will continue to grow and change, but it will always be free and it will always be open.  The original source data will always be fully disclosed, and errors will continuously be rooted out an eliminated.
+    </p>
+    <p>
+    Providing the properties of substances is an awfully broad mandate; so we have to start somewhere.  As of version 2.0.1, most of PYroMat's 380+ species are ideal gases, but there is also support for two-phase (only steam so far) and ideal gas mixtures.  Work is already underway to broaden two-phase support to refrigerants and some important substances like nitrogen, oxygen, and especially carbon dioxide.
+    </p>
+    <p>
+    There are some excellent alternatives out there that do some similar things, but all of them are either for profit, have limited capabilities, are devoted to much narrower data sets, or are built to perform a specific job.  PYroMat is written entirely in Python and is, to put it briefly, application agnostic.
+    </p>
+</div>
+
+<h3 class="subtitle">History</h3>
+<div class="section">
+    <p>
+    In 2006, I needed to calculate enthalpies of lots of ideal gases for combustion modeling, and I was disappointed with my options.  I created HOT for Matlab and Octave, and it's still available from <a href="hot-tdb.sourceforge.com">Sourceforge</a> and the <a href="https://www.mathworks.com/matlabcentral/fileexchange/26430-hot-thermodynamic-tools-for-matlab">Mathworks File Exchange</a>.  When I released it, there was a warm response from a community of students and researchers, but there were a number of implementation decisions that could have been better.  About the same time, Python was gaining ground in scientific computing, so rather than improving the Matlab code, I started from scratch in Python.  I haven't supported HOT since 2010, and I've never regretted the transition.
+    </p>
+    <p>
+    In 2014, I released the first version of PYro on Sourceforge, and I was very proud of my cute name for the package.  <href a="https://pypi.python.org/pypi/Pyro4">Pyro</a> is already a popular remote object toolkit for Python, and my due diligence searching for redundant package names apparently had an embarrassingly huge blind spot.  So, with a nod to the intent for the future breadth of the project, PYro became PYroMat.
+    </p>
+    <p>
+    The first release of PYro supported ideal gas data through two clases; <span class="code">igfit</span> and <span class="code">igtab</span>.  The <span class="code">igfit</span> class supplied properties through so-called <a href="http://combustion.berkeley.edu/gri_mech/data/nasa_plnm.html">NASA polynomials</a>.  Meanwhile, <span class="code">igtab</span> objects simply performed interpolation on tabulated data.  
+    </p>
+    <p>
+    In version 1, I experimented with a number of different strategies for providing inverse property routines (e.g. calculating temperature from entropy and pressure).  I tried exposing a generic iterative inversion routine called <span class="code">psolve</span>, but it was awfully inefficient and it had predictable convergence problems near phase transitions.  I finally settled on class-specific methods like <span class="code">T_s()</span>.  They're much faster, more stable, and because they are specific to a class, I can keep improving them without having to re-validate their behavior over the ENTIRE data set.
+    </p>
+    <p>
+    At the close of 2017, version 2.0.1 marked a total transition to the <a href="http://webbook.nist.gov/cgi/cbook.cgi?ID=C7732185&Mask=1#Thermo-Gas">Shomate Equation</a> used by the NIST webbook, implemented by a class simply called <span class="code">ig</span>.  The same release also introduced the use of collections to organize species by their type.
+    </p>
+</div>
+<h3 class="subtitle">Future</h3>
+<div class="section">
+    <p>
+    Version 2.0.1 is the beginning of a long transition to a new internal structure that will expose a wide range of new tools to the user.  The number of species has roughly quadrupled since the original code, so the package needs a better way to search and browse the species list than than it has.  Additional multi-phase substances like refrigerants have been in the works for a long time, and there are a number of other important fluids on the way.
+    </p>
+    <p>
+    I also have plans to incorporate viscosity and other transport models for some of the most important ideal gases.  In some version soon, I'd like to include metals and other solids of engineering interest.  There is no reason that important mechanical, thermal, and electrical properties shouldn't be available too.
+    </p>
+</div>
+
+<hr>
+<div id="contact">
+Authored By:<br>
+Christopher R. Martin, Ph.D.<br>
+Assistant Professor of Mechanical Engineering<br>
+The Pennsylvania State University, Penn State Altoona<br>
+<a href="mailto:crm28@psu.edu">crm28@psu.edu</a>
+</div>
+</div>
+</body>
+</html>
