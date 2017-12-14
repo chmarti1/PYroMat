@@ -10,6 +10,8 @@ This class exposes properties through member methods.  All property
 functions accept temperature in PYroMat's unit_temperature and 
 pressure in PYroMat's unit_pressure.  The following are the member 
 methods and their unit conventions:
+  cp() spec. heat       (unit_energy / unit_temperature / unit_matter)
+  cv() spec. heat       (unit_energy / unit_temperature / unit_matter)
   d()  density          (unit_matter / unit_volume)
   e()  internal energy  (unit_energy / unit_matter)
   h()  enthalpy         (unit_energy / unit_matter)
@@ -25,6 +27,10 @@ temperature from enthalpy or from entropy and pressure.
   T_s()  temperature from entropy and pressure
   p_s()  pressure from entropy and temperature
   p_d()  pressure from density and temperature
+
+The temperature limits for the data set can be obtained
+  Tlim() a two-element array with the min,max temperatures supported by
+         the data set.
 """
 
     def __init__(self,*arg,**kwarg):
@@ -633,7 +639,17 @@ The following test criteria are used:
             ff.close()
         return result
 
-        
+    def Tlim(self):
+        """Temperature limits
+    (Tmin, Tmax) = Tlim()
+Returns the temperature limits on the ig data set.
+
+Accepts None
+Returns unit_temperature
+"""
+        Tmin = pyro.units.temperature_scale(self.data['Tlim'][0], from_units='K')
+        Tmax = pyro.units.temperature_scale(self.data['Tlim'][-1], from_units='K')
+        return (Tmin,Tmax)
 
     def cp(self,T=None,p=None):
         """Constant-pressure specific heat
@@ -829,7 +845,9 @@ Returns unit_energy / unit_matter
         """Density
     d(T,p)
 Both arguments are optional, and will default to 'def_T' and 'def_p'
-configuration parameters if they are left undefined.
+configuration parameters if they are left undefined.  It is important to 
+note that density can be either a molar or mass density depending on the
+"unit_matter" configuration directive.
 
 Accepts unit_temperature
         unit_pressure

@@ -283,9 +283,9 @@ pyro.config parameters that affect the behavior of regload() are
 
     # fetch the configuration parameters
     if verbose == None:
-        verbose = pyro.utility.get_config('reg_verbose',dtype=bool)
-    exist_fatal = pyro.utility.get_config('reg_exist_fatal',dtype=bool)
-    exist_overwrite = pyro.utility.get_config('reg_overwrite',dtype=bool)
+        verbose = pyro.config['reg_verbose']
+    exist_fatal = pyro.config['reg_exist_fatal']
+    exist_overwrite = pyro.config['reg_overwrite']
 
     # search each directory in the registry search path
     for loc in pyro.config['reg_dir']:

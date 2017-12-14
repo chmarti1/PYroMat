@@ -101,6 +101,13 @@ etype       When this parameter is not None, it will be treated as a
         # Enforce write permissions
         if not self.write_allowed:
             raise PMParamError('Entry is read-only.')
+
+        # Deal with appended iterables
+        if self.append and hasattr(value,'__iter__'):
+            for vv in value:
+                self.write(vv)
+            return
+
         # Enforce type specifier
         if self.etype:
             try:
@@ -109,11 +116,12 @@ etype       When this parameter is not None, it will be treated as a
                 raise PMParamError('Expected %s, but got %s'%(repr(self.etype), repr(value)))
         else:
             tvalue = value
-        # Append?
+
+        # Append or overwrite?
         if self.append:
             self.value.append(tvalue)
         else:
-            self.value = value
+            self.value = tvalue
         
 
     def read(self):

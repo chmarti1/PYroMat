@@ -46,11 +46,10 @@ def load(datasource=None, check=None, verbose=None):
         or
     info = load(check=True)
 
-By default, load() will use the values in pyro.config{'dat_dir'} to 
-find the files to load.  PYroMat automatically adds the 'data' directory
-found in the installation directory.  Alternatively, if the first 
-argument can be an explicit path to a file or a directory in which to 
-find files.  All *.hpd files will be opened.
+By default, load() will use the values in pyro.config['dat_dir'] to 
+find the files to load.  Alternatively, if the first argument can be 
+an explicit path to a file or a directory in which to find files.  
+All *.hpd files will be opened.
 
 The pyro.config parameters that affect load() are:
 'dat_verbose'
@@ -64,28 +63,26 @@ The pyro.config parameters that affect load() are:
 'dat_recursive'
     Recurse into subdirectories? (default=True)
 
-The separate keyword argument, 'check' prompts
-load() to run a data test instead of actually
-loading data.
+The separate optional keyword argument, 'check' prompts load() to run a 
+data test instead of actually loading data if it is True.
 
 If load() is run in 'check' mode, it returns information about the data
 files and data currently in memory.  The returned parameters are 
 contained in a dictionary with the following keys:
 
 changed
-    A list of identifiers whose data in memory
-    does not match the data currently in its 
-    file.
+    A list of species IDs whose data in memory does 
+    not match the data currently in its file.
 added
-    A list of identifiers appearing in memory but
+    A list of species IDs appearing in memory but
     not appearing in the files.  These have been
     added since load.
 removed
-    A list of identifiers appearing in the 
+    A list of species IDs appearing in the 
     files but not in memory.  These have been
     removed since load.
 redundant
-    A list of identifiers for which there are
+    A list of species IDs for which there are
     multiple files.  These are redundant.
 suppressed
     A list of files with a .hpd~ extension. 
@@ -93,7 +90,7 @@ suppressed
     been renamed by the utility.red_repair()
     function to correct a redundant definition.
 data
-    The loaded data set.
+    The loaded data dictionary.
 """
 
     lead = 'load-> '
@@ -101,10 +98,10 @@ data
 
     # fetch the configuration parameters
     if verbose == None:
-        verbose = utility.get_config('dat_verbose',dtype=bool)
-    exist_fatal = utility.get_config('dat_exist_fatal',dtype=bool)
-    exist_overwrite = utility.get_config('dat_overwrite',dtype=bool)
-    recursive = utility.get_config('dat_recursive',dtype=bool)
+        verbose = pyro.config['dat_verbose']
+    exist_fatal = pyro.config['dat_exist_fatal']
+    exist_overwrite = pyro.config['dat_overwrite']
+    recursive = pyro.config['dat_recursive']
 
     # If the load function is called with check=True, then it's time to 
     # make a few changes to the typical operation.  All recursive calls

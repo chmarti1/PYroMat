@@ -2,7 +2,42 @@ import pyromat as pyro
 import numpy as np
 
 class if97(pyro.reg.__basedata__):
+    """The IF-97 class
 
+Based on the International Association for the Properties of Water and 
+Steam's 1997 Industrial Formulation (IF-97).
+
+http://www.iapws.org/relguide/IF97-Rev.html
+
+Offers property methods:
+  cp() spec. heat       (unit_energy / unit_temperature / unit_matter)
+  cv() spec. heat       (unit_energy / unit_temperature / unit_matter)
+  d()  density          (unit_matter / unit_volume)
+  e()  internal energy  (unit_energy / unit_matter)
+  h()  enthalpy         (unit_energy / unit_matter)
+  k()  spec. heat ratio (dless)
+  mw() molecular weight (unit_mass / unit_molar)
+  s()  entropy          (unit_energy / unit_temperature / unit_matter)
+
+There is also a special function for simultaneously evaluating enthalpy,
+entropy and density.
+  hsd()  enthalpy, entropy, and density
+
+And special methods for calculating properties along the saturation curve
+  critical()    The critical point (T,p) as a tuple
+  triple()      The triple point (T,p) as a tuple
+  ds()          Saturation density as a tuple (dL, dV)
+  es()          Saturation energy as a tuple (eL, eV)
+  hs()          Saturation enthalpy as a tuple (hL, hV)
+  ss()          Saturation entropy as a tuple (sL, sV)
+  ps()  Saturation pressure as a function of temperature
+  Ts()  Saturation temperature as a function of pressure
+  
+There are also routines to invert properties; e.g. calculating 
+temperature from enthalpy or from entropy and pressure.
+  T_h()  temperature from enthalpy
+  T_s()  temperature from entropy and pressure
+"""
 
     def _test(self, report_file=None, report_level=2):
         """Test the data and algorithm against tabulated data
@@ -912,7 +947,9 @@ functions to return their values for temperature and pressure, set the
 
 Accepts unit_temperature
         unit_pressure
-Returns unit_energy / unit_matter
+Returns (unit_temperature)
+        (unit_pressure)
+        unit_energy / unit_matter 
 """
         R = self.data['R']
         # ensure that one property is defined
@@ -987,7 +1024,9 @@ functions to return their values for temperature and pressure, set the
 
 Accepts unit_temperature
         unit_pressure
-Returns unit_energy / unit_matter
+Returns (unit_temperature)
+        (unit_pressure)
+        unit_energy / unit_matter 
 """
         R = self.data['R']
         # ensure that one property is defined
@@ -1063,7 +1102,9 @@ functions to return their values for temperature and pressure, set the
 
 Accepts unit_temperature
         unit_pressure
-Returns unit_matter / unit_volume
+Returns (unit_temperature)
+        (unit_pressure)
+        unit_matter / unit_volume
 """
         R = self.data['R']
         # ensure that one property is defined
@@ -1134,6 +1175,12 @@ functions to return their values for temperature and pressure, set the
 'tp' keyword to True.
 
     (T,p,dL,dV) = ds(..., tp=True)
+
+Accepts unit_temperature
+        unit_pressure
+Returns (unit_temperature)
+        (unit_pressure)
+        unit_energy / unit_temperature / unit_matter
 """
         R = self.data['R']
         # ensure that one property is defined
@@ -1297,7 +1344,22 @@ Returns unit_energy / unit_matter
 
     def h(self,T=None,p=None,x=None):
         """Enthalpy
-    h(T,p)
+    h(T=None,p=None,x=None)
+
+T   Temperature
+p   pressure
+x   quality
+
+Accepts the temperature, pressure, or quality in any of the three 
+possible combinations.  If none of the arguments are supplied, then 
+def_T,def_p are used, and x is ignored.  If only x is supplied, p is 
+presumed to be def_p, and T is calculated to be the saturation 
+temperature.
+
+Accepts unit_temperature
+        unit_pressure
+        dimensionless
+Returns unit_energy / unit_matter
 """
         def_T = False
         if T is None:
@@ -1372,7 +1434,22 @@ Returns unit_energy / unit_matter
 
     def d(self,T=None,p=None,x=None):
         """Density
-    d(T,p)
+    d(T=None,p=None,x=None)
+
+T   Temperature
+p   pressure
+x   quality
+
+Accepts the temperature, pressure, or quality in any of the three 
+possible combinations.  If none of the arguments are supplied, then 
+def_T,def_p are used, and x is ignored.  If only x is supplied, p is 
+presumed to be def_p, and T is calculated to be the saturation 
+temperature.
+
+Accepts unit_temperature
+        unit_pressure
+        dimensionless
+Returns unit_matter / unit_volume
 """
         def_T = False
         if T is None:
@@ -1446,8 +1523,23 @@ Returns unit_energy / unit_matter
 
 
     def s(self,T=None,p=None,x=None):
-        """Entropy (kJ/kg/K)
-        s(T,p)
+        """Entropy
+    s(T=None,p=None,x=None)
+
+T   Temperature
+p   pressure
+x   quality
+
+Accepts the temperature, pressure, or quality in any of the three 
+possible combinations.  If none of the arguments are supplied, then 
+def_T,def_p are used, and x is ignored.  If only x is supplied, p is 
+presumed to be def_p, and T is calculated to be the saturation 
+temperature.
+
+Accepts unit_temperature
+        unit_pressure
+        dimensionless
+Returns unit_energy / unit_matter / unit_temperature
 """
         def_T = False
         if T is None:
@@ -1522,8 +1614,23 @@ Returns unit_energy / unit_matter
 
 
     def e(self,T=None,p=None,x=None):
-        """Internal Energy (kJ/kg)
-        e(T,p)
+        """Internal Energy
+        e(T=None,p=None,x=None)
+
+T   Temperature
+p   pressure
+x   quality
+
+Accepts the temperature, pressure, or quality in any of the three 
+possible combinations.  If none of the arguments are supplied, then 
+def_T,def_p are used, and x is ignored.  If only x is supplied, p is 
+presumed to be def_p, and T is calculated to be the saturation 
+temperature.
+
+Accepts unit_temperature
+        unit_pressure
+        dimensionless
+Returns unit_energy / unit_matter
 """
         def_T = False
         if T is None:
@@ -1598,7 +1705,22 @@ Returns unit_energy / unit_matter
 
     def cp(self,T=None,p=None,x=None):
         """Constant pressure specific heat
-        cp(T,p)
+        cp(T=None,p=None,x=None)
+
+T   Temperature
+p   pressure
+x   quality
+
+Accepts the temperature, pressure, or quality in any of the three 
+possible combinations.  If none of the arguments are supplied, then 
+def_T,def_p are used, and x is ignored.  If only x is supplied, p is 
+presumed to be def_p, and T is calculated to be the saturation 
+temperature.
+
+Accepts unit_temperature
+        unit_pressure
+        dimensionless
+Returns unit_energy / unit_matter / unit_temperature
 """
         def_T = False
         if T is None:
@@ -1676,7 +1798,22 @@ Returns unit_energy / unit_matter
         
     def cv(self,T=None,p=None,x=None):
         """Constant volume specific heat (kJ/kg)
-        cv(T,p)
+        cv(T=None,p=None,x=None)
+
+T   Temperature
+p   pressure
+x   quality
+
+Accepts the temperature, pressure, or quality in any of the three 
+possible combinations.  If none of the arguments are supplied, then 
+def_T,def_p are used, and x is ignored.  If only x is supplied, p is 
+presumed to be def_p, and T is calculated to be the saturation 
+temperature.
+
+Accepts unit_temperature
+        unit_pressure
+        dimensionless
+Returns unit_energy / unit_matter / unit_temperature
 """
         def_T = False
         if T is None:
@@ -1760,9 +1897,20 @@ Returns unit_energy / unit_matter
 
 
 
-    def mw(self,T=None,p=None):
+    def mw(self,T=None,p=None,x=None):
         """Molecular weight (kg/kmol)
-    mw()
+    mw(T=None,p=None,x=None)
+
+T   Temperature
+p   pressure
+x   quality
+
+Accepts the temperature, pressure, or quality, but ignores all values.
+
+Accepts unit_temperature
+        unit_pressure
+        dimensionless
+Returns unit_mass / unit_mol
 """
         mw = pyro.units.mass(self.data['wm'],from_units='g')
         mw = pyro.units.molar(mw,from_units='mol',exponent=-1)
@@ -1783,6 +1931,12 @@ Calculates temperature from the enthalpy and pressure.
 
 When quality is set to True, T_h also returns the quality of saturated 
 conditions.  Non-saturated conditions are assigned quality -1.
+
+Accepts unit_energy / unit_matter
+        unit_pressure
+        (boolean)
+Returns unit_temperature
+        (dimensionless)
 """
 
         # First, figure out what region we're in.  We need to use a custom 
@@ -1918,9 +2072,9 @@ conditions.  Non-saturated conditions are assigned quality -1.
 
     def T_s(self,s,p=None,quality=False):
         """Temperature calculated from entropy
-    T = T_s(h)
+    T = T_s(s)
         or
-    T = T_s(h,p)
+    T = T_s(s,p)
         or
     T,x = T_s(s,p=None,quality=False)
 
@@ -1928,6 +2082,12 @@ Calculates temperature from the entropy and pressure.
 
 When quality is set to True, T_s also returns the quality of saturated 
 conditions.  Non-saturated conditions are assigned quality -1.
+
+Accepts unit_energy / unit_matter / unit_temperature
+        unit_pressure
+        (boolean)
+Returns unit_temperature
+        (dimensionless)
 """
         # First, figure out what region we're in.  We need to use a custom 
         # region-finding routine since we're in s,p coordinates and not T,p

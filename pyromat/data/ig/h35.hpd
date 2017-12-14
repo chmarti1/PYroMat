@@ -1,0 +1,10 @@
+{
+    "bymass": false, 
+    "class": "igmix", 
+    "contents": {
+        "ig.Ar": 65.0, 
+        "ig.H2": 35.0
+    }, 
+    "doc": "35% H2 by volume and balance Ar.  Commonly used in the welding and cutting industry.", 
+    "id": "ig.h35"
+}

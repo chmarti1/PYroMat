@@ -1,0 +1,10 @@
+{
+    "bymass": false, 
+    "class": "igmix", 
+    "contents": {
+        "ig.H2": 5.0, 
+        "ig.N2": 95.0
+    }, 
+    "doc": "5% H2 by volume and balance N2.  Commonly used in the welding and cutting industry.", 
+    "id": "ig.f5"
+}

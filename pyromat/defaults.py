@@ -14,35 +14,39 @@
 # the parameters are recognized, they are loaded into the pyromat.config 
 # dictionary.  This means that script files are just ordinary python code.
 #
-# PYroMat uses an unusual configuration loading scheme where no configuration 
-# parameter is ever truly overwritten.  Instead, values are appended to a
-# list of all values ever assigned to the parameter.  In this way, 
-# parameters that are intended to be configurable for multiple values 
-# need no special treatment, and it is easy to see a parameter's history.
+# If PYroMat finds variable names that aren't recognized configuration 
+# parameters, it throws an error.  That means that while the configuration
+# files are ordinary code, there are strict rules for what variables can be
+# defined and what their values can be.
 #
-# The line "myparam = 'value'" in a config file will result in
-# >>> import pyromat as pyro
-# >>> pyro.config['myparam']
-# ['initial_value', 'value']
+# There are three types of parameters:
+# 1 - Normal parameters require a specific data type, but each time they are
+#     written, the prior value is lost.
+# e.g.
+#>  dat_verbose = True  # will overwrite the default of False
 #
-# where "initial_value" indicates the hard-coded default given to the 
-# parameter when the pyro.utility.load_config() function is called.
+# 2 - Appended parameters never lose data, but contain a list of all prior 
+#     values.  If values are assigned to these parameters in multiple files, 
+#     they are simply appended to the list.  Within a single configuration file, 
+#     the normal variable assignment rules apply, so writing to a variable twice 
+#     will destroy the original value.  To write multiple values at once, assign
+#     a list to the parameter
+# e.g.
+#>  # This will add two new configuration files to the load sequence
+#>  config_file = ["/etc/pyromat/config.py", "/home/$USER/.pyromat/config.py"]
 #
-# See the pyro.utility.get_config() function for conveniently accessing
-# the configuration parameters.  Thanks to the get_config() function, a
-# well-intentioned user who does this:
-#
-# >>> pyro.config['myparam'] = 'value'
-#
-# will not cause any problems.  If load_config() is called again, this
-# parameter will now be treated as read-only, and config files will not 
-# be allowed to modify to myparam.
+# 3 - Read-only parameters supply a value for information purposes only.
+# e.g.
+#>  install_dir = "/home/malicious_user/malicious_project/"   # Won't work
+#>  version = "596.0.1" # Will throw an error - with good reason
 
 
 
 #** Configuration files **
 # This tells PYroMat where to find other configuration files. Keep in mind 
-# that the last file loaded will be given precedence.
+# that the last file loaded will be given precedence.  PYroMat resolves Windows
+# and Unix references to home and environment variables, so references to ~, 
+# $USER, etc. have the desired result.
 #
 #> config_file = '/path/to/my/file'
 #
@@ -59,8 +63,12 @@
 #> config_file = ['/path/to/config1', '/path/to/config2']
 
 
-# Should load_config() print its activity to stdout?  
+# Should load_config() print its activity to stdout?  If you are setting up a
+# system where users are allowed their own configuration options in their own
+# home directories, this might be helpful for debugging.
 #
+# Configuration options only take effect AFTER they are loaded, so this file's
+# activity will not be affected by this directive.
 config_verbose = False
 
 
@@ -80,16 +88,23 @@ config_verbose = False
 #
 dat_verbose = False
 
-# If two data files are found with the same 'id', what do we do; 
-# overwrite or ignore?
+# If two data files are found with the same 'id', what do we do; overwrite or 
+# ignore?  This determines the order of precedence.  In overwrite mode, data 
+# files entries in data directories specified later in the dat_dir list (like 
+# a user's home directory) will overwrite those higher up in the tree.  This 
+# allows users to experiment with their own data classes that replace the built-
+# in files.  If you want the files distributed with PYroMat to take precedence, 
+# you should change this to False.
 dat_overwrite = True
 
 # If two data files are found with the same name, should we exit with an
-# error?
+# error?  If you are really want to put a stop to users overriding the existing
+# data files, set this directive to True.
 dat_exist_fatal = False
 
 # Should we descend into sub-directories of the directories listed in
-# the dat_dir parameter?
+# the dat_dir parameter?  Unfortunately, there is not currently a way to apply 
+# this setting locally.  PYroMat's recursion is an all-or-none.
 dat_recursive = True
 
 
@@ -115,17 +130,19 @@ dat_recursive = True
 reg_verbose = False
 
 # If redundant class definitions are discovered, should we overwrite the
-# old one, or should we ignore the new one?
+# old one, or should we ignore the new one?  This serves the same function as
+# the dat_overwrite directive.
 reg_overwrite = True
 
-# Should a redundant class definition cause PYroMat to exit with an error?
+# Should a redundant class definition cause PYroMat to exit with an error?  This
+# serves the same function as the dat_exist_fatal directive
 reg_exist_fatal = False
 
 # What is the default temperature and pressure that property functions
 # should use when entries are omitted?  These must be in the same units
 # specified by unit_pressure and unit_temperature
-#> def_T = 273.15
-#> def_p = 1.0
+#> def_T = 298.15
+#> def_p = 1.01325
 
 
 # In what units should functions accept and return values?  A list of 
