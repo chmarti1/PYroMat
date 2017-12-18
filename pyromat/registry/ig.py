@@ -1,6 +1,7 @@
 import pyromat as pyro
 import numpy as np
 import os
+import re
 
 
 
@@ -28,9 +29,12 @@ temperature from enthalpy or from entropy and pressure.
   p_s()  pressure from entropy and temperature
   p_d()  pressure from density and temperature
 
-The temperature limits for the data set can be obtained
+Some meta-data on the species can be obtained using methods
   Tlim() a two-element array with the min,max temperatures supported by
          the data set.
+  contents()  returns a dictionary with a key entry for each atom in
+              the chemical formula and the corresponding integer 
+              quantity of each.
 """
 
     def __init__(self,*arg,**kwarg):
@@ -38,21 +42,9 @@ The temperature limits for the data set can be obtained
 
         # Important constants
         self._pref_bar = 1.0
+        # Initialize the species contents dictionary
+        self._contents = None
 
-        comment = """
-        # Define inverstion routines
-        self.T_h = pyro.solve.solve1n('T',
-            f=self.h, df=self.cp,
-            param_lim = (self.data['Tlim'][0], self.data['Tlim'][-1]))
-
-        def ds(T,p=None):
-            return self.cp(T,p)/T 
-
-        self.T_s = pyro.solve.solve1n('T',
-            f=self.s, df=ds,
-            param_lim = (self.data['Tlim'][0], self.data['Tlim'][-1]))
-        """
-        
 
     def _crange(self, T):
         """Return the temperature range index and raise a meaningful exception
@@ -639,6 +631,40 @@ The following test criteria are used:
             ff.close()
         return result
 
+
+    def contents(self):
+        """Construct an atomic contents dictionary
+    C = contents()
+
+Returns a dictionary, C, with keywords that are elements and integer
+values representing the number of each present in the species ID.  There
+is promise that PYroMat has a data entry for each of the elements named.
+
+For example, the species ID ig.CO2 would return the dictionary
+{'C':1, 'O':2}
+
+This is entirely dissimilar from queries to the igmix class, which list
+their constituents by their species ID.  These include the collection 
+and and the chemical formula, and all constituents MUST have a valid 
+species ID.
+
+After the first call to contents(), the dictionary is stored in
+the _contents member so that subsequent calls will not result in
+redundant string parsing.  
+"""
+        if self._contents is None:
+            self._contents = {}
+            # Get the chemical formula portion of the ID
+            ID = self.data['id'].split('.')[-1]
+            for key,value in re.findall('([A-Z][a-z]*)([0-9]*)', ID):
+                if value:
+                    self._contents[str(key)] = int(value)
+                else:
+                    self._contents[str(key)] = 1
+                
+        return self._contents
+
+
     def Tlim(self):
         """Temperature limits
     (Tmin, Tmax) = Tlim()
@@ -650,6 +676,7 @@ Returns unit_temperature
         Tmin = pyro.units.temperature_scale(self.data['Tlim'][0], from_units='K')
         Tmax = pyro.units.temperature_scale(self.data['Tlim'][-1], from_units='K')
         return (Tmin,Tmax)
+
 
     def cp(self,T=None,p=None):
         """Constant-pressure specific heat

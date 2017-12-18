@@ -49,14 +49,14 @@
 >>> O2 = pyro.get('ig.O2')
 >>> CO2 = pyro.get('ig.CO2')</pre>
     <p>
-    The argument to the <span class="code">get</span> function is the species ID.  It is comprised of two parts: the chemical compound, e.g. "N2," and the data collection to which it belongs, "ig," for "ideal gas."  We'll talk about that more later.
+    The argument to the <span class="code">get</span> function is the species ID.  It is comprised of two parts: the chemical compound, e.g. "N2," and the data <a href="#./doc_api.html#ig">collection</a> to which it belongs, "ig," for "ideal gas."
     </p>
 </div>
 
 <h3 class="subtitle" id="data">Retrieving data</h3>
 <div class="section">
     <p>
-    The objects expose all the methods we need to access their properties.  For example, to retrieve nitrogen's properties, we only need to ask for them by name.  Here, this example retrieves molecular weight, enthalpy in kJ/kg, and entropy in kJ/kg/K.  We'll discuss units in more detail in just a moment.
+    The objects expose all the methods we need to access their properties.  For example, to retrieve nitrogen's properties, we only need to ask for them by name.  Here, this example retrieves molecular weight, enthalpy in kJ/kg, and entropy in kJ/kg/K.  We'll talk more about <a href="#units">units</a> in just a moment.
     </p>
     <pre class="code">
 >>> N2.mw()
@@ -66,7 +66,7 @@ array(0.0009843252384197784)
 >>> N2.s()
 array(6.839762903237966)</pre>
     <p>
-    That's good and well for molecular weight, but enthalpy and entropy are functions of temperature and pressure!  All properties accept temperature and pressure with keywords, T and p, whether they are actually functions of those parameters or not.  All defaults are user configurable, but we'll deal with that later.
+    That's good and well for molecular weight, but enthalpy and entropy are functions of temperature and pressure!  All properties accept temperature and pressure (including molecular weight) with keywords, T and p.  In the case of molecular weight, they are ignored, but they are vital to most properties.  In the above example, those arguments were omitted, so PYroMat used default values of 298.15 Kelvin and 1 atm.  While those defaults are user <a href="./doc_api.html#if_config">configurable</a>, users that can't be bothered to specify a temperature and pressure are probably thinking of standard atmospheric conditions.
     </p>
     <p>
     These command-line examples all return the enthalpy of diatomic nitrogen at 496.5K and 3bar, but using different approaches to calling the enthalpy function.  
@@ -81,14 +81,14 @@ array(207.30250236177193)
 >>> N2.h(496.5)             # p is omitted; h is not a function of p
 array(207.30250236177193)</pre>
     <p>
-    This is a good point to note that the <span class="code">h()</span> method returns a Numpy array instead of an ordinary constant.  All properties accept array-like arguments to temperature and pressure.  PYroMat uses Numpy's <a href="https://docs.scipy.org/doc/numpy-1.13.0/user/basics.broadcasting.html">array broadcasting rules</a> for operating on bulk data.  This can come in handy for simulations where T and p might be big multi-dimensional arrays in time and space.  We'll deal with that in more detail <a href=#arrays>below</a>.
+    This is a good point to note that the <span class="code">h()</span> method returns a Numpy array instead of an ordinary float.  All properties accept array-like arguments to temperature and pressure.  PYroMat uses Numpy's <a href="https://docs.scipy.org/doc/numpy-1.13.0/user/basics.broadcasting.html" target="blank">array broadcasting rules</a> for operating on bulk data.  This can come in handy for simulations where T and p might be big <a href=#arrays>multi-dimensional arrays</a> in time and space.
     </p>
 </div>
 
 <h3 class="subtitle" id="help">In-line documentation</h3>
 <div class="section">
     <p>
-    The in-line documentation describes the properties that are available and names the units.  For more detail on any individual property, just call up the in-line documentation for that method.
+    The in-line documentation describes the properties that are available and names the units used.  For more detail on any individual property, just call up the in-line documentation for that method.
     </p>
     <pre class="code">
 >>> help(N2)
@@ -201,7 +201,7 @@ array(191.4994778037166)
 <h3 class="subtitle" id="arrays">Working with arrays</h3>
 <div class="section">
     <p>
-    PYroMat natively supports <a href="http://www.numpy.org/">Numpy</a> arrays.  Temperature and pressure arguments can be any array-like iterable.
+    PYroMat natively supports <a href="http://www.numpy.org/" target="blank">Numpy</a> arrays.  Temperature and pressure arguments can be any array-like iterable.
     </p>
     <pre class="code">
 >>> import numpy as np
@@ -248,14 +248,8 @@ array([ 40.5,  50. ])</pre>
     </p>
 </div>
 
-<hr>
-<div id="contact">
-Authored By:<br>
-Christopher R. Martin, Ph.D.<br>
-Assistant Professor of Mechanical Engineering<br>
-The Pennsylvania State University, Penn State Altoona<br>
-<a href="mailto:crm28@psu.edu">crm28@psu.edu</a>
-</div>
+<iframe src="author.html" id="contact"></iframe>
+
 </div>
 </body>
 </html>

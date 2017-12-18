@@ -9,7 +9,7 @@ import pyromat as pyro
 import numpy as np
 import matplotlib.pyplot as plt
 
-air = pyro.get('air')
+air = pyro.get('ig.air')
 
 # Let's design a gas turbine with a 100kW power output
 Wnet = 100.
@@ -94,3 +94,5 @@ $p_r$={:.1f}
 $\eta$={:.3f}
 $\dot{{W}}_{{net}}$={:1}kW""".format(mdot,pr,n,Wnet),backgroundcolor='white')
 plt.title('Brayton Cycle T-s Diagram')
+
+plt.show(block=False)

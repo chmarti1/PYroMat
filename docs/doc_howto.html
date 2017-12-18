@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>PYroMat</title>
+    <link rel="stylesheet" type="text/css" href="./pyromat.css">
+    <meta name="description" content="thermodynamic properties in python">
+    <meta name="keywords" content="python,thermo,thermodynamic,property,properties">
+    <meta name="author" content="C.R. Martin">
+</head>
+<body>
+
+<iframe name="menu" id="menu" src="menu.html"></iframe>
+
+
+<div id="content">
+<div class="title">
+    <h1>PYroMat</h1>
+    <h2>How-to</h2>
+</div>
+
+<div class="section">
+    <div class="toc0"><a href="#cycle">Cycle analysis</a></div>
+    <div class="toc1"><a href="#cycle_brayton">Brayton cycle</a></div>
+    <div class="toc1"><a href="#cycle_rankine">Rankine cycle</a></div>
+    <div class="toc0"><a  href="#plot">Plotting</a></div>
+    <div class="toc1"><a href="#plot_surf">Surface plots</a></div>    
+    <div class="toc0"><a href="#faq">FAQ</a></div>
+    <div class="toc1"><a href="#faq_redundant">Redundant species</a></div>
+    <div class="toc1"><a href="#faq_inconsistent">Inconsistent property values</a></div>
+</div>
+
+<h3 class="subtitle" id="cycle">Cycle analysis</h3>
+<div class="section">
+    Coming soon.
+</div>
+
+<h3 class="subtitle" id="plot">Plotting</h3>
+<div class="section">
+    Coming soon.
+</div>
+
+
+<h3 class="subtitle" id="faq">Frequently asked questions</h3>
+<div class="section">
+    <h3 id="faq_redundant" style="text-align:left;">H2O is in the ideal gas collection and the multi-phase collection.  Why?</h3>
+    <p>
+    Short answer: They are two different models created for two different applications.
+    </p>
+    <p>
+    It would seem like you could get everything you needed from the multi-phase version right?  After all, the multi-phase collection water covers both liquid AND gas.  Look more carefully, though; the upper temperature limit on multiphase water is 2,273.15K (2,000<sup>o</sup>C).  Not bad, but the ideal gas data go all the way up to 6,000K.  On the other hand, ideal gas water only supports temperatures down to 500K.
+    </p>
+    <p>
+    These drastic differences illustrate the different purposes for which these data sets were created.  The ideal gas collection was created primarily for reaction modeling.  Water is a primary combustion product, in that role it usually shows up at high temperatures, and the ideal gas assumption gets sketchy around the boiling point anyway.  Meanwhile, the multi-phase collection is primarily useful for cycle modeling, and doesn't adhere to the NIST-JANAF enthalpy conventions.
+    </p>
+
+    <h3 id="faq_inconsistent" style="text-align:left;">A property value in another source disagrees with PYroMat.  Is this an error?</h3>
+    <p>
+    Short answer: maybe, but probably not.
+    </p>
+    <p>
+    I get this question more than any other.  If the property in question is entropy or enthalpy, there is probably no error.  It is important to remember that enthalpy and entropy are integrated properties; their values are defined in terms of an integral of another property (specific heat).  That means that there is a somewhat arbitrary choice of integration constant.  
+    </p>
+    <p>
+    Members of the <a href="doc_api.html#ig_ig">ideal gas</a> collection obey their own convention that is self-consistent across species, but may not agree with the choices made by other sources.  For example, the <a href="doc_api.html#mp_if97
+">IF-97</a> class for water and the ideal gas properties of water return inconsistent values for enthalpy.  However, notice that the specific heats agree to within 0.1% at 1 atm.
+    </p>
+    <pre class="code">
+>>> import pyromat as pyro
+>>> mp_H2O = pyro.get('mp.H2O')
+>>> ig_H2O = pyro.get('ig.H2O')
+>>> mp_H2O.h(1000.)
+3990.6638781507377
+>>> ig_H2O.h(1000.)
+array(-11980.04050260982)
+>>> mp_H2O.cp(1000.)
+2.2920664690248009
+>>> ig_H2O.cp(1000.)
+array(2.2905867790156145)</pre>
+    <p>
+    Isn't that bad!?  Not at all.  For the vast majority of all problems of engineering and scientific interest, the absolute value of enthalpy and entropy is irrelevant.  It is the change in those properties that is important (e.g. conservation of energy and the various incarnations of the second law).  The choice of an integration factor is only important when we are comparing the properties of one species to another (e.g. chemical reactions or phase changes).
+    </p>
+    <p>
+    If you already understand all this, and you still think you've spotted an error in the properties, I'd really like to know about it.  Please do <a href="mailto:crm28@psu.edu?subject=PYroMat property errors">email me</a>!  I may not get back to you right away, but please do be patient with me.
+    </p>
+
+</div>
+
+
+<iframe id="contact" src="author.html"></iframe>
+
+</div>
+</body>
+</html>

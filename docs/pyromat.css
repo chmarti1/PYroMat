@@ -21,7 +21,8 @@ h2 {
 
 .title {
     text-align:center;
-    background-color: var(--pyro-black, black);
+    /* background-color: var(--pyro-black, black); */
+    background-color: #00005f;
     border-radius: 40px;
     color: white;
     font-family: Arial, sans-serif;
@@ -41,6 +42,21 @@ h2 {
     margin-top: 50px;
     margin-bottom: 50px;
 }
+
+
+.tagline {
+    text-align:center;
+    font-family:sans;
+    font-size:18px;
+    margin:auto;
+    margin-top:100px;
+    margin-bottom:100px;
+    border:1px solid black;
+    border-radius:10px;
+    padding:10px;
+    width:350px;
+}
+
 
 .toc0 {
     text-align:left;
@@ -105,6 +121,7 @@ span.code{
     padding:10px;
 }
 
+
 a:link, a:visited, a:active {
     color:black;
     text-decoration:underline;
@@ -128,6 +145,8 @@ a:hover {
 #contact {
     text-align:center;
     font-size:80%;
+    border:none;
+    width:100%;
 }
 
 .menuitem {

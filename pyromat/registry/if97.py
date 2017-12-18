@@ -1200,7 +1200,7 @@ Returns (unit_temperature)
                 'Saturation properties are not available above the critical point.')
 
         if p is not None:
-            pp = pyro.units.pressure(pp, to_units='bar')
+            pp = pyro.units.pressure(p, to_units='bar')
             if not isinstance(p,np.ndarray):
                 pp = np.array(pp)
             if (pp < self.data['pt']).any():

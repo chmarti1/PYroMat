@@ -352,7 +352,9 @@ temperature from enthalpy or from entropy and pressure.
     <p>
     These data are primarily useful at high temperatures, but the exact limits on the data are not consistent across species.  Some are limited by phase transitions, and others simply by the source data.  Each object reports its own limits using the <span class="code">Tlim()</span> method.  Calls to properties outside of these limits will result in an error.
     </p>
-
+    <p>
+    Finally, the <span class="code">contents()</span> method returns a dictionary that names the constituent atoms and their quantities in the species chemical formula.  It does this by parsing the species ID for upper-case letters followed by lower-case letters, followed by an optional integer quantity.  The result might look like <span class="code">{'C': 1, 'O': 2}</span> for carbon dioxide.
+    </p>
 
     <h3 id="ig_igmix">Ideal gas mixture (igmix)</h3>
     <p>
@@ -520,6 +522,9 @@ temperature from enthalpy or from entropy and pressure.
 
     <a href="#toc">Top</a>
 </div>
+
+<iframe src="author.html" id="contact"></iframe>
+
 </div>
 </body>
 </html>

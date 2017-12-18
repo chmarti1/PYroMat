@@ -63,7 +63,7 @@ with the performance needed for advanced modeling.""",
     keywords = 'thermodynamic properties',
     packages=['pyromat'],
     package_dir={'pyromat':install_from},
-    package_data={'pyromat':['registry/*.py','data/*.hpd']},
+    package_data={'pyromat':['registry/*.py','data/ig/*.hpd','data/mp/*.hpd']},
     data_files=[('.',['README.md','CHANGELOG.md','test.py'])],
     requires=['numpy','json','distutils'],
     provides=['pyromat']
