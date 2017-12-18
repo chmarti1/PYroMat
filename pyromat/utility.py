@@ -355,7 +355,6 @@ pmconfig.entries[item].apply_default()
             self.entries[item].write(value)
         except:
             print_error('Failed to write to configuration parameter, %s'%repr(item))
-            print sys.exc_info()
             raise sys.exc_info()[1]
         
     def __contains__(self,item):

@@ -1961,6 +1961,7 @@ Returns unit_temperature
 
         scale = pyro.units.energy(to_units='kJ')
         scale = pyro.units.matter(scale,self.data['mw'],to_units='kg')
+        h *= scale
 		
         it = np.nditer((None,None,h,p),
                 op_flags=[['readwrite','allocate'],['readwrite','allocate'],
@@ -1968,7 +1969,6 @@ Returns unit_temperature
 					op_dtypes='float')
 
         for T_,x_,h_,p_ in it:
-            h_ *= scale
             T_[...] = -1.
             x_[...] = -1.
             if p_ < p3:
@@ -2115,6 +2115,7 @@ Returns unit_temperature
         scale = pyro.units.energy(to_units='kJ')
         scale = pyro.units.matter(scale,self.data['mw'],to_units='kg')
         scale = pyro.units.temperature(scale,to_units='K')
+        s *= scale
 
         it = np.nditer((None,None,s,p),
 		            op_flags=[['readwrite','allocate'],['readwrite','allocate'],
@@ -2122,7 +2123,6 @@ Returns unit_temperature
 					op_dtypes='float')
 
         for T_,x_,s_,p_ in it:
-            s_ *= scale]
             T_[...] = -1.
             x_[...] = -1.
             if p_ < p3:
