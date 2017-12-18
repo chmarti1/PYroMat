@@ -1273,8 +1273,9 @@ Returns unit_energy / unit_matter
         R = self.data['R']
 
         it = np.nditer((None,None,None,T,p,x), 
-                op_flags=[['readwrite','allocate'],['readwrite','allocate'],
-                ['readwrite','allocate'],['readonly'],['readonly'],['readonly']])
+				op_flags=[['readwrite','allocate'],['readwrite','allocate'],['readwrite','allocate'],
+					['readonly','copy'],['readonly','copy'],['readonly','copy']], 
+					op_dtypes='float')
 
         for h_,s_,d_,T_,p_,x_ in it:
             # If x is unspecified
@@ -1379,8 +1380,8 @@ Returns unit_energy / unit_matter
         R = self.data['R']
 
         it = np.nditer((None,T,p,x), 
-                op_flags=[['readwrite','allocate'],['readonly'],
-                    ['readonly'],['readonly']])
+                op_flags=[['readwrite','allocate'],['readonly','copy'],
+                    ['readonly','copy'],['readonly','copy']], op_dtypes='float')
 
         for h_,T_,p_,x_ in it:
             # If x is unspecified
@@ -1469,8 +1470,8 @@ Returns unit_matter / unit_volume
         R = self.data['R']
 
         it = np.nditer((None,T,p,x), 
-                op_flags=[['readwrite','allocate'],['readonly'],
-                    ['readonly'],['readonly']])
+                op_flags=[['readwrite','allocate'],['readonly','copy'],
+                    ['readonly','copy'],['readonly','copy']], op_dtypes='float')
 
         for d_,T_,p_,x_ in it:
             # If x is unspecified
@@ -1559,8 +1560,8 @@ Returns unit_energy / unit_matter / unit_temperature
         R = self.data['R']
 
         it = np.nditer((None,T,p,x), 
-                op_flags=[['readwrite','allocate'],['readonly'],
-                    ['readonly'],['readonly']])
+                op_flags=[['readwrite','allocate'],['readonly','copy'],
+                    ['readonly','copy'],['readonly','copy']], op_dtypes='float')
 
         for s_,T_,p_,x_ in it:
             # If x is unspecified
@@ -1650,8 +1651,8 @@ Returns unit_energy / unit_matter
         R = self.data['R']
 
         it = np.nditer((None,T,p,x), 
-                op_flags=[['readwrite','allocate'],['readonly'],
-                    ['readonly'],['readonly']])
+                op_flags=[['readwrite','allocate'],['readonly','copy'],
+                    ['readonly','copy'],['readonly','copy']], op_dtypes='float')
 
         for e_,T_,p_,x_ in it:
             # If x is unspecified
@@ -1740,8 +1741,8 @@ Returns unit_energy / unit_matter / unit_temperature
         R = self.data['R']
 
         it = np.nditer((None,T,p,x), 
-                op_flags=[['readwrite','allocate'],['readonly'],
-                    ['readonly'],['readonly']])
+                op_flags=[['readwrite','allocate'],['readonly','copy'],
+                    ['readonly','copy'],['readonly','copy']], op_dtypes='float')
 
         for cp_,T_,p_,x_ in it:
             # If x is unspecified
@@ -1833,8 +1834,8 @@ Returns unit_energy / unit_matter / unit_temperature
         R = self.data['R']
 
         it = np.nditer((None,T,p,x), 
-                op_flags=[['readwrite','allocate'],['readonly'],
-                    ['readonly'],['readonly']])
+                op_flags=[['readwrite','allocate'],['readonly','copy'],
+                    ['readonly','copy'],['readonly','copy']], op_dtypes='float')
 
         for cv_,T_,p_,x_ in it:
             # If x is unspecified
@@ -1960,12 +1961,14 @@ Returns unit_temperature
 
         scale = pyro.units.energy(to_units='kJ')
         scale = pyro.units.matter(scale,self.data['mw'],to_units='kg')
-        h *= scale
-
-        it = np.nditer((None,None,h,p),op_flags=[['readwrite','allocate'], 
-            ['readwrite','allocate'],['readonly'],['readonly']])
+		
+        it = np.nditer((None,None,h,p),
+                op_flags=[['readwrite','allocate'],['readwrite','allocate'],
+					['readonly','copy'], ['readonly','copy']],
+					op_dtypes='float')
 
         for T_,x_,h_,p_ in it:
+            h_ *= scale
             T_[...] = -1.
             x_[...] = -1.
             if p_ < p3:
@@ -2112,12 +2115,14 @@ Returns unit_temperature
         scale = pyro.units.energy(to_units='kJ')
         scale = pyro.units.matter(scale,self.data['mw'],to_units='kg')
         scale = pyro.units.temperature(scale,to_units='K')
-        s *= scale
 
-        it = np.nditer((None,None,s,p),op_flags=[['readwrite','allocate'], 
-            ['readwrite','allocate'],['readonly'],['readonly']])
+        it = np.nditer((None,None,s,p),
+		            op_flags=[['readwrite','allocate'],['readwrite','allocate'],
+					['readonly','copy'], ['readonly','copy']],
+					op_dtypes='float')
 
         for T_,x_,s_,p_ in it:
+            s_ *= scale]
             T_[...] = -1.
             x_[...] = -1.
             if p_ < p3:
