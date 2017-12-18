@@ -22,9 +22,12 @@ h2 {
 .title {
     text-align:center;
     /* background-color: var(--pyro-black, black); */
-    background-color: #00005f;
+    /* background-color: #00005f; */
+	background-color: white;
+	border: 3px solid var(--pyro-black, black);
     border-radius: 40px;
-    color: white;
+    /* color: white; */
+	color: black;
     font-family: Arial, sans-serif;
     padding: 10px;
     margin: 0px 0px 50px 0px;
@@ -32,9 +35,7 @@ h2 {
 
 .subtitle {
     text-align:center;
-    border-color: var(--pyro-black, black);
-    border-style: solid;
-    border-width: 3px;
+	border: 3px solid var(--pyro-black, black);
     border-radius: 40px;
     color: var(--pyro-black, black);
     font-family: Arial, sans-serif;
@@ -111,24 +112,15 @@ span.code{
     position:static;
 }
 
-#menu {
-    width:200px;
-    height:100%;
-    border:none;
-    text-align:center;
-    position:fixed;
-    top:10;left:0;
-    padding:10px;
-}
-
 
 a:link, a:visited, a:active {
-    color:black;
+	color:inherit;
     text-decoration:underline;
 }
 
 a:hover {
-    color:#ef5423;
+    color:var(--pyro-orange, orange);
+	text-decoration:underline;
 }
 
 #content {
@@ -149,11 +141,23 @@ a:hover {
     width:100%;
 }
 
+#menu {
+	background-color: black;
+    width:200px;
+    height:100%;
+    border:none;
+    text-align:center;
+    position:fixed;
+    top:10;left:0;
+    padding:10px;
+}
+
 .menuitem {
-    margin-top:20px;
-    margin-bottom:20px;
-    font-family:Arial,sans-serif;
-    font-size:14pt;
+    margin:20px 20px 20px 20px;
+	color: white;
+    font-family:sans-serif;
+    font-size:16pt;
+	text-align:right;
 }
 
 .smenuitem {

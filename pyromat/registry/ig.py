@@ -88,7 +88,7 @@ p       the pressure
         small = 1e-8    # A "small" number
         epsilon = 1e-6  # Iteration precision
 
-        it = np.nditer((None,value,p),op_flags=[['readwrite','allocate'],['readonly'],['readonly']])
+        it = np.nditer((None,value,p),op_flags=[['readwrite','allocate'],['readonly','copy'],['readonly','copy']],op_dtypes='float')
         for T_,y_,p_ in it:
             # Use Tk as the iteration parameter.  We will write to T_ later.
             # Initialize it to be in the center of the species' legal range.
@@ -705,12 +705,8 @@ Returns unit_energy / unit_matter
         scale = pyro.units.matter(scale,self.data['mw'],from_units='mol',exponent=-1)
         scale = pyro.units.temperature(scale,from_units='K',exponent=-1)
 
-        # Initialize the result based on T
-        # Since p doesn't play a role, the result can just be broadcast
-        # to match p's dimensions at the end
-        out = np.zeros_like(T)
         # Create an iterator over T and out
-        it = np.nditer((T,out),op_flags=[['readonly'],['readwrite']])
+        it = np.nditer((T,None),op_flags=[['readonly','copy'],['readwrite','allocate']],op_dtypes='float')
 
         for TT,oo in it:
             C = self.data['C'][self._crange(TT)]
@@ -719,7 +715,7 @@ Returns unit_energy / unit_matter
             oo[...] += C[4]/t/t
             oo[...] *= scale
         # Broadcast the result to match the dims of p
-        return np.broadcast_to(out, np.broadcast(T,p).shape)
+        return it.operands[1]
         
     def h(self,T=None,p=None,hf=True):
         """Enthalpy
@@ -751,12 +747,8 @@ Returns unit_energy / unit_matter
         scale = pyro.units.energy(from_units='kJ')
         scale = pyro.units.matter(scale,self.data['mw'],from_units='mol',exponent=-1)
 
-        # Initialize the result based on T
-        # Since p doesn't play a role, the result can just be broadcast
-        # to match p's dimensions at the end
-        out = np.zeros_like(T)
         # Create an iterator over T and out
-        it = np.nditer((T,out),op_flags=[['readonly'],['readwrite']])
+        it = np.nditer((T,None),op_flags=[['readonly','copy'],['readwrite','allocate']],op_dtypes='float')
         if hf:
             C7 = 0.
         else:
@@ -768,7 +760,7 @@ Returns unit_energy / unit_matter
             oo[...] -= C[4]/t + C7
             oo[...] *= scale
         # Broadcast the result to match the dims of p
-        return np.broadcast_to(out, np.broadcast(T,p).shape)
+        return it.operands[1]
 
     def s(self,T=None,p=None):
         """Entropy
@@ -796,12 +788,8 @@ Returns unit_energy / unit_matter / unit_temperature
         scale = pyro.units.matter(scale,self.data['mw'],from_units='mol',exponent=-1)
         scale = pyro.units.temperature(scale,from_units='K',exponent=-1)
 
-        # Initialize the result based on T
-        # Since p doesn't play a role, the result can just be broadcast
-        # to match p's dimensions at the end
-        out = np.zeros(np.broadcast(T,p).shape)
         # Create an iterator over T, p, and out
-        it = np.nditer((T,p,out),op_flags=[['readonly'],['readonly'],['readwrite']])
+        it = np.nditer((T,p,None),op_flags=[['readonly','copy'],['readonly','copy'],['readwrite','allocate']],op_dtypes='float')
 
         for TT,pp,oo in it:
             C = self.data['C'][self._crange(TT)]
@@ -812,7 +800,7 @@ Returns unit_energy / unit_matter / unit_temperature
             oo[...] -= pyro.units.const_Ru * np.log(pp/self._pref_bar)
             oo[...] *= scale
         # Broadcast the result to match the dims of p
-        return out
+        return it.operands[2]
 
     def e(self,T=None,p=None,hf=True):
         """Energy
@@ -845,12 +833,8 @@ Returns unit_energy / unit_matter
         scale = pyro.units.energy(from_units='kJ')
         scale = pyro.units.matter(scale,self.data['mw'],from_units='mol',exponent=-1)
 
-        # Initialize the result based on T
-        # Since p doesn't play a role, the result can just be broadcast
-        # to match p's dimensions at the end
-        out = np.zeros_like(T)
         # Create an iterator over T and out
-        it = np.nditer((T,out),op_flags=[['readonly'],['readwrite']])
+        it = np.nditer((T,None),op_flags=[['readonly','copy'],['readwrite','allocate']],op_dtypes='float')
 
         R = 1e-3 * pyro.units.const_Ru
         if hf:
@@ -865,7 +849,7 @@ Returns unit_energy / unit_matter
             oo[...] -= TT * R
             oo[...] *= scale
         # Broadcast the result to match the dims of p
-        return np.broadcast_to(out, np.broadcast(T,p).shape)
+        return it.operands[1]
 
 
     def d(self,T=None,p=None):
