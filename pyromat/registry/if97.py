@@ -1913,7 +1913,7 @@ Accepts unit_temperature
         dimensionless
 Returns unit_mass / unit_mol
 """
-        mw = pyro.units.mass(self.data['wm'],from_units='g')
+        mw = pyro.units.mass(self.data['mw'],from_units='g')
         mw = pyro.units.molar(mw,from_units='mol',exponent=-1)
         return mw
         
@@ -1961,7 +1961,6 @@ Returns unit_temperature
 
         scale = pyro.units.energy(to_units='kJ')
         scale = pyro.units.matter(scale,self.data['mw'],to_units='kg')
-        h *= scale
 		
         it = np.nditer((None,None,h,p),
                 op_flags=[['readwrite','allocate'],['readwrite','allocate'],
@@ -1971,6 +1970,8 @@ Returns unit_temperature
         for T_,x_,h_,p_ in it:
             T_[...] = -1.
             x_[...] = -1.
+            # Scale the enthalpy to kJ/kg
+            hh = h_ * scale
             if p_ < p3:
                 # Calculate the saturation temperature and enthalpies
                 Ts = self._Ts(p_)
@@ -1979,87 +1980,87 @@ Returns unit_temperature
                 pi,t,_,_,gt,_,_,_ = self._g2(Ts,p_,order=1)
                 hV = R * Ts * t * gt
                 # If h is below the liquid enthalpy, use region 1
-                if h_<hL:
-                    T_[...] = self._th1(h=h_,p=p_)
+                if hh<hL:
+                    T_[...] = self._th1(h=hh,p=p_)
                 # If h is below the vapor enthalpy, this is a saturated mixture
-                elif h_<hV:
+                elif hh<hV:
                     T_[...] = Ts
-                    x_[...] = (h_-hL)/(hV-hL)
+                    x_[...] = (hh-hL)/(hV-hL)
                 # If p is below the a-b boundary
                 elif p_<p2ab:
                     # Calculate the enthalpy at the 2-5 boarder
                     pi,t,g,gp,gt,_,_,_ = self._g5(T25,p_,order=1)
                     h25 = R*T25 * t * gt
                     # If h is below the 2-5 boundary, this is region 2a
-                    if h_<h25:
-                        T_[...] = self._th2a(h=h_,p=p_)
+                    if hh<h25:
+                        T_[...] = self._th2a(h=hh,p=p_)
                     else:
                         # Calculate the enthalpy at the upper bound of r5
                         pi,t,g,gp,gt,_,_,_ = self._g5(T5max,p_,order=1)
                         h5 = R*T5max * t * gt
-                        if h_>h5:
+                        if hh>h5:
                             raise pyro.utility.PMParamError(
                             'Steam T_h(): the state is not in the IF-97 domain.')
-                        Tinit = T25 + (T5max-T25)*(h_-h25)/(h5-h25)
-                        T_[...] = self._th5(h=h_, p=p_, Tinit=Tinit)
+                        Tinit = T25 + (T5max-T25)*(hh-h25)/(h5-h25)
+                        T_[...] = self._th5(h=hh, p=p_, Tinit=Tinit)
                 # If h is below (left of) the b-c boarder
-                elif p_>p2c and h_<self._b2bc(p=p_):
+                elif p_>p2c and hh<self._b2bc(p=p_):
                     # Region 2c
-                    T_[...] = self._th2c(h=h_, p=p_)
+                    T_[...] = self._th2c(h=hh, p=p_)
                 else:
                     # Calculate the enthalpy at the 2-5 boarder
                     pi,t,g,gp,gt,_,_,_ = self._g5(T25,p_,order=1)
                     h25 = R*T25 * t * gt
                     # All that's left is either 2b or 5
-                    if h_<h25:
+                    if hh<h25:
                         # Region 2b
-                        T_[...] = self._th2b(h=h_, p=p_)
+                        T_[...] = self._th2b(h=hh, p=p_)
                     else:
                         # Calculate the enthalpy at the upper bound of r5
                         pi,t,g,gp,gt,_,_,_ = self._g5(T5max,p_,order=1)
                         h5 = R*T5max * t * gt
-                        if h_>h5:
+                        if hh>h5:
                             raise pyro.utility.PMParamError(
                             'Steam T_h(): the state is not in the IF-97 domain.')
-                        Tinit = T25 + (T5max-T25)*(h_-h25)/(h5-h25)
-                        T_[...] = self._th5(h=h_, p=p_, Tinit=Tinit)
+                        Tinit = T25 + (T5max-T25)*(hh-h25)/(h5-h25)
+                        T_[...] = self._th5(h=hh, p=p_, Tinit=Tinit)
             elif p_ <= pmax:
                 # Calculate the enthalpy at the 1-3 boarder
                 pi,t,g,gp,gt,_,_,_ = self._g1(T13,p_,order=1)
                 h13 = R*T13 * t * gt
-                if h_<h13:
+                if hh<h13:
                     # Region 1
-                    T_[...] = self._th1(h=h_,p=p_)
+                    T_[...] = self._th1(h=hh,p=p_)
                 else:
                     # Calculate T and h at the 2-3 boarder
                     T23 = self._b23(p=p_)
                     h23 = self.h(T=T23,p=p_)
                     pi,t,g,gp,gt,_,_,_ = self._g2(T23,p_,order=1)
                     h23 = R*T23 * t * gt
-                    if h_<h23:
+                    if hh<h23:
                         # Region 3
-                        Tinit = T13 + (T23-T13)*(h_-h13)/(h23-h13)
-                        T_[...] = self._th3(h=h_, p=p_, Tinit=Tinit)
-                    elif h_<self._b2bc(p=p_):
+                        Tinit = T13 + (T23-T13)*(hh-h13)/(h23-h13)
+                        T_[...] = self._th3(h=hh, p=p_, Tinit=Tinit)
+                    elif hh<self._b2bc(p=p_):
                         # Region 2c
-                        T_[...] = self._th2c(h=h_,p=p_)
+                        T_[...] = self._th2c(h=hh,p=p_)
                     else:
                         # Calculate the enthalpy at the 2-5 boarder
                         pi,t,g,gp,gt,_,_,_ = self._g5(T25,p_,order=1)
                         h25 = R*T25 * t * gt
-                        if h_<h25:
+                        if hh<h25:
                             # Region 2b
-                            T_[...] = self._th2b(h=h_,p=p_)
+                            T_[...] = self._th2b(h=hh,p=p_)
                         elif p_<p5max:
                             # Calculate the enthalpy at the upper bound of r5
                             pi,t,g,gp,gt,_,_,_ = self._g5(T5max,p_,order=1)
                             h5 = R*T5max * t * gt
-                            if h_>h5:
+                            if hh>h5:
                                 raise pyro.utility.PMParamError(
                                 'Steam T_h(): the state is not in the IF-97 ' +
                                 'domain.')
-                            Tinit = T25 + (T5max-T25)*(h_-h25)/(h5-h25)
-                            T_[...] = self._th5(h=h_, p=p_, Tinit=Tinit)
+                            Tinit = T25 + (T5max-T25)*(hh-h25)/(h5-h25)
+                            T_[...] = self._th5(h=hh, p=p_, Tinit=Tinit)
                         else:
                             raise pyro.utility.PMParamError(
                             'Steam T_h(): the state is not in the IF-97 domain.')
@@ -2115,7 +2116,6 @@ Returns unit_temperature
         scale = pyro.units.energy(to_units='kJ')
         scale = pyro.units.matter(scale,self.data['mw'],to_units='kg')
         scale = pyro.units.temperature(scale,to_units='K')
-        s *= scale
 
         it = np.nditer((None,None,s,p),
 		            op_flags=[['readwrite','allocate'],['readwrite','allocate'],
@@ -2125,77 +2125,79 @@ Returns unit_temperature
         for T_,x_,s_,p_ in it:
             T_[...] = -1.
             x_[...] = -1.
+            # Scale the entropy to kJ/kg/K
+            ss = s_ * scale
             if p_ < p3:
                 Ts = self.Ts(p=p_)
                 pi,t,g,_,gt,_,_,_ = self._g1(Ts,p_,order=1)
                 sL = R * (t*gt - g)
                 pi,t,g,_,gt,_,_,_ = self._g2(Ts,p_,order=1)
                 sV = R * (t*gt - g)
-                if s_<sL:
+                if ss<sL:
                     # Region 1
-                    T_[...] = self._ts1(s=s_,p=p_)
-                elif s_<sV:
+                    T_[...] = self._ts1(s=ss,p=p_)
+                elif ss<sV:
                     # Saturation
                     T_[...] = Ts
-                    x_ = (s_-sL)/(sV-sL)
+                    x_ = (ss-sL)/(sV-sL)
                 elif p_<p2ab:
                     s25 = self.s(T=T25,p=p_)
-                    if s_<s25:
+                    if ss<s25:
                         # Region 2a
-                        T_[...] = self._ts2a(s=s_,p=p_)
+                        T_[...] = self._ts2a(s=ss,p=p_)
                     else:
                         # Region 5
                         s5 = self.s(T=T5max,p=p_)
-                        if s_>s5:
+                        if ss>s5:
                             raise pyro.utility.PMParamError(
                             'Steam T_h(): the state is not in the IF-97 domain.')
-                        Tinit = T25 + (T5max-T25)*(s_-s25)/(s5-s25)
-                        T_[...] = self._ts5(s=s_, p=p_, Tinit=Tinit)
-                elif s_<s2bc:
+                        Tinit = T25 + (T5max-T25)*(ss-s25)/(s5-s25)
+                        T_[...] = self._ts5(s=ss, p=p_, Tinit=Tinit)
+                elif ss<s2bc:
                     # Region 2c
-                    T_[...] = self._ts2c(s=s_, p=p_)
+                    T_[...] = self._ts2c(s=ss, p=p_)
                 else:
                     s25 = self.s(T=T25,p=p_)
-                    if s_<s25:
+                    if ss<s25:
                         # Region 2b
-                        T_[...] = self._ts2b(s=s_, p=p_)
+                        T_[...] = self._ts2b(s=ss, p=p_)
                     else:
                         # Region 5
                         s5 = self.s(T=T5max,p=p_)
-                        if s_>s5:
+                        if ss>s5:
                             raise pyro.utility.PMParamError(
                             'Steam T_h(): the state is not in the IF-97 domain.')
-                        Tinit = T25 + (T5max-T25)*(s_-s25)/(s5-s25)
-                        T_[...] = self._ts5(s=s_, p=p_, Tinit=Tinit)
+                        Tinit = T25 + (T5max-T25)*(ss-s25)/(s5-s25)
+                        T_[...] = self._ts5(s=ss, p=p_, Tinit=Tinit)
             elif p_ <= pmax:
                 s13 = self.s(T=T13, p=p_)
-                if s_<s13:
+                if ss<s13:
                     # Region 1
-                    T_[...] = self._ts1(s=s_,p=p_)
+                    T_[...] = self._ts1(s=ss,p=p_)
                 else:
                     T23 = self._b23(p=p_)
                     s23 = self.s(T=T23,p=p_)
-                    if s_<s23:
+                    if ss<s23:
                         # Region 3
-                        Tinit = T13 + (T23-T13)*(s_-s13)/(s23-s13)
-                        T_[...] = self._ts3(s=s_, p=p_, Tinit=Tinit)
-                    elif s_<s2bc:
+                        Tinit = T13 + (T23-T13)*(ss-s13)/(s23-s13)
+                        T_[...] = self._ts3(s=ss, p=p_, Tinit=Tinit)
+                    elif ss<s2bc:
                         # Region 2c
-                        T_[...] = self._ts2c(s=s_,p=p_)
+                        T_[...] = self._ts2c(s=ss,p=p_)
                     else:
                         s25 = self.s(T=T25,p=p_)
-                        if s_<s25:
+                        if ss<s25:
                             # Region 2b
-                            T_[...] = self._ts2b(s=s_,p=p_)
+                            T_[...] = self._ts2b(s=ss,p=p_)
                         elif p_<=p5max:
                             # Region 5
                             s5 = self.s(T=T5max,p=p_)
-                            if s_>s5:
+                            if ss>s5:
                                 raise pyro.utility.PMParamError(
                                 'Steam T_s(): the state is not in the IF-97 ' +
                                 'domain.')
-                            Tinit = T25 + (T5max-T25)*(s_-s25)/(s5-s25)
-                            T_[...] = self._ts5(s=s_, p=p_, Tinit=Tinit)
+                            Tinit = T25 + (T5max-T25)*(ss-s25)/(s5-s25)
+                            T_[...] = self._ts5(s=ss, p=p_, Tinit=Tinit)
                         else:
                             raise pyro.utility.PMParamError(
                             '*Steam T_s(): the state is not in the IF-97 domain.')

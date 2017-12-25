@@ -16,8 +16,7 @@
 <div id="content">
 <div class="title">
     <h1>PYroMat</h1>
-	<img width="125px" src="./fig/PYro_Black_Small.png"></img>
-    <h2>How-to</h2>
+    <h2>How-to and FAQ</h2>
 </div>
 
 <div class="section">
@@ -27,18 +26,69 @@
     <div class="toc0"><a  href="#plot">Plotting</a></div>
     <div class="toc1"><a href="#plot_surf">Surface plots</a></div>    
     <div class="toc0"><a href="#faq">FAQ</a></div>
-    <div class="toc1"><a href="#faq_redundant">Redundant species</a></div>
-    <div class="toc1"><a href="#faq_inconsistent">Inconsistent property values</a></div>
+    <div class="toc1"><a href="#faq_redundant">Why two H<sub>2</sub>O entries?</a></div>
+    <div class="toc1"><a href="#faq_inconsistent">PYroMat disagrees with my table.  Is that an error?</a></div>
+    <div class="toc1"><a href="#faq_units">What unit system does PYroMat use?</a>
 </div>
 
 <h3 class="subtitle" id="cycle">Cycle analysis</h3>
 <div class="section">
-    Coming soon.
+    <p>
+    It is difficult to name a more classical application for thermodynamic property calculators than cycle analysis.  Generations of mechanical engineers paid their dues studying the property tables; the important tools for the design and study of engines, heat pumps, and the many other fluid machines on which we all depend.  Here are example codes using PYroMat to perform two classical analyses; Brayton and Rankine cycles.
+    </p>
+
+    <h3 id="cycle_brayton">A Brayton cycle analysis</h3>
+    <p>
+    The Brayton cycle is sometimes better known as a jet engine, but it is also at the heart of the most efficient power plants in the world.  When air is the working fluid, we don't need heat exchangers; we can burn the fuel right in the working fluid.
+    </p>
+    <p>
+    The Brayton cycle uses three processes to separate four states: (1) ambient air is compressed to some elevated pressure, (2) fuel is burned at constant pressure to heat the working fluid, and (3) work is extracted by a turbine.  Here's an example where we compute the mass flow required to produce a 100kW turbine using a 12:1 pressure ratio.
+    </p>
+    <a href="./src/brayton.py">Source</a><br>
+    <img class="figure" src="./fig/brayton.png"></img>
+
+    <h3 id="cycle_rankine">A Rankine cycle analysis</h3>
+    <p>
+    Of all the thermodynamic engine cycles, arguably none has had so substantial impact on our society and culture as the Rankine cycle; though the Diesel and Otto cycles might have something to say about that.  The Rankine cycle is sometimes known as the steam engine.  In addition to driving the industrial revolution, fueling the rise of rail around the world, and powering the first ships that could "sail" into the wind, the Rankine cycle still provides most of the world's electricity in nuclear, coal, and even the back-end of combined-cycle gas turbine plants.
+    </p>
+    <p>
+    The Rankine cycle usually uses water as its working fluid.  Despite its unfortunate corrosive properties, water is quite remarkable for its high specific heat and latent heat of vaporization.  The Rankine cycle uses four or five steps to separate four or five states: (1) a pump pressurizes liquid water from a low-pressure reservoir, (2) a boiler heats the liquid water to a boil, (2b) sometimes, a "super-heater" is added to continue heating the steam, (3) a turbine or piston expands the steam to produce work, and (4) a condenser cools the fluid back to a liquid before returning it to the reservoir.
+    </p>
+    <p>
+    Here is an example analysis to calculate the mass flow of water needed to produce 100kW with a boiler at 250psi, and a super-heater.  The super-heater heat is calculated so that the piston/turbine output is a saturated vapor.
+    </p>
+    <a href="./src/rankine.py">Source</a><br>
+    <img class="figure" src="./fig/rankine_pv.png"></img>
+    <img class="figure" src="./fig/rankine_ts.png"></img>
 </div>
 
 <h3 class="subtitle" id="plot">Plotting</h3>
 <div class="section">
-    Coming soon.
+    <p>
+    PYroMat class methods natively support numpy arrays, which makes plotting easy.
+    </p>
+    <div style="position:relative;height:300px;width:600px;">
+    <pre class="code" style="width:350px;">
+>>> import matplotlib.pyplot as plt
+>>> import numpy as np
+>>> import pyromat as pyro
+>>> T = np.linspace(300.,1000.,101)
+>>> air = pyro.get('mp.H2O')
+>>> plt.plot(T, air.cp(T))</pre>
+
+    <div style="position:absolute;top:-20px;left:270px;">
+        <img src="./fig/water_cp.png" width=400px;>
+    </div>
+    </div>
+
+    <h3 id="plot_surf">Making surface plots</h3>
+    <p>
+    It is often useful to view properties as surfaces over temperature and pressure, but the code is not usually easy.  In this example, adding on the saturation lines is actually far more code than generating the surfaces.
+    </p>
+    <a href="./src/steamtest.py">Source</a><br>
+    <img width="275px" src="./fig/d2.png"></img>
+    <img width="275px" src="./fig/h2.png"></img><br>
+    <img width="275px" src="./fig/s2.png"></img><br>
 </div>
 
 
@@ -55,7 +105,7 @@
     These drastic differences illustrate the different purposes for which these data sets were created.  The ideal gas collection was created primarily for reaction modeling.  Water is a primary combustion product, in that role it usually shows up at high temperatures, and the ideal gas assumption gets sketchy around the boiling point anyway.  Meanwhile, the multi-phase collection is primarily useful for cycle modeling, and doesn't adhere to the NIST-JANAF enthalpy conventions.
     </p>
 
-    <h3 id="faq_inconsistent" style="text-align:left;">A property value in another source disagrees with PYroMat.  Is this an error?</h3>
+    <h3 id="faq_inconsistent" style="text-align:left;">PYroMat disagrees with my property table.  Is this an error?</h3>
     <p>
     Short answer: maybe, but probably not.
     </p>
@@ -85,6 +135,13 @@ array(2.2905867790156145)</pre>
     If you already understand all this, and you still think you've spotted an error in the properties, I'd really like to know about it.  Please do <a href="mailto:crm28@psu.edu?subject=PYroMat property errors">email me</a>!  I may not get back to you right away, but please do be patient with me.
     </p>
 
+    <h3 id="faq_units">What unit system does PYroMat use?</h3>
+    <p>
+    PYroMat defaults to kJ, kg, Kelvin, and bar.  But, all units are configurable using <a href="./doc_api.html#if_config">PYroMat's configuration system</a>.
+    </p>
+    <p>
+    To know how an individual property is being reported, each method comes with in-line documentation that tells you what units that method uses.  For example, densities use <span class="code">unit_matter/unit_volume</span>.  This step is important, because the unit matter need not be the same as the unit mass.  To check PYroMat's current settings, just type <span class="code">pyro.config</span> to print a summary of the current settings.
+    </p>
 </div>
 
 
