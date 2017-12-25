@@ -146,6 +146,8 @@ documentation for more details.
 
     def _vectorize(self,T,p,out_init=False,allow_scalar=True,def_T=None,def_p=None):
         """'vectorize' T and p inputs
+** OBSOLETE **
+
     (T,p) = mydataclass._vectorize(T,p)
 
 The vectorize function accepts numerical or indexable inputs for T and p

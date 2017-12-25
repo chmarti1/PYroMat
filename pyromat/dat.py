@@ -350,12 +350,12 @@ function.
         else:
             utility.print_error(
 'Could not find the class "' + newdata['class'] + '" in the registry.', lead)
-            raise utility.HotPyDataError('Class not found')
+            raise utility.PMDataError('Class not found')
 
     else:
         utility.print_error(
 'The class data does not contain either the ''id'' or the ''class'' key.')
-        raise utility.HotPyDataError('Bad data dictionary')
+        raise utility.PMDataError('Bad data dictionary')
 
 
 
@@ -376,19 +376,20 @@ def updatefiles(dest=None, verbose=True, deletefiles=False):
 Changes to the data dictionary can be recorded 
 permanently by running the updatefiles() function.
 Changes are detected with the load(check=True)
-function. Changed files are overwritten, added entries
-are used to generate new .hpd files, and removed 
-entries will have their corresponding files deleted.
-Any entries that show redundancy errors will result
-in a prompt for how to repair the conflict.  
-Files in conflicts that are not resolved will be 
-disqualified from other operations.
+function, and the user (when run verbosely) is 
+prompted for permission to overwrite or delete
+existing files.  New entries will be used to generate 
+new .hpd files, and removed entries will have their 
+corresponding files deleted.  Any entries that show 
+redundancy errors will result in a prompt for how to 
+repair the conflict.  Files in conflicts that are not 
+resolved will be disqualified from other operations.
 
 Existing files that qualify for an update will be 
 replaced based on their entry in the 'fromfile' 
 keyword.  Data entries with no record of their parent 
 file or that were created from scratch will be placed 
-in the first directory in the constants.DATADIR list
+in the first directory in the config['data_dir'] list
 unless an alternate location is explicitly specified 
 in the save() function call.
 

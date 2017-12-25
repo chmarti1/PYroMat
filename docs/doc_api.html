@@ -210,7 +210,7 @@ reg_dir = '/usr/share/pyromat/reg'</pre>
     For detailed documentation on all the configuration directives, read the comments in the "defaults.py" file.
     </p>
 
-    <h3 id="import_config">Populating the registry</h3>
+    <h3 id="import_reg">Populating the registry</h3>
     <p>
     The registry is where all the class definitions reside.  The <span class="code">reg</span> module has a function called <span class="code">regload()</span> that is responsible for seeking out the contents of all the directories identified by the <span class="code">reg_dir</span> configuration directive.  Like the <span class="code">config_file</span> directive, it accumulates values from all configuration files.
     </p>
@@ -269,11 +269,192 @@ with open("mydata.hpd") as ff:
 
 <h3 id="be" class="subtitle">Back-end layer</h3>
 <div class="section">
+    <h3 id="be_reg">reg</h3>
     <p>
-    Coming soon.
+    The <span class="code">reg</span> module is responsible for maintaining the <span class="code">registry</span>; a dictionary of PYroMat class definitions that provide users all the tools they need to interact with the species' data.  The <span class="code">reg</span> module provides three essential tools:
+    </p>
+    <ul>
+        <li>The <span class="code">regload()</span> function</li>
+        <li>The <span class="code">registry</span> dictionary</li>
+        <li>The <span class="code">__basedata__</span> class definition</li>
+    </ul>
+    <p>
+    The <span class="code">regload()</span> function is responsible for loading the basic class definitions used to spawn all the individual species' objects described in the <a href="#import_reg">import process</a>.  The function's behavior is determined by the <a href="if_config">configuration options</a> <span class="code">reg_dir</span>, <span class="code">reg_overwrite</span>, <span class="code">reg_exist_fatal</span>, and <span class="code">reg_verbose</span>.  Their behaviors are discussed with the <a href="#import_reg">import system</a>.  Each file found with a ".py" extension is compiled and executed in its own variable space, and any objects that are children of the <span class="code">__basedata__</span> class will be added to the registry.
+    </p>
+    <p>
+    The <span class="code">registry</span> is the dictionary that contains all of the class definitions found by <span class="code">regload()</span>.  The key is the string <span class="code">__name__</span> of the class definition, and the value of each is the class object itself.
+    </p>
+    <p>
+    The <span class="code">__basedata__</span> class must be a parent of all PYroMat class definitions.  It defines an initializer and a <span class="code">__basetest__()</span> member that does some VERY simple integrity checking on the data.  In earlier versions, <span class="code">__basedata__</span> also offered some tools for "vectorizing" data and a <span class="code">psolve</span> routine for property inversion, but these were depreciated in favor of other methods.  The most important member of <span class="code">__basedata__</span> is <span class="code">data</span>, which is the dictionary which is supposed to contain the species' data.
+    </p>
+    <p>
+    By default, each class definition resides in its own appropriately named file in the "registry" directory.  Users who want to develop their own classes might want to change that by adding entries to the <span class="code">reg_dir</span> configuration directive.  Here is a minimalist custom class definition that references the <span class="code">__basedata__</span> class, and calls its <span class="code">__init__</span> method to do some things we will discuss in the next section.
+    </p>
+    <pre class="code">
+import pyromat as pyro
+class MyClass(pyro.reg.__baseclass__):
+    def __init__(self, data):
+        pyro.reg.__baseclass__.__init__(self,data)</pre>
+
+    <h3 id="be_dat">dat</h3>
+    <p>
+    The <span class="code">dat</span> module is responsible for maintaining the <span class="code">data</span> dictionary, which provides each of the individual species objects keyed by their species ID.  In addition to being able to load these objects, the <span class="code">dat</span> module offers tools to create, manipulate, and even save them.  In addition to the <span class="code">data</span> dictionary itself, the <span class="code">dat</span> module contains:
+    </p>
+    <table>
+        <tr>
+            <td><span class="code">load()</span></td>
+            <td>Loads the PYroMat ".hpd" files into the <span class="code">data</span> dictionary.  If called with the <span class="code">check=True</span> option</span>, instead of populating <span class="code">data</span>, <span class="code">load()</span> will load files into a fresh dictionary, and perform a detailed comparison with the data currently in memory.</td>
+        </tr>
+        <tr>
+            <td><span class="code">clear()</span></td>
+            <td>Empties the <span class="code">data</span> dictionary.</td>
+        </tr>
+        <tr>
+            <td><span class="code">new()</span></td>
+            <td>Creates a new entry in the <span class="code">data</span> dictionary from a dictionary of raw data.  The dictionary must contain "id", "class", and "doc" keys, so that <span class="code">new()</span> will know how to store the object and with which class to associate it.  Otherwise, it must only conform to the rules of the class.</td>
+        </tr>
+        <tr>
+            <td><span class="code">updatefiles()</span></td>
+            <td>When run verbosely, this function inters an interactive dialogue to bring the files into agreement with the data currently in memory.  The idea is that users will be free to edit entries in the <span class="code">data</span> dictionary directly and the files can be automatically updated to make the changes permanent.</td>
+        </tr>
+    </table>
+    <p>
+    More detail is offered by the in-line help on each of these functions.
+    </p>
+    <p>
+    When <span class="code">load</span> works its way through the <span class="code">dat_dir</span> list of directories looking for files with the ".hpd" extension, it uses the <a href="https://docs.python.org/2/library/json.html">json</a> module to load them.  The result is a dictionary with entries for each of the data elements defined in the file.  This dictionary is passed verbatim to the class initializer for each object, so that the creation of the oxygen object might appear:
+    </p>
+    <pre class="code">
+>>> import pyromat as pyro
+>>> import json
+>>> with open('O2.hpd','r') as ff:
+...     data = json.load(ff)
+...
+>>> class = data['class']
+>>> O2 = pyro.reg.registry[class](data)</pre>
+    <p>
+    The behavior of <span class="code">load()</span> is defined by configuration directives, <span class="code">dat_dir</span>, <span class="code">dat_overwrite</span>, <span class="code">dat_exist_fatal</span>, and <span class="code">dat_verbose</span>.  These are described in more detail in the <a href="#import_dat">import system</a> section.
+    </p>
+
+    <h3 id="be_units">units</h3>
+    <p>
+    The unit conversion system uses a single class as the prototype for a collection of function-like objects that go between the various unit systems PYroMat recognizes.  The fastest way to see what is available is to call the <span class="code">show()</span> function.
+    </p>
+    <pre class="code">
+>>> pyro.units.show()
+          force : lb lbf kN N oz kgf 
+         energy : BTU kJ J cal eV kcal BTU_ISO 
+    temperature : K R eV C F 
+       pressure : mmHg psi inHg MPa inH2O kPa Pa bar atm GPa torr mmH2O ksi 
+          molar : Ncum NL Nm3 kmol scf n mol sci Ncc lbmol 
+         volume : cumm cc mL L mm3 in3 gal UKgal cuin ft3 cuft USgal m3 cum 
+         length : ft nm cm mm m km um mile in 
+           mass : mg kg g oz lb lbm slug 
+           time : s ms min hr ns year day us </pre>
+    <p>
+    Each row is named for the <span class="code">Conversion</span> object that defines the units listed.  For example, in order to convert a force from 4.5 newtons to pounds,
+    </p>
+    <pre class="code">
+>>> pyro.units.force(4.5, from_units='N', to_units='lb')
+1.0116402439486973</pre>
+    <p>
+    When the <span class="code">from_units</span> or <span class="code">to_units</span> keywords are omitted, then each of the <span class="code">Conversion</span> objects is linked to a configuration directive to use instead.  This is how the various PYroMat data classes convert to and from the user-specified unit systems.  For example, 
+    </p>
+    <pre class="code">
+>>> pyro.config['unit_force'] = 'N'
+>>> pyro.units.force(4.5, to_units='lb')
+1.0116402439486973
+>>> pyro.units.force(1.0116402439486973, from_units='lb')
+4.5</pre>
+    <p>
+    Of course, some conversions require multiple steps.  For example, molecular weight is specified in <span class="code">unit_mass</span> per <span class="code">unit_molar</span>.  To make that multi-step process easier, there is an optional <span class="code">exponent</span> keyword to indicate the unit's exponent in the unit cluster.
+    </p>
+    <pre class="code">
+>>> O2mw = 32.  # kg / kmol
+>>> O2mw = pyro.units.mass(O2mw, from_units='kg', to_units='lbm')
+>>> O2mw = pyro.units.molar(O2mw, from_units='kmol', to_units='mol', exponent=-1)</pre>
+    <p>
+    This calculates molecular weight in pound-mass per mole; if you like that kind of thing.
+    </p>
+    <p>
+    This behavior works for all nine (9) of the <span class="code">Conversion</span> instances above, but there are also two special cases: <span class="code">temperature_scale()</span> and <span class="code">matter()</span>.
+    </p>
+    <p>
+    The <span class="code">temperature()</span> conversion tool will perform temperature conversions with the assumption that all temperatures are <it>relative</it> (i.e. a change in temperature).  For example, a 32-degree-Fahrenheit change in temperature is equivalent to a 17.8-degree-Celsius change, but 32F is NOT 17.8C.  This problem is addressed by the <span class="code">temperature_scale()</span> function, which has nearly the same call signature as <span class="code">temperature()</span>, but handles conversion between scales gracefully.
+    </p>
+    <pre class="code">
+>>> pyro.units.temperature(32., from_units="F", to_units="C")
+17.77777777777778
+>>> pyro.units.temperature_scale(32., from_units="F", to_units="C")
+0.0</pre>
+    <p>
+    The <span class="code">matter()</span> function is a different matter.  It requires the molecular weight of a substance, and it can convert between mass and molar units.  This is what PYroMat uses to handle intensive units like entropy, enthalpy, specific heat, etc.  It is linked to the <span class="code">unit_matter</span> configuration directive for its default behavior.
+    </p>
+    <pre class="code">
+>>> pyro.units.matter(1., mw=32., from_units="kmol", to_units="kg")
+32.0
+</pre>
+    <p>
+    The <span class="code">units</span> module also exposes a number of important constants on which it depends for its calculations.
+    </p>
+    <table>
+        <tr>
+            <td><span class="code">const_k</span></td>
+            <td>Joule/Kelvin</td>
+            <td>Boltzmann's constant</td>
+        </tr>
+        <tr>
+            <td><span class="code">const_Na</span></td>
+            <td>count/mole</td>
+            <td>Avagadro's constant</td>
+        </tr>
+        <tr>
+            <td><span class="code">const_Ru</span></td>
+            <td>Joule/mole/Kelvin</td>
+            <td>Universal gas constant</td>
+        </tr>
+        <tr>
+            <td><span class="code">const_Tstd</span></td>
+            <td>Kelvin</td>
+            <td>Standard temperature for volumetric molar units</td>
+        </tr>
+        <tr>
+            <td><span class="code">const_pstd</span></td>
+            <td>bar</td>
+            <td>Standard pressure for volumetric molar units</td>
+        </tr>
+        <tr>
+            <td><span class="code">const_Nstd</span></td>
+            <td>mole/cubic meter</td>
+            <td>Standard number density for volumetric molar units</td>
+        </tr>
+        <tr>
+            <td><span class="code">const_g</span></td>
+            <td>meter/second<sup>2</sup></td>
+            <td>Acceleration due to gravity</td>
+        </tr>
+        <tr>
+            <td><span class="code">const_dh2o</span></td>
+            <td>kg/meter<sup>3</sup></td>
+            <td>Density of water used for column pressure</td>
+        </tr>
+        <tr>
+            <td><span class="code">const_dhg</span></td>
+            <td>kg/meter<sup>3</sup></td>
+            <td>Density of mercury used for column pressure</td>
+        </tr>
+    </table>
+    <p>
+    These and all of their dependent <span class="code">Conversion</span> objects are initialized using the <span class="code">setup()</span> function when the module is first loaded.  To change any of these constants, see the <span class="code">setup()</span> in-line documentation.  Evoking it at the command line will re-define all of the dependent routines correctly.
+    </p>
+
+    <h3 id="be_utility">utility</h3>
+    <p>
+    Coming soon.  Move along, there's nothing to see here.  These aren't the documents you're looking for.  The cake is a lie.  Seriously, why do you want to read this anyway; I'm sure it would be really boring.  OK fine.  I'll get to it later.
     </p>
     <a href="#toc">Top</a>
 </div>
+
 
 <h3 id="ig" class="subtitle">Ideal gas collection (ig)</h3>
 <div class="section">
