@@ -1412,7 +1412,7 @@ Returns unit_energy / unit_matter
                     # Override the default T with the saturation T
                     T_ = self._Ts(p_)
                 # If pressure was unspecified, but temperature WAS
-                elif p_<0.:
+                elif def_p:
                     # Override the default p with the saturation p
                     p_ = self._ps(T_)
 
@@ -1502,7 +1502,7 @@ Returns unit_matter / unit_volume
                     # Override the default T with the saturation T
                     T_ = self._Ts(p_)
                 # If pressure was unspecified, but temperature WAS
-                elif p_<0.:
+                elif def_p:
                     # Override the default p with the saturation p
                     p_ = self._ps(T_)
 
@@ -1592,7 +1592,7 @@ Returns unit_energy / unit_matter / unit_temperature
                     # Override the default T with the saturation T
                     T_ = self._Ts(p_)
                 # If pressure was unspecified, but temperature WAS
-                elif p_<0.:
+                elif def_p:
                     # Override the default p with the saturation p
                     p_ = self._ps(T_)
 
@@ -1683,7 +1683,7 @@ Returns unit_energy / unit_matter
                     # Override the default T with the saturation T
                     T_ = self._Ts(p_)
                 # If pressure was unspecified, but temperature WAS
-                elif p_<0.:
+                elif def_p:
                     # Override the default p with the saturation p
                     p_ = self._ps(T_)
 
@@ -1775,7 +1775,7 @@ Returns unit_energy / unit_matter / unit_temperature
                     # Override the default T with the saturation T
                     T_ = self._Ts(p_)
                 # If pressure was unspecified, but temperature WAS
-                elif p_<0.:
+                elif def_p:
                     # Override the default p with the saturation p
                     p_ = self._ps(T_)
 
@@ -1872,7 +1872,7 @@ Returns unit_energy / unit_matter / unit_temperature
                     # Override the default T with the saturation T
                     T_ = self._Ts(p_)
                 # If pressure was unspecified, but temperature WAS
-                elif p_<0.:
+                elif def_p:
                     # Override the default p with the saturation p
                     p_ = self._ps(T_)
 
@@ -2069,7 +2069,7 @@ Returns unit_temperature
                 'Steam T_h(): pressure is above the IF-97 maximum (1000bar)')
   
         if quality:
-            return it.operands[0:1]
+            return it.operands[0:2]
         return it.operands[0]
 
 
@@ -2206,5 +2206,5 @@ Returns unit_temperature
                 'Steam T_h(): pressure is above the IF-97 maximum (1000bar)')
   
         if quality:
-            return it.operands[0:1]
+            return it.operands[0:2]
         return it.operands[0]

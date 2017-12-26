@@ -23,6 +23,9 @@
     <div class="toc0"><a href="#cycle">Cycle analysis</a></div>
     <div class="toc1"><a href="#cycle_brayton">Brayton cycle</a></div>
     <div class="toc1"><a href="#cycle_rankine">Rankine cycle</a></div>
+    <div class="toc0"><a href="#steam">Steam</a></div>
+    <div class="toc1"><a href="#steam_xin">Using quality in properties</a></div>
+    <div class="toc1"><a href="#steam_xout">Retrieving quality from properties</a></div>
     <div class="toc0"><a  href="#plot">Plotting</a></div>
     <div class="toc1"><a href="#plot_surf">Surface plots</a></div>    
     <div class="toc0"><a href="#faq">FAQ</a></div>
@@ -60,6 +63,44 @@
     <a href="./src/rankine.py">Source</a><br>
     <img class="figure" src="./fig/rankine_pv.png"></img>
     <img class="figure" src="./fig/rankine_ts.png"></img>
+</div>
+
+<h3 class="subtitle" id="steam">Steam</h3>
+<div class="section">
+    <p>
+    For working with multi-phase substances like steam, it is sometimes important to calculate properties that are "under the dome."  There is a discontinuity in fluid properties at a phase change.  For example, at 1 atmosphere, the enthalpy of steam jumps from about 419kJ/kg to about 2,676kJ/kg.  In theory, there is no form of water possesses 1,500kJ/kg at atmospheric pressure, but a mixture of vapor and liquid does.  The percent by mass of that mixture made up of vapor is called quality, and it is denoted with an "x."
+    </p>
+    
+    <h3 id="steam_xin">Using quality in properties</h3>
+    <p>
+    Instead of the typical temperature and pressure call signature, quality can be an argument to steam's properties.  Note that when quality is specified, the state must be on the saturation curve.  Specifying pressure or temperature has the same effect.
+    </p>
+    <pre class="code">
+>>> import pyromat as pyro
+>>> H2O = pyro.get('mp.H2O')
+>>> H2O.h(T=450., x=0.5)
+1761.8517643696659
+>>> p = H2O.ps(T=450.)
+>>> H2O.h(p=p, x=0.5)
+1761.8517643696659</pre>
+    <p>
+    Quality obeys the same array rules as does any other argument to a property method.
+    </p>
+    <pre class="code">
+>>> H2O.h(T=450., x=[.1, .2, .3, .4, .5])
+array([  951.80502462,  1154.31670956,  1356.82839449,  1559.34007943,
+        1761.85176437])</pre>
+    
+    <h3 id="steam_xout">Retrieving quality from properties</h3>
+    <p>
+    The inverse properties also support quality.  There is an optional keyword parameter called "quality" that, if set to "True," prompts <span class="code">h_T</span> and <span class="code">s_T</span> to return both temperature and quality.  Here, we get the saturation temperature, pressure, and liquid/vapor enthalpies all in one command.  Then, <span class="code">T_h</span> reports that at 9.32041bar, water with 2000kJ/kg is at 450 Kelvin and has 0.618 quality.
+    </p>
+    <pre class="code">
+>>> H2O.hs(T=450.,tp=True)
+(450.0, 9.3204107913593361, 749.29333968000344, 2774.4101890593283)
+>>> H2O.T_h(h = 2000., p=9.32041, quality=True)
+(array(449.9999963649258), array(0.6175972852487263))</pre>
+
 </div>
 
 <h3 class="subtitle" id="plot">Plotting</h3>
