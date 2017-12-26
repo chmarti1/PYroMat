@@ -83,9 +83,6 @@ Returns a substance data class for the substance named.
 
 
 
-
-
-
 def info( name=None ):
     """Print information on substance data
     info()
@@ -137,21 +134,27 @@ for the substance named.
         idlen = 2
         for ss in ids:
             idlen = max(idlen, len(ss))
+        # A list of properties for wich to search
+        proplist = ['cp', 'cv', 'd', 'e', 'h', 'k', 'mw', 'p_s', 'R', 's', 'T_h', 'T_s', 'X', 'Y']
+        proplen = 0
+        for prop in proplist:
+            proplen += len(prop) + 1
 
-        # build a format string
-        fline = '{:<' + str(idlen+2) + 's}{:<12s}{:s}\n'
+        fmt = ' {:>' + str(idlen) + 's} :'
+        head = '-'*(proplen + 3 + idlen) + '\n' + \
+            fmt.format('ID') + ' properties\n' + \
+            '-'*(proplen + 3 + idlen) + '\n'
 
-        head = '-'*(idlen+25) + '\n'
-        head = head + fline.format('ID','Modified', 'Type') + head
         index = 0
-
         for ss in ids:
-            if not (index % 15):
-                utility.sys.stdout.write( head )
-            index += 1
-            fil = dat.data[ss].data['fromfile']
-            tt = utility.time.localtime( utility.os.path.getmtime(fil) )
-            dstr = '{:d}/{:d}/{:d}'.format(tt.tm_mon, tt.tm_mday, tt.tm_year)
-            utility.sys.stdout.write( fline.format(ss, dstr, dat.data[ss].data['class']))
+            if index%15 == 0:
+                utility.sys.stdout.write(head)
+            index+=1
 
-
+            utility.sys.stdout.write( fmt.format(ss) )
+            for prop in proplist:
+                if hasattr(dat.data[ss],prop):
+                    utility.sys.stdout.write( ' ' + prop )
+                else:
+                    utility.sys.stdout.write( ' ' * (len(prop)+1) )
+            utility.sys.stdout.write('\n')
