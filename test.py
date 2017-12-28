@@ -8,6 +8,10 @@
 # against hard-coded expected values obtained from sources also listed in the
 # log file.  Each test is "passed" when errors between the "true" value and the
 # PYroMat value is less than the fractional "error_threshold" parameter.
+#
+# Finally, ALL ig class objects are tested with the _test() method built in to
+# the ig class.  This validates each object against criteria described in _test
+# documentation.
 
 import pyromat as pyro
 import os, sys
@@ -112,7 +116,9 @@ with open('test.log','w+') as writeto:
         writeto.write("  {0:s} {2:s} {4:s}\n".format(*os.uname()))
     writeto.write('\n')
 
-    # Test the igfit class
+    failures = []
+
+    # Test the ig class
     T = 500.
     p = 20.
     args = {'T':T, 'p':p}
@@ -123,21 +129,8 @@ with open('test.log','w+') as writeto:
         's':220.693/mw-R*np.log(p/1.), 'd':p*1e2/R/T }
     writeto.write("Diatomic oxygen tabulated reference values found\n" + 
     "http://kinetics.nist.gov/janaf/html/O-029.html\n")
-    runargtest(writeto,'O2',args,reference)
-
-
-    # Test the igtab class
-    T = 600.
-    p = 20.
-    args = {'T':T, 'p':p}
-    # Reference values from the NIST tables
-    mw = 253.80894
-    R = 8.314 / mw
-    reference = {'mw':mw, 'R':R, 'cp':37.612 / mw, 'h':73.690*1000./mw, 
-        's':286.764/mw - R*np.log(p/1.), 'd':p*1e2/R/T }
-    writeto.write("Diatomic iodine tabulated reference values found\n" + 
-    "http://kinetics.nist.gov/janaf/html/I-027.html\n")
-    runargtest(writeto,'I2',args,reference)
+    if runargtest(writeto,'ig.O2',args,reference):
+        failures.append('ig.O2')
 
     # Test the mixture class
     T = [320., 1000., 1000.]
@@ -149,20 +142,23 @@ with open('test.log','w+') as writeto:
         " Chemistry and\nPhysics 97th Edition ``Thermophysical Properties of" +
         " Air''\nby Eric W. Lemon.\n"+
         "Enthalpy and Entropy values were adjusted to match a 1 bar and 300K.\n")
-    air = pyro.get('air')
+    air = pyro.get('ig.air')
     h = air.h(T=T[0],p=1.) - h[0] + np.array(h)
     s = air.s(T=T[0],p=1.) - s[0] + np.array(s)
     reference = {'cp':cp, 's':s, 'h':h}
     args = {'T':T, 'p':p}
-    runargtest(writeto,air,args,reference, error_threshold=.005)
+    error = runargtest(writeto,air,args,reference, error_threshold=.005)
 
     # Now the inverse
     args = {'h':h, 'p':p}
     reference = {'T_h':T}
-    runargtest(writeto,air,args,reference)
+    error = runargtest(writeto,air,args,reference) or error
+
     args = {'s':s, 'p':p}
     reference = {'T_s':T}
-    runargtest(writeto,air,args,reference)
+    error = runargtest(writeto,air,args,reference) or error
+    if error:
+        failures.append('ig.air')
 
 
     # STEAM
@@ -180,7 +176,7 @@ with open('test.log','w+') as writeto:
     writeto.write( "Steam validation values for region 1 found at \n" +
     "http://www.iapws.org/relguide/IF97-Rev.pdf\n" +
     "   Table 5 pg 9\n" )
-    runargtest(writeto,'steam',args,reference)
+    error = runargtest(writeto,'mp.H2O',args,reference)
 
     T = np.array([300., 700., 700.])
     p = np.array([.035, .035, 300.])
@@ -197,7 +193,7 @@ with open('test.log','w+') as writeto:
     writeto.write( "Steam validation values for region 2 found at \n" +
     "http://www.iapws.org/relguide/IF97-Rev.pdf\n" +
     "   Table 15 pg 17\n" )
-    runargtest(writeto,'steam',args,reference)
+    error = runargtest(writeto,'mp.H2O',args,reference) or error
 
     T = np.array([650., 650., 750.])
     p = np.array([.255837018e3, .222930643e3, .783095639e3])
@@ -214,7 +210,7 @@ with open('test.log','w+') as writeto:
     writeto.write( "Steam validation values for region 3 found at \n" +
     "http://www.iapws.org/relguide/IF97-Rev.pdf\n" +
     "   Table 33 pg 32\n" )
-    runargtest(writeto,'steam',args,reference)
+    error = runargtest(writeto,'mp.H2O',args,reference) or error
 
     T = np.array([1500., 1500., 2000.])
     p = np.array([5., 300., 300.])
@@ -231,10 +227,10 @@ with open('test.log','w+') as writeto:
     writeto.write( "Steam validation values for region 5 found at \n" +
     "http://www.iapws.org/relguide/IF97-Rev.pdf\n" +
     "   Table 42 pg 40\n" )
-    runargtest(writeto,'steam',args,reference)
+    error = runargtest(writeto,'mp.H2O',args,reference) or error
 
 
-    test = pyro.get('steam')
+    test = pyro.get('mp.H2O')
     T = np.array([300., 500., 600.])
     args = {'T':T}
     reference = {'ps':np.array([.353658941e-1, .263889776e2, .123443146e3])}
@@ -242,12 +238,12 @@ with open('test.log','w+') as writeto:
     writeto.write( "Steam validation values for saturation (region 4) found at \n" +
     "http://www.iapws.org/relguide/IF97-Rev.pdf\n" +
     "   Table 35 pg 34 and Table 36 pg 36\n" )
-    runargtest(writeto,'steam',args,reference)
+    error = runargtest(writeto,'mp.H2O',args,reference) or error
 
     p = np.array([1., 10., 100.])
     args = {'p':p}
     reference = {'Ts': np.array([.372755919e3, .453035632e3, .584149488e3])}
-    runargtest(writeto,'steam',args,reference)
+    error = runargtest(writeto,'mp.H2O',args,reference) or error
 
 
     # Inverse relations
@@ -281,9 +277,21 @@ with open('test.log','w+') as writeto:
 
     reference = {'T_h':T}
     args = {'h':h, 'p':p}
-    runargtest(writeto,'steam',args,reference)
+    error = runargtest(writeto,'mp.H2O',args,reference) or error
 
     reference = {'T_s':T}
     args = {'s':s, 'p':p}
-    runargtest(writeto,'steam',args,reference)
+    error = runargtest(writeto,'mp.H2O',args,reference) or error
+
+    if error:
+        failures.append('mp.H2O')
+
+    for thisid, this in pyro.dat.data.items():
+        if hasattr(this,'_test') and thisid.startswith('ig.'):
+            sys.stdout.write('Testing %s..'%thisid)
+            if not this._test(writeto, report_level=1):
+                failures.append(thisid)
+                sys.stdout.write('[FAILED]\n')
+            else:
+                sys.stdout.write('[passed]\n')
 

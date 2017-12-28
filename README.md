@@ -31,7 +31,7 @@ See the configuration chapter of the documentation for detailed descriptions of 
 ## Getting started
 ```python
 >>> import pyromat as pyro
->>> O2 = pyro.get('O2')
+>>> O2 = pyro.get('ig.O2')
 >>> h = O2.h(492,1.01)  # enthalpy at 492K, 1.01bar
 >>> pyro.info('O2')     # where did these data come from?
 >>> dir(O2)             # what other methods are available?
@@ -41,6 +41,11 @@ See the configuration chapter of the documentation for detailed descriptions of 
 Happy calculating!
 
 ## License
+Copyright (c) 2018 Christopher R. Martin
+
 PYroMat is released under the GNU [General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0.en.html).
 
-Chris Martin (c) 2015-2017
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+

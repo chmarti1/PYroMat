@@ -46,11 +46,10 @@ def load(datasource=None, check=None, verbose=None):
         or
     info = load(check=True)
 
-By default, load() will use the values in pyro.config{'dat_dir'} to 
-find the files to load.  PYroMat automatically adds the 'data' directory
-found in the installation directory.  Alternatively, if the first 
-argument can be an explicit path to a file or a directory in which to 
-find files.  All *.hpd files will be opened.
+By default, load() will use the values in pyro.config['dat_dir'] to 
+find the files to load.  Alternatively, if the first argument can be 
+an explicit path to a file or a directory in which to find files.  
+All *.hpd files will be opened.
 
 The pyro.config parameters that affect load() are:
 'dat_verbose'
@@ -64,28 +63,26 @@ The pyro.config parameters that affect load() are:
 'dat_recursive'
     Recurse into subdirectories? (default=True)
 
-The separate keyword argument, 'check' prompts
-load() to run a data test instead of actually
-loading data.
+The separate optional keyword argument, 'check' prompts load() to run a 
+data test instead of actually loading data if it is True.
 
 If load() is run in 'check' mode, it returns information about the data
 files and data currently in memory.  The returned parameters are 
 contained in a dictionary with the following keys:
 
 changed
-    A list of identifiers whose data in memory
-    does not match the data currently in its 
-    file.
+    A list of species IDs whose data in memory does 
+    not match the data currently in its file.
 added
-    A list of identifiers appearing in memory but
+    A list of species IDs appearing in memory but
     not appearing in the files.  These have been
     added since load.
 removed
-    A list of identifiers appearing in the 
+    A list of species IDs appearing in the 
     files but not in memory.  These have been
     removed since load.
 redundant
-    A list of identifiers for which there are
+    A list of species IDs for which there are
     multiple files.  These are redundant.
 suppressed
     A list of files with a .hpd~ extension. 
@@ -93,7 +90,7 @@ suppressed
     been renamed by the utility.red_repair()
     function to correct a redundant definition.
 data
-    The loaded data set.
+    The loaded data dictionary.
 """
 
     lead = 'load-> '
@@ -101,10 +98,10 @@ data
 
     # fetch the configuration parameters
     if verbose == None:
-        verbose = utility.get_config('dat_verbose',dtype=bool)
-    exist_fatal = utility.get_config('dat_exist_fatal',dtype=bool)
-    exist_overwrite = utility.get_config('dat_overwrite',dtype=bool)
-    recursive = utility.get_config('dat_recursive',dtype=bool)
+        verbose = pyro.config['dat_verbose']
+    exist_fatal = pyro.config['dat_exist_fatal']
+    exist_overwrite = pyro.config['dat_overwrite']
+    recursive = pyro.config['dat_recursive']
 
     # If the load function is called with check=True, then it's time to 
     # make a few changes to the typical operation.  All recursive calls
@@ -132,6 +129,10 @@ data
     # multiple copies of the same algorithm and saves an extra helper 
     # function.
     if datasource:
+        # Expand references to the users' home directories
+        # and environment variables
+        datasource = pyro.utility.os.path.expanduser(datasource)
+        datasource = pyro.utility.os.path.expandvars(datasource)
         datasource=utility.os.path.abspath(datasource)
         # if the data source is a directory
         if utility.os.path.isdir(datasource):
@@ -329,8 +330,8 @@ def new(newdata):
     """Create a new data entry
     new(newdata)
 
-Creates a new entry in the HotPy data dictionary for a substance defined
-by the 'newdata' dictionary.
+Creates a new entry in the PYroMat data dictionary for a substance 
+defined by the 'newdata' dictionary.
 
 The dictionary should have the data elements necessary for defining its
 type.  The minimum elements are 'id', 'class', and 'doc', establishing 
@@ -349,12 +350,12 @@ function.
         else:
             utility.print_error(
 'Could not find the class "' + newdata['class'] + '" in the registry.', lead)
-            raise utility.HotPyDataError('Class not found')
+            raise utility.PMDataError('Class not found')
 
     else:
         utility.print_error(
 'The class data does not contain either the ''id'' or the ''class'' key.')
-        raise utility.HotPyDataError('Bad data dictionary')
+        raise utility.PMDataError('Bad data dictionary')
 
 
 
@@ -375,19 +376,20 @@ def updatefiles(dest=None, verbose=True, deletefiles=False):
 Changes to the data dictionary can be recorded 
 permanently by running the updatefiles() function.
 Changes are detected with the load(check=True)
-function. Changed files are overwritten, added entries
-are used to generate new .hpd files, and removed 
-entries will have their corresponding files deleted.
-Any entries that show redundancy errors will result
-in a prompt for how to repair the conflict.  
-Files in conflicts that are not resolved will be 
-disqualified from other operations.
+function, and the user (when run verbosely) is 
+prompted for permission to overwrite or delete
+existing files.  New entries will be used to generate 
+new .hpd files, and removed entries will have their 
+corresponding files deleted.  Any entries that show 
+redundancy errors will result in a prompt for how to 
+repair the conflict.  Files in conflicts that are not 
+resolved will be disqualified from other operations.
 
 Existing files that qualify for an update will be 
 replaced based on their entry in the 'fromfile' 
 keyword.  Data entries with no record of their parent 
 file or that were created from scratch will be placed 
-in the first directory in the constants.DATADIR list
+in the first directory in the config['data_dir'] list
 unless an alternate location is explicitly specified 
 in the save() function call.
 

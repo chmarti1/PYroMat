@@ -1,6 +1,6 @@
 #
 #   Brayton cycle demo
-#   C.R. Martin (c) 2016
+#   C.R. Martin (c) 2016-2018
 #   GPL v3.0
 #   Enjoy!
 #
@@ -9,7 +9,12 @@ import pyromat as pyro
 import numpy as np
 import matplotlib.pyplot as plt
 
-air = pyro.get('air')
+air = pyro.get('ig.air')
+# Force the unit system into kJ,kg,bar,K
+pyro.config['unit_energy'] = 'kJ'
+pyro.config['unit_matter'] = 'kg'
+pyro.config['unit_pressure'] = 'bar'
+pyro.config['unit_temperature'] = 'K'
 
 # Let's design a gas turbine with a 100kW power output
 Wnet = 100.
@@ -58,7 +63,7 @@ wnet = wt - wc
 # How much mass flow do we need to hit our target power output?
 mdot = Wnet / wnet
 
-# What is our efficiency
+# What is our efficiency?
 n = wnet / qh
 
 # Generate some process diagrams
@@ -83,14 +88,21 @@ plt.xlabel('Entropy, s (kJ/kg/K)')
 plt.ylabel('Temperature, T (K)')
 plt.grid('on')
 # Add state labels
-plt.text(s1-.1,T1,'(1)\nT={:.1f}\np={:.3f}'.format(T1,p1),ha='right',backgroundcolor='white')
-plt.text(s1-.1,T2,'(2)\nT={:.1f}\np={:.3f}'.format(T2,p2),ha='right',backgroundcolor='white')
-plt.text(s3+.1,T3,'(3)\nT={:.1f}\np={:.3f}'.format(T3,p3),ha='left',backgroundcolor='white')
-plt.text(s3+.1,T4,'(4)\nT={:.1f}\np={:.3f}'.format(T4,p4),ha='left',backgroundcolor='white')
+plt.text(s1-.1,T1,'(1)\nT={:.1f}\np={:.3f}'.format(T1,p1),
+    ha='right',backgroundcolor='white')
+plt.text(s1-.1,T2,'(2)\nT={:.1f}\np={:.3f}'.format(T2,p2),
+    ha='right',backgroundcolor='white')
+plt.text(s3+.1,T3,'(3)\nT={:.1f}\np={:.3f}'.format(T3,p3),
+    ha='left',backgroundcolor='white')
+plt.text(s3+.1,T4,'(4)\nT={:.1f}\np={:.3f}'.format(T4,p4),
+    ha='left',backgroundcolor='white')
 # Add a summary
 plt.text(6.5,1200,
 """$\dot{{m}}$ = {:.3f}kg/s
 $p_r$={:.1f}
 $\eta$={:.3f}
-$\dot{{W}}_{{net}}$={:1}kW""".format(mdot,pr,n,Wnet),backgroundcolor='white')
+$\dot{{W}}_{{net}}$={:1}kW""".format(mdot,pr,n,Wnet),
+    backgroundcolor='white')
 plt.title('Brayton Cycle T-s Diagram')
+
+plt.show(block=False)

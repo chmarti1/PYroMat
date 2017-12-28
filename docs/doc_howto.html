@@ -1,0 +1,193 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>PYroMat</title>
+    <link rel="stylesheet" type="text/css" href="./pyromat.css">
+    <meta name="description" content="thermodynamic properties in python">
+    <meta name="keywords" content="python,thermo,thermodynamic,property,properties">
+    <meta name="author" content="C.R. Martin">
+</head>
+<body>
+
+<iframe name="menu" id="menu" src="menu.html"></iframe>
+
+
+<div id="content">
+<div class="title">
+    <h1>PYroMat</h1>
+    <h2>How-to and FAQ</h2>
+</div>
+
+<div class="section">
+    <div class="toc0"><a href="#cycle">Cycle analysis</a></div>
+    <div class="toc1"><a href="#cycle_brayton">Brayton cycle</a></div>
+    <div class="toc1"><a href="#cycle_rankine">Rankine cycle</a></div>
+    <div class="toc0"><a href="#steam">Steam</a></div>
+    <div class="toc1"><a href="#steam_xin">Using quality in properties</a></div>
+    <div class="toc1"><a href="#steam_xout">Retrieving quality from properties</a></div>
+    <div class="toc0"><a  href="#plot">Plotting</a></div>
+    <div class="toc1"><a href="#plot_surf">Surface plots</a></div>    
+    <div class="toc0"><a href="#faq">FAQ</a></div>
+    <div class="toc1"><a href="#faq_redundant">Why two H<sub>2</sub>O entries?</a></div>
+    <div class="toc1"><a href="#faq_inconsistent">PYroMat disagrees with my table.  Is that an error?</a></div>
+    <div class="toc1"><a href="#faq_units">What unit system does PYroMat use?</a>
+</div>
+
+<h3 class="subtitle" id="cycle">Cycle analysis</h3>
+<div class="section">
+    <p>
+    It is difficult to name a more classical application for thermodynamic property calculators than cycle analysis.  Generations of mechanical engineers paid their dues studying the property tables; the important tools for the design and study of engines, heat pumps, and the many other fluid machines on which we all depend.  Here are example codes using PYroMat to perform two classical analyses; Brayton and Rankine cycles.
+    </p>
+
+    <h3 id="cycle_brayton">A Brayton cycle analysis</h3>
+    <p>
+    The Brayton cycle is sometimes better known as a jet engine, but it is also at the heart of the most efficient power plants in the world.  When air is the working fluid, we don't need heat exchangers; we can burn the fuel right in the working fluid.
+    </p>
+    <p>
+    The Brayton cycle uses three processes to separate four states: (1) ambient air is compressed to some elevated pressure, (2) fuel is burned at constant pressure to heat the working fluid, and (3) work is extracted by a turbine.  Here's an example where we compute the mass flow required to produce a 100kW turbine using a 12:1 pressure ratio.
+    </p>
+    <a href="./src/brayton.py">Source</a><br>
+    <img class="figure" src="./fig/brayton.png"></img>
+
+    <h3 id="cycle_rankine">A Rankine cycle analysis</h3>
+    <p>
+    Of all the thermodynamic engine cycles, arguably none has had so substantial impact on our society and culture as the Rankine cycle; though the Diesel and Otto cycles might have something to say about that.  The Rankine cycle is sometimes known as the steam engine.  In addition to driving the industrial revolution, fueling the rise of rail around the world, and powering the first ships that could "sail" into the wind, the Rankine cycle still provides most of the world's electricity in nuclear, coal, and even the back-end of combined-cycle gas turbine plants.
+    </p>
+    <p>
+    The Rankine cycle usually uses water as its working fluid.  Despite its unfortunate corrosive properties, water is quite remarkable for its high specific heat and latent heat of vaporization.  The Rankine cycle uses four or five steps to separate four or five states: (1) a pump pressurizes liquid water from a low-pressure reservoir, (2) a boiler heats the liquid water to a boil, (2b) sometimes, a "super-heater" is added to continue heating the steam, (3) a turbine or piston expands the steam to produce work, and (4) a condenser cools the fluid back to a liquid before returning it to the reservoir.
+    </p>
+    <p>
+    Here is an example analysis to calculate the mass flow of water needed to produce 100kW with a boiler at 250psi, and a super-heater.  The super-heater heat is calculated so that the piston/turbine output is a saturated vapor.
+    </p>
+    <a href="./src/rankine.py">Source</a><br>
+    <img class="figure" src="./fig/rankine_pv.png"></img>
+    <img class="figure" src="./fig/rankine_ts.png"></img>
+</div>
+
+<h3 class="subtitle" id="steam">Steam</h3>
+<div class="section">
+    <p>
+    For working with multi-phase substances like steam, it is sometimes important to calculate properties that are "under the dome."  There is a discontinuity in fluid properties at a phase change.  For example, at 1 atmosphere, the enthalpy of steam jumps from about 419kJ/kg to about 2,676kJ/kg.  In theory, there is no form of water possesses 1,500kJ/kg at atmospheric pressure, but a mixture of vapor and liquid does.  The percent by mass of that mixture made up of vapor is called quality, and it is denoted with an "x."
+    </p>
+    
+    <h3 id="steam_xin">Using quality in properties</h3>
+    <p>
+    Instead of the typical temperature and pressure call signature, quality can be an argument to steam's properties.  Note that when quality is specified, the state must be on the saturation curve.  Specifying pressure or temperature has the same effect.
+    </p>
+    <pre class="code">
+>>> import pyromat as pyro
+>>> H2O = pyro.get('mp.H2O')
+>>> H2O.h(T=450., x=0.5)
+1761.8517643696659
+>>> p = H2O.ps(T=450.)
+>>> H2O.h(p=p, x=0.5)
+1761.8517643696659</pre>
+    <p>
+    Quality obeys the same array rules as does any other argument to a property method.
+    </p>
+    <pre class="code">
+>>> H2O.h(T=450., x=[.1, .2, .3, .4, .5])
+array([  951.80502462,  1154.31670956,  1356.82839449,  1559.34007943,
+        1761.85176437])</pre>
+    
+    <h3 id="steam_xout">Retrieving quality from properties</h3>
+    <p>
+    The inverse properties also support quality.  There is an optional keyword parameter called "quality" that, if set to "True," prompts <span class="code">h_T</span> and <span class="code">s_T</span> to return both temperature and quality.  Here, we get the saturation temperature, pressure, and liquid/vapor enthalpies all in one command.  Then, <span class="code">T_h</span> reports that at 9.32041bar, water with 2000kJ/kg is at 450 Kelvin and has 0.618 quality.
+    </p>
+    <pre class="code">
+>>> H2O.hs(T=450.,tp=True)
+(450.0, 9.3204107913593361, 749.29333968000344, 2774.4101890593283)
+>>> H2O.T_h(h = 2000., p=9.32041, quality=True)
+(array(449.9999963649258), array(0.6175972852487263))</pre>
+
+</div>
+
+<h3 class="subtitle" id="plot">Plotting</h3>
+<div class="section">
+    <p>
+    PYroMat class methods natively support numpy arrays, which makes plotting easy.
+    </p>
+    <div style="position:relative;height:300px;width:600px;">
+    <pre class="code" style="width:350px;">
+>>> import matplotlib.pyplot as plt
+>>> import numpy as np
+>>> import pyromat as pyro
+>>> T = np.linspace(300.,1000.,101)
+>>> air = pyro.get('mp.H2O')
+>>> plt.plot(T, air.cp(T))</pre>
+
+    <div style="position:absolute;top:-20px;left:270px;">
+        <img src="./fig/water_cp.png" width=400px;>
+    </div>
+    </div>
+
+    <h3 id="plot_surf">Making surface plots</h3>
+    <p>
+    It is often useful to view properties as surfaces over temperature and pressure, but the code is not usually easy.  In this example, adding on the saturation lines is actually far more code than generating the surfaces.
+    </p>
+    <a href="./src/steamtest.py">Source</a><br>
+    <img width="275px" src="./fig/d2.png"></img>
+    <img width="275px" src="./fig/h2.png"></img><br>
+    <img width="275px" src="./fig/s2.png"></img><br>
+</div>
+
+
+<h3 class="subtitle" id="faq">Frequently asked questions</h3>
+<div class="section">
+    <h3 id="faq_redundant" style="text-align:left;">H2O is in the ideal gas collection and the multi-phase collection.  Why?</h3>
+    <p>
+    Short answer: They are two different models created for two different applications.
+    </p>
+    <p>
+    It would seem like you could get everything you needed from the multi-phase version right?  After all, the multi-phase collection water covers both liquid AND gas.  Look more carefully, though; the upper temperature limit on multiphase water is 2,273.15K (2,000<sup>o</sup>C).  Not bad, but the ideal gas data go all the way up to 6,000K.  On the other hand, ideal gas water only supports temperatures down to 500K.
+    </p>
+    <p>
+    These drastic differences illustrate the different purposes for which these data sets were created.  The ideal gas collection was created primarily for reaction modeling.  Water is a primary combustion product, in that role it usually shows up at high temperatures, and the ideal gas assumption gets sketchy around the boiling point anyway.  Meanwhile, the multi-phase collection is primarily useful for cycle modeling, and doesn't adhere to the NIST-JANAF enthalpy conventions.
+    </p>
+
+    <h3 id="faq_inconsistent" style="text-align:left;">PYroMat disagrees with my property table.  Is this an error?</h3>
+    <p>
+    Short answer: maybe, but probably not.
+    </p>
+    <p>
+    I get this question more than any other.  If the property in question is entropy or enthalpy, there is probably no error.  It is important to remember that enthalpy and entropy are integrated properties; their values are defined in terms of an integral of another property (specific heat).  That means that there is a somewhat arbitrary choice of integration constant.  
+    </p>
+    <p>
+    Members of the <a href="doc_api.html#ig_ig">ideal gas</a> collection obey their own convention that is self-consistent across species, but may not agree with the choices made by other sources.  For example, the <a href="doc_api.html#mp_if97
+">IF-97</a> class for water and the ideal gas properties of water return inconsistent values for enthalpy.  However, notice that the specific heats agree to within 0.1% at 1 atm.
+    </p>
+    <pre class="code">
+>>> import pyromat as pyro
+>>> mp_H2O = pyro.get('mp.H2O')
+>>> ig_H2O = pyro.get('ig.H2O')
+>>> mp_H2O.h(1000.)
+3990.6638781507377
+>>> ig_H2O.h(1000.)
+array(-11980.04050260982)
+>>> mp_H2O.cp(1000.)
+2.2920664690248009
+>>> ig_H2O.cp(1000.)
+array(2.2905867790156145)</pre>
+    <p>
+    Isn't that bad!?  Not at all.  For the vast majority of all problems of engineering and scientific interest, the absolute value of enthalpy and entropy is irrelevant.  It is the change in those properties that is important (e.g. conservation of energy and the various incarnations of the second law).  The choice of an integration factor is only important when we are comparing the properties of one species to another (e.g. chemical reactions or phase changes).
+    </p>
+    <p>
+    If you already understand all this, and you still think you've spotted an error in the properties, I'd really like to know about it.  Please do <a href="mailto:crm28@psu.edu?subject=PYroMat property errors">email me</a>!  I may not get back to you right away, but please do be patient with me.
+    </p>
+
+    <h3 id="faq_units">What unit system does PYroMat use?</h3>
+    <p>
+    PYroMat defaults to kJ, kg, Kelvin, and bar.  But, all units are configurable using <a href="./doc_api.html#if_config">PYroMat's configuration system</a>.
+    </p>
+    <p>
+    To know how an individual property is being reported, each method comes with in-line documentation that tells you what units that method uses.  For example, densities use <span class="code">unit_matter/unit_volume</span>.  This step is important, because the unit matter need not be the same as the unit mass.  To check PYroMat's current settings, just type <span class="code">pyro.config</span> to print a summary of the current settings.
+    </p>
+</div>
+
+
+<iframe id="contact" src="author.html"></iframe>
+
+</div>
+</body>
+</html>

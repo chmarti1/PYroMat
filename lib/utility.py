@@ -30,11 +30,7 @@ import pyromat as pyro
 # for PYroMat error handling
 ####################################
 class Error(Exception):
-    def __init__(self, value=''):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
-
+    pass
 
 # if the data dictionary seems to be corrupt
 # This error is raised in the data do not include the required parameters or
@@ -61,10 +57,195 @@ class PMAnalysisError(Error):
     pass
 
 
+class PMConfigEntry:
+    """PYroMat Configuration Entry
 
-def load_config(filename = None,verbose=None):
-    """Load the configuration files
-    load_config()
+This class stores various meta information about configuration entries
+such as read/write permissions, entry types, and default values.
+
+The behavior of a configuration entry is defined by four parameters:
+
+default     The value assigned to this parameter will be used to 
+            initialize the entry.
+
+append      When False, writing to the entry will overwrite the previous
+            value.  When True, the entry's value will be a list, and all
+            write operations will append new values to the list.
+
+write       When False, an error will be raised if the entry's write()
+            method is called.
+
+etype       When this parameter is not None, it will be treated as a 
+            type cast to convert values
+            self.value = etype(value)
+            For example, str, int, and float are common etype entries.
+"""
+    def __init__(self, default=None, append=False, write=True, etype=None):
+        # Temporarily allow writing regardless of the requested mode
+        self.write_allowed = True
+        self.etype = etype
+        self.append = append
+        # The type requirement is enforced when the default is stored
+        # The set_default() method also respects this behavior.
+        self.set_default(default)
+        self.apply_default()
+        self.write_allowed = write
+
+    def __repr__(self):
+        return 'PMConfigEntry(' + repr(self.value) + ')'
+
+    def write(self, value):
+        """Write a value to the entry
+    pmentry.write(value)
+"""
+        # Enforce write permissions
+        if not self.write_allowed:
+            raise PMParamError('Entry is read-only.')
+
+        # Deal with appended iterables
+        if self.append and hasattr(value,'__iter__'):
+            for vv in value:
+                self.write(vv)
+            return
+
+        # Enforce type specifier
+        if self.etype:
+            try:
+                tvalue = self.etype(value)
+            except:
+                raise PMParamError('Expected %s, but got %s'%(repr(self.etype), repr(value)))
+        else:
+            tvalue = value
+
+        # Append or overwrite?
+        if self.append:
+            self.value.append(tvalue)
+        else:
+            self.value = tvalue
+        
+
+    def read(self):
+        """Read a value from the entry
+    pmentry.read()
+
+This is equivalent to
+    pmentry.value
+"""
+        return self.value
+
+
+    def apply_default(self):
+        """Set the value to its original default"""
+        # Enforce write permissions
+        if not self.write_allowed:
+            return
+        # Append?
+        if self.append:
+            self.value = [self.default]
+        else:
+            self.value = self.default
+
+
+    def set_default(self,default):
+        """Set the entry's default value
+    pmentry.set_default( new_default )
+
+This operation is only allowed on writable entries.
+"""
+        # Enforce write permissions
+        if not self.write_allowed:
+            raise PMParamError('Default cannot be set. Entry is read-only.')
+        # Enforce type specifier
+        if self.etype:
+            try:
+                self.default = self.etype(default)
+            except:
+                raise PMParamError('Expected %s, but got %s'%(repr(self.etype), repr(default)))
+        else:
+            self.default = value
+
+    
+class PMConfig:
+    """PYroMat Configuration Class
+
+This behaves much like a dictionary that enforces the PYroMat 
+configuration rules.  To read or modify configuration parameters, access
+them 
+    pyro.config['unit_temperature'] = 'F'
+
+if pyro.config['version'].split('.')[0] < 2:
+    raise Exception('PYroMat is old.')
+
+"""
+    def __init__(self, load=True):
+        # detect the package installation directory
+        install_dir = os.path.dirname( pyro.__file__ )
+        install_dir = os.path.abspath(install_dir)
+        # Below was the installation directory deteciton method for version 1.2
+        # The path attribute is controlled by the import system, but the master
+        # __init__ file location is under the pyromat package's control.
+        # install_dir = os.path.abspath(pyro.__path__[0])
+
+        # Point to the default configuration file
+        default_config = os.path.join( install_dir, 'defaults.py')
+        # directories
+        data_dir = os.path.join( install_dir, 'data')
+        reg_dir = os.path.join( install_dir, 'registry')
+
+        self.entries = {
+            'install_dir': PMConfigEntry(default=install_dir, write=False, etype=str),
+            'version' : PMConfigEntry(default=pyro.__version__, write=False, etype=str),
+            'config_file' : PMConfigEntry(default=default_config, append=True, etype=str),
+            'config_verbose' : PMConfigEntry(default=False, etype=bool),
+            'dat_dir' : PMConfigEntry(default=data_dir, append=True, etype=str),
+            'dat_verbose' : PMConfigEntry(default=True, etype=bool),
+            'dat_overwrite' : PMConfigEntry(default=True, etype=bool),
+            'dat_exist_fatal' : PMConfigEntry(default=False, etype=bool),
+            'dat_recursive' : PMConfigEntry(default=True, etype=bool),
+            'reg_dir' : PMConfigEntry(default=reg_dir, append=True, etype=str),
+            'reg_verbose' : PMConfigEntry(default=True, etype=bool),
+            'reg_overwrite' : PMConfigEntry(default=True, etype=bool),
+            'reg_exist_fatal' : PMConfigEntry(default=False, etype=bool),
+            'def_T' : PMConfigEntry(default=298.15, etype=float),
+            'def_p' : PMConfigEntry(default=1.01325, etype=float),
+            'unit_force' : PMConfigEntry(default='N', etype=str),
+            'unit_energy' : PMConfigEntry(default='kJ', etype=str),
+            'unit_temperature' : PMConfigEntry(default='K', etype=str),
+            'unit_pressure' : PMConfigEntry(default='bar', etype=str),
+            'unit_molar' : PMConfigEntry(default='kmol', etype=str),
+            'unit_volume' : PMConfigEntry(default='m3', etype=str),
+            'unit_length' : PMConfigEntry(default='m', etype=str),
+            'unit_mass' : PMConfigEntry(default='kg', etype=str),
+            'unit_time' : PMConfigEntry(default='s', etype=str),
+            'unit_matter' : PMConfigEntry(default='kg', etype=str),
+        }
+        if load:
+            self.load()
+
+    def __repr__(self):
+        out = ''
+        # Detect the longest parameter name
+        justify = 0
+        for k in self.entries:
+            justify = max(justify,len(k))
+        # Build a format string that will right-align the parameter names
+        fmt = '%' + str(justify) + 's : %s\n'
+        # And print each configuration value on a line, sorted by parameter
+        parameters = self.entries.keys()
+        parameters.sort()
+        for k in parameters:
+            # Construct a representation of the value
+            temp = repr(self.entries[k].value)
+            # If it is too long to fit on a line, cut it off
+            if len(temp)+justify > 72:
+                temp = temp[:66-justify]+'...'
+            out += fmt%(k,temp)
+        return out
+
+
+    def load(self,filename = None,verbose=None):
+        """Load the configuration files
+    pmconfig.load()
 
 Bootstraps through the default configuration file in the
 installation directory, the global configuration files 
@@ -72,170 +253,139 @@ indicated by the 'config_file' directive.
 
 Checks for unrecognized parameters and illegal values.
 """
-    lead = 'load_config-> '
+        lead = 'PMConfig-> '
 
-    # if load_config is called with a filename, this is a recursive call
-    if filename:
-        # if verbose is specified, override the parameter
-        if verbose==None:
-            verbose = get_config('config_verbose',dtype=bool)
-            
-        if not os.path.isfile( filename ):
-            if verbose:
-                print_line('Could not find config file: ' + os.path.abspath(filename), lead)
-            return
-
-        if verbose:
-            print_line('Reading config file: ' + os.path.abspath(filename), lead)
-
-        lead += '   '
-
-        temp_config = {}
-        with open(filename,'r') as ff:
-            exec(compile(ff.read(),filename,'exec'),{},temp_config)
-        # In Python 2.7, this used to work
-        # Use exec() for 3.4 compatibility
-        # execfile(filename,globals(),temp_config)
-
-        # check each parameter
-        for param in temp_config:
-            # if this is a new parameter, create an entry for it
-            if not param in pyro.config:
-                pyro.config[param] = []
+        # if load is called with a filename, this is a recursive call
+        if filename:
+            # if verbose is specified, override the configuration parameter
+            if verbose is None:
+                verbose = self['config_verbose']
+                
+            if not os.path.isfile( filename ):
                 if verbose:
-                    print_line('New parameter: "' + param + '"',lead)
+                    print_line('Could not find config file: ' + os.path.abspath(filename), lead)
+                return
 
-            # if the parameter is writeable
-            if isinstance(pyro.config[param],list):
-                good = True
-                if not isinstance(temp_config[param],list):
-                    temp_config[param] = [ temp_config[param] ]
-                for testme in temp_config[param]:
-                    if not isinstance(testme, (str,int,float,bool)):
-                        good = False
-                        print_warning(
-'Bad parameter value for "' + param + '" found in config file "' + filename + 
-'."  Values must be strings, integers, or floats, or lists of strings, integers, or floats.  Ignoring this assignment.')
-                        break
-                # if there were no problems with the value
-                if good:
-                    pyro.config[param] += temp_config[param]
-                    if verbose:
-                        print_line('Set parameter: "' + param + '"',lead)
-                        print_line('to value: ' + repr(temp_config[param]),lead)
-            else:
-                # If the parameter is not appendable
-                print_warning('An illegal assignment to the "' + param + 
-                    '" parameter was made in config file "' + filename + 
-                    '.  This parameter is read only.')
+            if verbose:
+                print_line('Reading config file: ' + os.path.abspath(filename), lead)
+
+            lead += '   '
+
+            temp_config = {}
+            with open(filename,'r') as ff:
+                exec(compile(ff.read(),filename,'exec'),{},temp_config)
+            # In Python 2.7, the code below used to work
+            # Use exec() for 3.4 compatibility
+            # Also, allowing access to globals() is a security problem.
+            # execfile(filename,globals(),temp_config)
+
+            self.update(temp_config)
+            if verbose:
+                message = 'Found entries: '
+                for item in temp_config:
+                    message += item + ' '
+                print_line(message, lead)
+
+        else:
+            # if loadconfig is called without a filename, then this is the root call
+            k = 0
+            found = []
+            # As the files are loaded in, the config_file list will grow,
+            # so the length needs to be detected after each iteration.
+            # This method allows configuration files to be read in tiers;
+            # Those that are identified in the earlier config files will be
+            # read first and will have low precedence.  Those that are 
+            # identified deeper in a series of config files will be read last
+            # and will have high precedence.
+            cfiles = self.entries['config_file'].value
+            while k<len(cfiles):
+                # Expand references to the users' home directories
+                # and environment variables
+                thisfile = os.path.expanduser(cfiles[k])
+                thisfile = os.path.expandvars(thisfile)
+                thisfile = os.path.abspath(thisfile)
+
+                # If the config file is already in the found list, do not
+                # load it.  This could result in an endless loop.
+                if thisfile in found:
+                    print_warning(
+    'Ignoring a repeated reference to config file: "' + thisfile + '"')
+                else:
+                    self.load( thisfile )
+                    found.append( thisfile )
+                k+=1
 
 
-    else:
-        # if loadconfig is called without a filename, then this is the root call
+    def update(self, new):
+        """Read in parameters from a dictionary
+    pmconfig.update( new_dictionary )
 
-        # assign default configuration parameters
-        install_dir = os.path.dirname( pyro.__file__ )
-        # Below was the installation directory deteciton method for version 1.2
-        # The path attribute is controlled by the import system, but the master
-        # __init__ file location is under the pyromat package's control.
-        # install_dir = os.path.abspath(pyro.__path__[0])
-        default_config = os.path.join( install_dir, 'defaults.py')
+This function is equivalent to
+for item in new_dictionary:
+    pmconfig[item] = new_dictionary[item]
+"""
+        for item in new:
+            self[item] = new[item]
 
-        pyro.config = {
-            'install_dir': install_dir,
-            'version' : pyro.__version__,
-            'config_file' : [default_config],
-            'config_verbose' : [False],
-            'dat_dir' : [os.path.join( install_dir, 'data')],
-            'dat_verbose' : [True],
-            'dat_overwrite' : [True],
-            'dat_exist_fatal' : [False],
-            'dat_recursive' : [True],
-            'reg_dir' : [os.path.join( install_dir, 'registry')],
-            'reg_verbose' : [True],
-            'reg_overwrite' : [True],
-            'reg_exist_fatal' : [False],
-            'def_T' : [300.],
-            'def_p' : [1.01325],
-            }
+    def restore_default(self, item=None):
+        """Return a parameter to its default value
+    pmconfig.restore_default(item)
+        Or
+    pmconfig.restore_default()
 
-        if not os.path.exists(default_config):
-            try:
-                df = open(default_config,'a')
-                df.close()
-            except:
-                print_error(
-'The default config file was missing.  Unable to create one at "' + 
-default_config + '".  Check for a permissions error.')
-                raise PMFileError(default_config)
+When item is a configuration parameter string, that configuration 
+parameter is restored to its default value.  When item is omitted,
+all parameters are restored to their default.
 
+This function is equivalent to
+pmconfig.entries[item].apply_default()
+"""
+        if item is None:
+            for item, entry in self.entries.iteritems():
+                entry.apply_default()
+        else:
+            self.entries[item].apply_default()
+
+
+    def __getitem__(self, item):
+        """Return the configuration value for an item
+    value = config[item]
+"""
+        if item not in self.entries:
+            raise PMParamError('%s is not a PYroMat configuration parameter'%repr(item))
+        return self.entries[item].value
+
+
+    def __setitem__(self,item,value):
+        """Set the value of a configuration parameter
+    config[item] = value
+"""
+        if item not in self.entries:
+            raise PMParamError('%s is not a PYroMat configuration parameter'%repr(item))
         try:
-            load_config( default_config, verbose=verbose )
+            self.entries[item].write(value)
         except:
-            # if the default config file fails for any reason
-            print_error(
-'There was an error loading the default configuration file, "' + 
-default_config + '". Check its permissions and syntax.')
-            raise PMFileError(default_config)
-
+            print_error('Failed to write to configuration parameter, %s'%repr(item))
+            raise sys.exc_info()[1]
         
-        k = 1
-        found = [default_config]
-        while k<len(pyro.config['config_file']):
-            thisfile = os.path.abspath(pyro.config['config_file'][k])
+    def __contains__(self,item):
+        return self.entries.__contains__(item)
 
-            if thisfile in found:
-                print_warning(
-'Ignoring a repeated reference to config file: "' + thisfile + '"')
-            else:
-                load_config( pyro.config['config_file'][k] )
-                found.append( thisfile )
-            k+=1
-
-
-
+    
 
 
 
 def get_config( param, dtype=None, verbose=True ):
-    """All config parameters that are writeable are contained
-in lists.  The load_config() function simply appends
-new values rather than overwriting old values, which
-leaves a complete record of all values written since
-the package was loaded.
+    """**DEPRECIATED**
+This is only left for reverse compatibility.  The present implementation
+permits direct access to pyro.config.
 
-For parameters that are only permitted one value, the
-last one is the only one honored, but routines need to
-be protected against the case that a user may overwrite
-the list with a single value after load.
+Equivalent to 
+pyro.config[param]
 
-The get_config() function does its best to interpret 
-the data stored in a config parameter and return a single
-value.
-
-If the dtype keyword is specified, it is treated as a
-class to which to force the answer dtype(value)
+dtype and verbose keywords are now ignored.
 """
-    if not param in pyro.config:
-        if verbose:
-            print_warning(
-'Parameter "' + param + '" does not appear in the PYroMat configuration file.')
-        return None
-
-    if isinstance(pyro.config[param], list):
-        done = pyro.config[param][-1]
-    elif isinstance(pyro.config[param], (int,str,float,bool)):
-        done = pyro.config[param]
-    else:
-        if verbose:
-            print_warning(
-'Could not retrieve a valid value for the PYroMat configuration parameter "' + 
-param + '."')
-        return None
-
-    if dtype:
-        return dtype(done)
-    return done
+    return pyro.config[param]
 
 
 
@@ -326,7 +476,7 @@ def print_line(text, lead):
 
 
 def load_file(filename,test=True,verbose=True):
-    """Load a single file and return the dictionary
+    """Load a single data file and return the dictionary
     loadfile(filename)
 Suppress the default data check by setting the 'test'
 keyword to False.

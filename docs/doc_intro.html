@@ -1,0 +1,255 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>PYroMat</title>
+    <link rel="stylesheet" type="text/css" href="./pyromat.css">
+    <meta name="description" content="thermodynamic properties in python">
+    <meta name="keywords" content="python,thermo,thermodynamic,property,properties">
+    <meta name="author" content="C.R. Martin">
+</head>
+<body>
+
+<iframe name="menu" id="menu" src="menu.html"></iframe>
+
+<div id="content">
+<div class="title">
+<h1>PYroMat</h1>
+<h2>Tutorial</h2>
+</div>
+
+<div class=section>
+
+    <div class="toc0"><a href=#import>Importing the package</a></div>
+    <div class="toc0"><a href=#get>Getting objects</a></div>
+    <div class="toc0"><a href=#data>Retrieving properties</a></div>
+    <div class="toc0"><a href=#help>Navigating in-line help</a></div>
+    <div class="toc0"><a href=#units>Working with units</a></div>
+    <div class="toc0"><a href=#arrays>Working with arrays</a></div>
+
+</div>
+
+
+<h3 class="subtitle" id="import">Importing the package</h3>
+<div class="section">
+    <p>
+    Once PYroMat is <a href="download.html">installed</a>, the package should be available at the Python command line as <span class="code">pyromat</span>.  
+    </p>
+    <pre class="code">
+>>> import pyromat as pyro</pre>
+</div>
+
+<h3 class="subtitle" id="get">Getting objects</h3>
+<div class="section">
+    <p>
+    Once PYroMat (<span class="code">pyro</span> for short) is imported, the <span class="code">get</span> function will retrieve objects that represent individual species.  For example, let's look at diatomic nitrogen, oxygen, and carbon dioxide.
+    </p>
+    <pre class="code">
+>>> N2 = pyro.get('ig.N2')
+>>> O2 = pyro.get('ig.O2')
+>>> CO2 = pyro.get('ig.CO2')</pre>
+    <p>
+    The argument to the <span class="code">get</span> function is the species ID.  It is comprised of two parts: the chemical compound, e.g. "N2," and the data <a href="#./doc_api.html#ig">collection</a> to which it belongs, "ig," for "ideal gas."
+    </p>
+</div>
+
+<h3 class="subtitle" id="data">Retrieving data</h3>
+<div class="section">
+    <p>
+    The objects expose all the methods we need to access their properties.  For example, to retrieve nitrogen's properties, we only need to ask for them by name.  Here, this example retrieves molecular weight, enthalpy in kJ/kg, and entropy in kJ/kg/K.  We'll talk more about <a href="#units">units</a> in just a moment.
+    </p>
+    <pre class="code">
+>>> N2.mw()
+28.0134
+>>> N2.h()
+array(0.0009843252384197784)
+>>> N2.s()
+array(6.839762903237966)</pre>
+    <p>
+    That's good and well for molecular weight, but enthalpy and entropy are functions of temperature and pressure!  All properties accept temperature and pressure (including molecular weight) with keywords, T and p.  In the case of molecular weight, they are ignored, but they are vital to most properties.  In the above example, those arguments were omitted, so PYroMat used default values of 298.15 Kelvin and 1 atm.  While those defaults are user <a href="./doc_api.html#if_config">configurable</a>, users that can't be bothered to specify a temperature and pressure are probably thinking of standard atmospheric conditions.
+    </p>
+    <p>
+    These command-line examples all return the enthalpy of diatomic nitrogen at 496.5K and 3bar, but using different approaches to calling the enthalpy function.  
+    </p>
+    <pre class="code">
+>>> N2.h(T=496.5, p=3.)     # T and p as explicit keywords
+array(207.30250236177193)
+>>> N2.h(T=496.5)           # p is omitted; h is not a function of p
+array(207.30250236177193)
+>>> N2.h(496.5, 3.)         # T and p as ordered arguments (T comes first)
+array(207.30250236177193)
+>>> N2.h(496.5)             # p is omitted; h is not a function of p
+array(207.30250236177193)</pre>
+    <p>
+    This is a good point to note that the <span class="code">h()</span> method returns a Numpy array instead of an ordinary float.  All properties accept array-like arguments to temperature and pressure.  PYroMat uses Numpy's <a href="https://docs.scipy.org/doc/numpy-1.13.0/user/basics.broadcasting.html" target="blank">array broadcasting rules</a> for operating on bulk data.  This can come in handy for simulations where T and p might be big <a href=#arrays>multi-dimensional arrays</a> in time and space.
+    </p>
+</div>
+
+<h3 class="subtitle" id="help">In-line documentation</h3>
+<div class="section">
+    <p>
+    The in-line documentation describes the properties that are available and names the units used.  For more detail on any individual property, just call up the in-line documentation for that method.
+    </p>
+    <pre class="code">
+>>> help(N2)
+
+Help on ig in module __builtin__ object:
+
+class ig(pyromat.reg.__basedata__)
+ |  Ideal gas class using the Shomate equation of state.
+ |  This class exposes properties through member methods.  All property 
+ |  functions accept temperature in PYroMat's unit_temperature and 
+ |  pressure in PYroMat's unit_pressure.  The following are the member 
+ |  methods and their unit conventions:
+ |    d()  density          (unit_matter / unit_volume)
+ |    e()  internal energy  (unit_energy / unit_matter)
+ |    h()  enthalpy         (unit_energy / unit_matter)
+ |    k()  spec. heat ratio (dless)
+ |    mw() molecular weight (unit_mass / unit_molar)
+ |    R()  gas constant     (unit_energy / unit_temperature / unit_matter)
+ |    s()  entropy          (unit_energy / unit_temperature / unit_matter)
+ |  
+ |  There are also routines to invert properties; e.g. calculating 
+ |  temperature from enthalpy or from entropy and pressure.
+ |    T_h()  temperature from enthalpy
+ |    T_d()  temperature from density and pressure
+ |    T_s()  temperature from entropy and pressure
+ |    p_s()  pressure from entropy and temperature
+ |    p_d()  pressure from density and temperature
+:</pre>
+
+    <pre class="code">
+>>> help(N2.h)
+
+Help on method h:
+
+h(self, T=None, p=None, hf=True) method of __builtin__.ig instance
+    Enthalpy
+        h(T,p)
+    Both arguments are optional, and will default to 'def_T' and 'def_p'
+    configuration parameters if they are left undefined.  Ideal gas enthalpy
+    is not actually a function of p, but it is permitted as an argument 
+    for cross-compatibility between species' function calls.
+    
+    There is an optional parameter, hf, that is a boolean indicating whether
+    the enthalpy of formation should be included in the enthalpy.  If hf is
+    false, h() will calculate the enthalpy to be zero a T=298.15K
+    
+    Accepts unit_temperature
+            unit_pressure
+    Returns unit_energy / unit_matter</pre>
+</div>
+
+<h3 class="subtitle" id="units">Working with units</h3>
+<div class="section">
+    <p>
+    By default, all energy is in kJ, and intensive properties are by mass (in kg).  Volume is in cubic meters, and molar units are in kmols.  Pressure is in bar and temperature is in Kelvin.  These units are pretty broadly used, but if developing thermodynamic codes teaches us anything, it is that no system of units is pleasing to every audience.  PYroMat has a configuration object that, among other things, allows the user to change the system of units.
+    </p>
+    <pre class="code">
+>>> N2.s(T=700.,p=50.)
+array(6.580384332173014)
+>>> pyro.config['unit_temperature'] = 'F'
+>>> N2.s(T=800.33,p=50.)*1.8    # 800.33F == 700K
+6.580384332173014</pre>
+    <p>
+    To know what the current settings are, just print the <span class="code">pyro.config</span> object.
+    </p>
+    <pre class="code">
+>>> pyro.config
+...
+     unit_energy : 'kJ'
+      unit_force : 'N'
+     unit_length : 'm'
+       unit_mass : 'kg'
+     unit_matter : 'kg'
+      unit_molar : 'kmol'
+   unit_pressure : 'bar'
+unit_temperature : 'K'
+       unit_time : 's'
+     unit_volume : 'm3'
+...</pre>
+    <p>
+    Most of these are self-explanatory, but the subtle distinctions between <span class="code">unit_mass</span>, <span class="code">unit_molar</span>, and <span class="code">unit_matter</span> definitely deserves some explanation.  Mass and molar specify how mass and mole count will be specified in properties like molecular weight, but matter specifies how extensive properties like entropy and enthalpy will be reported.  Unit matter can be in mass or molar units.
+    </p>
+    <pre class="code">
+>>> N2.mw()
+28.0134
+>>> N2.s()
+array(6.835995552261296)
+>>> pyro.config['unit_matter'] = 'kmol'
+>>> N2.s()
+array(191.4994778037166)
+>>> N2.s()/N2.mw()
+6.8359955522612958</pre>
+
+    <p>
+    For a list of all units supported, the <span class="code">units</span> module offers the <span class="code">show()</span> funciton.  This shows a space separated list of every string argument that the unit configuration parameters will accept.  Matter is not shown because it can be either mass or molar units.
+    </p>
+    <pre class="code">
+>>> pyro.units.show()
+          force : lb lbf kN N oz kgf 
+         energy : BTU kJ J cal eV kcal BTU_ISO 
+    temperature : K R eV C F 
+       pressure : mmHg psi inHg MPa inH2O kPa Pa bar atm GPa torr mmH2O ksi 
+          molar : Ncum NL Nm3 kmol scf n mol sci Ncc lbmol 
+         volume : cumm cc mL L mm3 in3 gal UKgal cuin ft3 cuft USgal m3 cum 
+         length : ft nm cm mm m km um mile in 
+           mass : mg kg g oz lb lbm slug 
+           time : s ms min hr ns year day us </pre>
+</div>
+
+<h3 class="subtitle" id="arrays">Working with arrays</h3>
+<div class="section">
+    <p>
+    PYroMat natively supports <a href="http://www.numpy.org/" target="blank">Numpy</a> arrays.  Temperature and pressure arguments can be any array-like iterable.
+    </p>
+    <pre class="code">
+>>> import numpy as np
+>>> T = np.arange(300., 1000.,100.)
+>>> N2.h(T)
+array([    53.90750325,   2971.32964933,   5910.75444792,   8893.9164816 ,
+        11936.61265198,  15046.59932493,  18223.31173227])</pre>
+    <p>
+    When parameters are mixed together, they must obey Numpy's rules for array <a href="https://docs.scipy.org/doc/numpy-1.13.0/user/basics.broadcasting.html">broadcasting</a>.  For example, when T is a list and p is a scalar, the same pressure will be used at each temperature specified.
+    </p>
+    <pre class="code">
+>>> T = np.array([500., 550., 600.])
+>>> p = 40.5
+>>> N2.s(T,p)
+array([ 175.96458798,  178.79561365,  181.40193451])</pre>
+    <p>
+    If we repeat the same steps, but with multiple pressures, we run into trouble.  What would it mean, anyway, to have three temperatures and two pressures?
+    </p>
+    <pre class="code">
+>>> p = np.array([40.5, 50.])
+>>> N2.s(T,p)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/home/chris/Documents/PYroMat/pyromat/registry/ig.py", line 758, in s
+    # to match p's dimensions at the end
+ValueError: shape mismatch: objects cannot be broadcast to a single shape</pre>
+    <p>
+    If T and p are to be arrays, they must be exactly the same shape or they must proceed in different dimensions.
+    </p>
+    <pre class="code">
+>>> T = T.reshape((T.size,1))
+>>> N2.s(T,p)
+array([[ 175.96458798,  174.21255642],
+       [ 178.79561365,  177.04358209],
+       [ 181.40193451,  179.64990295]])
+>>> T
+array([[ 500.],
+       [ 550.],
+       [ 600.]])
+>>> p
+array([ 40.5,  50. ])</pre>
+    <p>
+    This is just like populating a table for each combination of the temperature and pressure values.  There are other funny multi-dimensional combinations that are supported, but we'll leave that to the Numpy documentation to cover.
+    </p>
+</div>
+
+<iframe src="author.html" id="contact"></iframe>
+
+</div>
+</body>
+</html>

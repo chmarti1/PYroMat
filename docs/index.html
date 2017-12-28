@@ -1,101 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
     <title>PYroMat</title>
     <link rel="stylesheet" type="text/css" href="pyromat.css">
-    <meta name="description" content="thermodynamic properties in python">
+    <meta name="description" content="properties in python">
     <meta name="keywords" content="python,thermo,thermodynamic,property,properties">
     <meta name="author" content="C.R. Martin">
 </head>
 <body>
 
-<div id="menu">
-<img src="fig/PYro_Orange_Small.png" alt="PYro Icon" style="width:150;height:150">
-<div class="menuitem"><a href="./download.html">Download</a></div>
-<div class="menuitem"><a href="./pyrodoc.pdf">Documentation</a></div>
-<div class="menuitem"><a href="./examples.html">Examples</a></div>
-<div class="menuitem"><a href="https://sourceforge.net/p/pyro/discussion/?source=navbar">Discussion</a></div>
-</div>
-
-
+<iframe name="menu" id="menu" src="menu.html"></iframe>
 
 <div id="content">
 <div class="title">
-<h1>PYroMat<h1>
-<h2>Thermodynamic Computational Tools<br> for Python</h2>
+<h1>PYroMat</h1>
+<img width="125px" src="./fig/PYro_Black_Small.png"></img>
+<h2>Properties in Python</h2>
 </div>
 
-<p>
-PYroMat is a flexible platform for calculating thermodynamic properties in Python.  
-</p>
+<div class="section">
+    <div class="tagline">
+    PYroMat is a flexible platform <br>
+    for calculating substance properties <br>
+    in Python.
+    </div>
 
-<div class="code">
-import pyromat as pyro<br>
-S = pyro.get('steam')<br>
-# Calculate enthalpy as 450K and 3bar<br>
-h = S.h(T=450., p=3.)<br>
-# Go backwards<br>
-T = S.T_h(h=h, p=3.)<br>
+    <pre class="code" style="width:350px;margin:auto;">
+>>> import pyromat as pyro
+>>> H2O = pyro.get('mp.H2O')
+>>> h = H2O.h(T=450., p=3.)</pre>
+    
+    <div class="tagline">
+    Any of <b>almost 400 species</b><br>
+    are at your command<br> 
+    in only a few lines of Python.
+    </div>
+
+    <div style="position:relative;height:433px;width:700px;">
+    <a href="./doc_howto.html#cycle_brayton"><img src="fig/brayton.png" width=450px></a>
+    <a href="./doc_howto.html#plot_surf" style="position:absolute;left:300px;top:100px"><img src="fig/d2.png" width=400px></a>
+    </div>
+
+    <div class="tagline">
+    PYroMat's <b>array support</b><br>
+    makes <b>plotting</b><br>
+    and working with <b>big data sets</b><br>
+    easy.
+    </div>
+
+    <div style="position:relative;height:500px;width:600px;">
+    <pre class="code" style="width:350px;">
+>>> import numpy as np
+>>> O2 = pyro.get('ig.O2')
+>>> import numpy as np
+>>> T = np.linspace(300.,2000.,101)
+>>> h = O2.h(T)
+>>> h.shape
+(101,)
+>>> p = np.linspace(1.,100.,101)
+>>> s = O2.s(T,p)
+>>> s.shape
+(101,)
+>>> T = T.reshape((T.size,1))
+>>> s = O2.s(T,p)
+>>> s.shape
+(101, 101)</pre>
+
+    <pre class="code" style="width:350px;">
+>>> import matplotlib.pyplot as plt
+>>> T = np.linspace(300.,5000.,201)
+>>> air = pyro.get('ig.air')
+>>> plt.plot(T, air.cp(T))</pre>
+
+    <div style="position:absolute;top:100px;left:270px;">
+        <img src="./fig/air_cp.png" width=400px;>
+    </div>
+    </div>
+
 </div>
 
-<a href="./examples.html#rankine"><img src="fig/d.png" width=300></a><a href="./examples.html#brayton"><img src="fig/brayton.png" width=300></a>
+<iframe src="author.html" id="contact"></iframe>
 
-<h3 class="subtitle">Features</h3>
-<p>
-Version 1.4.1 of PYroMat contains 79 substances including imperfect gas mixtures and steam.  The data come from different sources and they are in different formats, but it all looks the same to the user!
-</p>
-<div class="code">
-import pyromat as pyro<br>
-# Ideal gases<br>
-N2 = pyro.get('N2')<br>
-nitrogen_enthalpy = N2.h(T=792.)<br>
-# 528.18344232751906 kJ/kg<br>
-<br>
-# Perfect gases<br>
-Ar = pyro.get('Ar')<br>
-argon_enthalpy = Ar.h(T=792.)<br>
-# 256.96512391640385 kJ/kg<br>
-<br>
-# Mixtures<br>
-air = pyro.get('air')<br>
-air_enthalpy = air.h(T=792.)<br>
-# 510.77100446306434 kJ/kg<br>
-<br>
-# multi-phase<br>
-S = pyro.get('steam')<br>
-steam_enthalpy = S.h(T=792.)<br>
-# 3529.0511381775596 kJ/kg <br>
-</div>
-
-<p>
-As of version 1.4.1, PYroMat includes multi-phase data for steam with refrigerants on the way.  New inverse properties like T_s() and T_h() let users invert properties for <a href="./examples.html#rankine">cycle analysis</a>.
-</p>
-<h3 class="subtitle">Interface</h3>
-<p>
-When a user wants to work with a substance, the user requests an object that represents that substance (like nitrogen, argon, air, and steam above).  These objects have their own methods for calculating enthalpy, entropy, density, specific volume, molecular weight, internal energy, and others from temperature and pressure.
-</p>
-<p>
-Numpy compatibility means that PYroMat interfaces can handle arrays and iterables seamlessly.
-</p>
-<div class="code">
-import numpy as np<br>
-import matplotlib.pyplot as plt<br>
-T = np.arange(300.,5000.,100.)<br>
-plt.plot(T, air.cp(T))<br>
-</div>
-<img src="./fig/air_cp.png" width=500>
-
-<p>
-For a more extensive idea of what PYro can do, check out the <a href="examples.html">examples</a>.
-</p>
-
-<hr>
-<div id="contact">
-Authored By:<br>
-Christopher R. Martin, Ph.D.<br>
-Assistant Professor of Mechanical Engineering<br>
-The Pennsylvania State University, Penn State Altoona<br>
-<a href="mailto:crm28@psu.edu">crm28@psu.edu</a>
-</div>
 </div>
 </body>
 </html>

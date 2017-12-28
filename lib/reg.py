@@ -42,7 +42,7 @@ establishes basic structure and methods that are common to all data
 the data formats Pyro can use.  This class is helpful because of the 
 way Pyro is structured.
 
-When a property function (such as pyro.h()) is called, the property 
+When a property function (such as spec.h()) is called, the property 
 funciton has no concept of the different data formats available 
 (tabular lookup, ideal gas fits, etc...).  Instead, the data file for 
 each species contains two essential pieces of information; 'id', which 
@@ -57,51 +57,42 @@ be used to interpret them.  In this way, the system is broadly
 expandable, and easily user-modified.
 
 There are a few requirements on these data classes:
-(1)  Firstly, they must have a 'data' attribute, into which the raw 
-data file contents will be loaded as a dictionary. 
-(2)  They must have a 'mandatory' attribute, which is a list of string 
-keys that that a proper 'data' dictionary must contain to be useable by 
-that class.  Among other things the basedata._test() function uses 
-this list to check for bad data.
-(3)  Data classes should expose the following methods for computing 
-basic thermodynamic properties as a function of temperature (in Kelvin) 
-and pressure (in bar)
-    .cp()   -   constant pressure specific heat (in kJ/kg/K)
-    .cv()   -   constant volume specific heat ( same )
-    .d()    -   density (in kg/m**3)
-    .h()    -   enthalpy (in kJ/kg)
-    .e()    -   internal energy (in kJ/kg)
-    .mw()   -   molecular weight (in kg/kmol)
-    .s()    -   entropy (in kJ/kg/K)
-*   other   -   
-The functions preceeded by an asterisk are optional.  Either they are 
-not meaningful to all data classes (such as R), or, when absent, they 
-can be automatically computed from other parameters (such as k = cp/cv).
+(1)  They must be children of the __basedata__ class
+(2)  Their initializers must accept as their sole argument, the 
+    dictionary result of the json.load() operation loading the species'
+    data file.
+(3)  The data dictionary must contain an "id" element, which is the 
+    string species ID.
+(4)  The data dictionary must contain a "class" element, which is the
+    string name of the class from the PYroMat registry to use.
+(5)  The data dictionary must contain a "doc" element, which describes
+    the origins of the data.
 
-The methods above must be functions of the form X(self,T,P), and must 
-accept T and P as numpy arrays (as produced by the utility.vectorize()
-function.  The igfit class should be a good example.
-
-Other functions can be added to the base classes, but unless they are 
-implemented in Pyro, they will only be evaluated for pure mixtures.
-For example, the classes might expose speed of sound diffusion, or
-viscosity functions, but they cannot be combined using typical mass-
-based averages like the extensive properties.
+While PYroMat does not explicitly impose rules on species ID or the 
+call signatures of the property methods, there is a convention that 
+all species IDs will be of the form "collection.formula"  Collection 
+is a group of similar species who share basic assumptions or source 
+data (like "ig" for ideal gas).  The formula is usually (but not always)
+the chemical makeup of the species.  They element names should be in 
+one- or two-character groups with the first character always upper-case
+and the second (if present) always lower-case.  If the element is 
+followed by an integer, that integer indicates the quantity.  If the
+integer is omitted, 1 is implied.  For example, "CO2" indicates carbon
+dioxide and "Co2" represents diatomic cobalt.
 """
 
 
-    mandatory = ['id','class','doc']
+    mandatory = []
 
 
     def __init__(self,data):
         """Generic initializer for the base Pyro data class
   >>> bhd = pyro.utility.basePyrodata( data)
 """
-        self.data = data.copy()
-        self.__doc__ = self.data['doc']
+        #self.data = data.copy()
+        self.data = data
         self.__basetest__()
-        self.__test__()
-        
+        self.__doc__ = self.data['doc']
         
         
         
@@ -123,37 +114,32 @@ documentation for more details.
 """
 
         raise_error = False
-    
-        # Check that the mandatory list contains the essential Pyro entries
-        if not 'id' in self.mandatory:
-            self.mandatory.append('id')
-            pyro.utility.print_warning(
-'The ' + repr(self.__class__) + ' mandatory attribute list did not contain the ''id'' tag, so it was added durring test.  This is a requirement of all Pyro objects.  See the __basedata__ class documentation for more information.')
-        if not 'class' in self.mandatory:
-            self.mandatory.append('class')
-            pyro.utility.print_warning(
-'The ' + repr(self.__class__) + ' mandatory attribute list did not contain the ''id'' tag, so it was added durring test.  This is a requirement of all Pyro objects.  See the __basedata__ class documentation for more information.')
+        pyro_mandatory = ['id','class','doc','fromfile']
 
         # Make sure all the mandatory entries are present.
-        out = 'The ' + repr(self.__class__) + ' data does not contain the following mandatory entries: ' 
-        contents_error = False
+        missing = ''
+        for mh in pyro_mandatory:
+            if not mh in self.data:
+                missing += mh + ' '
+
         for mh in self.mandatory:
             if not mh in self.data:
-                out += mh + ', '
-                contents_error=True
-        if contents_error:
-            raise_error=True
-            out = out[:-2] + '. The data file may be corrupt.'
-            pyro.utility.print_error(out)
+                missing += mh + ' '
         
-        out = 'The ' + repr(self.__class__) + ' data structure does not contain the mandatory methods for Pyro compatibility.  The class is missing the following methods: '
-        if raise_error:
+        if missing:
+            message = \
+'Mandatory entries are missing from a ' + repr(self.__class__) + ' file: '
+            if 'fromfile' in self.data:
+                message += self.data['fromfile']
+            pyro.utility.print_error(message)
+            pyro.utility.print_error(missing)
             raise pyro.utility.PyroDataError()
-
 
 
     def _vectorize(self,T,p,out_init=False,allow_scalar=True,def_T=None,def_p=None):
         """'vectorize' T and p inputs
+** OBSOLETE **
+
     (T,p) = mydataclass._vectorize(T,p)
 
 The vectorize function accepts numerical or indexable inputs for T and p
@@ -248,19 +234,6 @@ developers may want to add an output initialization.
 
 
 
-    def __test__(self):
-        """Perform class-specific data checks
-The last step of the __init__() function for the base class
-is to execute the __test__ function, so every class needs one.
-By default, it is empty, but it is intended to be redefined in
-each class to make specific checks on data types and formats.
-Basically, this is the bit of code that ensures that each data
-element can be evaluated by the class methods.
-"""
-        pass
-
-
-
     def psolve(self, Tinit=None, pinit=None, **kwargs):
         """*OBSOLETE* simply returns an error.
 PSOLVE() was obsoleted in version 1.4 to improve numerical performance
@@ -304,12 +277,18 @@ pyro.config parameters that affect the behavior of regload() are
 
     # fetch the configuration parameters
     if verbose == None:
-        verbose = pyro.utility.get_config('reg_verbose',dtype=bool)
-    exist_fatal = pyro.utility.get_config('reg_exist_fatal',dtype=bool)
-    exist_overwrite = pyro.utility.get_config('reg_overwrite',dtype=bool)
+        verbose = pyro.config['reg_verbose']
+    exist_fatal = pyro.config['reg_exist_fatal']
+    exist_overwrite = pyro.config['reg_overwrite']
 
     # search each directory in the registry search path
     for loc in pyro.config['reg_dir']:
+        # Expand references to the users' home directories
+        # and environment variables
+        loc = pyro.utility.os.path.expanduser(loc)
+        loc = pyro.utility.os.path.expandvars(loc)
+        loc = pyro.utility.os.path.abspath(loc)
+
         cont = pyro.utility.os.listdir(loc)
         # modules to load should not begin with an underscore or period
         # modules to load should end with .py

@@ -49,32 +49,21 @@ loaded in utility (like os,sys,numpy,etc...).  Simply evoke the utility
 module in the code (e.g. pyro.utility.os.path.isdir('nope'))
 """
 
-    # the 
-    mandatory = [
-        'id',       # pyro-mandatory species identifier string
-        'doc',      # pyro-mandatory documentation string
-        'class',    # pyro-mandatory evaluation tag
-        ]
-    #
-    # Class-specific tests at init
-    #
-    def __test__(self):
-        """Perform class-specific data checks
-The last step of the __init__() function for the base class
-is to execute the __test__ function, so every class needs one.
-By default, it is empty, but it is intended to be redefined in
-each class to make specific checks on data types and formats.
-Basically, this is the bit of code that ensures that each data
-element can be evaluated by the class methods.
-"""
-        pass
+
+    ## Class initializer
+    def __init__(self,*arg,**kwarg):
+        # Call the __baseclass__ initializer
+        # pyro.reg.__baseclass__.__init__(self,*arg,**kwarg) works too
+        super(self.__class__,self).__init__(*arg,**kwarg)
+        #
+        # Your class-specific initialization code goes here.
+        #
 
     #
     # Class property functions
     #
     def cp(self,T=None,p=None):
         """A function for calculating constant-pressure specific heat."""
-        (T,p) = self._vectorize(T,p)
         pass
     def cv(self,T=None,p=None):
         """A function for calculating constant-volume specific heat."""

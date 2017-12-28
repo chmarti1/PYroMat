@@ -1,0 +1,12 @@
+{
+    "bymass": false, 
+    "class": "igmix", 
+    "contents": {
+        "ig.Ar": 0.935, 
+        "ig.CO2": 0.0314, 
+        "ig.N2": 78.084, 
+        "ig.O2": 20.9476
+    }, 
+    "doc": "The composition of air is taken from section 14 page 20 of the  the CRC Handbook of Chemistry and Physics 96th ed, 2015-2016.\n\nwww.hbcpnetbase.com\n\nTrace gases (those present in less than 0.01% by volume) are neglected, as they will not contribute substantially to the thermodynamic properties.\n\nOriginal work is credited to:\n\nCOESA, \"U.S. Standard Atmosphere, 1976\", U.S. Government Printer Office, Washington D.C., 1976.\n\nAdapted by Chris Martin (c) 2015.\n", 
+    "id": "ig.air"
+}

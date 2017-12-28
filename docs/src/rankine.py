@@ -39,7 +39,7 @@ Wnet = 100. # Let's make a 100kW engine
 
 
 # Get the steam data
-steam = pyro.get('steam')
+steam = pyro.get('mp.H2O')
 
 # Assume the reservoir is a saturated liquid, as it would likely
 # be coming out of the condenser.  In reality some supercooling
@@ -131,7 +131,7 @@ ax2.set_title('Rankine Cycle p-v Diagram')
 # Generate the dome on both plots
 Tt,pt = steam.triple()
 Tc,pc = steam.critical()
-T = np.linspace(Tt,Tc,50)
+T = np.arange(Tt,Tc,2.5)
 p = steam.ps(T)
 dL,dV = steam.ds(T=T,p=p)
 sL,sV = steam.ss(T=T,p=p)
@@ -198,30 +198,30 @@ T={0:.1f}K
 s={1:.3f}kJ/kg/K
 (2)
 T={2:.1f}K
-s={3:.3f}kJ/kg/K""".format(T1,s1,T2,s2))
+s={3:.3f}kJ/kg/K""".format(float(T1),float(s1),float(T2),float(s2)))
     ax1.text(s3-3,T3+20,
     """(3) 
 T={0:.1f}K
-s={1:.3f}kJ/kg/K""".format(T3,s3))
+s={1:.3f}kJ/kg/K""".format(float(T3),float(s3)))
     ax1.text(s4+.2,T4-100,
     """(4) 
 T={0:.1f}K
-s={1:.3f}kJ/kg/K""".format(T4,s4))
+s={1:.3f}kJ/kg/K""".format(float(T4),float(s4)))
     ax1.text(s5+.2,T5,
     """(5) 
 T={0:.1f}K
-s={1:.3f}kJ/kg/K""".format(T5,s5))
+s={1:.3f}kJ/kg/K""".format(float(T5),float(s5)))
     
     v = 1./d1
     ax2.text(v,p1/5.,
     """(1) 
 p={0:.2f}bar
-v={1:f}m$^3$/kg""".format(p1,v))
+v={1:f}m$^3$/kg""".format(float(p1),float(v)))
     v = 1./d2
     ax2.text(v*1.5,p2*1.1,
     """(2) 
 p={0:.2f}bar
-v={1:f}m$^3$/kg""".format(p2,v))
+v={1:f}m$^3$/kg""".format(float(p2),float(v)))
     v = 1./d3
     ax2.text(v,p3,
     """(3) 
@@ -229,7 +229,7 @@ p={0:.2f}bar
 v={1:f}m$^3$/kg
 (4)
 p={2:.2f}bar
-v={3:f}m$^3$/kg""".format(p3,v,p4,1./d4))
+v={3:f}m$^3$/kg""".format(float(p3),float(v),float(p4),1./d4))
     v = 1./d5
     ax2.text(v/5,p5/5,
     """(5) 
@@ -252,3 +252,5 @@ ax1.set_ylim([300,800])
 # adjust the volume scale
 ax2.set_xlim([5e-4, 10])
 ax2.set_ylim([.01,1000.])
+
+plt.show(block=False)
