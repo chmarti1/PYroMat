@@ -1,4 +1,4 @@
-# PYro changelog
+# PYroMat changelog
 
 ## Version 1.1: 
 Original Release, including ideal gas data
@@ -39,4 +39,22 @@ Original Release, including ideal gas data
     normal files.
 - Added methods for calculating the inverse polynomials to the IF-97 class
 
+## Version 2.0.1
+This is the first version that deliberately breaks reverse compatibility.  Every time reverse compatibility is not preserved, the major version number will increase.
 
+- Provides a uniform array handling behavior for all classes
+    - All methods now accept arrays or array-like objects of any dimension
+    - All methods attempt reduce their returns to scalars if possible
+    - All methods return values that obey Numpy broadcasting rules
+    - Some methods will return a Python float and others return a Numpy array scalar depending on implementation
+- Provides a new configuration class, for in-line configuration
+    - config[] is now a dictionary-like object and NOT a dictionary.
+    - config[] enforces its own rules about type etc.
+    - config scripts still behave identically.
+- Provides a new unit conversion module, "units"
+    - config["unit_XXX"] now configures global unit defaults for unit XXX.
+    - Added unit conversion routines
+    - in-line documentation for all property methods reports the config unit parameters on which they depend.
+- Modifies the info() function to print a table of supported properties
+- Adds Tlim() and plim() to IF-97 (steam)
+- Migrates specific heat ratio method k() to gam() in preparation for k() to become thermal conductivity

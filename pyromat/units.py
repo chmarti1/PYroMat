@@ -121,7 +121,8 @@ new system of units.
         conv = self.table[to_units] / self.table[from_units]
         if exponent:
             conv **= exponent
-        return value * conv
+
+        return np.array(value) * conv
 
     def __getitem__(self,item):
         return self.table.__getitem__(item)
@@ -402,24 +403,27 @@ original default scale.
         else:
             return value
 
+    # copy the input
+    out = np.array(value)
+
     if from_units == 'C':
-        value += 273.15
+        out += 273.15
     elif from_units == 'R':
-        value /= 1.8
+        out /= 1.8
     elif from_units == 'F':
-        value = value/1.8 + 255.3722222222222
+        out = out/1.8 + 255.3722222222222
     elif from_units == 'eV':
-        value *= 11604.521662304598
+        out *= 11604.521662304598
 
     if to_units == 'C':
-        value -= 273.15
+        out -= 273.15
     elif to_units == 'R':
-        value *= 1.8
+        out *= 1.8
     elif to_units == 'F':
-        value = (value - 255.3722222222222)*1.8
+        out = (out - 255.3722222222222)*1.8
     elif to_units == 'eV':
-        value /= 11604.521662304598
-    return value
+        out /= 11604.521662304598
+    return out
 
 # Validated 11/18/2017
 def gauge_to_abs(value, units=None, patm=const_pstd):
@@ -434,7 +438,7 @@ default, the standard pressure is used.  If the atmospheric pressure
 is already known in the same units as the gauge pressure, do not use
 gauge_to_absolute(); simply add it to the old value.
 """
-    return value + pressure(patm,from_units='bar',to_units=units)
+    return np.array(value) + pressure(patm,from_units='bar',to_units=units)
 
 # Validated 11/18/2017
 def abs_to_gauge(value, units=None, patm=const_pstd):
@@ -449,7 +453,7 @@ default, the standard pressure is used.  If the atmospheric pressure
 is already known in the same units as the gauge pressure, do not use
 gauge_to_absolute(); simply add it to the old value.
 """
-    return value - pressure(patm,from_units='bar',to_units=units)
+    return np.array(value) - pressure(patm,from_units='bar',to_units=units)
 
 # Validated 11/18/2017
 def matter(value, mw, from_units=None, to_units=None, exponent=None):
@@ -488,7 +492,9 @@ If the from_units or the to_units values are not specified, the pyromat
             conv = mass[to_units] * mw / molar[from_units]
     if exponent:
         conv**=exponent
-    return value * conv
+
+    out = np.array(value) * conv
+    return out
 
 
 def show():

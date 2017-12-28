@@ -20,7 +20,7 @@ IGMIX objects offer the following property functions:
   d()  density          (unit_matter / unit_volume)
   e()  internal energy  (unit_energy / unit_matter)
   h()  enthalpy         (unit_energy / unit_matter)
-  k()  spec. heat ratio (dless)
+  gam()  spec. heat ratio (dless)
   mw() molecular weight (unit_mass / unit_molar)
   R()  gas constant     (unit_energy / unit_temperature / unit_matter)
   s()  entropy          (unit_energy / unit_temperature / unit_matter)
@@ -44,16 +44,87 @@ temperature intervals of the constituents.
         # Initialize the static molar and mass fractions
         self._x = None
         self._y = None
+      
 
-        # Define inverstion routines
-        self.T_h = pyro.solve.solve1n('T',
-            f=self.h, df=self.cp, param_init=1000.)
 
-        def ds(T,p=None):
-            return self.cp(T,p)/T 
+    def _invT(self, value, prop, p=None):
+        """Inverse property function
+    T = _invT(value, prop, dprop, p=None)
 
-        self.T_s = pyro.solve.solve1n('T',
-            f=self.s, df=ds, param_init=1000.)        
+This is an internal service method used to provide T_s and T_h.
+Iterate on values of temperature so that the property method, prop,
+returns value.
+
+The algorithm uses a modified Newton iteration.  The property derivative
+is approximated numerically instead of relying on explicit derivatives.
+The numerical cost of explicitly evaluating a function's derivatives is 
+approximately equal to numerical approximation in 1D, but this 
+drastically simplifies the implementation.
+
+value   the property value to obtain
+prop    the property method to be inverted
+p       the pressure
+"""
+        if p is None:
+            p = pyro.config['def_p']
+
+        # Generic iteration parameters
+        N = 100 # Maximum iterations
+        small = 1e-8    # A "small" number
+        epsilon = 1e-6  # Iteration precision
+
+        Tmin,Tmax = self.Tlim()
+
+        it = np.nditer((None,value,p),op_flags=[['readwrite','allocate'],['readonly','copy'],['readonly','copy']],op_dtypes='float')
+        for T_,y_,p_ in it:
+            # Use Tk as the iteration parameter.  We will write to T_ later.
+            # Initialize it to be in the center of the species' legal range.
+            Tk = 0.5*(Tmin + Tmax)
+            Tk1 = Tk
+            # Initialize dT - the change in T
+            dT = 0.
+            # Calculate an error threshold
+            thresh = max(small, abs(epsilon * y_))
+            # Initialize absek1 - the absolute error from the last iteration
+            #    Using +infty will force the error reduction criterion to be met
+            abs_ek1 = float('inf')
+            fail = True
+            for count in range(N):
+                ## CALL THE PROPERTY FUNCTION ##
+                yk = prop(T=Tk,p=p_)
+                # Calculate error
+                ek = yk-y_
+                abs_ek = abs(ek)
+                # Test for convergence
+                if abs_ek < thresh:
+                    T_[...] = Tk
+                    fail = False
+                    break
+                # If the error did not reduce from the last iteration
+                elif abs_ek > abs_ek1:
+                    dT /= 2.
+                    Tk = Tk1 + dT
+                # Continue normal iteration
+                else:
+                    # Shift out the old values
+                    abs_ek1 = abs_ek
+                    Tk1 = Tk
+                    ## ESTIMATE THE DERIVATIVE ##
+                    dT = max(small, epsilon*Tk)    # Make a small perturbation
+                    dydx = (prop(T=Tk+dT,p=p_) - yk)/dT
+                    # Calculate the next step size
+                    dT = -ek / dydx
+                    # Produce a tentative next value
+                    Tk = Tk1 + dT
+                    # Test the guess for containment in the temperature limits
+                    # Shrink the increment until Tk is contained
+                    while Tk<Tmin or Tk>Tmax:
+                        dT /= 2.
+                        Tk = Tk1 + dT
+            if fail:
+                raise pyro.utility.PMAnalysisError('_invT() failed to converge!')
+        return it.operands[0]
+
 
     def Tlim(self):
         """Temperature limits
@@ -83,7 +154,7 @@ Returns unit_temperature
         # Otherwise, weight by mole fraction
         else:
             W = self.X()
-        for ss,f in W.iteritems():
+        for ss,f in W.items():
             out += f*pyro.dat.data[ss].cp(T,p)
         return out
 
@@ -96,7 +167,7 @@ Returns unit_temperature
         # Otherwise, weight by mole fraction
         else:
             W = self.X()
-        for ss,f in W.iteritems():
+        for ss,f in W.items():
             out += f*pyro.dat.data[ss].cv(T,p)
         return out
 
@@ -117,7 +188,7 @@ Returns unit_temperature
         # Otherwise, weight by mole fraction
         else:
             W = self.X()
-        for ss,f in W.iteritems():
+        for ss,f in W.items():
             out += f*pyro.dat.data[ss].h(T,p,hf)
         return out
 
@@ -130,7 +201,7 @@ Returns unit_temperature
         # Otherwise, weight by mole fraction
         else:
             W = self.X()
-        for ss,f in W.iteritems():
+        for ss,f in W.items():
             out += f*pyro.dat.data[ss].e(T,p)
         return out
 
@@ -151,11 +222,11 @@ Returns unit_temperature
         # Otherwise, weight by mole fraction
         else:
             W = self.X()
-        for ss,f in W.iteritems():
+        for ss,f in W.items():
             out += f*pyro.dat.data[ss].s(T,p)
         return out
 
-    def k(self,T=None,p=None):
+    def gam(self,T=None,p=None):
         """Specific heat ratio"""
         return self.cp(T,p) / self.cv(T,p)
 
@@ -174,7 +245,7 @@ in the mixture."""
             # If the species is defined by mass (and not by mole)
             if self.data['bymass']:
                 N = 0.  # Mole count
-                for key,value in self.data['contents'].iteritems():
+                for key,value in self.data['contents'].items():
                     temp = value / pyro.dat.data[key].data['mw']
                     # Add str() to convert out of unicode
                     self._x[str(key)] = temp
@@ -182,7 +253,7 @@ in the mixture."""
             # If the species is defined by mole
             else:
                 N = 0.  # Mole count
-                for key,value in self.data['contents'].iteritems():
+                for key,value in self.data['contents'].items():
                     # Add str() to convert out of unicode
                     self._x[str(key)] = value
                     N += value
@@ -208,14 +279,14 @@ in the mixture."""
             # If the species is defined by mass (and not by mole)
             if self.data['bymass']:
                 M = 0.  # Mass count
-                for key,value in self.data['contents'].iteritems():
+                for key,value in self.data['contents'].items():
                     # Add str() to convert out of unicode
                     self._y[str(key)] = value
                     M += value
             # If the species is defined by mole
             else:
                 M = 0.  # Mole count
-                for key,value in self.data['contents'].iteritems():
+                for key,value in self.data['contents'].items():
                     temp = value * pyro.dat.data[key].data['mw']
                     # Add str() to convert out of unicode
                     self._y[str(key)] = temp
@@ -227,4 +298,31 @@ in the mixture."""
         # Return the dictionary
         return self._y
 
+
+    def T_s(self,s,p=None):
+        """Temperature as a function of entropy
+    T = T_s(s)
+        or
+    T = T_s(s,p)
+
+Accepts unit_energy / unit_matter / unit_temperature
+        unit_pressure
+Returns unit_temperature
+"""
+        return self._invT(s, self.s, p)
+
+
+    def T_h(self,h,p=None):
+        """Temperature as a function of enthalpy
+    T = T_h(h)
+        or
+    T = T_h(h,p)
+
+Returns the temperature as a function of enthalpy and pressure
+
+Accepts unit_energy / unit_matter / unit_temperature
+        unit_pressure
+Returns unit_temperature
+"""
+        return self._invT(h, self.h, p)
 

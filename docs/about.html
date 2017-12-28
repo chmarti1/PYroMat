@@ -19,7 +19,17 @@
     <h2>About</h2>
 </div>
 
-<h3 class="subtitle">Scope and Purpose</h3>
+<div class="section">
+    <div class="toc0"><a href="#scope">Scope and purpose</a></div>
+    <div class="toc0"><a href="#history">History</a></div>
+    <div class="toc1"><a href="#history_poem">A little poem</a></div>
+    <div class="toc1"><a href="#history_story">The story behind PYroMat</a></div>
+    <div class="toc1"><a href="#history_logo">The logo</a></div>
+    <div class="toc0"><a href="#future">Future plans</a></div>
+    <div class="toc0"><a href="#license">License</a></div>
+</div>
+
+<h3 id="scope" class="subtitle">Scope and purpose</h3>
 <div class="section">
     <p>
     PYroMat is an open-source Python-based software platform for retrieving the physical properties of substances.  It will continue to grow and change, but it will always be free and it will always be open.  The original source data will always be fully disclosed, and errors will continuously be rooted out and eliminated.
@@ -28,14 +38,82 @@
     Providing the properties of substances is an awfully broad mandate; so we have to start somewhere.  As of version 2.0.1, most of PYroMat's 390+ species are ideal gases, but there is also support for two-phase (only steam so far) and ideal gas mixtures.  Work is already underway to broaden two-phase support to refrigerants and some important substances like nitrogen, oxygen, and especially carbon dioxide.
     </p>
     <p>
-    There are some excellent alternatives out there that do some similar things, but all of them are either for profit, have limited capabilities, are devoted to much narrower data sets, or are built to perform a specific job.  PYroMat is written entirely in Python and is designed with the intent of minimizing the clicks and keystrokes required to do a job.
+    There are some excellent alternatives out there that do some similar things, but all of them are either for profit, have limited capabilities, are devoted to much narrower data sets, or are built to perform a specific job.  PYroMat is written entirely in Python and is designed with the intent of minimizing the clicks and keystrokes required to get data that should be available to us all.
     </p>
 </div>
 
-<h3 class="subtitle">History</h3>
+<h3 id="history" class="subtitle">History</h3>
 <div class="section">
+    <h3 id="history_poem">A little poem</h3>
+    <pre class="verse">
+There once was a student
+with work ethic prudent
+she scripted to speed her work.
+
+In Python t'was coded,
+so when it was loaded,
+she could all the tedium shirk.
+
+A thermodynamic
+fluid mechanic
+problem she had solved.
+
+Her colleagues were avid
+she share the package
+frustration to resolve.
+
+Good, was the mood.
+Researchers all cooed,
+until she read her mail.
+
+With no contradiction,
+viscosity-friction;
+with it her package would sail.
+
+She furiously typed
+new modules to write.
+The people, they must be heard.
+
+What thanks had it gotten?
+why, STEAM she'd forgotten!
+Without it, the code was absurd.
+
+Downtrodden indeed,
+she sat at the screen,
+multiphase soon to add.
+
+Though coffee was drunk
+and sleepless nights sunk,
+her code, it really was bad!
+
+The syntax was rambling
+no hope of unscrambling
+the endless nonsensical edits.
+
+Compatible, reverse,
+a programmer's curse
+no fixing - it's time to shred it.
+
+"I'm done," she then plead.
+To the airport, she fled.
+"I'll fly off to someplace that’s random."
+
+Her useful creation
+was once a sensation;
+forgotten and now is abandoned.
+
+Her colleagues still moan,
+"Please pick up your phone!
+Your software, it just isn't working."
+
+Ye coders beware
+the fate most unfair,
+within all your projects is lurking.
+</pre>
+
+    <h3 id="history_story">The story behind PYroMat</h3>
     <p>
-    In 2006, I needed to calculate enthalpies of lots of ideal gases for combustion modeling, and I was disappointed with my options.  I created HOT for Matlab and Octave, and it's still available from <a href="hot-tdb.sourceforge.com">Sourceforge</a> and the <a href="https://www.mathworks.com/matlabcentral/fileexchange/26430-hot-thermodynamic-tools-for-matlab" target="blank">Mathworks File Exchange</a>.  When I released it, there was a warm response from a community of students and researchers, but there were a number of implementation decisions that could have been better.  About the same time, Python was gaining ground in scientific computing, so rather than improving the Matlab code, I started from scratch in Python.  I haven't supported HOT since 2010, and I've never regretted the transition.
+    In 2006, I needed to calculate enthalpies of lots of ideal gases for combustion modeling, and I was disappointed with my options.  I created HOT for Matlab and Octave, and it's still available from <a href="hot-tdb.sourceforge.com">Sourceforge</a> and the <a href="https://www.mathworks.com/matlabcentral/fileexchange/26430-hot-thermodynamic-tools-for-matlab" target="blank">Mathworks File Exchange</a>.  When I released it, there was a warm response from a community of students and researchers, but there were a number of poor implementation decisions.  About the same time, Python was gaining ground in scientific computing, so rather than improving the Matlab code, I started from scratch in Python.  I haven't updated HOT since 2010, and I've never regretted the transition.
     </p>
     <p>
     In 2015, I released the first version of PYro on Sourceforge, and I was very proud of my cute name for the package.  <a href="https://pypi.python.org/pypi/Pyro4" target="blank">Pyro</a> is already a popular remote object toolkit for Python, and my due diligence searching for redundant package names apparently had an embarrassingly huge blind spot.  So, with a nod to the intent for the future breadth of the project, PYro became PYroMat.
@@ -49,8 +127,14 @@
     <p>
     At the close of 2017, version 2.0.1 marked a total transition to the <a target="blank" href="http://webbook.nist.gov/cgi/cbook.cgi?ID=C7732185&Mask=1#Thermo-Gas">Shomate Equation</a> used by the NIST webbook, implemented by a class simply called <span class="code">ig</span>.  The same release also introduced the use of collections to organize species by their type.
     </p>
+    
+    <h3 id="history_logo">Logo</h3>
+    <p>
+    The PYroMat logo is entirely thanks to the wonderful and talented <a href="https://www.behance.net/janetmontgomery">Janet Montgomery</a>.  I mentioned to her that the package needed an icon, and before I had time to think I had a multitude of options of every color and shape.  Together, we whittled it down to a snake's head combined with a flame to represent the union of Python and thermal properties.  Thanks Janet.
+    </p>
 </div>
-<h3 class="subtitle">Future</h3>
+
+<h3 class="subtitle">Future plans</h3>
 <div class="section">
     <p>
     Version 2.0.1 is the beginning of a long transition to a new internal structure that will expose a wide range of new tools to the user.  The number of species has roughly quadrupled since the original code, so the package needs a better way to search and browse the species list than than it has.  Additional multi-phase substances like refrigerants have been in the works for a long time, and there are a number of other important fluids on the way.
@@ -60,6 +144,16 @@
     </p>
     <p>
     Lest we forget the Matlab and Octave roots of PYroMat, this is an excellent time to emphasize Matlab's Python support.  I have not, but plan to investigate the new package's compatibility with Matlab.  One day, I may even write some wrapper functions in Matlab that call up the Python back-end.
+    </p>
+
+</div>
+<h3 class="subtitle">License</h3>
+<div class="section">
+    <p>
+    PYroMat is released under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU Public License version 3</a>.  You, the user, are free to copy the code.  You are free to edit the program (please do).  You are free to share your changes with anyone you like as long as you tell people you made changes.  In fact, I'd really love to hear about it if you make your own additions!
+    </p>
+    <p>
+    While I will continue to pour effort into verifying the integrity of the code and the data I maintain, PYroMat is distributed <a href="https://www.gnu.org/licenses/gpl-3.0.en.html#section15">without any warranty</a>; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     </p>
 </div>
 

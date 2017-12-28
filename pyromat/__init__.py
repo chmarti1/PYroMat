@@ -135,7 +135,7 @@ for the substance named.
         for ss in ids:
             idlen = max(idlen, len(ss))
         # A list of properties for wich to search
-        proplist = ['cp', 'cv', 'd', 'e', 'h', 'k', 'mw', 'p_s', 'R', 's', 'T_h', 'T_s', 'X', 'Y']
+        proplist = ['cp', 'cv', 'd', 'e', 'gam', 'h', 'k', 'mw', 'p_d', 'p_s', 'R', 's', 'T_d', 'T_h', 'T_s', 'X', 'Y']
         proplen = 0
         for prop in proplist:
             proplen += len(prop) + 1

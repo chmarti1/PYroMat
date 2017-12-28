@@ -698,7 +698,9 @@ temperature from enthalpy or from entropy and pressure.
         <tr><td class="code">T_h(h,p)</td><td>temperature from enthalpy</td></tr>
         <tr><td class="code">T_s(s,p)</td><td>temperature from entropy and pressure</td></tr>
     </table>
-
+    <p>
+    The limits on the validity of the IF-97 class properties are reported by the <span class="code">plim()</span> and <span class="code">Tlim()</span> methods.  Since the IF-97 report equations are valid over piece-wise rectangles in T,p space, these functions accept temperature and pressure respectively as optional arguments.
+    </p>
 
 
     <a href="#toc">Top</a>

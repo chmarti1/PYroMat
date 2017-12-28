@@ -16,7 +16,7 @@ methods and their unit conventions:
   d()  density          (unit_matter / unit_volume)
   e()  internal energy  (unit_energy / unit_matter)
   h()  enthalpy         (unit_energy / unit_matter)
-  k()  spec. heat ratio (dless)
+  gam()  spec. heat ratio (dless)
   mw() molecular weight (unit_mass / unit_molar)
   R()  gas constant     (unit_energy / unit_temperature / unit_matter)
   s()  entropy          (unit_energy / unit_temperature / unit_matter)
@@ -616,7 +616,7 @@ The following test criteria are used:
         units = ['J','mol','bar','K']
         R = pyro.units.const_Ru
         tag = '   8 %3s %3s %3s %3s'%tuple(units)
-        subresult &= _prop_test(tag, self.k, (Tref,), cpref/(cpref-R), units)
+        subresult &= _prop_test(tag, self.gam, (Tref,), cpref/(cpref-R), units)
 
         if report_level >= REP_MINIMAL:
             ff.write('Criterion 8: specific heat ratio')
@@ -775,8 +775,13 @@ Returns unit_energy / unit_matter / unit_temperature
         # Check for default values
         if T is None:
             T = pyro.config['def_T']
+        if not isinstance(T,np.ndarray):
+            T = np.array(T)
+
         if p is None:
             p = pyro.config['def_p']
+        if not isinstance(p,np.ndarray):
+            p = np.array(p)
 
         # Perform temperature conversion
         T = pyro.units.temperature_scale(T,to_units='K')
@@ -926,9 +931,9 @@ Returns unit_energy/unit_temperature/unit_matter
         R = pyro.units.matter(R, self.data['mw'], from_units='mol', exponent=-1)
         return R
 
-    def k(self,T=None,p=None):
+    def gam(self,T=None,p=None):
         """Specific heat ratio
-    k(T,p)
+    gam(T,p)
 Both arguments are optional, and will default to 'def_T' and 'def_p'
 configuration parameters if they are left undefined.  Ideal gas specific 
 heat ratio is not actually a function of p, but it is permitted as an 

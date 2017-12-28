@@ -138,7 +138,7 @@ This is equivalent to
         """Set the value to its original default"""
         # Enforce write permissions
         if not self.write_allowed:
-            raise PMParamError('Entry is read-only.')
+            return
         # Append?
         if self.append:
             self.value = [self.default]
@@ -242,6 +242,7 @@ if pyro.config['version'].split('.')[0] < 2:
             out += fmt%(k,temp)
         return out
 
+
     def load(self,filename = None,verbose=None):
         """Load the configuration files
     pmconfig.load()
@@ -326,14 +327,24 @@ for item in new_dictionary:
         for item in new:
             self[item] = new[item]
 
-    def restore_default(self, item):
+    def restore_default(self, item=None):
         """Return a parameter to its default value
     pmconfig.restore_default(item)
+        Or
+    pmconfig.restore_default()
+
+When item is a configuration parameter string, that configuration 
+parameter is restored to its default value.  When item is omitted,
+all parameters are restored to their default.
 
 This function is equivalent to
 pmconfig.entries[item].apply_default()
 """
-        self.entries[item].apply_default()
+        if item is None:
+            for item, entry in self.entries.iteritems():
+                entry.apply_default()
+        else:
+            self.entries[item].apply_default()
 
 
     def __getitem__(self, item):
