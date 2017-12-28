@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Installation file for PYro
-Chris Martin (c) 2016,2017
+Chris Martin (c) 2016,2018
 """
 
 from setuptools import setup
@@ -32,10 +32,10 @@ setup(
     long_description=\
 """PYroMat provides a Python interface for thermo-physical properties of a 
 wide range of species. Visit the PYroMat homepage for more documentation, 
-installation options, and more (https://pythonhosted.org/PYroMat/).""",
+installation options, and more (https://chmarti1.github.io/PYroMat/).""",
     author="Chris Martin",
     author_email="crm28@psu.edu",
-    url="https://pythonhosted.org/PYroMat/",
+    url="https://chmarti1.github.io/PYroMat/",
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Education',
@@ -55,6 +55,6 @@ installation options, and more (https://pythonhosted.org/PYroMat/).""",
     package_data={'':['data/mp/*.hpd', 'data/ig/*.hpd','registry/*.py']},
     data_files=[('.',[  'README.md', 'CHANGELOG.md', 'LICENSE.txt',
                         'test.py','test2.log','test3.log'])],
-    install_requires=['numpy','json','time'],
+    install_requires=['numpy'],
     provides=['pyromat']
     )

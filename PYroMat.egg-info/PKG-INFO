@@ -1,14 +1,14 @@
 Metadata-Version: 1.1
 Name: PYroMat
-Version: 2.0.1
+Version: 2.0.3
 Summary: Properties in Python.
-Home-page: https://pythonhosted.org/PYroMat/
+Home-page: https://chmarti1.github.io/PYroMat/
 Author: Chris Martin
 Author-email: crm28@psu.edu
 License: GNU General Public License v3 (GPLv3)
 Description: PYroMat provides a Python interface for thermo-physical properties of a 
         wide range of species. Visit the PYroMat homepage for more documentation, 
-        installation options, and more (https://pythonhosted.org/PYroMat/).
+        installation options, and more (https://chmarti1.github.io/PYroMat/).
 Keywords: thermodynamic properties
 Platform: UNKNOWN
 Classifier: Development Status :: 5 - Production/Stable
