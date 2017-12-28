@@ -208,7 +208,7 @@ The following test criteria are used:
             ff = os.sys.stdout
         elif isinstance(report_file,str):
             ff = open(report_file)
-        elif isinstance(report_file,file):
+        elif hasattr(report_file,'write'):
             ff = report_file
         else:
             raise pyro.utility.PMParamError('Unrecognized file type')
@@ -277,6 +277,9 @@ The following test criteria are used:
             else:
                 return True
 
+        if report_level >= REP_MINIMAL:
+            ff.write('Testing IG species %s\n'%self.data['id'])
+
         #==========================================================#
         # Criterion 0 - Data integrity checks                      #
         #==========================================================#
@@ -331,34 +334,35 @@ The following test criteria are used:
         ##
         ## Criterion 0d - No discontinuities in cp()
         ##
-        if report_level >= REP_VITAL:
-            ff.write('  0d...')
-
-        pyro.config['unit_temperature']='K'
-        pyro.config['unit_energy']='J'
-        pyro.config['unit_matter']='mol'
-        T = np.array(self.data['Tlim'][1:-1])
-        clow = self.cp(T-.01)
-        chigh = self.cp(T+.01)
-        fail = (abs(chigh-clow) > .001*chigh)
-        if fail.any():
-            subresult = False
+        if len(self.data['Tlim']) > 2:
             if report_level >= REP_VITAL:
-                ff.write('[FAIL]\n')
-                if report_level >= REP_ALL:
-                    ff.write('    Discontinuity at T(K)=')
-                    for tt in T[fail]:
-                        ff.write('%d,'%tt)
-                    ff.write('\n')
-        else:
-            ff.write('[pass]\n')
+                ff.write('  0d...')
+
+            pyro.config['unit_temperature']='K'
+            pyro.config['unit_energy']='J'
+            pyro.config['unit_matter']='mol'
+            T = np.array(self.data['Tlim'][1:-1])
+            clow = self.cp(T-.01)
+            chigh = self.cp(T+.01)
+            fail = (abs(chigh-clow) > .001*chigh)
+            if fail.any():
+                subresult = False
+                if report_level >= REP_VITAL:
+                    ff.write('[FAIL]\n')
+                    if report_level >= REP_ALL:
+                        ff.write('    Discontinuity at T(K)=')
+                        for tt in T[fail]:
+                            ff.write('%d,'%tt)
+                        ff.write('\n')
+            elif report_level >= REP_VITAL:
+                ff.write('[pass]\n')
 
 
         if not subresult:
             if report_level >= REP_MINIMAL:
-                ff.write('Criterion 0 - Fundamental format [FAIL]\n\n')                
+                ff.write('Criterion 0: Fundamental format [FAIL]\n')                
         elif report_level >= REP_MINIMAL:
-            ff.write('Criterion 0 - Fundamental format [pass]\n\n')
+            ff.write('Criterion 0: Fundamental format [pass]\n')
 
         if basic:
             return subresult
@@ -401,9 +405,9 @@ The following test criteria are used:
         if report_level >= REP_MINIMAL:
             ff.write('Criterion 1: specific heat ')
             if subresult:
-                ff.write('[pass]\n\n')
+                ff.write('[pass]\n')
             else:
-                ff.write('[FAIL]\n\n')
+                ff.write('[FAIL]\n')
         #==========================================================#
         # Criterion 2 - h should agree with tabulated data         #
         #==========================================================#
@@ -448,9 +452,9 @@ The following test criteria are used:
         if report_level >= REP_MINIMAL:
             ff.write('Criterion 2: ethalpy ')
             if subresult:
-                ff.write('[pass]\n\n')
+                ff.write('[pass]\n')
             else:
-                ff.write('[FAIL]\n\n')
+                ff.write('[FAIL]\n')
 
         #==========================================================#
         # Criterion 3 - s should agree with tabulated data         #
@@ -493,9 +497,9 @@ The following test criteria are used:
         if report_level >= REP_MINIMAL:
             ff.write('Criterion 3: entropy ')
             if subresult:
-                ff.write('[pass]\n\n')
+                ff.write('[pass]\n')
             else:
-                ff.write('[FAIL]\n\n')
+                ff.write('[FAIL]\n')
 
         #==========================================================#
         # Criterion 4 - R should agree with explicit calculation   #
@@ -537,9 +541,9 @@ The following test criteria are used:
         if report_level >= REP_MINIMAL:
             ff.write('Criterion 4: ideal gas constant ')
             if subresult:
-                ff.write('[pass]\n\n')
+                ff.write('[pass]\n')
             else:
-                ff.write('[FAIL]\n\n')
+                ff.write('[FAIL]\n')
 
         result &= subresult        
 
@@ -569,9 +573,9 @@ The following test criteria are used:
         if report_level >= REP_MINIMAL:
             ff.write('Criterion 5: density ')
             if subresult:
-                ff.write('[pass]\n\n')
+                ff.write('[pass]\n')
             else:
-                ff.write('[FAIL]\n\n')
+                ff.write('[FAIL]\n')
 
         result &= subresult
 
@@ -587,9 +591,9 @@ The following test criteria are used:
         if report_level >= REP_MINIMAL:
             ff.write('Criterion 6: constant volume specific heat ')
             if subresult:
-                ff.write('[pass]\n\n')
+                ff.write('[pass]\n')
             else:
-                ff.write('[FAIL]\n\n')
+                ff.write('[FAIL]\n')
 
         result &= subresult
         #==========================================================#
@@ -604,9 +608,9 @@ The following test criteria are used:
         if report_level >= REP_MINIMAL:
             ff.write('Criterion 7: internal energy ')
             if subresult:
-                ff.write('[pass]\n\n')
+                ff.write('[pass]\n')
             else:
-                ff.write('[FAIL]\n\n')
+                ff.write('[FAIL]\n')
 
         result &= subresult
         #==========================================================#

@@ -31,7 +31,8 @@ setup(
     description="Properties in Python.",
     long_description=\
 """PYroMat provides a Python interface for thermo-physical properties of a 
-wide range of species. Visit the PYroMat homepage for more information https://pythonhosted.org/PYroMat/""",
+wide range of species. Visit the PYroMat homepage for more documentation, 
+installation options, and more (https://pythonhosted.org/PYroMat/).""",
     author="Chris Martin",
     author_email="crm28@psu.edu",
     url="https://pythonhosted.org/PYroMat/",
@@ -51,8 +52,9 @@ wide range of species. Visit the PYroMat homepage for more information https://p
     keywords = 'thermodynamic properties',
     packages=['pyromat'],
     package_dir={'pyromat':install_from},
-    package_data={'pyromat':['registry/*.py','data/ig/*.hpd','data/mp/*.hpd']},
-    data_files=[('.',['README.md','CHANGELOG.md','test.py'])],
-    requires=['numpy','json','time'],
+    package_data={'':['data/mp/*.hpd', 'data/ig/*.hpd','registry/*.py']},
+    data_files=[('.',[  'README.md', 'CHANGELOG.md', 'LICENSE.txt',
+                        'test.py','test2.log','test3.log'])],
+    install_requires=['numpy','json','time'],
     provides=['pyromat']
     )
