@@ -1,3 +1,6 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+
 <html>
 <head>
     <title>PYroMat Downloads</title>
@@ -17,19 +20,24 @@
 </div>
 <div class="section">
     <p>
-    PYroMat is available for download from Python's <a href="#pypi">Package Index</a>, <a href="#github">Github</a> and <a href="#sourceforge">Sourceforge</a>.  PYroMat was developed to support both Python2 and Python3.
+    Here are some options for downloading and installing PYroMat.
     </p>
+
+    <div class="toc0"><a href="#pypi">Python package index</a></div>
+    <div class="toc0"><a href="#github">Github</a></div>
+    <div class="toc0"><a href="#sourceforge">Sourceforge</a></div>
+
     <p>
-    If you download a version later than 1.3 from Github or Sourceforge, the root directory will also contain <a href="./src/test.py">test.py</a>, which generates a .log file showing the results of tests of each of PYroMat's classes.
+    PYroMat supports both Python 2 and Python 3.  If you download a version later than 1.3 from Github or Sourceforge, the root directory will also contain "test.py," which generates a .log file showing the results of tests of each of PYroMat's classes.
     </p>
 </div>
 
 
-<h3 class="subtitle"><a name="pypi">The python package index</a></h3>
+<h3 class="subtitle" id="pypi">The Python package index</h3>
 <div class="section">
 
     <p>
-    The PYroMat package index can be found <a href="https://pypi.python.org/pypi/PYroMat">here</a>.  To install from a command line, run the following command as an administrator:
+    The PYroMat package index can be found at <a href="https://pypi.python.org/pypi/PYroMat">https://pypi.python.org/pypi/PYroMat</a>.  If you already have <a href="https://pypi.python.org/pypi/pip/">PIP</a> installed, you can download and install PYroMat with a single command.  To install from a command line, run the following command as an administrator:
     <div class="code">
     pip install pyromat
     </div>
@@ -41,22 +49,28 @@
 </div>
 
 
-<h3 class="subtitle"><a name="github">Github</a></h3>
+<h3 class="subtitle" id="github">Github</h3>
 <div class="section">
-    The PYroMat package index can be found at <a href="https://github.com/chmarti1/PYroMat" target="blank">https://github.com/chmarti1/PYroMat</a>.  To get your own working copy, fire up your command line:
-    <div class="code">
-    git clone https://github.com/chmarti1/PYroMat.git<br>
-    cd PYroMat<br>
-    python setup.py install<br>
-    </div>
-
-    The last command may need to be executed as an administrator on your system.
+    <p>
+    The PYroMat package index can be found at <a href="https://github.com/chmarti1/PYroMat" target="blank">https://github.com/chmarti1/PYroMat</a>.  If you already have <a href="https://git-scm.com/">GIT</a> installed, fire up your command line:
+    <p>
+    <pre class="code">
+    git clone https://github.com/chmarti1/PYroMat.git
+    cd PYroMat
+    python setup.py install</pre>
+    <p>
+    The last command might need to be executed by an administrator on your system.
+    </p>
+    <p>
+    The PYroMat <a href="https://github.com/chmarti1/PYroMat/issues">issues page</a> on Github is the authoritative record of all errata and their resolutions.
+    </p>
+    
 </div>
 
 
-<h3 class="subtitle"><a name="sourceforge">Sourceforge</a></h3>
+<h3 class="subtitle" id="sourceforge">Sourceforge</h3>
 <div class="section">
-    The PYroMat sourceforge page can be found at <a href="https://sourceforge.net/projects/pyro/" target="blank">https://sourceforge.net/projects/pyro/</a>.  The sourceforge distributions of PYroMat are .zip, .bz2, and .gzip files.  Choose one, download it, and extract it.  In the root directory, fire up your command line:
+    The PYroMat sourceforge page can be found at <a href="https://sourceforge.net/projects/pyro/" target="blank">https://sourceforge.net/projects/pyro/</a>.  Choose one of the .zip, .bz, or .gz files, download it, and extract it.  In the root directory, you will find the distribution files includeing the <span class="code">setup.py</span> file.  Fire up your command line:
     <div class="code">
     python setup.py install
     </div>
