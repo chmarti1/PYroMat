@@ -3,7 +3,7 @@
 
 <html>
 <head>
-    <title>PYroMat</title>
+    <title>Features | PYroMat</title>
     <link rel="stylesheet" type="text/css" href="pyromat.css">
     <meta name="description" content="thermodynamic properties in python">
     <meta name="keywords" content="python,thermo,thermodynamic,property,properties">
@@ -15,11 +15,32 @@
 
 <div id="content">
 <div class="title">
-    <h1>PYroMat</h1>
-    <h2>Features</h2>
+    <h1>Features of PYroMat</h1>
 </div>
 
 <div class="section">
+    <p>
+    PYroMat provides thermodynamic properties for almost 400 substances.  Fast and intuitive access to the properties of each substance comes from calling up objects.
+Properties are calculated by object methods that support array-like objects as arguments.</p>
+    <pre class="code">
+>>> import pyromat as pyro
+>>> air = pyro.get('ig.air')
+>>> air.gam(T=[300, 400, 500, 600])
+array([1.39990859, 1.39519249, 1.38666408, 1.37575277])</pre>
+    <p>
+    The properties include 
+    </p>
+    <ul>
+        <li><span class="code">cp</span> Isobaric specific heat</li>
+        <li><span class="code">cv</span> Isochoric specific heat</li>
+        <li><span class="code">d</span> Density</li>
+        <li><span class="code">e</span> Internal energy</li>
+        <li><span class="code">gam</span> Specific heat ratio</li>
+        <li><span class="code">h</span> Enthalpy</li>
+        <li><span class="code">mw</span> Molecular weight</li>
+        <li><span class="code">R</span> Ideal gas constant</li>
+        <li><span class="code">s</span> Entropy</li>
+    </ul>
     <p>
     Perhaps the best way to show PYroMat's capabilities is to show the results of a call to the <span class="code">info()</span> function.
     </p>
@@ -28,7 +49,7 @@
 >>> pyro.info()
   PYroMat
 Thermodynamic computational tools for Python
-version: 2.0.1
+version: 2.0.4
 ---------------------------------------------------------------
           ID : properties
 ---------------------------------------------------------------

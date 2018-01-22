@@ -55,6 +55,6 @@ installation options, and more (https://chmarti1.github.io/PYroMat/).""",
     package_data={'':['data/mp/*.hpd', 'data/ig/*.hpd','registry/*.py']},
     data_files=[('.',[  'README.md', 'CHANGELOG.md', 'LICENSE.txt',
                         'test.py','test2.log','test3.log'])],
-    install_requires=['numpy'],
+    install_requires=['numpy>=1.7'],
     provides=['pyromat']
     )

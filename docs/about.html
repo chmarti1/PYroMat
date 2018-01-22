@@ -3,7 +3,7 @@
 
 <html>
 <head>
-    <title>PYroMat</title>
+    <title>About | PYroMat</title>
     <link rel="stylesheet" type="text/css" href="pyromat.css">
     <meta name="description" content="thermodynamic properties in python">
     <meta name="keywords" content="python,thermo,thermodynamic,property,properties">
@@ -15,8 +15,7 @@
 
 <div id="content">
 <div class="title">
-    <h1>PYroMat</h1>
-    <h2>About</h2>
+    <h1> About PYroMat</h1>
 </div>
 
 <div class="section">
@@ -32,7 +31,7 @@
 <h3 id="scope" class="subtitle">Scope and purpose</h3>
 <div class="section">
     <p>
-    PYroMat is an open-source Python-based software platform for retrieving the physical properties of substances.  It will continue to grow and change, but it will always be free and it will always be open.  The original source data will always be fully disclosed, and errors will continuously be rooted out and eliminated.
+    PYroMat is a Python package for conveniently retrieving the thermodynamic properties of substances from the command line or in scripts.  PYroMat is and will always be free and open.  The original source data will always be fully disclosed, and errors will continuously be rooted out and eliminated.
     </p>
     <p>
     Providing the properties of substances is an awfully broad mandate; so we have to start somewhere.  As of version 2.0.1, most of PYroMat's 390+ species are ideal gases, but there is also support for two-phase (only steam so far) and ideal gas mixtures.  Work is already underway to broaden two-phase support to refrigerants and some important substances like nitrogen, oxygen, and especially carbon dioxide.
@@ -116,10 +115,10 @@ within all your projects is lurking.
     In 2006, I needed to calculate enthalpies of lots of ideal gases for combustion modeling, and I was disappointed with my options.  I created HOT for Matlab and Octave, and it's still available from <a href="hot-tdb.sourceforge.com">Sourceforge</a> and the <a href="https://www.mathworks.com/matlabcentral/fileexchange/26430-hot-thermodynamic-tools-for-matlab" target="blank">Mathworks File Exchange</a>.  When I released it, there was a warm response from a community of students and researchers, but there were a number of poor implementation decisions.  About the same time, Python was gaining ground in scientific computing, so rather than improving the Matlab code, I started from scratch in Python.  I haven't updated HOT since 2010, and I've never regretted the transition.
     </p>
     <p>
-    In 2015, I released the first version of PYro on Sourceforge, and I was very proud of my cute name for the package.  <a href="https://pypi.python.org/pypi/Pyro4" target="blank">Pyro</a> is already a popular remote object toolkit for Python, and my due diligence searching for redundant package names apparently had an embarrassingly huge blind spot.  So, with a nod to the intent for the future breadth of the project, PYro became PYroMat.
+    In 2015, I shared the first version on Sourceforge, and I was very proud of my cute working title for the package.  <a href="https://pypi.python.org/pypi/Pyro4" target="blank">Pyro</a> is a popular remote object toolkit for Python, with which my working title collided.  With a nod to the intent for its future breadth, the project became PYroMat.
     </p>
     <p>
-    The first release of PYro supported ideal gas data through two classes; <span class="code">igfit</span> and <span class="code">igtab</span>.  The <span class="code">igfit</span> class supplied properties through the so-called <a target="blank" href="http://combustion.berkeley.edu/gri_mech/data/nasa_plnm.html">NASA polynomials</a>.  Meanwhile, <span class="code">igtab</span> objects simply performed interpolation on tabulated data.
+    The first release of PYroMat supported ideal gas data through two classes; <span class="code">igfit</span> and <span class="code">igtab</span>.  The <span class="code">igfit</span> class supplied properties through the so-called <a target="blank" href="http://combustion.berkeley.edu/gri_mech/data/nasa_plnm.html">NASA polynomials</a>.  Meanwhile, <span class="code">igtab</span> objects simply performed interpolation on tabulated data.
     </p>
     <p>
     In version 1, I experimented with a number of different strategies for providing inverse property routines (e.g. calculating temperature from entropy and pressure).  I tried exposing a generic iterative inversion routine called <span class="code">psolve</span>, but it was awfully inefficient and it had predictable convergence problems near phase transitions.  I finally settled on class-specific methods like <span class="code">T_s()</span>.  They're much faster, more stable, and because they are specific to a class, I can keep improving them without having to re-validate their behavior over the ENTIRE data set.
@@ -143,7 +142,7 @@ within all your projects is lurking.
     I also have plans to incorporate viscosity and other transport models for some of the most important ideal gases.  In some version soon, I'd like to include metals and other solids of engineering interest.  There is no reason that important mechanical, thermal, and electrical properties shouldn't be available too.
     </p>
     <p>
-    Lest we forget the Matlab and Octave roots of PYroMat, this is an excellent time to emphasize Matlab's Python support.  I have not, but plan to investigate the new package's compatibility with Matlab.  One day, I may even write some wrapper functions in Matlab that call up the Python back-end.
+    Lest we forget the Matlab and Octave roots of PYroMat, this is an excellent time to emphasize Matlab's Python support.  I have not yet investigated the new package's performance within Matlab.  One day, I may even write some wrapper functions in Matlab that call up the Python back-end.
     </p>
 
 </div>

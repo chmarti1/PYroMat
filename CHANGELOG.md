@@ -58,3 +58,9 @@ This is the first version that deliberately breaks reverse compatibility.  Every
 - Modifies the info() function to print a table of supported properties
 - Adds Tlim() and plim() to IF-97 (steam)
 - Migrates specific heat ratio method k() to gam() in preparation for k() to become thermal conductivity
+
+## Version 2.0.4
+The version increments between 2.0.1 and 2.0.4 were primarily spent correcting issues with the python package index and documentation.
+- Corrected a bug that prevented `info()` from displaying in Python 3.
+
+

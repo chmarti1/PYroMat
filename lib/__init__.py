@@ -38,7 +38,7 @@ function,
 # utility.load_config() checks this value to establish the read-only version
 # setup.py looks for this line to establish the version at install
 # MUST be unindented
-__version__ = "2.0.3"
+__version__ = "2.0.4"
 
 
 # loading the PYroMat utility functions
@@ -128,7 +128,7 @@ for the substance named.
         # Print the ID string, the date modified, and the file path
         
         # first, obtain a sorted list of the loaded data
-        ids = dat.data.keys()
+        ids = list(dat.data.keys())
         ids.sort()
         # find the longest id string
         idlen = 2
