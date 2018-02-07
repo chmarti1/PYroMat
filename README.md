@@ -30,12 +30,12 @@ See the configuration chapter of the documentation for detailed descriptions of 
 
 ## Getting started
 ```python
->>> import pyromat as pyro
->>> O2 = pyro.get('ig.O2')
+>>> import pyromat as pm
+>>> O2 = pm.get('ig.O2')
 >>> h = O2.h(492,1.01)  # enthalpy at 492K, 1.01bar
->>> pyro.info('O2')     # where did these data come from?
+>>> pm.info('O2')     # where did these data come from?
 >>> dir(O2)             # what other methods are available?
->>> pyro.info()         # what other species are available? (lots)
+>>> pm.info()         # what other species are available? (lots)
 ```
 
 Happy calculating!
