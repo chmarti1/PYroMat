@@ -75,8 +75,8 @@
     Instead of the typical temperature and pressure call signature, quality can be an argument to steam's properties.  Note that when quality is specified, the state must be on the saturation curve.  Specifying pressure or temperature has the same effect.
     </p>
     <pre class="code">
->>> import pyromat as pyro
->>> H2O = pyro.get('mp.H2O')
+>>> import pyromat as pm
+>>> H2O = pm.get('mp.H2O')
 >>> H2O.h(T=450., x=0.5)
 1761.8517643696659
 >>> p = H2O.ps(T=450.)
@@ -111,9 +111,9 @@ array([  951.80502462,  1154.31670956,  1356.82839449,  1559.34007943,
     <pre class="code" style="width:350px;">
 >>> import matplotlib.pyplot as plt
 >>> import numpy as np
->>> import pyromat as pyro
+>>> import pyromat as pm
 >>> T = np.linspace(300.,1000.,101)
->>> air = pyro.get('mp.H2O')
+>>> air = pm.get('mp.H2O')
 >>> plt.plot(T, air.cp(T))</pre>
 
     <div style="position:absolute;top:-20px;left:270px;">
@@ -157,9 +157,9 @@ array([  951.80502462,  1154.31670956,  1356.82839449,  1559.34007943,
 ">IF-97</a> class for water and the ideal gas properties of water return inconsistent values for enthalpy.  However, notice that the specific heats agree to within 0.1% at 1 atm.
     </p>
     <pre class="code">
->>> import pyromat as pyro
->>> mp_H2O = pyro.get('mp.H2O')
->>> ig_H2O = pyro.get('ig.H2O')
+>>> import pyromat as pm
+>>> mp_H2O = pm.get('mp.H2O')
+>>> ig_H2O = pm.get('ig.H2O')
 >>> mp_H2O.h(1000.)
 3990.6638781507377
 >>> ig_H2O.h(1000.)
@@ -180,7 +180,7 @@ array(2.2905867790156145)</pre>
     PYroMat defaults to kJ, kg, Kelvin, and bar.  But, all units are configurable using <a href="./doc_api.html#if_config">PYroMat's configuration system</a>.
     </p>
     <p>
-    To know how an individual property is being reported, each method comes with in-line documentation that tells you what units that method uses.  For example, densities use <span class="code">unit_matter/unit_volume</span>.  This step is important, because the unit matter need not be the same as the unit mass.  To check PYroMat's current settings, just type <span class="code">pyro.config</span> to print a summary of the current settings.
+    To know how an individual property is being reported, each method comes with in-line documentation that tells you what units that method uses.  For example, densities use <span class="code">unit_matter/unit_volume</span>.  This step is important, because the unit matter need not be the same as the unit mass.  To check PYroMat's current settings, just type <span class="code">pm.config</span> to print a summary of the current settings.
     </p>
 </div>
 

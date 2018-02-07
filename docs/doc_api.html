@@ -86,7 +86,7 @@
         The <span class="code">config</span> object is a wrapper for a dictionary, but with algorithms for building itself from user-written configuration files with built-in default values and with rules on acceptable values for each entry.  Entries remember whether they are read-only, they always remember their default values, and they raise exceptions if they are written with illegal values.  A complete list of the available configuration options and their current values is obtained simply be evoking the <span class="code">config</span> object at the command line.
         </p>
         <pre class="code">
->>> pyro.config
+>>> pm.config
      config_file : ['/home/chris/Documents/PYroMat/pyromat/defaults.py']
   config_verbose : False
          dat_dir : ['/home/chris/Documents/PYroMat/pyromat/data']
@@ -119,10 +119,10 @@ unit_temperature : 'K'
         Some entries are read-only.
         </p>
         <pre class="code">
->>> import pyromat as pyro
->>> pyro.config['version']
+>>> import pyromat as pm
+>>> pm.config['version']
 '2.0.1'
->>> pyro.config['version'] = 42
+>>> pm.config['version'] = 42
 PYroMat ERR:: Failed to write to configuration parameter, 'version'
 (<class 'pyromat.utility.PMParamError'>, PMParamError('Entry is read-only.',), <traceback object at 0x7f30e5f7ca28>)
 Traceback (most recent call last):
@@ -134,12 +134,12 @@ pyromat.utility.PMParamError: Entry is read-only.</pre>
         Entries are data-type specific.
         </p>
         <pre class="code">
->>> pyro.config['def_T']
+>>> pm.config['def_T']
 298.15
->>> pyro.config['def_T'] = 300.
->>> pyro.config['def_T']
+>>> pm.config['def_T'] = 300.
+>>> pm.config['def_T']
 300.0
->>> pyro.config['def_T'] = 'This is NOT a temperature'
+>>> pm.config['def_T'] = 'This is NOT a temperature'
 PYroMat ERR:: Failed to write to configuration parameter, 'def_T'
 (<class 'pyromat.utility.PMParamError'>, PMParamError("Expected <type 'float'>, but got 'This is NOT a temperature'",), <traceback object at 0x7f30e5f7c9e0>)
 Traceback (most recent call last):
@@ -151,13 +151,13 @@ pyromat.utility.PMParamError: Expected <type 'float'>, but got 'This is NOT a te
         And some entries behave a little strangely when they're written to.  Instead of overwriting the old value, new values are appended to a list.  These are usually lists of directories or files where PYroMat should search for data.  They can be reset to safe defaults using the <span class="code">restore_default()</span> method.
         </p>
         <pre class="code">
->>> pyro.config['config_file']
+>>> pm.config['config_file']
 ['/home/chris/Documents/PYroMat/pyromat/defaults.py']
->>> pyro.config['config_file'] = '/etc/pyromat/pyromat.py'
->>> pyro.config['config_file']
+>>> pm.config['config_file'] = '/etc/pyromat/pyromat.py'
+>>> pm.config['config_file']
 ['/home/chris/Documents/PYroMat/pyromat/defaults.py', '/etc/pyromat/pyromat.py']
->>> pyro.config.restore_default('config_file')
->>> pyro.config['config_file']
+>>> pm.config.restore_default('config_file')
+>>> pm.config['config_file']
 ['/home/chris/Documents/PYroMat/pyromat/defaults.py']</pre>
     <p>
     Changes that are made in scripts and at the command line are lost when a user exists Python.  To make changes persistent, they should be placed in a configuration file.  The configuration process is described in detail <a href="#import_config">below</a>.
@@ -247,11 +247,11 @@ reg_dir = '/usr/share/pyromat/reg'</pre>
     </p>
     <pre class="code">
 import json
-import pyromat as pyro
+import pyromat as pm
 with open("mydata.hpd") as ff:
     new_data_dict = json.load(ff)
-    new_data_class = pyro.reg.registry[new_data_dict['class']]
-    pyro.dat.data[new_data_dict['id']] = new_data_class(new_data_dict)</pre>
+    new_data_class = pm.reg.registry[new_data_dict['class']]
+    pm.dat.data[new_data_dict['id']] = new_data_class(new_data_dict)</pre>
     <p>
     For developers, the <span class="code">dat.load()</span> function has a number of additional documented features that can help with debugging.  In particular, files can be excluded by adding a tilde "~" after the *.hpd extension.  PYroMat will regard this as a "suppressed" data file; one that can be but is not currently included in the load process.
     </p>
@@ -290,10 +290,10 @@ with open("mydata.hpd") as ff:
     By default, each class definition resides in its own appropriately named file in the "registry" directory.  Users who want to develop their own classes might want to change that by adding entries to the <span class="code">reg_dir</span> configuration directive.  Here is a minimalist custom class definition that references the <span class="code">__basedata__</span> class, and calls its <span class="code">__init__</span> method to do some things we will discuss in the next section.
     </p>
     <pre class="code">
-import pyromat as pyro
-class MyClass(pyro.reg.__baseclass__):
+import pyromat as pm
+class MyClass(pm.reg.__baseclass__):
     def __init__(self, data):
-        pyro.reg.__baseclass__.__init__(self,data)</pre>
+        pm.reg.__baseclass__.__init__(self,data)</pre>
 
     <h3 id="be_dat">dat</h3>
     <p>
@@ -324,13 +324,13 @@ class MyClass(pyro.reg.__baseclass__):
     When <span class="code">load</span> works its way through the <span class="code">dat_dir</span> list of directories looking for files with the ".hpd" extension, it uses the <a href="https://docs.python.org/2/library/json.html">json</a> module to load them.  The result is a dictionary with entries for each of the data elements defined in the file.  This dictionary is passed verbatim to the class initializer for each object, so that the creation of the oxygen object might appear:
     </p>
     <pre class="code">
->>> import pyromat as pyro
+>>> import pyromat as pm
 >>> import json
 >>> with open('O2.hpd','r') as ff:
 ...     data = json.load(ff)
 ...
 >>> class = data['class']
->>> O2 = pyro.reg.registry[class](data)</pre>
+>>> O2 = pm.reg.registry[class](data)</pre>
     <p>
     The behavior of <span class="code">load()</span> is defined by configuration directives, <span class="code">dat_dir</span>, <span class="code">dat_overwrite</span>, <span class="code">dat_exist_fatal</span>, and <span class="code">dat_verbose</span>.  These are described in more detail in the <a href="#import_dat">import system</a> section.
     </p>
@@ -340,7 +340,7 @@ class MyClass(pyro.reg.__baseclass__):
     The unit conversion system uses a single class as the prototype for a collection of function-like objects that go between the various unit systems PYroMat recognizes.  The fastest way to see what is available is to call the <span class="code">show()</span> function.
     </p>
     <pre class="code">
->>> pyro.units.show()
+>>> pm.units.show()
           force : lb lbf kN N oz kgf 
          energy : BTU kJ J cal eV kcal BTU_ISO 
     temperature : K R eV C F 
@@ -354,24 +354,24 @@ class MyClass(pyro.reg.__baseclass__):
     Each row is named for the <span class="code">Conversion</span> object that defines the units listed.  For example, in order to convert a force from 4.5 newtons to pounds,
     </p>
     <pre class="code">
->>> pyro.units.force(4.5, from_units='N', to_units='lb')
+>>> pm.units.force(4.5, from_units='N', to_units='lb')
 1.0116402439486973</pre>
     <p>
     When the <span class="code">from_units</span> or <span class="code">to_units</span> keywords are omitted, then each of the <span class="code">Conversion</span> objects is linked to a configuration directive to use instead.  This is how the various PYroMat data classes convert to and from the user-specified unit systems.  For example, 
     </p>
     <pre class="code">
->>> pyro.config['unit_force'] = 'N'
->>> pyro.units.force(4.5, to_units='lb')
+>>> pm.config['unit_force'] = 'N'
+>>> pm.units.force(4.5, to_units='lb')
 1.0116402439486973
->>> pyro.units.force(1.0116402439486973, from_units='lb')
+>>> pm.units.force(1.0116402439486973, from_units='lb')
 4.5</pre>
     <p>
     Of course, some conversions require multiple steps.  For example, molecular weight is specified in <span class="code">unit_mass</span> per <span class="code">unit_molar</span>.  To make that multi-step process easier, there is an optional <span class="code">exponent</span> keyword to indicate the unit's exponent in the unit cluster.
     </p>
     <pre class="code">
 >>> O2mw = 32.  # kg / kmol
->>> O2mw = pyro.units.mass(O2mw, from_units='kg', to_units='lbm')
->>> O2mw = pyro.units.molar(O2mw, from_units='kmol', to_units='mol', exponent=-1)</pre>
+>>> O2mw = pm.units.mass(O2mw, from_units='kg', to_units='lbm')
+>>> O2mw = pm.units.molar(O2mw, from_units='kmol', to_units='mol', exponent=-1)</pre>
     <p>
     This calculates molecular weight in pound-mass per mole; if you like that kind of thing.
     </p>
@@ -382,15 +382,15 @@ class MyClass(pyro.reg.__baseclass__):
     The <span class="code">temperature()</span> conversion tool will perform temperature conversions with the assumption that all temperatures are <it>relative</it> (i.e. a change in temperature).  For example, a 32-degree-Fahrenheit change in temperature is equivalent to a 17.8-degree-Celsius change, but 32F is NOT 17.8C.  This problem is addressed by the <span class="code">temperature_scale()</span> function, which has nearly the same call signature as <span class="code">temperature()</span>, but handles conversion between scales gracefully.
     </p>
     <pre class="code">
->>> pyro.units.temperature(32., from_units="F", to_units="C")
+>>> pm.units.temperature(32., from_units="F", to_units="C")
 17.77777777777778
->>> pyro.units.temperature_scale(32., from_units="F", to_units="C")
+>>> pm.units.temperature_scale(32., from_units="F", to_units="C")
 0.0</pre>
     <p>
     The <span class="code">matter()</span> function is a different matter.  It requires the molecular weight of a substance, and it can convert between mass and molar units.  This is what PYroMat uses to handle intensive units like entropy, enthalpy, specific heat, etc.  It is linked to the <span class="code">unit_matter</span> configuration directive for its default behavior.
     </p>
     <pre class="code">
->>> pyro.units.matter(1., mw=32., from_units="kmol", to_units="kg")
+>>> pm.units.matter(1., mw=32., from_units="kmol", to_units="kg")
 32.0
 </pre>
     <p>

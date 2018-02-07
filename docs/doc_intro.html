@@ -35,18 +35,18 @@
     Once PYroMat is <a href="download.html">installed</a>, the package should be available at the Python command line as <span class="code">pyromat</span>.  
     </p>
     <pre class="code">
->>> import pyromat as pyro</pre>
+>>> import pyromat as pm</pre>
 </div>
 
 <h3 class="subtitle" id="get">Getting objects</h3>
 <div class="section">
     <p>
-    Once PYroMat (<span class="code">pyro</span> for short) is imported, the <span class="code">get</span> function will retrieve objects that represent individual species.  For example, let's look at diatomic nitrogen, oxygen, and carbon dioxide.
+    Once PYroMat (<span class="code">pm</span> for short) is imported, the <span class="code">get</span> function will retrieve objects that represent individual species.  For example, let's look at diatomic nitrogen, oxygen, and carbon dioxide.
     </p>
     <pre class="code">
->>> N2 = pyro.get('ig.N2')
->>> O2 = pyro.get('ig.O2')
->>> CO2 = pyro.get('ig.CO2')</pre>
+>>> N2 = pm.get('ig.N2')
+>>> O2 = pm.get('ig.O2')
+>>> CO2 = pm.get('ig.CO2')</pre>
     <p>
     The argument to the <span class="code">get</span> function is the species ID.  It is comprised of two parts: the chemical compound, e.g. "N2," and the data <a href="./doc_api.html#ig">collection</a> to which it belongs, "ig," for "ideal gas."
     </p>
@@ -100,10 +100,12 @@ class ig(pyromat.reg.__basedata__)
  |  functions accept temperature in PYroMat's unit_temperature and 
  |  pressure in PYroMat's unit_pressure.  The following are the member 
  |  methods and their unit conventions:
+ |    cp() spec. heat       (unit_energy / unit_temperature / unit_matter)
+ |    cv() spec. heat       (unit_energy / unit_temperature / unit_matter)
  |    d()  density          (unit_matter / unit_volume)
  |    e()  internal energy  (unit_energy / unit_matter)
  |    h()  enthalpy         (unit_energy / unit_matter)
- |    k()  spec. heat ratio (dless)
+ |    gam()  spec. heat ratio (dless)
  |    mw() molecular weight (unit_mass / unit_molar)
  |    R()  gas constant     (unit_energy / unit_temperature / unit_matter)
  |    s()  entropy          (unit_energy / unit_temperature / unit_matter)
@@ -115,6 +117,14 @@ class ig(pyromat.reg.__basedata__)
  |    T_s()  temperature from entropy and pressure
  |    p_s()  pressure from entropy and temperature
  |    p_d()  pressure from density and temperature
+ |  
+ |  Some meta-data on the species can be obtained using methods
+ |    Tlim() a two-element array with the min,max temperatures supported by
+ |           the data set.
+ |    contents()  returns a dictionary with a key entry for each atom in
+ |                the chemical formula and the corresponding integer 
+ |                quantity of each.
+ |  
 :</pre>
 
     <pre class="code">
@@ -147,14 +157,14 @@ h(self, T=None, p=None, hf=True) method of __builtin__.ig instance
     <pre class="code">
 >>> N2.s(T=700.,p=50.)
 array(6.580384332173014)
->>> pyro.config['unit_temperature'] = 'F'
+>>> pm.config['unit_temperature'] = 'F'
 >>> N2.s(T=800.33,p=50.)*1.8    # 800.33F == 700K
 6.580384332173014</pre>
     <p>
-    To know what the current settings are, just print the <span class="code">pyro.config</span> object.
+    To know what the current settings are, just print the <span class="code">pm.config</span> object.
     </p>
     <pre class="code">
->>> pyro.config
+>>> pm.config
 ...
      unit_energy : 'kJ'
       unit_force : 'N'
@@ -175,7 +185,7 @@ unit_temperature : 'K'
 28.0134
 >>> N2.s()
 array(6.835995552261296)
->>> pyro.config['unit_matter'] = 'kmol'
+>>> pm.config['unit_matter'] = 'kmol'
 >>> N2.s()
 array(191.4994778037166)
 >>> N2.s()/N2.mw()
@@ -185,7 +195,7 @@ array(191.4994778037166)
     For a list of all units supported, the <span class="code">units</span> module offers the <span class="code">show()</span> funciton.  This shows a space separated list of every string argument that the unit configuration parameters will accept.  Matter is not shown because it can be either mass or molar units.
     </p>
     <pre class="code">
->>> pyro.units.show()
+>>> pm.units.show()
           force : lb lbf kN N oz kgf 
          energy : BTU kJ J cal eV kcal BTU_ISO 
     temperature : K R eV C F 

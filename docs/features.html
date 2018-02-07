@@ -23,8 +23,8 @@
     PYroMat provides thermodynamic properties for almost 400 substances.  Fast and intuitive access to the properties of each substance comes from calling up objects.
 Properties are calculated by object methods that support array-like objects as arguments.</p>
     <pre class="code">
->>> import pyromat as pyro
->>> air = pyro.get('ig.air')
+>>> import pyromat as pm
+>>> air = pm.get('ig.air')
 >>> air.gam(T=[300, 400, 500, 600])
 array([1.39990859, 1.39519249, 1.38666408, 1.37575277])</pre>
     <p>
@@ -46,7 +46,7 @@ array([1.39990859, 1.39519249, 1.38666408, 1.37575277])</pre>
     </p>
 
     <pre class="code">
->>> pyro.info()
+>>> pm.info()
   PYroMat
 Thermodynamic computational tools for Python
 version: 2.0.4
