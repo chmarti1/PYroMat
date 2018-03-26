@@ -2205,7 +2205,7 @@ Returns unit_temperature
                 elif ss<sV:
                     # Saturation
                     T_[...] = Ts
-                    x_ = (ss-sL)/(sV-sL)
+                    x_[...] = (ss-sL)/(sV-sL)
                 elif p_<p2ab:
                     s25 = self.s(T=T25,p=p_)
                     if ss<s25:
