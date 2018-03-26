@@ -63,4 +63,5 @@ This is the first version that deliberately breaks reverse compatibility.  Every
 The version increments between 2.0.1 and 2.0.4 were primarily spent correcting issues with the python package index and documentation.
 - Corrected a bug that prevented `info()` from displaying in Python 3.
 
-
+## Version 2.0.5
+- Corrected a bug preventing T_s() in the if97 (steam) class from returning quality correctly.
