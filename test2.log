@@ -1,0 +1,4488 @@
+PYroMat Validation Report
+2017-12-28
+  PYroMat Version: 2.0.1
+  Installation: /home/chris/Documents/PYroMat/pyromat
+  Found 391 species
+Python version: 2.7.12
+Numpy version: 1.11.0
+Running in a posix environment
+  Linux 4.4.0-53-generic x86_64
+
+Diatomic oxygen tabulated reference values found
+http://kinetics.nist.gov/janaf/html/O-029.html
+Validation of ig, ig.O2
+  Error failure threshold 0.100000%
+              p = 2.00000e+01    
+              T = 5.00000e+02    
+              d = 1.53943e+01    
+            ref = 1.53951e+01    
+          error = 0.00553%       
+    [passed]
+              h = 1.90124e+02    
+            ref = 1.90132e+02    
+          error = 0.00452%       
+    [passed]
+              s = 6.11851e+00    
+            ref = 6.11856e+00    
+          error = 0.00080%       
+    [passed]
+             mw = 3.19988e+01    
+            ref = 3.19988e+01    
+          error = 0.00000%       
+    [passed]
+              R = 2.59837e-01    
+            ref = 2.59822e-01    
+          error = 0.00553%       
+    [passed]
+             cp = 9.71240e-01    
+            ref = 9.71630e-01    
+          error = 0.04014%       
+    [passed]
+
+Air properties were referenced against the CRC Handbook for Chemistry and
+Physics 97th Edition ``Thermophysical Properties of Air''
+by Eric W. Lemon.
+Enthalpy and Entropy values were adjusted to match a 1 bar and 300K.
+Validation of igmix, ig.air
+  Error failure threshold 0.500000%
+              p = 1.00000e+00    1.00000e+00    5.00000e+00    
+              T = 3.20000e+02    1.00000e+03    1.00000e+03    
+              h = 1.76998e+01    7.43611e+02    7.43611e+02    
+            ref = 1.76998e+01    7.44200e+02    7.44200e+02    
+          error = 0.00000%       0.07907%       0.07907%       
+    [passed]
+              s = 6.77260e+00    7.97382e+00    7.51183e+00    
+            ref = 6.77260e+00    7.97460e+00    7.51260e+00    
+          error = 0.00000%       0.00980%       0.01033%       
+    [passed]
+             cp = 1.00603e+00    1.14077e+00    1.14077e+00    
+            ref = 1.00700e+00    1.14100e+00    1.14200e+00    
+          error = 0.09646%       0.02027%       0.10782%       
+    [passed]
+
+Validation of igmix, ig.air
+  Error failure threshold 0.100000%
+              h = 1.76998e+01    7.44200e+02    7.44200e+02    
+              p = 1.00000e+00    1.00000e+00    5.00000e+00    
+            T_h = 3.20000e+02    1.00052e+03    1.00052e+03    
+            ref = 3.20000e+02    1.00000e+03    1.00000e+03    
+          error = 0.00000%       0.05158%       0.05158%       
+    [passed]
+
+Validation of igmix, ig.air
+  Error failure threshold 0.100000%
+              p = 1.00000e+00    1.00000e+00    5.00000e+00    
+              s = 6.77260e+00    7.97460e+00    7.51260e+00    
+            T_s = 3.20000e+02    1.00068e+03    1.00068e+03    
+            ref = 3.20000e+02    1.00000e+03    1.00000e+03    
+          error = 0.00000%       0.06833%       0.06783%       
+    [passed]
+
+Steam validation values for region 1 found at 
+http://www.iapws.org/relguide/IF97-Rev.pdf
+   Table 5 pg 9
+Validation of if97, mp.H2O
+  Error failure threshold 0.100000%
+              p = 3.00000e+01    8.00000e+02    3.00000e+01    
+              T = 3.00000e+02    3.00000e+02    5.00000e+02    
+              h = 1.15331e+02    1.84143e+02    9.75542e+02    
+            ref = 1.15331e+02    1.84143e+02    9.75542e+02    
+          error = 0.00000%       0.00000%       0.00000%       
+    [passed]
+              s = 3.92295e-01    3.68564e-01    2.58042e+00    
+            ref = 3.92295e-01    3.68564e-01    2.58042e+00    
+          error = 0.00000%       0.00000%       0.00000%       
+    [passed]
+             cp = 4.17301e+00    4.01009e+00    4.65581e+00    
+            ref = 4.17301e+00    4.01009e+00    4.65581e+00    
+          error = 0.00000%       0.00000%       0.00000%       
+    [passed]
+              e = 1.12325e+02    1.06448e+02    9.71935e+02    
+            ref = 1.12325e+02    1.06448e+02    9.71935e+02    
+          error = 0.00000%       0.00000%       0.00000%       
+    [passed]
+              d = 9.97853e+02    1.02967e+03    8.31658e+02    
+            ref = 9.97853e+02    1.02967e+03    8.31658e+02    
+          error = 0.00000%       0.00000%       0.00000%       
+    [passed]
+
+Steam validation values for region 2 found at 
+http://www.iapws.org/relguide/IF97-Rev.pdf
+   Table 15 pg 17
+Validation of if97, mp.H2O
+  Error failure threshold 0.100000%
+              p = 3.50000e-02    3.50000e-02    3.00000e+02    
+              T = 3.00000e+02    7.00000e+02    7.00000e+02    
+              h = 2.54991e+03    3.33568e+03    2.63149e+03    
+            ref = 2.54991e+03    3.33568e+03    2.63149e+03    
+          error = 0.00000%       0.00000%       0.00000%       
+    [passed]
+              s = 8.52239e+00    1.01750e+01    5.17540e+00    
+            ref = 8.52239e+00    1.01750e+01    5.17540e+00    
+          error = 0.00000%       0.00000%       0.00000%       
+    [passed]
+             cp = 1.91300e+00    2.08141e+00    1.03505e+01    
+            ref = 1.91300e+00    2.08141e+00    1.03505e+01    
+          error = 0.00000%       0.00000%       0.00000%       
+    [passed]
+              e = 2.41169e+03    3.01263e+03    2.46861e+03    
+            ref = 2.41169e+03    3.01263e+03    2.46861e+03    
+          error = 0.00000%       0.00000%       0.00000%       
+    [passed]
+              d = 2.53220e-02    1.08340e-02    1.84180e+02    
+            ref = 2.53220e-02    1.08340e-02    1.84180e+02    
+          error = 0.00000%       0.00000%       0.00000%       
+    [passed]
+
+Steam validation values for region 3 found at 
+http://www.iapws.org/relguide/IF97-Rev.pdf
+   Table 33 pg 32
+Validation of if97, mp.H2O
+  Error failure threshold 0.100000%
+              p = 2.55837e+02    2.22931e+02    7.83096e+02    
+              T = 6.50000e+02    6.50000e+02    7.50000e+02    
+              h = 1.86343e+03    2.37502e+03    2.25869e+03    
+            ref = 1.86343e+03    2.37512e+03    2.25869e+03    
+          error = 0.00013%       0.00456%       0.00011%       
+    [passed]
+              s = 4.05427e+00    4.85422e+00    4.46971e+00    
+            ref = 4.05427e+00    4.85439e+00    4.46972e+00    
+          error = 0.00010%       0.00351%       0.00010%       
+    [passed]
+             cp = 1.38933e+01    4.46938e+01    6.34162e+00    
+            ref = 1.38936e+01    4.46579e+01    6.34165e+00    
+          error = 0.00221%       0.08027%       0.00049%       
+    [passed]
+              e = 1.81226e+03    2.26357e+03    2.10207e+03    
+            ref = 1.81226e+03    2.26366e+03    2.10207e+03    
+          error = 0.00013%       0.00397%       0.00013%       
+    [passed]
+              d = 5.00002e+02    2.00037e+02    5.00002e+02    
+            ref = 5.00000e+02    2.00000e+02    5.00000e+02    
+          error = 0.00042%       0.01870%       0.00042%       
+    [passed]
+
+Steam validation values for region 5 found at 
+http://www.iapws.org/relguide/IF97-Rev.pdf
+   Table 42 pg 40
+Validation of if97, mp.H2O
+  Error failure threshold 0.100000%
+              p = 5.00000e+00    3.00000e+02    3.00000e+02    
+              T = 1.50000e+03    1.50000e+03    2.00000e+03    
+              h = 5.21977e+03    5.16724e+03    6.57123e+03    
+            ref = 5.21977e+03    5.16724e+03    6.57123e+03    
+          error = 0.00000%       0.00000%       0.00000%       
+    [passed]
+              s = 9.65409e+00    7.72970e+00    8.53641e+00    
+            ref = 9.65409e+00    7.72970e+00    8.53641e+00    
+          error = 0.00000%       0.00000%       0.00001%       
+    [passed]
+             cp = 2.61609e+00    2.72724e+00    2.88570e+00    
+            ref = 2.61609e+00    2.72724e+00    2.88570e+00    
+          error = 0.00000%       0.00000%       0.00000%       
+    [passed]
+              e = 4.52749e+03    4.47495e+03    5.63707e+03    
+            ref = 4.52749e+03    4.47495e+03    5.63707e+03    
+          error = 0.00000%       0.00000%       0.00000%       
+    [passed]
+              d = 7.22256e-01    4.33348e+01    3.21146e+01    
+            ref = 7.22256e-01    4.33348e+01    3.21146e+01    
+          error = 0.00000%       0.00000%       0.00000%       
+    [passed]
+
+Steam validation values for saturation (region 4) found at 
+http://www.iapws.org/relguide/IF97-Rev.pdf
+   Table 35 pg 34 and Table 36 pg 36
+Validation of if97, mp.H2O
+  Error failure threshold 0.100000%
+              T = 3.00000e+02    5.00000e+02    6.00000e+02    
+             ps = 3.53659e-02    2.63890e+01    1.23443e+02    
+            ref = 3.53659e-02    2.63890e+01    1.23443e+02    
+          error = 0.00000%       0.00000%       0.00000%       
+    [passed]
+
+Validation of if97, mp.H2O
+  Error failure threshold 0.100000%
+              p = 1.00000e+00    1.00000e+01    1.00000e+02    
+             Ts = 3.72756e+02    4.53036e+02    5.84149e+02    
+            ref = 3.72756e+02    4.53036e+02    5.84149e+02    
+          error = 0.00000%       0.00000%       0.00000%       
+    [passed]
+
+Steam validation values for the inverse relations
+   Values are borrowed from the above tests, but run in reverse.
+Validation of if97, mp.H2O
+  Error failure threshold 0.100000%
+              h = 1.15331e+02    1.84143e+02    9.75542e+02    2.54991e+03    3.33568e+03    2.63149e+03    1.86343e+03    2.37512e+03    2.25869e+03    5.21977e+03    5.16724e+03    6.57123e+03    
+              p = 3.00000e+01    8.00000e+02    3.00000e+01    3.50000e-02    3.50000e-02    3.00000e+02    2.55837e+02    2.22931e+02    7.83096e+02    5.00000e+00    3.00000e+02    3.00000e+02    
+            T_h = 3.00018e+02    2.99981e+02    4.99987e+02    2.99992e+02    7.00002e+02    7.00008e+02    6.50000e+02    6.50000e+02    7.50000e+02    1.50000e+03    1.50000e+03    2.00000e+03    
+            ref = 3.00000e+02    3.00000e+02    5.00000e+02    3.00000e+02    7.00000e+02    7.00000e+02    6.50000e+02    6.50000e+02    7.50000e+02    1.50000e+03    1.50000e+03    2.00000e+03    
+          error = 0.00594%       0.00632%       0.00269%       0.00274%       0.00031%       0.00117%       0.00000%       0.00000%       0.00000%       0.00003%       0.00000%       0.00000%       
+    [passed]
+
+Validation of if97, mp.H2O
+  Error failure threshold 0.100000%
+              p = 3.00000e+01    8.00000e+02    3.00000e+01    3.50000e-02    3.50000e-02    3.00000e+02    2.55837e+02    2.22931e+02    7.83096e+02    5.00000e+00    3.00000e+02    3.00000e+02    
+              s = 3.92295e-01    3.68564e-01    2.58042e+00    8.52239e+00    1.01750e+01    5.17540e+00    4.05427e+00    4.85439e+00    4.46972e+00    9.65409e+00    7.72970e+00    8.53641e+00    
+            T_s = 2.99999e+02    2.99990e+02    4.99991e+02    2.99995e+02    7.00000e+02    7.00014e+02    6.50000e+02    6.50000e+02    7.50000e+02    1.50000e+03    1.50000e+03    2.00000e+03    
+            ref = 3.00000e+02    3.00000e+02    5.00000e+02    3.00000e+02    7.00000e+02    7.00000e+02    6.50000e+02    6.50000e+02    7.50000e+02    1.50000e+03    1.50000e+03    2.00000e+03    
+          error = 0.00043%       0.00322%       0.00174%       0.00159%       0.00003%       0.00205%       0.00000%       0.00000%       0.00001%       0.00015%       0.00024%       0.00005%       
+    [passed]
+
+Testing IG species ig.C2N2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Fe
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Al
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CaS
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cs2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.FO
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.FN
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.FH
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.FK
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Ar
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CaO
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F6S
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Xe
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BH3
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.C2H4O
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CsF
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl3Fe
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.I4Ti
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.C4N2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CHN
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl5W
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.H2O4S
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.O2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.O3
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.H2MgO2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.HMg
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BCl3
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.MoO2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.MoO3
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BaO
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.NbO2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BaF
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BaS
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.OTi
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CHF3
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl2Ni
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Br2Fe
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.ClNO
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.H4N2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BrNa
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.OV
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl2Pb
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.ClFO3
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.OP
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CClF3
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [FAIL]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [FAIL]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl2Mg
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cs2O4S
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.D2O
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.FSi
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.FeI2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.FSr
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Ti
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Ta
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F4N2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Li2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.CoF2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Br4Ti
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BHO2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Li2O
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CF4O
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Br5W
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.K2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.HgO
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.NbO
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.FeS
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CaCl2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BH
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BO
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BN
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.H2O2Sr
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.N2O4
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.N2O5
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.FeO
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.N2O3
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Ba
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Be
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F3N
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BLiO2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BF2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BF3
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F3P
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BaCl2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CrO3
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CrO2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F2Si
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.P4
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.P2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl4Mo
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F2Sr
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CrO
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CrN
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BeF2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.ClO2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.K
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [FAIL]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [FAIL]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.H
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.I
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.N
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.B
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.C
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl2Fe
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.B2O3
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BeH2O2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.P
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.V
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CBrN
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CBr4
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.FNa
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.C2Cl2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.HNa
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.C2Cl4
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.C2Cl6
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl5Nb
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Pb
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CS
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.ClF3
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CIN
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.I2Sr
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Si2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.Si3
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.C2F4
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.C2F6
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.HNO
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CHCl3
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Li
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BKO2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CH2O
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CNNa
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CF3I
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl2Sr
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.I2Mg
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BF
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BNaO2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CH3Cl
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl3HSi
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl2Si
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl4Ti
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.H2O2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl2Hg
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Ga
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.AlF
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl2S2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.AlO
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.AlH
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.K2O4S
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.H2N
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.H2O
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.B2H6
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Kr
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.H2S
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.H2P
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CH2Cl2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.HKO
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F2OS
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F2Fe
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Rb2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.Br2Pb
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.N2O
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.ClSr
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Br2Hg
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.O2Zr
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.C2H
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.C2O
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.OZr
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CHNO
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CaHO
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CH2ClF
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CCl2O
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [FAIL]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [FAIL]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl2Zr
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.ClF
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.ClD
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CF
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.ClO
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CH
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.ClK
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CO
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.ClI
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.ClH
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Hg
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Hf
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.He
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CCl4
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CCl3
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CCl2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cu2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Ca
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.HS
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.HP
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Co
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [FAIL]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [FAIL]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.Cr
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F4S
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Br
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [FAIL]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.Cu
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.HO
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.HN
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [FAIL]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [FAIL]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.HK
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.HI
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.B3H3O3
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.ILi
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.H2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Br2Sr
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CuF
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.AlF3
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Li2O4S
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CuO
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CClN
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [FAIL]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [FAIL]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.Zr
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.OPb
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.C2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl5Ta
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.C4
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.C5
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl3P
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.HNO2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.HNO3
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.ClNa
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.C4NiO4
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CHO
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BH3O3
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CHF
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.HO2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.C3O2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CH3
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CH2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CH4
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CHCl
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Br3P
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Na2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.NO3
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.NO2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl4Si
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.C2Si
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CFN
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [FAIL]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [FAIL]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.HLiO
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.DS
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CH2F2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CO2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.DH
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.DO
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.P4S3
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.DF
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.D2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.COS
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F2Pb
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl3OP
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.FHO
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BaBr2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CBrF3
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CF4
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CF3
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CF2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [FAIL]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [FAIL]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.Br5Nb
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F3Fe
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.HOSr
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F3OP
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CH3F
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.C2F3N
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CCl3F
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Mn
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Mo
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CaI2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CN
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [FAIL]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.Mg
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.HSi
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.S
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.CF2O
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.PbS
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.AlCl3
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BrLi
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F4OW
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.C5FeO5
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F3Ti
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl4Zr
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CaF2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl4OW
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CsHO
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Al2O
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.OS
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.AlBr3
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.H3N
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Br4Si
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Rb
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [FAIL]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [FAIL]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.H3P
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.O3W
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.O3S
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CHClF2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CKN
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.C2H2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.FLi
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.C2H4
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.I2Pb
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Ne
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.I2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.Na
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Nb
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Ni
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BaF2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.H4Si
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BO2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Br2Mg
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BF4K
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cs
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [FAIL]
+Criterion 3: entropy [FAIL]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [FAIL]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.NO
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.B5H9
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.NP
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.NS
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F3Si
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.N3
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.N2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CCl2F2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F5S
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.C2HCl
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.HNaO
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.B3F3O3
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.IK
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F4Si
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.O2Si
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.ClHO
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.HgI2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BeCl2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F2Hg
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.OSr
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CaCl
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.OSi
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl2O2S
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl2S
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F4Zr
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.HLi
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F2Zr
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.O2Ti
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.OS2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CN2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BaH2O2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.B10H14
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F2P
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.AlI3
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F2S
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F2N
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F2O
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.MgO
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BrH
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BrI
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.BrK
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.MgS
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CuF2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BaI2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.C4H12Si
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Br2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Mg2
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [FAIL]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.CH3Cl3Si
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CFO
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl2Co
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F2O2S
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F6W
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.ClCs
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.ClCu
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.ClF5S
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Sr
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [FAIL]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.SSi
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CS2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.ClLi
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl5Mo
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.SSr
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.F2Mg
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Si
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.O2W
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BeF
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.O2P
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.O2S
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.C3
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BeO
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BeH
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Br2Ca
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.BeS
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [FAIL]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.Na2O4S
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.S2
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.S8
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Zn
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CHCl2F
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.CSi
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[FAIL]
+
+Testing IG species ig.BBr3
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.B3H6N3
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.Cl6W
+Criterion 0: Fundamental format [pass]
+Criterion 1: specific heat [pass]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [pass]
+Criterion 7: internal energy [pass]
+Criterion 8: specific heat ratio[pass]
+
+Testing IG species ig.O10P4
+Criterion 0: Fundamental format [FAIL]
+Criterion 1: specific heat [FAIL]
+Criterion 2: ethalpy [pass]
+Criterion 3: entropy [pass]
+Criterion 4: ideal gas constant [pass]
+Criterion 5: density [pass]
+Criterion 6: constant volume specific heat [FAIL]
+Criterion 7: internal energy [FAIL]
+Criterion 8: specific heat ratio[pass]
+

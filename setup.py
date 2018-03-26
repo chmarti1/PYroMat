@@ -28,7 +28,7 @@ def get_version():
 setup(
     name='PYroMat',
     version=get_version(),
-    description="Properties in Python.",
+    description="Thermodynamic properties in Python.",
     long_description=\
 """PYroMat provides a Python interface for thermo-physical properties of a 
 wide range of species. Visit the PYroMat homepage for more documentation, 
