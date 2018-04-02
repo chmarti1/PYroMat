@@ -38,7 +38,7 @@ function,
 # utility.load_config() checks this value to establish the read-only version
 # setup.py looks for this line to establish the version at install
 # MUST be unindented
-__version__ = "2.0.4"
+__version__ = "2.0.6"
 
 
 # loading the PYroMat utility functions
