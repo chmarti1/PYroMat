@@ -65,3 +65,8 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 
 ## Version 2.0.5
 - Corrected a bug preventing T_s() in the if97 (steam) class from returning quality correctly.
+
+## Version 2.0.6
+- Corrected a bug that caused hsd() in the if97 (steam) class to crash
+- Corrected a bug in the configuration object that prevented a parameter summary from displaying correctly in Python 3.
+

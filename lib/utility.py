@@ -231,7 +231,7 @@ if pyro.config['version'].split('.')[0] < 2:
         # Build a format string that will right-align the parameter names
         fmt = '%' + str(justify) + 's : %s\n'
         # And print each configuration value on a line, sorted by parameter
-        parameters = self.entries.keys()
+        parameters = list(self.entries.keys())
         parameters.sort()
         for k in parameters:
             # Construct a representation of the value

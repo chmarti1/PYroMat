@@ -1303,7 +1303,7 @@ Returns unit_energy / unit_matter
 
         for h_,s_,d_,T_,p_,x_ in it:
             TT = pyro.units.temperature_scale(T_, to_units='K')
-            pp *= pscale
+            pp = p_ * pscale
 
             # If x is unspecified
             if x_<0.:
