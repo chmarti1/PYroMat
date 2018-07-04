@@ -1,0 +1,22 @@
+{
+    "id":"mp.test",
+    "class":"mp1",
+    "doc":"none",
+    "R": 1.0,
+    "Tc": 1.0,
+    "dc": 1.0,
+    "ARgroup": [[
+        {
+            "type": "expy",
+            "param": -1,
+            "argy": {
+                "type": "pow",
+                "param": 3
+            }
+        },
+        {
+            "type": "poly",
+            "param": [[0,1,1]]
+        }
+    ]]
+}
