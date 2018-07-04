@@ -80,6 +80,13 @@ various units, and the values are used to perform the conversion.
 Note that the values in the table are chosen so that
 >>> new_value = old_value * table[to_units] / table[from_units]
 
+The __call__ method has two additional optional parameters; exponent
+and inplace.  In the "inft" example above, the "exponent" parameter 
+might be set to 3 to make the conversion volumetric instead of length.
+The inplace parameter is intended for operating on numpy arrays 
+"in-place" so that instead of returning a new array, the original value
+array will have its values converted "in-place".
+
 There is an optional config_default parameter that can be used to specify
 the behavior of the 'to_units' and 'from_units' strings if they are not
 specified when the conversion is evoked.  The config_default does NOT
@@ -96,7 +103,7 @@ fly.
         """Test whether a particular unit string is supported"""
         return (unit in self.table)
 
-    def __call__(self, value=1., from_units=None, to_units=None, exponent=None):
+    def __call__(self, value=1., from_units=None, to_units=None, exponent=None, inplace=False):
         """Execultes a conversion from [from_units]**[exponent] to 
 [to_units]**[exponent].  By default, [value] is 1., so that the value 
 returned is the appropriate conversion factor to convert any set of 
@@ -122,7 +129,13 @@ new system of units.
         if exponent:
             conv **= exponent
 
-        return np.array(value) * conv
+        if inplace:
+            # Point to the original array if possible
+            out = np.asarray(value,dtype=float)
+        else:
+            out = np.array(value,dtype=float)
+        return np.multiply(value,conv, out=out)
+
 
     def __getitem__(self,item):
         return self.table.__getitem__(item)
@@ -355,7 +368,7 @@ setup()
 
 
 # Validated 11/18/2017
-def temperature_scale(value, from_units=None, to_units=None):
+def temperature_scale(value, from_units=None, to_units=None, inplace=False):
     """Convert between tempertures scales
 new_value = temperature_scale(old_value, from_units=None, to_units=None)
 
@@ -403,30 +416,37 @@ original default scale.
         else:
             return value
 
-    # copy the input
-    out = np.array(value)
-
+    if inplace:
+        # point to the original if possible
+        out = np.asarray(value, dtype=float)
+    else:
+        # copy the original
+        out = np.array(value, dtype=float)
+        
     if from_units == 'C':
-        out += 273.15
+        np.add(out, 273.15, out=out)
     elif from_units == 'R':
-        out /= 1.8
+        np.divide(out, 1.8, out=out)
     elif from_units == 'F':
-        out = out/1.8 + 255.3722222222222
+        np.divide(out, 1.8, out=out)
+        np.add(out, 255.3722222222222, out=out)
     elif from_units == 'eV':
-        out *= 11604.521662304598
+        np.multiply(out, 11604.521662304598, out=out)
 
     if to_units == 'C':
-        out -= 273.15
+        np.subtract(out, 273.15, out=out)
     elif to_units == 'R':
-        out *= 1.8
+        np.multiply(out, 1.8, out=out)
     elif to_units == 'F':
-        out = (out - 255.3722222222222)*1.8
+        np.subtract(out, 255.3722222222222, out=out)
+        np.multiply(out, 1.8, out=out)
     elif to_units == 'eV':
-        out /= 11604.521662304598
+        np.divide(out,11604.521662304598, out=out)
     return out
 
 # Validated 11/18/2017
-def gauge_to_abs(value, units=None, patm=const_pstd):
+# Modified 7/4/2018 without validation -- added inplace operation
+def gauge_to_abs(value, units=None, patm=const_pstd, inplace=False):
     """Adjust a gauge pressure to be in absolute units
 new_value = gauge_to_abs(old_value, units=None, patm=const_pstd)
 
@@ -438,9 +458,17 @@ default, the standard pressure is used.  If the atmospheric pressure
 is already known in the same units as the gauge pressure, do not use
 gauge_to_absolute(); simply add it to the old value.
 """
-    return np.array(value) + pressure(patm,from_units='bar',to_units=units)
+    if inplace:
+        out = np.asarray(value, dtype=float)
+    else:
+        out = np.array(value, dtype=float)
+    return np.add(
+            out, 
+            pressure(patm,from_units='bar',to_units=units),
+            out=out)
 
 # Validated 11/18/2017
+# Modified 7/4/2018 without validation -- added inplace operation
 def abs_to_gauge(value, units=None, patm=const_pstd):
     """Adjust an absolute pressure to be in gauge units
 new_value = gauge_to_abs(old_value, units=None, patm=const_pstd)
@@ -453,10 +481,17 @@ default, the standard pressure is used.  If the atmospheric pressure
 is already known in the same units as the gauge pressure, do not use
 gauge_to_absolute(); simply add it to the old value.
 """
-    return np.array(value) - pressure(patm,from_units='bar',to_units=units)
+    if inplace:
+        out = np.asarray(value, dtype=float)
+    else:
+        out = np.array(value, dtype=float)
+    return np.subtract(
+            out, 
+            pressure(patm,from_units='bar',to_units=units),
+            out=out)
 
 # Validated 11/18/2017
-def matter(value, mw, from_units=None, to_units=None, exponent=None):
+def matter(value, mw, from_units=None, to_units=None, exponent=None, inplace=False):
     """Convert between molar and mass units
 new_value = matter(old_value, mw, 
                 from_units=None, to_units=None, exponent=None)
@@ -493,8 +528,11 @@ If the from_units or the to_units values are not specified, the pyromat
     if exponent:
         conv**=exponent
 
-    out = np.array(value) * conv
-    return out
+    if inplace:
+        out = np.asarray(value,dtype=float)
+    else:
+        out = np.array(value, dtype=float)
+    return np.multiply(out, conv, out=out)
 
 
 def show():
@@ -505,4 +543,9 @@ def show():
             for item in conv.get():
                 sys.stdout.write(item + ' ')
             sys.stdout.write('\n')
+    sys.stdout.write('See also...\n'
+        '  abs_to_gauge()        Absolute to gauge pressure\n'+
+        '  gauge_to_abs()        Gauge to absolute pressure\n'+
+        '  matter()              Moles and mass conversions\n'+
+        '  temperature_scale()   Correct handling of non-absolute temperatures\n')
 

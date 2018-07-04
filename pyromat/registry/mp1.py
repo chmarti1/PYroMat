@@ -1049,12 +1049,20 @@ Returns the Helmholtz free energy and its derivatives up to ORDER.
         return A,At,Ad,Att,Atd,Add
         
         
-        
-    def _d(self,T,d):
-        """Density iterator - calculate density from T,p
+    def _ps(self,T):
+        """Saturation pressure
 """
         
+        
+    def _d(self,T,p):
+        """Density iterator - calculate density from T,p
+"""
+        # Benchmarking shows that calls to p_d() with fewer than 100
+        # data points are all equivalently expensive; even when 
+        # utilizing only a single core.  As a result, iterations must
+        # under no circumstances be conducted in series.
 
+        
 
     def p_d(self, T,d):
         T = pm.units.temperature_scale(
@@ -1064,8 +1072,7 @@ Returns the Helmholtz free energy and its derivatives up to ORDER.
                 np.asarray(d, dtype=float),
                 self.data['mw'],
                 to_units='kg')
-        d = pm.units.length(
-                d, to_units='m', exponent=-3)
+        pm.units.length(d, to_units='m', exponent=-3, inplace=True)
                 
         # We're really relying on Numpy for intelligent
         # use of memory in array operations
