@@ -742,9 +742,32 @@ pxx     d2p/dx2
 pxy     d2p/dxdy
 pyy     d2p/dy2
 
-The first two elements of the coef list indicate pre- and post-
-exponents for x and y.
-    coef = [[prex, prey], [postx, posty], ... ]
+The behavior of poly2 is very much the same as poly1, but for funcitons
+of two variables.  The pre- and post- exponents for poly2 are expected
+to be lists or tuples: [prex, prey], [postx, posty]
+The innermost lists defining the terms must contain three elements:
+[powxN, powyN, coefN].  The coefficients must be sorted by x-power and
+then by y-power in descending order.
+
+A coefficient list might appear
+
+coef = [
+    [
+        [prex, prey], 
+        [postx, posty],
+        [powxN, powyN, coefN],
+        ...
+        [powx0, powy0, coef0]
+    ],
+    [
+        [prex, prey], 
+        [postx, posty],
+        [powxN, powyN, coefN],
+        ...
+        [powx0, powy0, coef0]
+    ]
+]
+    
 The pre-exponents are applied to the arguments to the polynomial, and
 the post-exponents are applied after the polynomial is evaluated, so 
 that the value returned is
@@ -757,8 +780,8 @@ coefficient.  It must be sorted in descending order by the first column
 and then the second column.
 
 For example, the list,
-[[1,1], [0,0], [1, 1, 0.1], [0, 2, 0.2], [0, 1, 1.2], [0, 0, 0.5]]
-corrsponds to the polynomial
+[[[1,1], [0,0], [1, 1, 0.1], [0, 2, 0.2], [0, 1, 1.2], [0, 0, 0.5]]]
+corresponds to the polynomial
 p(x,y) = .5 + 1.2y + .2y**2 + 0.1xy
 
 Efficient polynomial evaluation algorithms are normally restricted to
@@ -769,7 +792,7 @@ used to acheive a much wider range of functions.
 For example,
     p(x,y) = x**(-1.5) + x**(3.5)
 might be expressed as a coefficient list
-    [[0.5,1], [-1.5, 0], [10, 0, 1], [0, 0, 1]]
+    [[[0.5,1], [-1.5, 0], [10, 0, 1], [0, 0, 1]]]
 The pre- and post- exponents make this equivalent to
     xx = x**0.5
     p(x,y) = x**(-1.5) (xx**10 + 1)
@@ -957,19 +980,58 @@ p       polynomial value at p(x)
 px      dp/dx
 pxx     d2p/dx2
 
-Each element of coef is a three-element list defining a term in the 
-polynomial; the x-exponent, the y-exponent, and the corresponding
-coefficient.  It must be sorted in descending order by the first column
-and then the second column.
+When diff is less than 2, the corresponding values of px and pxx are
+returned as 0.  The default for diff is 2 to protect against careless
+treatment as if these values ARE zero, but reducing diff will make poly1
+execute more efficiently.
 
-The list,
-[[1, 1, 0.1], [0, 2, 0.2], [0, 1, 1.2], [0, 0, 0.5]]
-corrsponds to the polynomial
-p(x,y) = .5 + 1.2y + .2y**2 + 0.1xy
+The coefficient list represents a nested list structure defining a poly-
+nomial series.  The inner-most lists contain two elements, specifying
+an integer exponent and a coefficient: [power, coefficient] for each
+term.  They are contained in a list that represents groups of terms.
+The groups must be sorted by power from highest to lowest.
 
-This approach assumes that most polynomials used will be "sparse";
-that most of the coefficients will be zero, so they need not be 
-stored.
+Each group is lead by two elements that define a pre- and post- 
+exponents.
+    [pre, post, [powN, coefN], ... , [pow0, coef0]]
+
+This defines a polynomial of the form
+    x**post * p(x**pre)
+    
+The powers must be integers, but no such restriciton exists on the pre-
+and post- exponents.  This permits efficient evaluaiton of polynomials
+with rational exponents.
+
+The highest level list contains a list of these groups, so that separate
+pre- and post- exponentials may be applied to certain terms of the 
+polynomial.
+
+coef = [
+    [
+        pre, 
+        post,
+        [
+            [powN, coefN],
+            ...,
+            [pow0, coef0]
+        ]
+    ],
+    [
+        pre, 
+        post,
+        [
+            [powN, coefN],
+            ...,
+            [pow0, coef0]
+        ]
+    ]
+]
+
+In a simple example, the polynomial,
+    p(x) = 2*x**-1.5 - x**0.5
+    
+might be specified
+[[  0.5, -1.5, [0, 2.], [4, -1.]]]
 """
         g = 0.
         gx = 0.
@@ -1064,7 +1126,7 @@ stored.
         return g,gx,gxx
 
 
-    def __ao(self, tt, dd, diff=2):
+    def _ao(self, tt, dd, diff=2):
         """Dimensionless ideal gas helmholtz free energy (primative routine)
 Evaluates an ideal gas equation of the form
     a = log(dd) + AOlogt*log(tt) + p(t)
@@ -1103,7 +1165,7 @@ nondimensionalized, and the returned values are non-dimensionalzied.
         return A, At, Ad, Att, Atd, Add
 
 
-    def __ar(self, tt, dd, diff=2):
+    def _ar(self, tt, dd, diff=2):
         """Dimensionless residual helmhotz free energy (primative routine)
 Each fit in the group is of the form
     a = exp(-dd**k) * pk(tt, dd)
@@ -1165,7 +1227,7 @@ nondimensionalized, and the returned values are non-dimensionalzied.
         return A,At,Ad,Att,Atd,Add
         
         
-    def _dsv(self,T,diff=2):
+    def _dsv(self,T,diff=0):
         """Saturated vapor density
 """
         DSVt = self.data['DSVgroup']['Tscale']
@@ -1181,7 +1243,7 @@ nondimensionalized, and the returned values are non-dimensionalzied.
         return d, dt, dtt
         
         
-    def _dsl(self,T,diff=2):
+    def _dsl(self,T,diff=0):
         """Saturated liquid density
 """
         DSLt = self.data['DSLgroup']['Tscale']
@@ -1239,17 +1301,17 @@ Presumes temperature is in Kelvin, reports pressure in Pa
         tt = At/T
         dd = d/Ad
         # Calculate the Helmholtz free energy
-        _,_,ard,_,artd,ardd = self.__ar(tt,dd,diff+1)
-
-        temp = R * (1. + dd*ard)
-        p = temp * T * d
+        _,_,ard,_,artd,ardd = self._ar(tt,dd,diff+1)
+        temp = R*(1. + dd*ard)
+        p = temp*T*d
         if diff>0:
             pt = d*(temp - R*dd*artd*At/T)
             pd = T*(temp + d*R*(ard + ardd/Ad)/Ad)
 
         return p,pt,pd
         
-    def _d(self,T,p):
+        
+    def _d(self,T,p, N=24):
         """Density iterator - calculate density from T,p (inner routine)
 """
         # Benchmarking shows that calls to p_d() with fewer than 100
@@ -1257,13 +1319,77 @@ Presumes temperature is in Kelvin, reports pressure in Pa
         # utilizing only a single thread.  As a result, iterations must
         # under no circumstances be conducted in series.
         
-        # To decide on safe initial conditions, determine whether we are
-        # super-critical, liquid, or vapor for each point
-        dd = np.zeros_like(T)
+        # Force T and p to be compatible shapes
+        T,p = np.broadcast_arrays(T,p)
         
-        tt = self.data['ARgroup']['Tscale'] / T
+        # Use logical indexing to include/exclude array elements
+        # Note that this works on 0-dimensional arrays even when integer
+        # indexing doesn't.
         
+        # Begin by identifying all elements that are in-bounds
+        I = np.logical_and(
+            p>=self.data['plim'][0], 
+            p<=self.data['plim'][1])
+        I = np.logical_and( 
+                I, 
+                np.logical_and(
+                    T>self.data['Tlim'][0], 
+                    T<self.data['Tlim'][1]))
         
+        # Initialize upper and lower iteration densities
+        # Note that dda and ddb will ONLY be the same shape as T[I] and
+        # p[I]
+        dda = np.zeros_like(T[I])
+        ddb = np.zeros_like(dda)
+        
+        # Separate out sub-critical and super-critical values for 
+        # initial conditions.  For temperatures that are super-critical, 
+        # use the extreme density limits of the data set.
+        Itest = T[I]>=self.data['Tc']
+        dda[Itest] = self.data['dlim'][0]
+        ddb[Itest] = self.data['dlim'][1]
+        # For temperatures that are sub-critical, detect whether the 
+        # state is liquid or gaseous.  Set Itest to sub-critical.  
+        Itest = np.logical_not(Itest)
+        # Now, isolate the vapor points; set the upper density to the
+        # saturated vapor density
+        Istate = Itest.copy()
+        Istate[Itest] = p[I][Itest] < self._ps(T[I][Itest], 0)[0]
+        dda[Istate] = self.data['dlim'][0]
+        ddb[Istate] = self._dsv(T[I][Istate], 0)[0]
+        # Now, isolate the liquid points; set the lower density to the
+        # saturated liquid density
+        Istate[Itest] = np.logical_not(Istate[Itest])
+        dda[Istate] = self._dsl(T[I][Istate], 0)[0]
+        ddb[Istate] = self.data['dlim'][1]
+        
+        # Release the memory from Istate
+        del Istate
+        
+        # Non-dimensionalize the parameters
+        tt = self.data['ARgroup']['Tscale'] / T[I]
+        pp = p[I] / (self.data['R'] * T[I] * self.data['ARgroup']['dscale'])
+        # Initialize dimensionless result vectors
+        dda[I] /= self.data['ARgroup']['dscale']
+        ddb[I] /= self.data['ARgroup']['dscale']
+        
+        # We are now ready to begin iterating
+        for count in range(N):
+            # Bisect the region
+            dd = (dda + ddb)*0.5
+            # evaluate the dimensionless pressure
+            _,_,ard,_,_,_ = self._ar(tt,dd,diff=1)
+            Itest = (dd * (1. + dd*ard) < pp)
+
+            # For points where p(dd) < pp
+            dda[Itest] = dd[Itest]
+            # For points where p(dd) <= pp
+            Itest = np.logical_not(Itest)
+            ddb[Itest] = dd[Itest]
+            
+        d = np.zeros_like(T)
+        d[I] = 0.5*(ddb + dda)*self.data['ARgroup']['dscale']
+        return d
         
         
     def Tlim(self, p=None):
