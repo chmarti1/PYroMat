@@ -1245,7 +1245,9 @@ might be specified
                  **kwarg):
         """Invert an inner routine.
         
-    x = _iter1(fn, y, x, xmin, xmax, Ids)
+    _iter1(fn, y, x, xmin, xmax, Ids)
+    
+Iteration is performed in-place on the x array.
 
 *** Required Parameters ***
 fn          The inner routine (method) to be inverted.  It must have a 
@@ -1266,7 +1268,8 @@ Ids         A down-select boolean index array; only x[Ids],y[Ids] will
             array with N elements.  It will specify a down-selected 
             data set with M elements, where M<=N.
 xmin, xmax  Upper and lower limit arrays for the x values.  These must
-            broadcastable to match x and y.
+            broadcastable to match x and y.  Even values outside of the
+            down-select region should have legal values.
 *** Optional Parameters ***
 ep          Epsilon; fractional error permitted in y (default 1e-6)
 Nmax        Maximum number of iterations (default 20)
@@ -1593,8 +1596,7 @@ T and p MUST be ndarrays
                 da,
                 db,
                 fx_index = 2,
-                T = T,
-                verbose=True)
+                T = T)
                 
         return d
         
@@ -1896,17 +1898,189 @@ other conditions, x<0 and d1 == d2.
             return self._argparse(T=pm.config['def_T'], x=x)
         return self._argparse(T=pm.config['def_T'], p=pm.config['def_p'])
             
- 
+
+
+    def _e(self,T,d,diff=0):
+        """Internal energy (inner routine)
+    e,eT,ed = _e(T,d,diff=0)
+"""
+        eT = 0.
+        ed = 0.
+
+        # The IG part        
+        R = self.data['R']
+        Tscale = self.data['AOgroup']['Tscale']
+        dscale = self.data['AOgroup']['dscale']
+        tt = Tscale / T
+        dd = d / dscale
+        _,at,_,att,atd,_ = self._ao(tt,dd,diff+1)
+        
+        e = at
+        if diff>0:
+            eT = tt*tt*att
+            ed = atd
+        
+        # The residual part
+        Tscale = self.data['ARgroup']['Tscale']
+        dscale = self.data['ARgroup']['dscale']
+        tt = Tscale / T
+        dd = d / dscale
+        _,at,ad,att,atd,add = self._ar(tt,dd,diff+1)
+        e += at
+        e *= R*Tscale
+        if diff>0:
+            eT += tt*tt*att
+            eT *= -R
+            ed += atd
+            ed *= R*Tscale/dscale
+
+        return e,eT,ed
+
+
+    def _h(self,T,d,diff=0):
+        """enthalpy (inner routine)
+    h,hT,hd = _h(T,d,diff=0)
+"""
+        hT = 0.
+        hd = 0.
+
+        # The IG part        
+        R = self.data['R']
+        Tscale = self.data['AOgroup']['Tscale']
+        dscale = self.data['AOgroup']['dscale']
+        tt = Tscale / T
+        dd = d / dscale
+        _,at,_,att,atd,_ = self._ao(tt,dd,diff+1)
+        
+        h = 1. + tt*at
+        if diff>0:
+            hT = 1. - tt*tt*att
+            hd = tt*atd
+        
+        # The residual part
+        Tscale = self.data['ARgroup']['Tscale']
+        dscale = self.data['ARgroup']['dscale']
+        tt = Tscale / T
+        dd = d / dscale
+        _,at,ad,att,atd,add = self._ar(tt,dd,diff+1)
+        h += dd*ad + tt*at
+        h *= R*T
+        if diff>0:
+            hT += dd*ad - tt*(tt*att + dd*atd)
+            hT *= R
+            hd += ad + dd*add + tt*atd
+            hd *= R*T/dscale
+
+        return h,hT,hd
+
+
+    def _s(self,T,d,diff=0):
+        """entropy (inner routine)
+    s,sT,sd = _s(T,d,diff=0)
+"""
+        sT = 0.
+        sd = 0.
+
+        # The IG part        
+        R = self.data['R']
+        Tscale = self.data['AOgroup']['Tscale']
+        dscale = self.data['AOgroup']['dscale']
+        tt = Tscale / T
+        dd = d / dscale
+        a,at,ad,att,atd,_ = self._ao(tt,dd,diff+1)
+        
+        s = tt*at - a
+        if diff>0:
+            sT = tt*tt*att
+            sd = tt*atd - ad
+        
+        # The residual part
+        Tscale = self.data['ARgroup']['Tscale']
+        dscale = self.data['ARgroup']['dscale']
+        tt = Tscale / T
+        dd = d / dscale
+        a,at,ad,att,atd,_ = self._ar(tt,dd,diff+1)
+        s += tt*at - a
+        s *= R
+        if diff>0:
+            sT += tt*tt*att
+            sT *= -R/T
+            sd += tt*atd - ad
+            sd *= R/dscale
+
+        return s,sT,sd
+        
+        
+    def _cp(self,T,d):
+        """Isobaric specific heat (inner routine)
+    cp = _cp(T,d)
+"""
+
+        # The IG part        
+        R = self.data['R']
+        Tscale = self.data['AOgroup']['Tscale']
+        dscale = self.data['AOgroup']['dscale']
+        tt = Tscale / T
+        dd = d / dscale
+        _,_,_,att,_,_ = self._ao(tt,dd,2)
+        
+        cp = -tt*tt*att
+        
+        # The residual part
+        Tscale = self.data['ARgroup']['Tscale']
+        dscale = self.data['ARgroup']['dscale']
+        tt = Tscale / T
+        dd = d / dscale
+        _,_,ad,att,atd,add = self._ar(tt,dd,2)
+
+        temp = 1.+dd*(ad-tt*atd)
+        cp += -tt*tt*att + temp*temp/(1.+dd*(2.*ad+dd*add))
+        cp *= R
+        return cp
+        
+        
+    def _cv(self,T,d):
+        """Isochoric specific heat (inner routine)
+    cv = _cv(T,d)
+"""
+
+        # The IG part        
+        R = self.data['R']
+        Tscale = self.data['AOgroup']['Tscale']
+        dscale = self.data['AOgroup']['dscale']
+        tt = Tscale / T
+        dd = d / dscale
+        _,_,_,att,_,_ = self._ao(tt,dd,2)
+        
+        cv = tt*tt*att
+        
+        # The residual part
+        Tscale = self.data['ARgroup']['Tscale']
+        dscale = self.data['ARgroup']['dscale']
+        tt = Tscale / T
+        dd = d / dscale
+        _,_,_,att,_,_ = self._ar(tt,dd,2)
+
+        cv += tt*tt*att
+        cv *= -R
+        return cv
+
+
     #               #
     # USER ROUTINES #
     #               #
     
+    #               #
+    # Data limits   #
+    #               #
     def Tlim(self, p=None):
         """Return the temperature limits for the data set
     Tmin, Tmax = Tlim(p=None)
     
 Tlim accepts pressure as an argument for extensibility, but the MP1 
 class has homogeneous temperature limits.
+
+Returns the temperature limits in [unit_temperature].
 """
         return pm.units.temperature_scale(
             np.asarray(self.data['Tlim']),
@@ -1919,11 +2093,16 @@ class has homogeneous temperature limits.
     
 plim accepts temperature as an argument for extensibility, but the MP1 
 class has homogeneous pressure limits.
+
+Returns the pressure limits in [unit_pressure]
 """
         return pm.units.pressure(
             np.asarray(self.data['plim']),
             from_units='Pa')
         
+    #                               #
+    # Critical and triple points    #
+    #                               #
         
     def critical(self, density=False):
         """Critical point
@@ -1932,6 +2111,9 @@ class has homogeneous pressure limits.
 To also return the density, set the 'density' keyword to True
 
     Tc, pc, dc = critical(density=True)
+    
+Returns the critical temperature, pressure, and density in 
+[unit_temperature], [unit_pressure], [unit_matter/unit_volume]
 """
         if density:
             return  pm.units.temperature_scale( \
@@ -1954,16 +2136,24 @@ To also return the density, set the 'density' keyword to True
     def triple(self):
         """Triple point
     Tt, pt = triple()
+    
+Returns the triple temperature and pressure in a tuple pair in
+[unit_temperature], [unit_pressure]
 """
         return  pm.units.temperature_scale( \
                     self.data['Tt'], from_units='K'),\
                 pm.units.pressure( \
                     self.data['pt'], from_units='Pa')
         
-        
+    #                       #
+    # Saturaiton properties #
+    #                       #
+    
     def ps(self, T=None):
         """Saturation pressure
     psat = ps(T)
+    
+Returns the saturaiton pressure in [unit_pressure]
 
 Calls to ps() are MUCH faster than calls to Ts(), so when given a choice
 ps() should always be preferred.  The MP1 class exposes ps() as a 
@@ -1998,7 +2188,7 @@ numerical inversion.
         """Saturation temperature
     Tsat = Ts(p)
     
-Uses Newton iteration to calculate Ts from ps
+Uses Newton iteration to calculate Ts from the _ps() inner method
 """
         if p is None:
             p = pm.config['def_p']
@@ -2060,7 +2250,20 @@ temperature.
         dsV[I] *= conv
         return dsL, dsV
 
+    def es(self, T=None, p=None):
+        pass
 
+    def hs(self, T=None, p=None):
+        pass
+        
+    def ss(self, T=None, p=None):
+        pass
+
+
+    #                       #
+    # EOS properties T,p,d  #
+    #                       #
+    
     def p(self, T=None, d=None, quality=False):
         """Pressure   p_d(T, d, quality=False)
     p = p(T, d)
@@ -2122,6 +2325,28 @@ For points that are not "under the dome" quality will be computed to be
         return p
         
         
+    def e(self, *varg, **kwarg):
+        """Internal energy  e(T=None, p=None, d=None, x=None)
+From any two of the provided primary properties
+    
+e   Int. Energy [unit_energy / unit_matter]
+T   Temperature [unit_temperature]
+p   Pressure    [unit_pressure]
+d   Density     [unit_matter / unit_volume]
+x   Quality     [dimensionless]
+"""
+        T,d1,d2,x,I = self._argparse(*varg, **kwarg)
+        e = self._e(T,d1,0)[0]
+        if I.any():
+            e[I] *= (1.-x[I])
+            e[I] += self._e(T,d2,0)[0] * x[I]
+        # Convert the units back to user space
+        pm.units.energy(e, from_units='J', inplace=True)
+        pm.units.matter(e, self.data['mw'], 
+                from_units='kg', exponent=-1, inplace=True)
+        return e
+        
+        
     def h(self, *varg, **kwarg):
         """Enthalpy  h(T=None, p=None, d=None, x=None)
 From any two of the provided primary properties
@@ -2133,42 +2358,84 @@ d   Density     [unit_matter / unit_volume]
 x   Quality     [dimensionless]
 """
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
-        
-        # The IG part
-        tt = self.data['AOgroup']['Tscale'] / T
-        dd = d1 / self.data['AOgroup']['dscale']
-        _,at,_,_,_,_ = self._ao(tt,dd,diff=1)
-        h = 1. + tt*at
-        
-        print tt,dd,h
-        
-        # The residual part
-        tt = self.data['ARgroup']['Tscale'] / T
-        dd = d1 / self.data['ARgroup']['dscale']
-        _,at,ad,_,_,_ = self._ar(tt,dd,diff=1)
-        h += dd*ad + tt*at
-
-        print tt,dd,h
-
+        h = self._h(T,d1,0)[0]
         if I.any():
             h[I] *= (1.-x[I])
-            # The IG part
-            tt = self.data['AOgroup']['Tscale'] / T[I]
-            dd = d2[I] / self.data['AOgroup']['dscale']
-            _,at,_,_,_,_ = self._ao(tt,dd,diff=1)
-            h[I] += (1 + tt*at)*x
-            
-            # The residual part
-            tt = self.data['ARgroup']['Tscale'] / T[I]
-            dd = d2[I] / self.data['ARgroup']['dscale']
-            _,at,ad,_,_,_ = self._ar(tt,dd,diff=1)
-            h[I] += (dd*ad + tt*at)*x
-            
-        # re-scale the output
-        h *= self.data['R'] * T
-        
+            h[I] += self._h(T,d2,0)[0] * x[I]
         # Convert the units back to user space
         pm.units.energy(h, from_units='J', inplace=True)
-        pm.units.matter(h, self.data['mw'], from_units='kg', inplace=True)
-        
+        pm.units.matter(h, self.data['mw'], 
+                from_units='kg', exponent=-1, inplace=True)
         return h
+
+
+    def s(self, *varg, **kwarg):
+        """Entropy  s(T=None, p=None, d=None, x=None)
+From any two of the provided primary properties
+    
+s   Entropy     [unit_energy / unit_matter / unit_temperature]
+T   Temperature [unit_temperature]
+p   Pressure    [unit_pressure]
+d   Density     [unit_matter / unit_volume]
+x   Quality     [dimensionless]
+"""
+        T,d1,d2,x,I = self._argparse(*varg, **kwarg)
+        s = self._s(T,d1,0)[0]
+        if I.any():
+            s[I] *= (1.-x[I])
+            s[I] += self._s(T,d2,0)[0] * x[I]
+        # Convert the units back to user space
+        pm.units.energy(s, from_units='J', inplace=True)
+        pm.units.matter(s, self.data['mw'], 
+                from_units='kg', exponent=-1, inplace=True)
+        pm.units.temperature(s, from_units='K', 
+                exponent=-1, inplace=True)
+        return s
+
+
+    def cp(self, *varg, **kwarg):
+        """Isobaric Specific Heat  cp(T=None, p=None, d=None, x=None)
+From any two of the provided primary properties
+    
+cp  Sp. heat    [unit_energy / unit_matter / unit_temperature]
+T   Temperature [unit_temperature]
+p   Pressure    [unit_pressure]
+d   Density     [unit_matter / unit_volume]
+x   Quality     [dimensionless]
+"""
+        T,d1,d2,x,I = self._argparse(*varg, **kwarg)
+        cp = self._cp(T,d1)
+        if I.any():
+            cp[I] *= (1.-x[I])
+            cp[I] += self._cp(T,d2) * x[I]
+        # Convert the units back to user space
+        pm.units.energy(cp, from_units='J', inplace=True)
+        pm.units.matter(cp, self.data['mw'], 
+                from_units='kg', exponent=-1, inplace=True)
+        pm.units.temperature(cp, from_units='K', 
+                exponent=-1, inplace=True)
+        return cp
+
+
+    def cv(self, *varg, **kwarg):
+        """Isobaric Specific Heat  cp(T=None, p=None, d=None, x=None)
+From any two of the provided primary properties
+    
+cv  Sp. heat    [unit_energy / unit_matter / unit_temperature]
+T   Temperature [unit_temperature]
+p   Pressure    [unit_pressure]
+d   Density     [unit_matter / unit_volume]
+x   Quality     [dimensionless]
+"""
+        T,d1,d2,x,I = self._argparse(*varg, **kwarg)
+        cv = self._cv(T,d1)
+        if I.any():
+            cv[I] *= (1.-x[I])
+            cv[I] += self._cv(T,d2) * x[I]
+        # Convert the units back to user space
+        pm.units.energy(cv, from_units='J', inplace=True)
+        pm.units.matter(cv, self.data['mw'], 
+                from_units='kg', exponent=-1, inplace=True)
+        pm.units.temperature(cv, from_units='K', 
+                exponent=-1, inplace=True)
+        return cv
