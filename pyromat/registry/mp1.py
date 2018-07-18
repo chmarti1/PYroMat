@@ -1702,32 +1702,52 @@ inverted to calculate T
             return T, dsL, dsV, Isat
         return T
         
- 
-    def _Tdsat_test(self, T, d):
-        """Determine whether a T,d pair are under the dome (inner routine)
-    sat, dsL, dsV = _Tdsat_test(T,d)
+        
+    def _sat_argparse(self, T=None, p=None):
+        """A standard argument parsing scheme for all user-layer saturation properties
+    T,dL,dV = _sat_argparse(T=None, p=None)
     
-sat         is True for points where T,d is saturated
-dsL         Saturated liquid density
-dsV         Saturated vapor density
-
-dsL and dsV are required as intermediate calculations, so they are 
-returned to prevent the need for redundant saturation density funciton
-calls.
+Enforces that all returned parameters are numpy arrays with at least one
+dimension.  Accepts T and p as scalars or array-like objects in 
+[unit_temperature] and [unit_pressure] respectively.
+    
+Returns
+T   the temperature in K
+dL and dV are the liquid and vapor densities in kg/m3
 """
-        dsL = np.zeros_like(T)
-        dsV = np.zeros_like(T)
-        I = np.asarray(T<self.data['Tc'])
-        dsL[I] = self._dsl(T[I],0)[0]
-        dsV[I] = self._dsv(T[I],0)[0]
-        np.logical_and(I, dsL>d, out=I)
-        np.logical_and(I, dsV<d, out=I)
-        return I, dsL, dsV
+        if p is None:
+            if T is None:
+                T = pm.config['def_T']
+            T = pm.units.temperature_scale(
+                    np.asarray(T), to_units='K')
+            if T.ndim==0:
+                T.resize((1,))
+            if (T<self.data['Tt']).any() or (T>self.data['Tc']).any():
+                raise pm.utility.PMParamError(
+                        'Saturation properties are not available at ' +
+                        'temperatures beyond the triple or critical points.')
+        elif T is None:
+            p = pm.units.pressure(
+                    pm.asarray(p), to_units='Pa')
+            if p.ndim==0:
+                p.resize((1,))
+            if (p<self.data['pt']).any() or (p>self.data['pc']).any():
+                raise pm.utility.PMParamError(
+                        'Saturation properties are not available at ' +
+                        'pressures beyond the triple or critical points.')
+            T = self._Ts(p)
+        else:
+            raise pm.utility.PMParamError(
+                'Saturation temperature and pressure cannot be simultaneously specified')
+
+        dL = self._dsl(T,0)[0]
+        dV = self._dsv(T,0)[0]
+        return T, dL, dV
         
         
     def _argparse(self, T=None, p=None, d=None, x=None):
-        """Present a standard argument scheme for all top-level property methods
-    T,d1,d2,x,I = _argparse(self, T=None, p=None, d=None, x=None)
+        """Present a standard argument scheme for all user-layer property methods
+    T,d1,d2,x,I = _argparse(T=None, p=None, d=None, x=None)
 
 T the temperature array in K.
 d1 and d2 are densities in kg/m3.  If the conditions are under the dome,
@@ -1756,7 +1776,7 @@ other conditions, x<0 and d1 == d2.
             # Ensure that T is a legal value
             if ((T<self.data['Tlim'][0]).any() or 
                     (T>self.data['Tlim'][1]).any()):
-                raise pm.utility.PMParamError('MP1: Pressure is out-of-bounds.')
+                raise pm.utility.PMParamError('MP1: Temperature is out-of-bounds.')
             
             # T,p
             # If p is defined, then none of the conditions are under the
@@ -1764,6 +1784,10 @@ other conditions, x<0 and d1 == d2.
             if p is not None:
                 # Convert pressure
                 p = pm.units.pressure(np.asarray(p), to_units='Pa')
+                if ((p<self.data['plim'][0]).any() or 
+                        (p>self.data['plim'][1]).any()):
+                    raise pm.utility.PMParamError('MP1: Pressure is out-of-bounds.')
+                    
                 # Force compatible arrays
                 T,p = np.broadcast_arrays(T,p)
                 d1 = self._d(T,p)
@@ -2212,117 +2236,131 @@ Uses Newton iteration to calculate Ts from the _ps() inner method
             self._Ts(p), from_units='Pa')
         
         
-    def ds(self, T=None):
+    def ds(self, *varg, **kwarg):
         """Saturation density
-    dsL, dsV = ds(T)
+    dsL, dsV = ds(T=None, p=None)
     
-Returns the liquid (dsL) and vapor (dsV) saturation density as a 
-function of temperature.  To determine saturation densities from 
-pressure, first use the Ts funciton to determine the saturation 
-temperature.  
-
-    dsL, dsV = ds(Ts(p))
+Returns the liquid (dsL) and vapor (dsV) saturation density in units
+[unit_matter / unit_volume]
 """
-        if T is None:
-            T = pm.config['def_T']
-            
-        # Replace T with an array of the correct units
-        T = pm.units.temperature_scale(
-                np.asarray(T, dtype=float), 
-                to_units='K')
-        # Exclude points outside the triple-critical range
-        I = np.logical_or( T<self.data['Tt'], T>self.data['Tc'] )
-        if I.any():
-            pm.utility.print_warning('Saturation properties are not ' +
-                'available above the critical point Tc=%f K or below the '%self.data['Tc'] +
-                'triple point Tt=%f K.'%self.data['Tt'] )
-        I = np.logical_not(I)
-                
-        dsL = np.zeros_like(T)
-        dsV = np.zeros_like(T)
-        dsL[I] = self._dsl(T[I],diff=0)[0]
-        dsV[I] = self._dsv(T[I],diff=0)[0]
+        _,dL,dV = self._sat_argparse(*varg, **kwarg)
         # Get a conversion factor
         conv = pm.units.matter(1., self.data['mw'],
                 from_units='kg')
         conv = pm.units.volume(conv, from_units='m3', exponent=-1)
-        dsL[I] *= conv
-        dsV[I] *= conv
-        return dsL, dsV
+        dL *= conv
+        dV *= conv
+        return dL, dV
 
-    def es(self, T=None, p=None):
-        pass
 
-    def hs(self, T=None, p=None):
-        pass
+    def es(self, *varg, **kwarg):
+        """Saturation internal energy
+    esL, esV = es(T,p)
+    
+Returns the liquid (esL) and vapor (esV) saturation internal energy in
+units [unit_energy / unit_matter]
+"""
+        T,dL,dV = self._sat_argparse(*varg, **kwarg)
+        esL = self._e(T,dL,0)[0]
+        esV = self._e(T,dV,0)[0]
         
-    def ss(self, T=None, p=None):
-        pass
+        # Get a conversion factor
+        conv = pm.units.energy(1., from_units='J')
+        conv = pm.units.matter(conv, self.data['mw'],
+                from_units='kg', exponent=-1)
+        esL *= conv
+        esV *= conv
+        return esL, esV
+
+
+    def hs(self, *varg, **kwarg):
+        """Saturation enthalpy
+    hsL, hsV = hs(T,p)
+    
+Returns the liquid (hsL) and vapor (hsV) saturation enthalpy in
+units [unit_energy / unit_matter]
+"""
+        T,dL,dV = self._sat_argparse(*varg, **kwarg)
+        hsL = self._h(T,dL,0)[0]
+        hsV = self._h(T,dV,0)[0]
+        
+        # Get a conversion factor
+        conv = pm.units.energy(1., from_units='J')
+        conv = pm.units.matter(conv, self.data['mw'],
+                from_units='kg', exponent=-1)
+        hsL *= conv
+        hsV *= conv
+        return hsL, hsV
+        
+        
+    def ss(self, *varg, **kwarg):
+        """Saturation entropy
+    ssL, ssV = ss(T,p)
+    
+Returns the liquid (ssL) and vapor (ssV) saturation entropy in
+units [unit_energy / unit_matter / unit_temperature]
+"""
+        T,dL,dV = self._sat_argparse(*varg, **kwarg)
+        ssL = self._s(T,dL,0)[0]
+        ssV = self._s(T,dV,0)[0]
+        
+        # Get a conversion factor
+        conv = pm.units.energy(1., from_units='J')
+        conv = pm.units.matter(conv, self.data['mw'],
+                from_units='kg', exponent=-1)
+        conv = pm.units.temperature(conv,
+                from_units='K', exponent=-1)
+        ssL *= conv
+        ssV *= conv
+        return ssL, ssV
 
 
     #                       #
     # EOS properties T,p,d  #
     #                       #
     
-    def p(self, T=None, d=None, quality=False):
-        """Pressure   p_d(T, d, quality=False)
-    p = p(T, d)
-    
+    def p(self, quality=False, *varg, **kwarg):
+        """Pressure
+    p = p(T=None, p=None, d=None, x=None, quality=False)
+
+Calculates the pressure in [unit_pressure]
+
 If the optional "quality" keyword is set to True, then the two-phase
 mixture quality will also be returned.
 
-    p,x = p_d(T,d,quality=True)
+    p,x = p(...,quality=True)
     
 For points that are not "under the dome" quality will be computed to be
 -1.
 """
-        # If d is None, then just return the default pressure
-        if d is None:
-            if T is None:
-                return np.array(pm.config['def_p'])
-            T = np.asarray(T)
-            return np.broadcast_to(pm.config['def_p'], T.shape)
-        
-        if T is None:
-            T = pm.config['def_T']
-            
-        # Replace T and d with arrays of the correct units
-        # If T and d are already the correct units, then they will not
-        # be modified or copied.
-        
-        T = pm.units.temperature_scale(
-                T, to_units='K')
-        d = pm.units.matter( 
-                d, self.data['mw'], to_units='kg')
-        pm.units.volume(d, to_units='m3', exponent=-1, inplace=True)
-        
-        # Throw an error if T is out of bounds
-        if (T < self.data['Tlim'][0]).any() or \
-                (T > self.data['Tlim'][1]).any():
-            raise pm.utility.PMParamError('MP1: Temperature was out-of-bounds')
-        
-        # Broadcast
-        T,d = np.broadcast_arrays(T,d)
-        
-        # Initialize the results
-        p = np.ndarray(T.shape, dtype=float)
+        T,d1,d2,x,I = self._argparse(*varg, **kwarg)
+        p = self._p(T,d1)
         if quality:
-            x = np.ndarray(T.shape, dtype=float)
-
-        # Calculate any values under the dome
-        I,dsL,dsV = self._Tdsat_test(T,d)
-        if I.any():
-            p[I] = self._ps(T[I],diff=0)[0]
-            if quality:
-                x[I] = (d[I]-dsL[I])/(dsV[I]-dsL[I])
-
-        # Now do the rest
-        I = np.logical_not(I)
-        p[I] = self._p(T[I],d[I],diff=0)[0]
-        if quality:
-            x[I] = -1
             return p,x
         return p
+        
+        
+    def d(self, *varg, **kwarg):
+        """Density
+    d = d(T=None, p=None, d=None, x=None)
+    
+Calculates density in [unit_matter / unit_volume]
+"""
+        T,d1,d2,x,I = self._argparse(*varg, **kwarg)
+        if I.any():
+            d1[I] *= 1.-x[I]
+            d1[I] += x[I] * d2[I]
+        return d1
+        
+        
+    def T(self, *varg, **kwarg):
+        """Temperature
+    T = T(T=None, p=None, d=None, x=None)
+    
+Calculates temperature in [unit_temperature]
+"""
+        T,_,_,_,_ = self._argparse(*varg, **kwarg)
+        return T
         
         
     def e(self, *varg, **kwarg):
@@ -2345,6 +2383,7 @@ x   Quality     [dimensionless]
         pm.units.matter(e, self.data['mw'], 
                 from_units='kg', exponent=-1, inplace=True)
         return e
+        
         
         
     def h(self, *varg, **kwarg):
@@ -2392,6 +2431,78 @@ x   Quality     [dimensionless]
                 exponent=-1, inplace=True)
         return s
 
+
+    def hsd(self, *varg, **kwarg):
+        """Enthalpy, Entropy, Density
+    h,s,d = hsd(T=None, p=None, d=None, x=None)
+    
+Calculates the three most commonly used parameters at once.  This 
+method represents substantial computational savings over calling the
+methods independently.
+"""
+        T,d1,d2,x,I = self._argparse(*varg, **kwarg)
+        
+        # The IG part        
+        R = self.data['R']
+        Tscale = self.data['AOgroup']['Tscale']
+        dscale = self.data['AOgroup']['dscale']
+        tt = Tscale / T
+        dd = d1 / dscale
+        a,at,_,_,_,_ = self._ao(tt,dd,1)
+        
+        h = 1. + tt*at
+        s = tt*at - a
+        
+        # The residual part
+        Tscale = self.data['ARgroup']['Tscale']
+        dscale = self.data['ARgroup']['dscale']
+        tt = Tscale / T
+        dd = d1 / dscale
+        a,at,ad,_,_,_ = self._ar(tt,dd,1)
+        h += dd*ad + tt*at
+        s += tt*at - a
+
+        if I.any():
+            temp = 1-x[I]
+            h[I] *= temp
+            s[I] *= temp
+            
+            # The IG part        
+            R = self.data['R']
+            Tscale = self.data['AOgroup']['Tscale']
+            dscale = self.data['AOgroup']['dscale']
+            tt = Tscale / T[I]
+            dd = d2[I] / dscale
+            a,at,_,_,_,_ = self._ao(tt,dd,1)
+            
+            h[I] = (1. + tt*at)*x[I]
+            s[I] = (tt*at - a)*x[I]
+            
+            # The residual part
+            Tscale = self.data['ARgroup']['Tscale']
+            dscale = self.data['ARgroup']['dscale']
+            tt = Tscale / T
+            dd = d1 / dscale
+            a,at,ad,_,_,_ = self._ar(tt,dd,1)
+            h[I] += (dd*ad + tt*at)*x[I]
+            s[I] += (tt*at - a)*x[I]
+            # Modify density
+            d1[I] *= temp
+            d1[I] += d2[I]*x[I]
+            
+        s *= R
+        h *= R*T
+        
+        conv = pm.units.energy(1.,from_units='J')
+        conv = pm.units.matter(conv, self.data['mw'], from_units='kg')
+        h*=conv
+        conv = pm.units.temperature(conv, from_units='K')
+        s*=conv
+        pm.units.matter(d1, self.data['mw'],from_units='kg',inplace=True)
+        pm.units.volume(d1, from_units='m3', exponent=-1, inplace=True)
+        
+        return h,s,d1
+        
 
     def cp(self, *varg, **kwarg):
         """Isobaric Specific Heat  cp(T=None, p=None, d=None, x=None)
