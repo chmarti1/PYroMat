@@ -7,735 +7,62 @@ import numpy as np
 import pyromat as pm
 
 
-def _f1_x(x,param,diff=2):
-    """f1 pass-thru
-    x
-"""
-    if diff>0:
-        return x, 1., 0.
-    return x, 0., 0.
-
-def _f1_lin(x,param,diff=2):
-    """f1 linear
-    param[0] + param[1]*x
-"""
-    f = param[0] + param[1]*x
-    if diff>0:
-        return f, param[1], 0.
-    return f, 0., 0.
-
-def _f1_pow(x,param,diff=2):
-    """f1 power
-    x**param
-"""
-    f = x**param
-    if diff>0:
-        fx = param*f/x
-    else:
-        fx = 0.
-    if diff>1:
-        fxx = (param-1.)*fx/x
-    else:
-        fxx = 0.
-    return f,fx,fxx
-    
-def _f1_inv(x,param,diff=2):
-    """f1 inverse
-    1/x
-"""
-    f = 1./x
-    if diff>0:
-        fx = -f/x
-    else:
-        fx = 0.
-    if diff>1:
-        fxx = -2*fx/x
-    else:
-        fxx = 0.
-    return f,fx,fxx
-
-def _f1_exp(x,param,diff=2):
-    """f1 exponent
-    exp(param*x)
-"""
-    f = np.exp(x*param)
-    if diff>0:
-        fx = param*f
-    else:
-        fx = 0.
-    if diff>1:
-        fxx = param*fx
-    else:
-        fxx = 0.
-    return f,fx,fxx
-
-def _f1_log(x,param,diff=2):
-    """f1 natural log
-    log(x)
-"""
-    f = np.log(x)
-    if diff>0:
-        fx = 1./x
-    else:
-        fx = 0.
-    if diff>1:
-        fxx = -fx/x
-    else:
-        fxx = 0.
-    return f,fx,fxx
-
-def _f1_poly(x,coef,diff=2):
-    """Polynomial evaluation
-(p, px, pxx) = _f1_poly(x,coef,diff=2)
-
-Evaluates a polynomial on x and its derivatives
-x       x value
-coef    the coefficient list
-diff    the highest order derivative to evaluate (0,1, or 2)
-
-Returns
-p       polynomial value at p(x)
-px      dp/dx
-pxx     d2p/dx2
-
-Each element of coef is a two-element list defining a term in the 
-polynomial; the exponent on x and the corresponding coefficient.  It 
-must be sorted in descending order by the first column.
-
-The list,
-[[4, 0.1], [2, 0.2], [1, 1.2], [0, 0.5]]
-corrsponds to the polynomial
-p(x) = .5 + 1.2*x + 0.2*x**2 + 0.1*x**4
-
-This approach assumes that most polynomials used will be "sparse";
-that most of the coefficients will be zero, so they need not be 
-stored.
-"""
-    # initialize the final polynomial and its derivatives
-    p = 0.  # total polynomial
-    px = 0.
-    pxx = 0.
-    # From here, we loop over terms of the form a*(x**ii)
-    # If a particular ii is not found in the data, then
-    # its coefficient is treated as zero.
-    # What is the largest ii?
-    II = coef[0][0]
-    
-    # On which coefficient are we currently operating?
-    index = 0
-    # This is a flag that indicates the active index was used in 
-    # the last loop, so it needs to be incremented.
-    
-    for ii in range(II,-1,-1):
-        if index<len(coef) and coef[index][0] == ii:
-            # Fold the coefficient values into the p expansion
-            if diff > 1:
-                pxx = 2*px + x * pxx
-            if diff > 0:
-                px = p + x * px
-            p = coef[index][1] + x * p
-            # Move on to the next coefficient
-            index += 1
-        # If the current x exponent is not represented, execute a
-        # p-expansion with zero q.
-        else:
-            if diff > 1:
-                pxx = 2*px + x * pxx
-            if diff > 0:
-                px = p + x * px
-            p = x * p
-            
-    return p,px,pxx
-    
-    
-def _f2_x(x,y,param,diff=2):
-    f,fx,fxx = _f1_x(x,param,diff)
-    return f,fx,0.,fxx,0.,0.
-    
-def _f2_y(x,y,param,diff=2):
-    f,fy,fyy = _f1_x(y,param,diff)
-    return f,0.,fy,0.,0.,fyy
-
-def _f2_lin(x,y,param,diff=2):
-    """f2 linear
-    param[0] + param[1]*x + param[2]*y
-"""
-    f = param[0] + param[1]*x + param[2]*y
-    if diff>0:
-        return f, param[1], param[2], 0., 0., 0.
-    return f, 0., 0., 0., 0., 0.
-    
-def _f2_linx(x,y,param,diff=2):
-    f,fx,fxx = _f1_lin(x,param,diff)
-    return f, fx, 0., fxx, 0., 0.
-
-def _f2_liny(x,y,param,diff=2):
-    f,fy,fyy = _f1_lin(y,param,diff)
-    return f, 0., fy, 0., 0., fyy
-
-def _f2_powx(x,y,param,diff=2):
-    f,fx,fxx = _f1_pow(x,param,diff)
-    return f, fx, 0., fxx, 0., 0.
-
-def _f2_powy(x,y,param,diff=2):
-    f,fy,fyy = _f1_pow(y,param,diff)
-    return f, 0., fy, 0., 0., fyy
-    
-def _f2_invx(x,y,param,diff=2):
-    f,fx,fxx = _f1_inv(x,param,diff)
-    return f, fx, 0., fxx, 0., 0.
-
-def _f2_invy(x,y,param,diff=2):
-    f,fy,fyy = _f1_inv(y,param,diff)
-    return f, 0., fy, 0., 0., fyy
-    
-def _f2_expx(x,y,param,diff=2):
-    f,fx,fxx = _f1_exp(x,param,diff)
-    return f, fx, 0., fxx, 0., 0.
-
-def _f2_expy(x,y,param,diff=2):
-    f,fy,fyy = _f1_exp(y,param,diff)
-    return f, 0., fy, 0., 0., fyy
-
-def _f2_logx(x,y,param,diff=2):
-    f,fx,fxx = _f1_log(x,param,diff)
-    return f, fx, 0., fxx, 0., 0.
-
-def _f2_logy(x,y,param,diff=2):
-    f,fy,fyy = _f1_log(y,param,diff)
-    return f, 0., fy, 0., 0., fyy
-
-def _f2_poly(x,y,coef,diff=2):
-    """Polynomial evaluation
-(p, px, py, pxx, pxy, pyy) = _f2_poly(x,y,coef,diff=2)
-
-Evaluates a polynomial on x and y and its derivatives.
-x       x value
-y       y value
-coef    coefficient list
-diff    the highest order derivative to evaluate (0,1, or 2)
-
-Returns
-p       polynomial value at p(x,y)
-px      dp/dx
-py      dp/dy
-pxx     d2p/dx2
-pxy     d2p/dxdy
-pyy     d2p/dy2
-
-Each element of coef is a three-element list defining a term in the 
-polynomial; the x-exponent, the y-exponent, and the corresponding
-coefficient.  It must be sorted in descending order by the first column
-and then the second column.
-
-The list,
-[[1, 1, 0.1], [0, 2, 0.2], [0, 1, 1.2], [0, 0, 0.5]]
-corrsponds to the polynomial
-p(x,y) = .5 + 1.2y + .2y**2 + 0.1xy
-
-This approach assumes that most polynomials used will be "sparse";
-that most of the coefficients will be zero, so they need not be 
-stored.
-"""
-    
-    # initialize the final polynomial and its derivatives
-    p = 0.  # total polynomial
-    px = 0.
-    py = 0.
-    pxx = 0.
-    pxy = 0.
-    pyy = 0.
-    # From here, we loop over terms of the form a*(x**ii)*(y**jj)
-    # If a particular ii,jj combination is not found in the data, then
-    # its coefficient is treated as zero.
-    # What is the largest ii?
-    II = coef[0][0]
-    
-    # On which coefficient are we currently operating?
-    index = 0
-    # This is a flag that indicates the active index was used in 
-    # the last loop, so it needs to be incremented.
-    
-    for ii in range(II,-1,-1):
-        # If the current x-exponent is the same one represented in
-        # the active coefficient row, then calculate q.
-        if index<len(coef) and coef[index][0] == ii:
-            # For this value of ii, what is the largest jj?
-            JJ = coef[index][1]
-            # q is a sub-polynomial on y that represents the 
-            # variation on y of all terms that share the same
-            # power in x.  This inner loop is much like the loop
-            # on ii, except that it looks at both the x and y 
-            # exponents.
-            q = 0
-            qy = 0
-            qyy = 0
-            for jj in range(JJ,-1,-1):
-                if diff > 1:
-                    qyy = 2*qy + y*qyy
-                if diff > 0:
-                    qy = q + y*qy
-                # If the current y-exponent is represented in the 
-                # active coefficient row, then fold it into the q
-                # expansion.
-                if index<len(coef) and coef[index][0] == ii and coef[index][1] == jj:
-                    q = coef[index][2] + y*q
-                    # increment the active index
-                    index += 1
-                else:
-                    q *= y
-                
-            # Fold the current q values into the p expansion
-            # Update the highest derivatives first since they depend
-            # on the historical values of the lower derivatives
-            if diff > 1:
-                pyy = qyy + x * pyy
-                pxx = 2*px + x * pxx
-                pxy = py + x * pxy
-            if diff > 0:
-                px = p + x * px
-                py = qy + x * py
-            p = q + x * p
-        # If the current x exponent is not represented, execute a
-        # p-expansion with zero q.
-        else:
-            if diff > 1:
-                pyy = x * pyy
-                pxx = 2*px + x * pxx
-                pxy = py + x * pxy
-            if diff > 0:
-                px = p + x * px
-                py = x * py
-            p = x * p
-            
-    return p,px,py,pxx,pxy,pyy
-    
-
-def _f2_spoly(x,y,coef,diff):
-    "Sparse polynomial"
-    p = 0.
-    px = 0.
-    py = 0.
-    pxx = 0.
-    pxy = 0.
-    pyy = 0.
-    for row in coef:
-        t = x**row[0] * y**row[1] * row[2]
-        if diff>0:
-            tx = t * row[0] / x
-            ty = t * row[1] / y
-        else:
-            tx = 0.
-            ty = 0.
-        if diff>1:
-            txx = tx * (row[0]-1) / x
-            tyy = ty * (row[1]-1) / y
-            txy = tx * row[1] / y
-        else:
-            txx = 0.
-            tyy = 0.
-            txy = 0.
-        p += t
-        if diff>0:
-            px += tx
-            py += ty
-        if diff>1:
-            pxx += txx
-            pxy += txy
-            pyy += tyy
-    return p,px,py,pxx,pxy,pyy
-    
-    
-_f1_dict = {
-    'x':_f1_x,
-    'lin':_f1_lin,
-    'pow':_f1_pow,
-    'inv':_f1_inv,
-    'exp':_f1_exp,
-    'log':_f1_log,
-    'poly':_f1_poly
-}
-
-
-def _f1eval(x, fdict, diff=2):
-    """Evaluates a group funciton element recursively
-f, fx, fxx = _f1eval(x, fdict, diff=2)
-
-fdict is the dictionary that defines the function type and behavior.  
-The dictionary must contain a 'type' key, which identifies the function
-to be evaluated.
-
-There are three keys that define the function's behavior:
-    KEY     DESCRIPTION
-    type    The name of the function to be evaluated
-    param   Parameters to define the behavior of the function
-    arg     specifies a group or function for recursion
-
-Each function uses the 'param' key differently to define its behavior.  
-The table below lists the function types, and shows how the param key 
-is used.
-    TYPE        FORM
-    x           x
-    lin         param[0] + param[1]*x
-    poly        _p1eval(x, param)
-    pow         x**param
-    inv         1/x
-    exp         exp(param*x)
-    log         log(x)
-    
-If the 'arg' key is defined, then its value will be treated as a group
-or function used to evaluate the argument to the present function.
-
-For example,
-    p( x**0.5 )
-    
-Might be evaluated by
-{
-    'type':'poly', 
-    'param':[...coef...], 
-    'arg':{
-        'type':'pow', 
-        'param':0.5,
-    }
-}
-"""
-    # If there is nesting
-    if 'arg' in fdict:
-        if isinstance(fdict['arg'],dict):
-            x_0,x_1,x_2 = _f1eval(x, fdict['arg'], diff=diff)
-        else:
-            x_0,x_1,x_2 = _g1eval(x, fdict['arg'], diff=diff)
-    else:
-        x_0 = x
-        x_1 = 1.
-        x_2 = 0.
-    
-    f,fx,fxx = _f1_dict[fdict['type']](x_0, fdict['param'], diff)
-    if diff>1:
-        fxx = fxx*x_1*x_1 + fx*x_2
-    if diff>0:
-        fx *= x_1
-        
-    return f,fx,fxx
-
-
-
-_f2_dict = {
-    'x':_f2_x,
-    'y':_f2_y,
-    'lin':_f2_lin,
-    'linx':_f2_linx,
-    'liny':_f2_liny,
-    'powx':_f2_powx,
-    'powy':_f2_powy,
-    'invx':_f2_invx,
-    'invy':_f2_invy,
-    'expx':_f2_expx,
-    'expy':_f2_expy,
-    'logx':_f2_logx,
-    'logy':_f2_logy,
-    'poly':_f2_poly,
-    'spoly':_f2_spoly
-}
-
-def _f2eval(x, y, fdict, diff=2):
-    """Evaluates a group funciton element recursively
-f, fx, fy, fxx, fxy, fyy = _f2eval(x, y, fdict, diff=2)
-
-fdict is the dictionary that defines the function type and behavior.  
-The dictionary must contain a 'type' key, which identifies the function
-to be evaluated.
-
-There are three keys that define the function's behavior:
-    KEY     DESCRIPTION
-    type    The name of the function to be evaluated
-    param   Parameters to define the behavior of the function
-    argx    specifies a group or function for recursion on x only
-    argy    specifies a group or function for recursino on y only
-
-Each function uses the 'param' key differently to define its behavior.  
-The table below lists the function types, and shows how the param key 
-is used.
-    TYPE        FORM
-    x           x
-    y           y
-    poly        _p1eval(x, y, param)
-    invx        1/x
-    invy        1/y
-    linx        param[0] + param[1]*x
-    liny        param[0] + param[1]*y
-    lin         param[0] + param[1]*x + param[2]*y
-    powx        x**param
-    powy        y**param
-    expx        exp(param*x)
-    expy        exp(param*y)
-    logx        log(x)
-    logy        log(y)
-    
-If the 'arg' key is defined, then its value will be treated as a group
-or function used to evaluate the argument to the present function.
-
-For example,
-    p( x**0.5, y )
-    
-Might be evaluated by
-{
-    'type':'poly', 
-    'param':[...coef...], 
-    'argx':{
-        'type':'pow', 
-        'param':0.5,
-    }
-}
-"""
-    f = 0.
-    fx = 0.
-    fy = 0.
-    fxx = 0.
-    fxy = 0.
-    fyy = 0.
-
-    # If there is nesting
-    if 'argx' in fdict:
-        if isinstance(fdict['argx'],dict):
-            x_0,x_1,x_2 = _f1eval(x, fdict['argx'], diff)
-        else:
-            x_0,x_1,x_2 = _g1eval(x, fdict['argx'], diff)
-    else:
-        x_0 = x
-        x_1 = 1.
-        x_2 = 0.
-        
-    if 'argy' in fdict:
-        if isinstance(fdict['argy'],dict):
-            y_0,y_1,y_2 = _f1eval(y, fdict['argy'], diff)
-        else:
-            y_0,y_1,y_2 = _g1eval(y, fdict['argy'], diff)
-    else:
-        y_0 = y
-        y_1 = 1.
-        y_2 = 0.
-
-    f,fx,fy,fxx,fxy,fyy = _f2_dict[fdict['type']](x_0, y_0, fdict['param'], diff)
-    if diff>1:
-        fxx = fxx*x_1*x_1 + fx*x_2
-        fyy = fyy*y_1*y_1 + fy*y_2
-        fxy = fxy*x_1*y_1
-    if diff>0:
-        fx = fx*x_1
-        fy = fy*y_1
-    return f,fx,fy,fxx,fxy,fyy
-
-
-def _g1eval(x, group, diff=2):
-    """Evaluates a group of terms and their derivatives
-g, gx, gxx = _g1eval(x, group, diff=2)
-
-Returns
-g       The value of the group at x
-gx      The derivative of the group with respect to x
-gxx     The second derivative of the group with respect to x
-Arguments
-x       The floating point value for x
-group   The group to be evaluated at x (see below)
-diff    The highest derivative to evaluate (0,1, or 2)
-
-Groups are expansions of the form 
-g = sum_k  f1(x) * f2(x) * ...
-Each group is a sum of individual terms, each of which is a 
-multiplication of standard functions on x.  Each function, f1, f2....
-must be selected from a bank of familiar functions, and x may be 
-modified before it is passed to the individual functions.
-
-Groups are lists of terms.  Each term is a list of individual functions.
-Therefore, groups are lists of lists.  Each element of the innermost 
-list must either be a dictionary that is evaluated by _f1eval() or 
-another nested list that can be evaluated recursively by _g1eval().
-
-For example, the group
-    g(x) = exp(-x) * (0.5*x**2 - 0.1*x) + sqrt(x)
-    
-might be represented by the group
-    group = [
-        [
-            {'type':'exp', 'param':-1},
-            {'type':'poly': 'coef':[[2,0.5], [1,-0.1]]}
-        ],
-        [
-            {'type':'pow', 'param':0.5}
-        ]
-    ]
-"""
-    g = 0.
-    gx = 0.
-    gxx = 0.
-
-    # Evaluate the terms one-by-one
-    for term in group:
-        # Let t be the term value and its derivatives
-        t = 1.
-        tx = 0.
-        txx = 0.
-        
-        for function in term:
-            if isinstance(function, dict):
-                f,fx,fxx = _f1eval(x, function, diff)
-                if diff>1:
-                    txx = txx*f + 2*tx*fx + t*fxx
-                if diff>0:
-                    tx = f*tx + fx*t
-                t *= f
-            elif isinstance(function, list):
-                f,fx,fxx = _g1eval(x, function, diff)
-                if diff>1:
-                    txx = txx*f + 2*tx*fx + t*fxx
-                if diff>0:
-                    tx = f*tx + fx*t
-                t *= f
-            else:
-                t *= function
-                if diff>0:
-                    tx*=function
-                if diff>1:
-                    txx*=function
-    
-        # Fold in the last term to the group
-        g += t
-        gx += tx
-        gxx += txx
-    
-    # All done!
-    return g,gx,gxx
-
-
-
-
-def _g2eval(x, y, group, diff=2):
-    """Evaluates a group of terms and their derivatives
-g, gx, gy, gxx, gxy, gyy = _g2eval(x, y, group, diff=2)
-
-Returns
-g       The value of the group at x
-gx      The derivative of the group with respect to x
-gy
-gxx     The second derivative of the group with respect to x
-gxy
-gyy
-Arguments
-x       The floating point value for x
-y
-group   The group to be evaluated at x (see below)
-diff    The highest derivative to evaluate (0,1, or 2)
-
-Groups are expansions of the form 
-g = sum  f1(x,y) * f2(x,y) * ...
-Each group is a sum of individual terms, each of which is a 
-multiplication of standard functions on x.  Each function, f1, f2....
-must be selected from a bank of familiar functions, and x may be 
-modified before it is passed to the individual functions.
-
-Groups are lists of terms.  Each term is a list of individual functions.
-Therefore, groups are lists of lists.  Each element of the innermost 
-list must either be a dictionary that is evaluated by _f2eval() or 
-another nested list that can be evaluated recursively by _g2eval().
-
-For example, the group
-    g(x) = exp(-x) * (0.5*x**2 - 0.1*x) + 2.5*sqrt(x)
-    
-might be represented by the group
-    group = [
-        [
-            {'type':'exp', 'param':-1},
-            {'type':'poly': 'coef':[[2,0.5], [1,-0.1]]}
-        ],
-        [
-            2.5,
-            {'type':'pow', 'param':0.5}
-        ]
-    ]
-"""
-    g = 0.
-    gx = 0.
-    gy = 0.
-    gxx = 0.
-    gxy = 0.
-    gyy = 0.
-
-    # Evaluate the terms one-by-one
-    for term in group:
-        # Let t be the term value and its derivatives
-        t = 1.
-        tx = 0.
-        ty = 0.
-        txx = 0.
-        txy = 0.
-        tyy = 0.
-        
-        for function in term:
-            if isinstance(function, dict):
-                f,fx,fy,fxx,fxy,fyy = _f2eval(x, y, function, diff)
-                if diff>1:
-                    txx = txx*f + 2*tx*fx + t*fxx
-                    tyy = tyy*f + 2*ty*fy + t*fyy
-                    txy = txy*f + tx*fy + ty*fx + t*fxy
-                if diff>0:
-                    tx = f*tx + fx*t
-                    ty = f*ty + fy*t
-                t *= f
-            elif isinstance(function, list):
-                f,fx,fy,fxx,fxy,fyy = _g2eval(x, y, function, diff)
-                if diff>1:
-                    txx = txx*f + 2*tx*fx + t*fxx
-                    tyy = tyy*f + 2*ty*fy + t*fyy
-                    txy = txy*f + tx*fy + ty*fx + t*fxy
-                if diff>0:
-                    tx = f*tx + fx*t
-                    ty = f*ty + fy*t
-                t *= f
-            else:
-                t *= function
-                if diff>0:
-                    tx*=function
-                    ty*=function
-                if diff>1:
-                    txx*=function
-                    tyy*=function
-                    txy*=function
-            #print "  -->",f,fx,fy,fxx,fxy,fyy
-        #print "==>",t,tx,ty,txx,txy,tyy
-    
-        # Fold in the last term to the group
-        g += t
-        gx += tx
-        gy += ty
-        gxx += txx
-        gxy += txy
-        gyy += tyy
-    
-    # All done!
-    return g,gx,gy,gxx,gxy,gyy
-
 
 class mp1(pm.reg.__basedata__):
     """The PYroMat multi-phase generalist class 1
-    
-Models thermo-physical properties of a liquid-gas system using a general
-fit for helmholtz free energy.  These "Spand & Wagner" fits are 
-evaluated in a polynomial form with exponential post factors.
 
-The primary property methods calculate their respective properties from
-temperature and pressure, and appear with no subscripts.  However, these
-may not always be the most convenient or the fastest algorithms.  There
-are a number of "secondary" methods that provide the same properties as
-functions of other parameters.
+Provides property methods:
+    cp()    Isobaric specific heat
+    cv()    Isochoric specific heat
+    e()     Internal energy
+    h()     Enthalpy
+    s()     Entropy
+    hsd()   Enthalpy, entropy, and density
+
+Provides equation-of-state methods:
+    T()     Temperature
+    p()     Pressure
+    d()     Density
+    
+All of the above methods accept a standardized call signature, which 
+accepts any of the following arguments:
+    T       Temperature
+    p       Pressure
+    d       Density
+    x       Quality
+For example, enthalpy might be called
+    h(T,p)
+    h(T,d)
+    h(T,x)
+or any other combination of two.  See the method documentation for more
+details.
+    
+There are also saturation property methods:
+    es()    Saturation internal energy
+    hs()    Saturation enthalpy
+    ss()    Saturation entropy
+    
+And saturation equations of state methods:
+    Ts()    Saturaiton temperature
+    ds()    Saturation density
+    ps()    Saturation pressure
+    
+All saturation properties accept T OR p as arguments.  See the method 
+documentation for more details.
+
+*** MORE DOCUMENTATION ***
+MP1 models thermo-physical properties of a liquid-gas system using a 
+general fit for helmholtz free energy.  These "Spand & Wagner" fits are 
+evaluated in a polynomial form with exponential post factors.
 
 The MP1 class is divided into three layers of methods (routines).  
 
 --- USER ROUTINES ---
 Accept data in any format (array or scalar) and in whatever units are
-configured in the PYroMat configuration object.  These routines are
-responsible for handling the necessary unit conversions and arranging
-all the arguments in appropriately typed numpy arrays.
+configured in the PYroMat configuration object.  These routines rely on
+_argparse and _sat_argparse to standardize their call signatures, to
+convert to the correct units, and to enforce that all inner routines
+receive correctly broadcast ndarray objects.
 
 Values from these methods are returned in appropriately broadcast arrays
 in the correctly configured units.
@@ -745,10 +72,24 @@ These methods presume that all arguments are numpy arrays and that they
 are in a common unit system.  This prevents redundant calls to the unit
 conversion functions as MP1 methods call one another.
     Energy:     J
-    Mass:       kg
-    Moles:      kmol
+    Matter      kg
     Pressure:   Pa
     Temperature:K
+    
+VERY rarely, should these routines by called by the user.  They are 
+faster than the user routines because they do not have the overhead of
+unit conversions, array broadcasting, and call signature conversion, but
+they have stringent requirements on the format of data.  Users should
+beware.
+
+1) All arguments must be a numpy NDARRAY object of dimension 1 or 
+    greater.
+2) Array broadcasting must be done BEFORE passing arguments to the inner
+    routines.
+3) The above units MUST be respected regardless of PYroMat's settings.
+4) Many of these functions also return their derivatives to facilitate
+    numerical inversion.  Check the documentation to verify the call
+    signature of each inner routine BEFORE implementing it in your code.
 
 --- PRIMATIVE ROUTINES ---
 Methods that have been labeled as primative routines should UNDER NO
@@ -1242,7 +583,7 @@ might be specified
     
     def _iter1(self, fn, prop, y, x, Ids, xmin, xmax,
                 ep=1e-6, Nmax=20, fx_index=1, verbose=False,
-                 **kwarg):
+                param={}):
         """Invert an inner routine.
         
     _iter1(fn, y, x, xmin, xmax, Ids)
@@ -1275,7 +616,7 @@ ep          Epsilon; fractional error permitted in y (default 1e-6)
 Nmax        Maximum number of iterations (default 20)
 fx_index    The location of the property derivative in the call 
             signature (default 1)
-**kwarg     All other keyword arguments are passed directly to the 
+param       A dicitonary of keyword arguments are passed directly to the 
             inner routine being inverted.
 
 """
@@ -1287,12 +628,15 @@ fx_index    The location of the property derivative in the call
         error = np.zeros_like(dx, dtype=float)
         IooB = np.zeros_like(Ids, dtype=bool)
 
-        arg = kwarg.copy()
+        arg = param.copy()
         count = 0
         while Ids.any():
             # Build the new argument list
-            for kw in kwarg:
-                arg[kw] = kwarg[kw][Ids]
+            for k,v in param.iteritems():
+                # For any array arguments, shrink them along with Ids
+                if isinstance(v,np.ndarray):
+                    arg[k] = v[Ids]
+            # Shrink the primary property array
             arg[prop] = x[Ids]
             # Evaluate the funciton and isolate its derivative
             FF = fn( diff=1, **arg)
@@ -1330,6 +674,32 @@ fx_index    The location of the property derivative in the call
                     Ids.sum(), Nmax))
                 return
 
+
+            
+    def _tpiter1(self, T, p, fn, diff=1):
+        """T,p iterator wrapper
+    _tpiter1(T,p,fn,diff=1)
+    
+    This wrapper function evaluates density from temperature and 
+pressure and returns the fn(T,d,diff) inner routine.  
+
+    d = self._d(T,p)
+    return fn(T,d)
+    
+For example, a call to _iter1 to calculate temperature while specifying
+entropy and pressure might appear
+
+    self._iter1( self._tpiter,  # Don't use _s, use _tpiter
+        'T',                    # We want to calculate T
+        svalues,                # Here are the target entropy values
+        T,                      # The pre-initialized T array
+        Ids,                    # The pre-initialized down-select array
+        Tmin, Tmax,             # T bounds
+        param={'fn':self._s, 'p':pvalues})
+"""
+        d = self._d(T,p)
+        return fn(T,d,diff)
+        
 
     def _ao(self, tt, dd, diff=2):
         """Dimensionless ideal gas helmholtz free energy (primative routine)
@@ -1596,7 +966,7 @@ T and p MUST be ndarrays
                 da,
                 db,
                 fx_index = 2,
-                T = T)
+                param={'T':T})
                 
         return d
         
@@ -1696,7 +1066,7 @@ inverted to calculate T
                 I,
                 Ta,
                 Tb,
-                d=d)
+                param={'d':d})
         
         if sat:
             return T, dsL, dsV, Isat
@@ -1921,7 +1291,6 @@ other conditions, x<0 and d1 == d2.
         elif x is not None:
             return self._argparse(T=pm.config['def_T'], x=x)
         return self._argparse(T=pm.config['def_T'], p=pm.config['def_p'])
-            
 
 
     def _e(self,T,d,diff=0):
@@ -2334,7 +1703,7 @@ For points that are not "under the dome" quality will be computed to be
 -1.
 """
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
-        p = self._p(T,d1)
+        p = self._p(T,d1,0)[0]
         if quality:
             return p,x
         return p
@@ -2377,7 +1746,7 @@ x   Quality     [dimensionless]
         e = self._e(T,d1,0)[0]
         if I.any():
             e[I] *= (1.-x[I])
-            e[I] += self._e(T,d2,0)[0] * x[I]
+            e[I] += self._e(T[I],d2[I],0)[0] * x[I]
         # Convert the units back to user space
         pm.units.energy(e, from_units='J', inplace=True)
         pm.units.matter(e, self.data['mw'], 
@@ -2400,7 +1769,7 @@ x   Quality     [dimensionless]
         h = self._h(T,d1,0)[0]
         if I.any():
             h[I] *= (1.-x[I])
-            h[I] += self._h(T,d2,0)[0] * x[I]
+            h[I] += self._h(T[I],d2[I],0)[0] * x[I]
         # Convert the units back to user space
         pm.units.energy(h, from_units='J', inplace=True)
         pm.units.matter(h, self.data['mw'], 
@@ -2422,7 +1791,7 @@ x   Quality     [dimensionless]
         s = self._s(T,d1,0)[0]
         if I.any():
             s[I] *= (1.-x[I])
-            s[I] += self._s(T,d2,0)[0] * x[I]
+            s[I] += self._s(T[I],d2[I],0)[0] * x[I]
         # Convert the units back to user space
         pm.units.energy(s, from_units='J', inplace=True)
         pm.units.matter(s, self.data['mw'], 
@@ -2441,6 +1810,9 @@ method represents substantial computational savings over calling the
 methods independently.
 """
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
+        
+        # There is no inner hsd funciton.  
+        # We have to do this the hard way.
         
         # The IG part        
         R = self.data['R']
@@ -2462,6 +1834,7 @@ methods independently.
         h += dd*ad + tt*at
         s += tt*at - a
 
+        # If there are data under the dome
         if I.any():
             temp = 1-x[I]
             h[I] *= temp
@@ -2518,7 +1891,7 @@ x   Quality     [dimensionless]
         cp = self._cp(T,d1)
         if I.any():
             cp[I] *= (1.-x[I])
-            cp[I] += self._cp(T,d2) * x[I]
+            cp[I] += self._cp(T[I],d2[I]) * x[I]
         # Convert the units back to user space
         pm.units.energy(cp, from_units='J', inplace=True)
         pm.units.matter(cp, self.data['mw'], 
@@ -2542,7 +1915,7 @@ x   Quality     [dimensionless]
         cv = self._cv(T,d1)
         if I.any():
             cv[I] *= (1.-x[I])
-            cv[I] += self._cv(T,d2) * x[I]
+            cv[I] += self._cv(T[I],d2[I]) * x[I]
         # Convert the units back to user space
         pm.units.energy(cv, from_units='J', inplace=True)
         pm.units.matter(cv, self.data['mw'], 
@@ -2550,3 +1923,195 @@ x   Quality     [dimensionless]
         pm.units.temperature(cv, from_units='K', 
                 exponent=-1, inplace=True)
         return cv
+
+
+    def T_s(self, s, p=None, quality=False):
+        """Temperature from entropy
+    T = T_s(s, p=None, quality=False)
+
+Pressure is optional, but entropy is mandatory.
+
+The optional keyword flag, quality, will cause quality to be returned
+along with temperature.
+
+    T,x = T_s(s, p=None, quality=True)
+"""
+        # Prepare the s array
+        s = pm.units.energy(
+                np.asarray(s,dtype=float),
+                to_units='J')
+        pm.units.matter(s, self.data['mw'],
+                to_units='kg', exponent=-1, inplace=True)
+        pm.units.temperature(s,
+                to_units='K', exponent=-1, inplace=True)
+        if s.ndim == 0:
+            s.resize((1,))
+
+        # Set a default pressure?
+        if p is None:
+            p = pm.config['def_p']
+
+        p = pm.units.pressure(
+                np.asarray(p, dtype=float),
+                to_units='Pa')
+        # Enforce pressure limits
+        if ((p<self.data['plim'][0]).any() or
+                (p>self.data['plim'][1]).any()):
+            raise pm.utility.PMParamError(
+                'MP1: Pressure is out-of-bounds.')
+                
+        # broadcast
+        s,p = np.broadcast_arrays(s,p)
+        # Initialize results
+        T = np.zeros_like(s, dtype=float)
+        x = -np.ones_like(s,dtype=float)
+        # Some important intermediates
+        Isat = np.zeros_like(s, dtype=bool)
+        Ta = np.zeros_like(s, dtype=float)
+        Tb = np.zeros_like(s, dtype=float)
+        
+        
+        # Start with super-critical points
+        I = p >= self.data['pc']
+        Ta[I] = self.data['Tlim'][0]
+        Tb[I] = self.data['Tlim'][1]
+        T[I] = 0.5*(Ta[I] + Tb[I])
+        # Now work with the sub-critical points
+        I = np.logical_not(I)
+        if I.any():
+            # Get the saturation temperatures
+            Tsat = self._Ts(p[I])
+            # And densities
+            dsL = self._dsl(Tsat,0)[0]
+            dsV = self._dsv(Tsat,0)[0]
+            # finally, get the saturation entropies
+            ssL = self._s(Tsat,dsL,0)[0]
+            ssV = self._s(Tsat,dsV,0)[0]
+
+            # Isolate points that are liquid
+            Isat[I] = s[I] < ssL
+            Ta[Isat] = self.data['Tlim'][0]
+            Tb[Isat] = Tsat[Isat]
+            T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
+            
+            # Isolate points that are vapor
+            Isat[I] = s[I] > ssV
+            Ta[Isat] = Tsat[Isat]
+            Tb[Isat] = self.data['Tlim'][1]
+            T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
+
+            # Finally, isolate points that are saturated
+            Isat[I] = np.logical_and( s[I]<=ssV, s[I]>=ssL )
+            T[Isat] = Tsat
+            if quality:
+                x[Isat] = (s[Isat] - ssL)/(ssV-ssL)
+
+        # Isat is now a down-select array
+        Isat = np.logical_not(Isat)
+        self._iter1(
+                self._tpiter1,
+                'T',
+                s,
+                T,
+                Isat,
+                Ta, Tb,
+                param={'fn':self._s, 'p':p})
+                
+        if quality:
+            return T,x
+        return T
+
+
+    def T_h(self, h, p=None, quality=False):
+        """Temperature from enthalpy
+    T = T_h(h, p=None, quality=False)
+
+Pressure is optional, but enthalpy is mandatory.
+
+The optional keyword flag, quality, will cause quality to be returned
+along with temperature.
+
+    T,x = T_h(s, p=None, quality=True)
+"""
+        # Prepare the h array
+        h = pm.units.energy(
+                np.asarray(h,dtype=float),
+                to_units='J')
+        pm.units.matter(h, self.data['mw'],
+                to_units='kg', exponent=-1, inplace=True)
+        if h.ndim == 0:
+            h.resize((1,))
+
+        # Set a default pressure?
+        if p is None:
+            p = pm.config['def_p']
+
+        p = pm.units.pressure(
+                np.asarray(p, dtype=float),
+                to_units='Pa')
+        # Enforce pressure limits
+        if ((p<self.data['plim'][0]).any() or
+                (p>self.data['plim'][1]).any()):
+            raise pm.utility.PMParamError(
+                'MP1: Pressure is out-of-bounds.')
+                
+        # broadcast
+        h,p = np.broadcast_arrays(h,p)
+        # Initialize results
+        T = np.zeros_like(h, dtype=float)
+        x = -np.ones_like(h,dtype=float)
+        # Some important intermediates
+        Isat = np.zeros_like(h, dtype=bool)
+        Ta = np.zeros_like(h, dtype=float)
+        Tb = np.zeros_like(h, dtype=float)
+        
+        
+        # Start with super-critical points
+        I = p >= self.data['pc']
+        Ta[I] = self.data['Tlim'][0]
+        Tb[I] = self.data['Tlim'][1]
+        T[I] = 0.5*(Ta[I] + Tb[I])
+        # Now work with the sub-critical points
+        I = np.logical_not(I)
+        if I.any():
+            # Get the saturation temperatures
+            Tsat = self._Ts(p[I])
+            # And densities
+            dsL = self._dsl(Tsat,0)[0]
+            dsV = self._dsv(Tsat,0)[0]
+            # finally, get the saturation entropies
+            hsL = self._h(Tsat,dsL,0)[0]
+            hsV = self._h(Tsat,dsV,0)[0]
+
+            # Isolate points that are liquid
+            Isat[I] = h[I] < hsL
+            Ta[Isat] = self.data['Tlim'][0]
+            Tb[Isat] = Tsat[Isat]
+            T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
+            
+            # Isolate points that are vapor
+            Isat[I] = h[I] > hsV
+            Ta[Isat] = Tsat[Isat]
+            Tb[Isat] = self.data['Tlim'][1]
+            T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
+
+            # Finally, isolate points that are saturated
+            Isat[I] = np.logical_and( h[I]<=hsV, h[I]>=hsL )
+            T[Isat] = Tsat
+            if quality:
+                x[Isat] = (h[Isat] - hsL)/(hsV-hsL)
+                
+        # Isat is now a down-select array
+        Isat = np.logical_not(Isat)
+        self._iter1(
+                self._tpiter1,
+                'T',
+                h,
+                T,
+                Isat,
+                Ta, Tb,
+                param={'fn':self._h, 'p':p})
+                
+        if quality:
+            return T,x
+        return T
