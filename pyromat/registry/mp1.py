@@ -674,7 +674,6 @@ param       A dicitonary of keyword arguments are passed directly to the
                     Ids.sum(), Nmax))
                 return
 
-
             
     def _tpiter1(self, T, p, fn, diff=1):
         """T,p iterator wrapper
@@ -945,13 +944,18 @@ T and p MUST be ndarrays
             Istate[Itest] = p[Itest] < self._ps(T[Itest], 0)[0]
             da[Istate] = self.data['dlim'][0]
             db[Istate] = self._dsv(T[Istate], 0)[0]
-            d[Istate] = 0.5*(da[Istate] + db[Istate])
+            d[Istate] = db[Istate] - da[Istate]
+            # Move the saturation bounds by 5%
+            db[Istate] += .05 * d[Istate]
+            d[Istate] = 0.5*d[Istate] + da[Istate]
             # Now, isolate the liquid points; set the lower density to the
             # saturated liquid density
             Istate[Itest] = np.logical_not(Istate[Itest])
             da[Istate] = self._dsl(T[Istate], 0)[0]
             db[Istate] = self.data['dlim'][1]
-            d[Istate] = 0.5*(da[Istate] + db[Istate])
+            d[Istate] = db[Istate] - da[Istate]
+            da[Istate] -= .05*d[Istate]
+            d[Istate] = db[Istate] - 0.5*d[Istate]
         
             # Release the memory from Istate
             del Istate
@@ -1037,13 +1041,19 @@ inverted to calculate T
             # Shift the saturation temperature to Tb
             Tb[Isat] = Ta[Isat]
             Ta[Isat] = self.data['Tlim'][0]
-            T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
+            T[Isat] = Tb[Isat] - Ta[Isat]
+            # Grow the boundary by 5%
+            Tb[Isat] += 0.05*T[Isat]
+            T[Isat] = Ta[Isat] + 0.5*T[Isat]
             
             # Now, identify the vapor points
             Isat[Itest] = d[Itest] < dsV[Itest]
             # Leave Ta as the saturation temperature
             Tb[Isat] = self.data['Tlim'][1]
-            T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
+            T[Isat] = Tb[Isat] - Tb[Isat]
+            # Grow the boundary by 5%
+            Ta[Isat] -= 0.05*T[Isat]
+            T[Isat] = Tb[Isat] - 0.5*T[Isat]
             
             # Now, get the saturated states
             Isat[Itest] = np.logical_and(
@@ -1187,9 +1197,14 @@ other conditions, x<0 and d1 == d2.
                 I[I] = Isat
                 # If there are any densities under the dome
                 if Isat.any():
+                    # Broadcasting can cause elements of d1 to refer to
+                    # common locations in memory.  If there are 
+                    # saturated points, we need to modify d1, so this 
+                    # will force d1 to be a fully populated array.
+                    d1 = d1.copy()
                     # Calculate the quality
                     x = -np.ones_like(T, dtype=float)
-                    x[I] = (d1[I] - dsL[Isat]) / (dsV[Isat] - dsL[Isat])
+                    x[I] = (dsL[Isat] / d1[I] - 1.) / (dsL[Isat] / dsV[Isat] - 1.)
                     # Update the densities
                     d2 = d1.copy()
                     d1[I] = dsL[Isat]
@@ -1242,9 +1257,14 @@ other conditions, x<0 and d1 == d2.
                 T,dsL,dsV,Isat = self._T(d1,p,sat=True)
                 # If there are any saturated points
                 if Isat.any():
+                    # Broadcasting can cause elements of d1 to refer to
+                    # common locations in memory.  If there are 
+                    # saturated points, we need to modify d1, so this 
+                    # will force d1 to be a fully populated array.
+                    d1 = d1.copy()
                     # Calculate the quality
                     x = -np.ones_like(p, dtype=float)
-                    x[Isat] = (d1[Isat] - dsL[Isat]) / (dsV[Isat] - dsL[Isat])
+                    x[Isat] = (dsL[Isat] / d1[Isat] - 1.) / (dsL[Isat] / dsV[Isat] - 1.)
                     # Update the densities
                     d2 = d1.copy()
                     d1[Isat] = dsL[Isat]
@@ -1567,14 +1587,7 @@ numerical inversion.
                 'available above the critical point Tc=%f K or below the '%self.data['Tc'] +
                 'triple point Tt=%f K.'%self.data['Tt'] )
 
-        # Initialize 
-        p = np.ndarray(T.shape, dtype=float)
-        # Set illegal values to -1
-        p[I] = -1.
-        # Get to work on the legal values
-        I = np.logical_not(I)
-        p[I] = self._ps(T[I])[0]
-        return pm.units.pressure(p, from_units='Pa')
+        return pm.units.pressure(self._ps(T)[0], from_units='Pa')
         
         
     def Ts(self,p=None):
@@ -1993,12 +2006,20 @@ along with temperature.
             Ta[Isat] = self.data['Tlim'][0]
             Tb[Isat] = Tsat[Isat]
             T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
+            # T[Isat] = Tb[Isat] - Ta[Isat]
+            # Grow the boundary by 2%
+            # Tb[Isat] += 0.05*T[Isat]
+            #T[Isat] = Ta[Isat] + 0.5*T[Isat]
             
             # Isolate points that are vapor
             Isat[I] = s[I] > ssV
             Ta[Isat] = Tsat[Isat]
             Tb[Isat] = self.data['Tlim'][1]
             T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
+            # T[Isat] = Tb[Isat] - Ta[Isat]
+            # Grow the boundary by 2%
+            # Ta[Isat] -= 0.05*T[Isat]
+            # T[Isat] = Tb[Isat] - 0.5*T[Isat]
 
             # Finally, isolate points that are saturated
             Isat[I] = np.logical_and( s[I]<=ssV, s[I]>=ssL )
@@ -2087,13 +2108,19 @@ along with temperature.
             Isat[I] = h[I] < hsL
             Ta[Isat] = self.data['Tlim'][0]
             Tb[Isat] = Tsat[Isat]
-            T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
+            T[Isat] = Tb[Isat] - Ta[Isat]
+            # Grow the boundary by 5%
+            Tb[Isat] += 0.05*T[Isat]
+            T[Isat] = Ta[Isat] + 0.5*T[Isat]
             
             # Isolate points that are vapor
             Isat[I] = h[I] > hsV
             Ta[Isat] = Tsat[Isat]
             Tb[Isat] = self.data['Tlim'][1]
-            T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
+            T[Isat] = Tb[Isat] - Ta[Isat]
+            # Grow the boundary by 5%
+            Ta[Isat] -= 0.05*T[Isat]
+            T[Isat] = Tb[Isat] - 0.5*T[Isat]
 
             # Finally, isolate points that are saturated
             Isat[I] = np.logical_and( h[I]<=hsV, h[I]>=hsL )
