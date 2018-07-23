@@ -1099,18 +1099,20 @@ dL and dV are the liquid and vapor densities in kg/m3
             if T is None:
                 T = pm.config['def_T']
             T = pm.units.temperature_scale(
-                    np.asarray(T), to_units='K')
+                    np.asarray(T, dtype=float), 
+                    to_units='K')
             if T.ndim==0:
-                T.resize((1,))
+                T = np.reshape(T, (1,))
             if (T<self.data['Tt']).any() or (T>self.data['Tc']).any():
                 raise pm.utility.PMParamError(
                         'Saturation properties are not available at ' +
                         'temperatures beyond the triple or critical points.')
         elif T is None:
             p = pm.units.pressure(
-                    pm.asarray(p), to_units='Pa')
+                    pm.asarray(p, dtype=float), 
+                    to_units='Pa')
             if p.ndim==0:
-                p.resize((1,))
+                p = np.reshape(p, (1,))
             if (p<self.data['pt']).any() or (p>self.data['pc']).any():
                 raise pm.utility.PMParamError(
                         'Saturation properties are not available at ' +
@@ -1145,14 +1147,37 @@ other conditions, x<0 and d1 == d2.
         # Case out the possible combinations
         # There are 11 possible pairs: Unspecified, T, p, d, x
         # 
-        # 1) Convert the inputs into the correct units
-        # 2) Broadcast the arrays appropriately
-        # 3) Calculate T,d1,d2,x, and I
+        # 1) Convert the inputs to an array of dimension 1 or greater
+        # 2) Convert the inputs into the correct units
+        # 3) Broadcast the arrays appropriately
+        # 4) Calculate T,d1,d2,x, and I
+        
+        # First, assign defaults if necessary
+        # count the assigned parameters
+        nparam = ((0 if T is None else 1) + 
+                (0 if p is None else 1) + 
+                (0 if d is None else 1) + 
+                (0 if x is None else 1))
+        if nparam == 1:
+            if T is None:
+                T = pm.config['def_T']
+            else:
+                p = pm.config['def_p']
+        elif nparam == 0:
+            T = pm.config['def_T']
+            p = pm.config['def_p']
+        elif nparam > 2:
+            raise utility.PMParameterError(
+                    'Specifying more than two simultaneous parameters is illegal.')
+        
         if T is not None:
-            T = pm.units.temperature_scale(np.asarray(T), to_units='K')
+            # Make a copy of the array only if necessary
+            T = pm.units.temperature_scale(
+                    np.asarray(T, dtype=float), 
+                    to_units='K')
             # Force T to have at least one dimension
             if T.ndim == 0:
-                T.resize((1,))
+                T = np.reshape(T, (1,))
             # Ensure that T is a legal value
             if ((T<self.data['Tlim'][0]).any() or 
                     (T>self.data['Tlim'][1]).any()):
@@ -1163,7 +1188,11 @@ other conditions, x<0 and d1 == d2.
             # dome.  Use _d() to invert into density units.
             if p is not None:
                 # Convert pressure
-                p = pm.units.pressure(np.asarray(p), to_units='Pa')
+                p = pm.units.pressure(
+                        np.asarray(p, dtype=float), 
+                        to_units='Pa')
+                if p.ndim==0:
+                    p = np.reshape(p,(1,))
                 if ((p<self.data['plim'][0]).any() or 
                         (p>self.data['plim'][1]).any()):
                     raise pm.utility.PMParamError('MP1: Pressure is out-of-bounds.')
@@ -1180,9 +1209,13 @@ other conditions, x<0 and d1 == d2.
             # If T,d then points CAN be under the dome
             elif d is not None:
                 # Convert density
-                d1 = pm.units.matter(d, self.data['mw'],
-                        to_units='kg')
-                pm.units.volume(d1, to_units='m3', exponent=-1, inplace=True)
+                d1 = pm.units.matter(
+                        np.asarray(d, dtype=float), 
+                        self.data['mw'], to_units='kg')
+                if d1.ndim == 0:
+                    d1 = np.reshape(d1,(1,))
+                pm.units.volume(d1, 
+                        to_units='m3', exponent=-1, inplace=True)
                 # broadcast the arrays
                 T,d1 = np.broadcast_arrays(T,d1)
                 # Isolate the sub-critical temperatures
@@ -1225,18 +1258,20 @@ other conditions, x<0 and d1 == d2.
                 d2 = self._dsv(T,0)[0]
                 return T,d1,d2,x,I
                 
-            # If only T is specified
+            # This should never happen
             else:
-                return self._argparse(T=T, p=pm.config['def_p'])
-                
+                raise pm.utility.PMAnalysisError(
+                        'Unhandled case in _argparse()')
         # p
         # If p is the primary parameter
         elif p is not None:
             # Convert p to the correct units
-            p = pm.units.pressure(p, to_units='Pa')
-            # Force p to have dimension 1 or greater
+            pm.units.pressure(
+                    np.asarray(p, dtype=float), 
+                    to_units='Pa')
             if p.ndim==0:
-                p.resize((1,))
+                p = np.reshape(p, (1,))
+            # Force p to have dimension 1 or greater
             # Ensure that p is a legal value
             if ((p<self.data['plim'][0]).any() or 
                     (p>self.data['plim'][1]).any()):
@@ -1247,8 +1282,11 @@ other conditions, x<0 and d1 == d2.
             # involves iteration to determine the saturation properties
             # AND to recover temperature.
             if d is not None:
-                # Convert to kg/m3
-                d1 = pm.units.matter(d, self.data['mw'], to_units='kg')
+                d1 = pm.units.matter(
+                        np.asarray(d, dtype=float), 
+                        self.data['mw'], to_units='kg')
+                if d1.ndim==0:
+                    d1 = np.reshape(d1, (1,))
                 pm.units.volume(d1, to_units='m3', exponent=-1, inplace=True)
                 # Broadcast the arrays
                 d1,p = np.broadcast_arrays(d1,p)
@@ -1287,10 +1325,11 @@ other conditions, x<0 and d1 == d2.
                 d1 = self._dsl(T,0)[0]
                 d2 = self._dsv(T,0)[0]
                 return T, d1, d2, x, I
-                
-            # If only p is specified
+                                
+            # This should never happen
             else:
-                return self._argparse(T=pm.config['def_T'], p=p)
+                raise pm.utility.PMAnalysisError(
+                        'Unhandled case in _argparse()')
                 
         # d
         elif d is not None:
@@ -1301,16 +1340,15 @@ other conditions, x<0 and d1 == d2.
             # to specify quality AND density.
             if x is not None:
                 raise pm.utility.PMParamError(
-                    'Specifying properties by density and quality is not currently supported.')
-                
-            # If only d is specified
+                    'Specifying properties by density and quality is not currently supported.')                        
+            # This should never happen
             else:
-                return self._argparse(T=pm.config['def_T'], d=d)
-                
-        # If only x is specified
-        elif x is not None:
-            return self._argparse(T=pm.config['def_T'], x=x)
-        return self._argparse(T=pm.config['def_T'], p=pm.config['def_p'])
+                raise pm.utility.PMAnalysisError(
+                        'Unhandled case in _argparse()')
+        
+        raise pm.utility.PMAnalysisError(
+                    'Unhandled case in _argparse()')
+
 
 
     def _e(self,T,d,diff=0):
@@ -1605,8 +1643,8 @@ Uses Newton iteration to calculate Ts from the _ps() inner method
                 to_units='Pa')
         # Force p to have at least 1 dimension
         if p.ndim==0:
-            p.resize((1,))
-                
+            p = np.reshape(p, (1,))
+        
         # Exclude points outside the triple-critical range
         if np.logical_or( p<self.data['pt'], p>self.data['pc'] ).any():
             raise pm.utility.PMParamError(
@@ -1615,7 +1653,7 @@ Uses Newton iteration to calculate Ts from the _ps() inner method
                 'triple point pt=%f bar.'%(self.data['pt']/1e5) )
         
         return pm.units.temperature_scale( \
-            self._Ts(p), from_units='Pa')
+            self._Ts(p), from_units='K')
         
         
     def ds(self, *varg, **kwarg):

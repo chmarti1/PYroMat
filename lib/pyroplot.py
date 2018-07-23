@@ -148,8 +148,10 @@ def ts(mpobj, fig=None, ax=None, Tlim=None, dlines=None, plines=None):
     else:
         PLINES = np.asarray(plines)
 
+    Tn = (Tc - Tt) / 1000.
+
     # Generate lines
-    T = np.linspace(Tlim[0], Tlim[1], 151)
+    T = np.linspace(Tlim[0]+Tn, Tlim[1]-Tn, 151)
     
     # Lines of constant pressure
     for p in PLINES:
@@ -168,7 +170,7 @@ def ts(mpobj, fig=None, ax=None, Tlim=None, dlines=None, plines=None):
                 lw=config['d_width'])
                 
     # Generate the dome
-    T = np.linspace(Tt,Tc,101)
+    T = np.linspace(Tt+Tn,Tc-Tn,101)
     ssL,ssV = mpobj.ss(T)
 
     ax.plot(ssL,T,

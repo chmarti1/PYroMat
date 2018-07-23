@@ -124,6 +124,9 @@ new system of units.
                 raise pyro.utility.PMParamError('Missing from_units, and no default specified')
             else:
                 to_units = pyro.config[self.config_default]
+        # Do not do the conversion if it is not necessary
+        if from_units == to_units:
+            return value
 
         conv = self.table[to_units] / self.table[from_units]
         if exponent:
@@ -131,10 +134,10 @@ new system of units.
 
         if inplace:
             # Point to the original array if possible
-            out = np.asarray(value,dtype=float)
-        else:
-            out = np.array(value,dtype=float)
-        return np.multiply(value,conv, out=out)
+            return np.multiply(value, conv,out=value)
+        
+        return np.multiply(value, conv)
+        
 
 
     def __getitem__(self,item):
@@ -418,7 +421,7 @@ original default scale.
 
     if inplace:
         # point to the original if possible
-        out = np.asarray(value, dtype=float)
+        out = value
     else:
         # copy the original
         out = np.array(value, dtype=float)
@@ -459,13 +462,13 @@ is already known in the same units as the gauge pressure, do not use
 gauge_to_absolute(); simply add it to the old value.
 """
     if inplace:
-        out = np.asarray(value, dtype=float)
-    else:
-        out = np.array(value, dtype=float)
+        return np.add(
+                value, 
+                pressure(patm,from_units='bar',to_units=units),
+                out=value)
     return np.add(
-            out, 
-            pressure(patm,from_units='bar',to_units=units),
-            out=out)
+            value, 
+            pressure(patm,from_units='bar',to_units=units))
 
 # Validated 11/18/2017
 # Modified 7/4/2018 without validation -- added inplace operation
@@ -482,13 +485,12 @@ is already known in the same units as the gauge pressure, do not use
 gauge_to_absolute(); simply add it to the old value.
 """
     if inplace:
-        out = np.asarray(value, dtype=float)
-    else:
-        out = np.array(value, dtype=float)
+        return np.subtract(value, 
+                pressure(patm,from_units='bar',to_units=units),
+                out=value)
     return np.subtract(
-            out, 
-            pressure(patm,from_units='bar',to_units=units),
-            out=out)
+            value, 
+            pressure(patm,from_units='bar',to_units=units))
 
 # Validated 11/18/2017
 def matter(value, mw, from_units=None, to_units=None, exponent=None, inplace=False):
@@ -529,10 +531,8 @@ If the from_units or the to_units values are not specified, the pyromat
         conv**=exponent
 
     if inplace:
-        out = np.asarray(value,dtype=float)
-    else:
-        out = np.array(value, dtype=float)
-    return np.multiply(out, conv, out=out)
+        return np.multiply(value, conv, out=value)
+    return np.multiply(value, conv)
 
 
 def show():
