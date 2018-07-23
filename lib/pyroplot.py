@@ -16,12 +16,12 @@ config = {
     'sat_color':'k',
     'sat_width':2,
     'sat_style':'-',
-    'p_color':[0.8,0.8,0.8],
+    'p_color':[1.0,0.5,0.5],
     'p_width':1,
     'p_style':'-',
-    'd_color':[0.8,0.8,0.8],
+    'd_color':[0.5,0.5,1.0],
     'd_width':1,
-    'd_style':'--',
+    'd_style':'-',
 }
 
 
@@ -107,16 +107,13 @@ up to the nearest integer multiple of the selected incrementer.
 
 
 
-def ts(mpobj, fig=None, ax=None, Tlim=None, slim=None):
+def ts(mpobj, fig=None, ax=None, Tlim=None, dlines=None, plines=None):
     """Temperature-enthalpy diagram
     ax = TS(mpobj)
     
 """
     if Tlim is None:
         Tlim = mpobj.Tlim()
-        
-    if slim is None:
-        slim = mpobj.ss(T=Tlim[0])
     
     # Select a figure
     if fig is None:
@@ -137,6 +134,39 @@ def ts(mpobj, fig=None, ax=None, Tlim=None, slim=None):
     Tc,pc,dc = mpobj.critical(density=True)
     Tt,pt = mpobj.triple()
     
+    if dlines is None:
+        dlim = [dc/1000., 2*dc]
+        DLINES = np.flip(_log_interval(dlim[0], dlim[1], 10), 0)
+    else:
+        DLINES = np.asarray(dlines)
+    
+    if plines is None:
+        plim = mpobj.plim()
+        # Force plim to be greater than pt
+        plim[0] = max(pt, plim[0])
+        PLINES = _log_interval(plim[0], plim[1], 10)
+    else:
+        PLINES = np.asarray(plines)
+
+    # Generate lines
+    T = np.linspace(Tlim[0], Tlim[1], 151)
+    
+    # Lines of constant pressure
+    for p in PLINES:
+        s = mpobj.s(T=T,p=p)
+        ax.plot(s,T,
+                config['p_style'],
+                color=config['p_color'], 
+                lw=config['p_width'])
+    
+    # Lines of constant density
+    for d in DLINES:
+        s = mpobj.s(T=T,d=d)
+        ax.plot(s,T,
+                config['d_style'],
+                color=config['d_color'],
+                lw=config['d_width'])
+                
     # Generate the dome
     T = np.linspace(Tt,Tc,101)
     ssL,ssV = mpobj.ss(T)
@@ -149,37 +179,49 @@ def ts(mpobj, fig=None, ax=None, Tlim=None, slim=None):
             ls=config['sat_style'],
             color=config['sat_color'],
             lw=config['sat_width'])
-    
-    PLINES = _log_interval(pt, pc, 10)
-    DLINES = _log_interval(dc/1000., dc, 10)
-    
-    # Lines of constant pressure
-    for p in PLINES:
-        s = mpobj.s(T=T,p=p)
-        ax.plot(s,T,
-                config['p_style'],
-                color=config['p_color'], 
-                lw=config['p_width'])
-                
-    for d in DLINES:
-        s = mpobj.s(T=T,d=d)
-        ax.plot(s,T,
-                config['d_style'],
-                color=config['d_color'],
-                lw=config['d_width'])
                 
     # LABELS of constant pressure
+    dT = 0.8*(Tc-Tt)/len(PLINES)
     for p in PLINES:
-        Ts = mpobj.Ts(p)
-        ss = mpobj.ss(Ts)
-        label = 'p=%s%s'%(str(p),pm.config['unit_pressure'])
-        ax.text(0.5*(ss[0]+ss[1]), Ts, label,
+        if p<pc:
+            T = mpobj.Ts(p)
+            ss = mpobj.ss(T)
+            s = 0.7*ss[0]+0.3*ss[1]
+        else:
+            T = Tc + (Tlim[1]-Tc) * (p-pc)/(plim[1]-pc)
+            s = mpobj.s(T=T,p=p)
+        label = '%s%s'%(str(p),pm.config['unit_pressure'])
+        ax.text(s, T, label,
                 color=config['p_color'],
                 ha='center',
                 va='center',
                 backgroundcolor='w')
         
-    ax.set_xlim(mpobj.ss(Tt))
+    # LABELS of constant density
+    T = Tlim[1] - 0.05*(Tlim[1] - Tlim[0])
+    dT = 0.8*(Tc - Tt)/len(DLINES)
+    for d in DLINES:
+        s = mpobj.s(T, d=d)
+        label = '%s%s/%s'%(str(d),pm.config['unit_matter'],pm.config['unit_volume'])
+        ax.text(s, T, label,
+                color=config['d_color'],
+                ha='center',
+                va='center',
+                backgroundcolor='w')
+        T-=dT
+        
+    # Label the s-axis
+    ax.set_xlabel('s [%s/(%s%s)]'%(
+            pm.config['unit_energy'],
+            pm.config['unit_matter'],
+            pm.config['unit_temperature']))
+            
+    # Label the T-axis
+    ax.set_ylabel('T [%s]'%(
+            pm.config['unit_temperature']))
+        
+    # Label the figure
+    ax.set_title('%s T-S Diagram'%(mpobj.data['id']))
         
     plt.show(block=False)
     return ax

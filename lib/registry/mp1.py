@@ -1730,8 +1730,9 @@ Calculates density in [unit_matter / unit_volume]
 """
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
         if I.any():
-            d1[I] *= 1.-x[I]
-            d1[I] += x[I] * d2[I]
+            d1[I] = (1.-x[I])/d[I]
+            d1[I] += x[I]/d2[I]
+            d1[I] = 1. / d1[I]
         return d1
         
         
@@ -1814,7 +1815,7 @@ x   Quality     [dimensionless]
         return s
 
 
-    def hsd(self, *varg, **kwarg):
+    def hsd(self, quality, *varg, **kwarg):
         """Enthalpy, Entropy, Density
     h,s,d = hsd(T=None, p=None, d=None, x=None)
     
@@ -1873,8 +1874,9 @@ methods independently.
             h[I] += (dd*ad + tt*at)*x[I]
             s[I] += (tt*at - a)*x[I]
             # Modify density
-            d1[I] *= temp
-            d1[I] += d2[I]*x[I]
+            d1[I] = temp/d[I] 
+            d1[I] += x[I]/d2[I]
+            d1[I] = 1./d1[I]
             
         s *= R
         h *= R*T
@@ -1887,10 +1889,12 @@ methods independently.
         pm.units.matter(d1, self.data['mw'],from_units='kg',inplace=True)
         pm.units.volume(d1, from_units='m3', exponent=-1, inplace=True)
         
+        if quality:
+            return h,s,d1,x
         return h,s,d1
         
 
-    def cp(self, *varg, **kwarg):
+    def cp(self, quality=False, *varg, **kwarg):
         """Isobaric Specific Heat  cp(T=None, p=None, d=None, x=None)
 From any two of the provided primary properties
     
@@ -1911,10 +1915,12 @@ x   Quality     [dimensionless]
                 from_units='kg', exponent=-1, inplace=True)
         pm.units.temperature(cp, from_units='K', 
                 exponent=-1, inplace=True)
+        if quality:
+            return cp, x
         return cp
 
 
-    def cv(self, *varg, **kwarg):
+    def cv(self, quality=False, *varg, **kwarg):
         """Isobaric Specific Heat  cp(T=None, p=None, d=None, x=None)
 From any two of the provided primary properties
     
@@ -1935,6 +1941,8 @@ x   Quality     [dimensionless]
                 from_units='kg', exponent=-1, inplace=True)
         pm.units.temperature(cv, from_units='K', 
                 exponent=-1, inplace=True)
+        if quality:
+            return cv, x
         return cv
 
 
