@@ -1754,7 +1754,14 @@ For points that are not "under the dome" quality will be computed to be
 -1.
 """
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
-        p = self._p(T,d1,0)[0]
+        # Use d2.  In theory, p(d1) = p(d2), but the liquid is so stiff
+        # that small numerical errors cause huge pressure errors
+        # The problem is solved when the vapor density is used instead.
+        # In all other conditions d1=d2
+        p = self._p(T,d2,0)[0]
+        
+        pm.units.pressure(p, from_units='Pa', inplace=True)
+        
         if quality:
             return p,x
         return p

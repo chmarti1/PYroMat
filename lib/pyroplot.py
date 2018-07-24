@@ -106,15 +106,10 @@ up to the nearest integer multiple of the selected incrementer.
     return out
 
 
-
-def ts(mpobj, fig=None, ax=None, Tlim=None, dlines=None, plines=None):
-    """Temperature-enthalpy diagram
-    ax = TS(mpobj)
-    
+def Tp(mpobj, fig=None, ax=None, Tlim=None, plim=None, dlines=None):
+    """Temperature-pressure diagram
 """
-    if Tlim is None:
-        Tlim = mpobj.Tlim()
-    
+
     # Select a figure
     if fig is None:
         if ax is not None:
@@ -130,6 +125,83 @@ def ts(mpobj, fig=None, ax=None, Tlim=None, dlines=None, plines=None):
     if ax is None:
         fig.clf()
         ax = fig.add_subplot(111)
+    
+    if Tlim is None:
+        Tlim = mpobj.Tlim()
+        
+    if plim is None:
+        plim = mpobj.plim()
+    
+    Tc,pc,dc = mpobj.critical(density=True)
+    Tt,pt = mpobj.triple()
+    
+    plim[0] = max(plim[0], pt)
+    
+    if dlines is None:
+        dlim = [dc/1000., dc]
+        DLINES = np.flip(_log_interval(dlim[0], dlim[1], 10), 0)
+    else:
+        DLINES = np.asarray(dlines)
+    
+    Tn = (Tc - Tt) / 1000.
+
+    # Generate lines
+    T = np.linspace(Tlim[0]+Tn, Tlim[1]-Tn, 151)
+    
+    # Lines of constant density
+    for d in DLINES:
+        p = mpobj.p(T=T,d=d)
+        ax.loglog(p,T,
+                config['d_style'],
+                color=config['d_color'],
+                lw=config['d_width'])
+                
+    # Generate the dome
+    T = np.linspace(Tt+Tn,Tc-Tn,101)
+    p = mpobj.ps(T)
+
+    ax.loglog(p,T,
+            ls=config['sat_style'],
+            color=config['sat_color'],
+            lw=config['sat_width'])
+        
+    # Label the s-axis
+    ax.set_xlabel('p [%s]'%(pm.config['unit_pressure']))
+            
+    # Label the T-axis
+    ax.set_ylabel('T [%s]'%(
+            pm.config['unit_temperature']))
+        
+    # Label the figure
+    ax.set_title('%s T-p Diagram'%(mpobj.data['id']))
+        
+    plt.show(block=False)
+    return ax
+
+
+def Ts(mpobj, fig=None, ax=None, Tlim=None, dlines=None, plines=None):
+    """Temperature-enthalpy diagram
+    ax = TS(mpobj)
+    
+"""
+    # Select a figure
+    if fig is None:
+        if ax is not None:
+            fig = ax.get_figure()
+        else:
+            fig = plt.figure()
+    elif isinstance(fig, matplotlib.figure.Figure):
+        pass
+    else:
+        fig = plt.figure(fig)
+    
+    # Select an axes
+    if ax is None:
+        fig.clf()
+        ax = fig.add_subplot(111)
+    
+    if Tlim is None:
+        Tlim = mpobj.Tlim()
     
     Tc,pc,dc = mpobj.critical(density=True)
     Tt,pt = mpobj.triple()
