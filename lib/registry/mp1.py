@@ -649,7 +649,7 @@ param       A dicitonary of keyword arguments are passed directly to the
             error[Ids] = y[Ids] - yy
             dx[Ids] = error[Ids] / yyx
             if verbose:
-                print x, yy, yyx, dx, Ids
+                print(x, yy, yyx, dx, Ids)
             x[Ids] += dx[Ids]
             # An out-of-bounds index
             IooB = np.logical_or( x < xmin, x > xmax)
