@@ -632,7 +632,7 @@ param       A dicitonary of keyword arguments are passed directly to the
         count = 0
         while Ids.any():
             # Build the new argument list
-            for k,v in param.iteritems():
+            for k,v in param.items():
                 # For any array arguments, shrink them along with Ids
                 if isinstance(v,np.ndarray):
                     arg[k] = v[Ids]
