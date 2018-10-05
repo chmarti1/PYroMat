@@ -632,7 +632,7 @@ param       A dicitonary of keyword arguments are passed directly to the
         count = 0
         while Ids.any():
             # Build the new argument list
-            for k,v in param.iteritems():
+            for k,v in param.items():
                 # For any array arguments, shrink them along with Ids
                 if isinstance(v,np.ndarray):
                     arg[k] = v[Ids]
@@ -649,7 +649,7 @@ param       A dicitonary of keyword arguments are passed directly to the
             error[Ids] = y[Ids] - yy
             dx[Ids] = error[Ids] / yyx
             if verbose:
-                print x, yy, yyx, dx, Ids
+                print(x, yy, yyx, dx, Ids)
             x[Ids] += dx[Ids]
             # An out-of-bounds index
             IooB = np.logical_or( x < xmin, x > xmax)
