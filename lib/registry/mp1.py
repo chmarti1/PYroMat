@@ -740,6 +740,12 @@ nondimensionalized, and the returned values are non-dimensionalzied.
         
         # Start with the logarithmic terms
         A = np.log(dd)
+        At = 0.
+        Ad = 0.
+        Att = 0.
+        Atd = 0.
+        Add = 0.
+        
         if diff>0:
             At = 0
             Ad = 1./dd
