@@ -13,6 +13,7 @@
   "DSVgroup": {
     "Tscale": 374.18, 
     "dscale": 516.86, 
+    "fn": 2,
     "coef": [
       [
         0.25, 
@@ -58,6 +59,7 @@
   "DSLgroup": {
     "Tscale": 374.18, 
     "dscale": 1.0, 
+    "fn": 1,
     "coef": [
       [
         0.3333333333333333, 
@@ -84,6 +86,7 @@
   "PSgroup": {
     "pscale": 4059280.0, 
     "Tscale": 374.18, 
+    "fn": 3,
     "coef": [
       [
         0.5, 
@@ -110,7 +113,7 @@
   "ARgroup": {
     "dscale": 508.0, 
     "Tscale": 374.18, 
-    "coef": [
+    "coef0": [
       [
         [
           [

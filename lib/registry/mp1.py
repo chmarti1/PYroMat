@@ -122,7 +122,7 @@ If tt = T/Tscale
     dsl / dscale = p(1-tt)
 where p() is the polynomial defined by the coef list.
 
-DSVgroup        Saturated vapor density data group
+DSVgroup        Saturated vapor density data group; a dict containing:
     Tscale      Temperature scale for normalizing T in the fit
     dscale      Density scale for re-scaling the result
     coef        a coefficient group to be passed to _poly1()
@@ -130,7 +130,7 @@ If tt = T/Tscale
     log(dsv/dscale) = p(1-tt)
 where p() is the polynomial defined by the coef list.
 
-AOgroup         Helmholtz free energy ideal gas group
+AOgroup        Helmholtz free energy ideal gas group; a dict containing:
     Tscale      Temperature scale for normalizing T
     dscale      density scale for normalizing d
     logt        a scalar coefficient of a log(tt) term
@@ -142,18 +142,40 @@ and dd = d/dscale
 where LOGT is the coefficient defined by the 'logt' parameter, and p is
 the polynomial defined by the coef list
 
-ARgroup         Helmholtz free energy residual group
+ARgroup         Helmholtz free energy residual group; a dict containing:
     Tscale      Temperature scale for normalizing T
     dscale      density scale for normalizing d
-    coef        a nested list of coefficient lists
-Each element of coef is, itself a coefficient list intended to be passed
-to _poly2().  After the first element, each individual polynomial is 
-multiplied by exp(-dd**k) where k is the index in the coef list.
+    coef0       a nested list of coefficient lists
+    coef1       an optional nested list of coefficients
+    coef2       an optional nested list of coefficients
 
-If tt = Tscale/T    <=== INVERSE!
-and dd = d/dscale
-    ar = p0(tt,dd) + exp(-dd)*p1(tt,dd) + exp(-dd**2)*p2(tt,dd) + ...
-    Ar = ar * R * T
+The Tscale and dscale are used to non-dimensionalize temperature and 
+density.
+tt = Tscale/T    <=== INVERSE!
+dd = d/dscale
+
+Each element of coef0 is, itself a coefficient list intended to be 
+passed to _poly2().  After the first element, each individual polynomial
+is multiplied by exp(-dd**k) where k is the index in the coef list.
+    ar0 = p0(tt,dd) + exp(-dd)*p1(tt,dd) + exp(-dd**2)*p2(tt,dd) + ...
+    Ar0 = ar0 * R * T
+    
+coef1 is an optional list of lists of coefficients forming a matrix
+[...
+    [ c, d, t, a, b, gam, ep ], ...
+]
+    ar1 = c * dd**d * tt**t * exp(-a*(dd-ep)**2 - b*(tt-gam)**2) + ...
+    Ar1 - ar1 * R * T
+If coef1 is defined it will be combined with the other coefficients
+to form the residual.  If coef1 is not defined, it will be ignored.
+
+coef2 is an optional list of lists of coefficients forming a matrix
+[...
+    [ c, a, b, m, A, B, C, D ], ...
+]
+    X = ((1-tt) + A*((dd-1)**2)**(0.5/m))**2 + B*((dd-1)**2)**a
+    ar2 = c * X**b * d * exp(-C*(dd-1)**2 - D*(tt-1)**2) + ...
+    Ar2 - ar2 * R * T
 
 Additionally, there are a number of parameters that define static 
 properties
@@ -178,6 +200,8 @@ id              What substance is this?
 doc             Where did it come from?
 class           What class should be used to evaluate the data?
 """
+        
+
 
     def _poly2(self,x,y,group,diff=2):    
         """Polynomial evaluation
@@ -714,28 +738,46 @@ This is a PRIMATIVE ROUTINE.  The arguments must already be
 nondimensionalized, and the returned values are non-dimensionalzied.
 """
         
-        
-        # Evaluate the temperature contributions
-        A,At,Att = self._poly1(tt,self.data['AOgroup']['coef'],diff)
-        Ad = 0.
-        Atd = 0.
-        Add = 0.
-        
-        # Add in the logarithmic term
-        A += self.data['AOgroup']['logt'] * np.log(tt)
-        # Add the logarithmic density term
-        A += np.log(dd)
+        # Start with the logarithmic terms
+        A = np.log(dd)
         if diff>0:
-            dlog = self.data['AOgroup']['logt']/tt
-            At += dlog
+            At = 0
+            Ad = 1./dd
             if diff>1:
-                Att += -dlog/tt
-                
-            dlog = 1./dd
-            Ad += dlog
-            if diff>1:
-                Add += -dlog/tt
-
+                Add = -Ad/dd
+                Att = 0.
+                Atd = 0.
+        
+        if 'logt' in self.data['AOgroup']:
+            A += self.data['AOgroup']['logt'] * np.log(tt)
+            if diff>0:
+                pt = self.data['AOgroup']['logt']/tt
+                At += pt
+                if diff>1:
+                    Att += -pt/tt
+                    
+        # Move on to the polynomial expansion
+        if 'coef0' in self.data['AOgroup']:
+            p,pt,ptt = self._poly1(tt,self.data['AOgroup']['coef0'],diff)
+            A+=p
+            if diff>0:
+                At += pt
+                if diff>1:
+                    Att += ptt
+        
+        # Now the nested log/exp expansion
+        if 'coef1' in self.data['AOgroup']:
+            for theta,c in self.data['AOgroup']['coef1']:
+                e = np.exp(-theta*tt)
+                p = np.log(1-e)
+                A += c*p
+                if diff>0:
+                    pt = theta*e/(1.-e)
+                    At += c*pt
+                    if diff>1:
+                        ptt = -pt*(theta + pt)
+                        Att += c*ptt
+                        
         return A, At, Ad, Att, Atd, Add
 
 
@@ -746,7 +788,7 @@ Each fit in the group is of the form
     
 when dd = d / dscale, tt = Tscale / T
     
-    A,Ad,At,Add,Adt,Att = _ar(dd, tt, order=2)
+    A,Ad,At,Add,Adt,Att = _ar(tt, dd, order=2)
 
 Returns the Helmholtz free energy and its derivatives up to diff.
 
@@ -759,12 +801,14 @@ nondimensionalized, and the returned values are non-dimensionalzied.
         # p_d() algorithm for R134a evaluated in about 80us on a 4 core
         # AMD A10-9700B R7
 
+        ARgroup = self.data['ARgroup']
+
         # First evaluate the polynomial without an exponential coefficient
-        A,At,Ad,Att,Atd,Add = self._poly2(tt,dd,self.data['ARgroup']['coef'][0],diff)
+        A,At,Ad,Att,Atd,Add = self._poly2(tt,dd,ARgroup['coef0'][0],diff)
         
         k=0
         ddk = 1.
-        for term in self.data['ARgroup']['coef'][1:]:
+        for term in ARgroup['coef0'][1:]:
             p,pt,pd,ptt,ptd,pdd = self._poly2(tt, dd, term, diff)
             
             k += 1
@@ -797,40 +841,215 @@ nondimensionalized, and the returned values are non-dimensionalzied.
             p *= e
             
             A += p
+    
+        # Evaluate AR1: c * dd**d * tt**t * exp(-a*(dd-gam)**2 - b*(tt-ep)**2)
+        if 'coef1' in ARgroup:
+            #This is the original table order
+            #for c,d,t,a,b,gam,ep in ARgroup['coef1']:
+            for t,d,b,a,gam,ep,c in ARgroup['coef1']:
+                ddm1 = dd-ep
+                ttm1 = tt-gam
+                e = np.exp(-a*ddm1**2 - b*ttm1**2)
+                p = c * dd**d * tt**t
+
+                if diff>0:
+                    pt = t*p/tt
+                    pd = d*p/dd
+                    et = -2*b*ttm1*e
+                    ed = -2*a*ddm1*e
+                    if diff>1:
+                        ptt = -(t-1)*pt/tt
+                        pdd = -(d-1)*pd/dd
+                        ptd = d*pt/dd
+                        ett = -2*b*(e + ttm1*et)
+                        edd = -2*a*(e + ddm1*ed)
+                        etd = -2*b*ttm1*ed
+                        
+                        Att += e*ptt + 2*et*pt + ett*p
+                        Atd += e*ptd + ed*pt + et*pd + etd*p
+                        Add += e*pdd + 2*ed*pd + edd*p
+                    At += e*pt + et*p
+                    Ad += e*pd + ed*p
+                A += e*p
+        
+        if 'coef2' in ARgroup:
+            for a,b,m,AA,BB,CC,DD,c in ARgroup['coef2']:
+                ddm1 = dd-1
+                ttm1 = tt-1
+                m = 1./m
+                
+                # Construct the distance function terms inside-out.
+                # This method allows the derivatives to be efficiently
+                # constructed along with the algebra; preventing 
+                # redundant power operations.
+                # Start with the inner-most term, and borrow p as the
+                # temporary variable for construction
+                
+                # p = A(dd-1)**m
+                p = AA*(ddm1*ddm1)**(m/2.)
+                if diff>0:
+                    pt = 0
+                    pd = p*m/ddm1
+                    if diff>1:
+                        ptt = 0
+                        ptd = 0
+                        pdd = pd*(m-1)/ddm1
+                        
+                # p = (1-tt) + A(dd-1)**m
+                p -= ttm1
+                if diff>0:
+                    pt -= 1
+                    
+                # p = [(1-tt) + A(dd-1)**m]**2
+                if diff>0:
+                    if diff>1:
+                        ptt = 2*pt*pt # + 2*p*ptt (but ptt=0)
+                        ptd = 2*pt*pd # + 2*p*ptd (but ptd=0)
+                        xdd = 2*pd*pd + 2*p*pdd
+                    pt = 2*p*pt
+                    pd = 2*p*pd
+                p = p*p
+                
+                # p = [(1-tt) + A(dd-1)**m]**2 + B(dd-1)**2a
+                # borrow e for the new term
+                e = BB*(ddm1*ddm1)**a
+                p += e
+                if diff>0:
+                    ed = 2*a*e/ddm1
+                    pd += ed
+                    if diff>1:
+                        pdd += (2*a-1)*ed/ddm1
+                        
+                # e = {[(1-tt) + A(dd-1)**m]**2 + B(dd-1)**2a}**b
+                # borrow e for the new term
+                e = p**b
+                if diff>0:
+                    et = b*e*pt/p
+                    ed = b*e*pd/p
+                    if diff>1:
+                        ett = (b-1)*et*pt/p + et*ptt/pt
+                        etd = (b-1)*et*pd/p + et*ptd/pt
+                        edd = (b-1)*ed*pd/p + ed*pdd/pd
+                
+                # p = c * dd * {[(1-tt) + A(dd-1)**m]**2 + B(dd-1)**2a}**b
+                # This moves the intermediate value in e back into p
+                p = c * dd * e
+                if diff>0:
+                    pt = c*dd*et
+                    pd = c*(e + dd*ed)
+                    if diff>1:
+                        ptt = c*dd*ett
+                        ptd = c*(et + dd*etd)
+                        pdd = c*(2*ed + dd*edd)
+                
+                # Finally, construct the exponential
+                # e = exp(-C*(dd-1)**2 - D*(tt-1)**2)
+                e = np.exp(-CC*ddm1**2 - DD*ttm1**2)
+                if diff>0:
+                    et = -2*DD*ttm1*e
+                    ed = -2*CC*ddm1*e
+                    if diff>1:
+                        ett = -2*DD*(ttm1*et + e)
+                        etd = (-2*CC*ddm1)*et
+                        edd = -2*CC*(ddm1*ed + e)
+                # Finally done; add the result to A
+                A += p*e
+                if diff>0:
+                    At += pt*e + p*et
+                    Ad += pd*e + p*ed
+                    if diff>1:
+                        Att += ptt*e + 2*pt*et + p*ett
+                        Atd += ptd*e + pt*ed + pd*et + p*etd
+                        Add += pdd*e + 2*pd*ed + p*edd
+                
         
         return A,At,Ad,Att,Atd,Add
+
+    def _satfit(self, tt, fn, coef, diff=0):
+        """Generic saturated property fit
+    s, st, stt = _satfit(tt, fn=0, diff=0)
+
+fn is an integer indicating which property fit form to use
+1   Basic polynomial on 1-tt
+    coef is interpreted by poly1
+2   exp(poly(1-tt))
+    coef is interpreted by poly1, and the result is passed to np.exp()
+3   exp(1/tt * poly(1-tt))
+    coef is interpreted by poly1, the result is multiplied by 1/tt, and
+    passed to np.exp()
+"""
+        
+        if fn == 1:
+            p,pt,ptt = self._poly1(1-tt, coef, diff=diff)
+            if diff>0:
+                pt = -pt
+        elif fn == 2:
+            p,pt,ptt = self._poly1(1-tt, coef, diff=diff)
+            p = np.exp(p)
+            if diff>0:
+                pt = -pt
+                if diff>1:
+                    ptt = p*(ptt + pt*pt)
+                pt *= p
+        elif fn == 3:
+            p,pt,ptt = self._poly1(1-tt, coef, diff=diff)
+            invt = 1./tt
+            p*=invt
+            if diff>0:
+                pt = invt*(-pt-p)
+                if diff>1:
+                    ptt = invt*(ptt-2*pt)
+            p=np.exp(p)
+            if diff>0:
+                if diff>1:
+                    ptt = p*(ptt + pt*pt)
+                pt = p * pt
+        return p,pt,ptt
         
         
     def _dsv(self,T,diff=0):
         """Saturated vapor density
 """
-        DSVt = self.data['DSVgroup']['Tscale']
-        DSVd = self.data['DSVgroup']['dscale']
-        tt = 1. - (T/DSVt)
+        Tscale = self.data['DSVgroup']['Tscale']
+        dscale = self.data['DSVgroup']['dscale']
         
-        d,dt,dtt = self._poly1(tt, self.data['DSVgroup']['coef'], diff)
-        d = DSVd * np.exp(d)
+        d,dt,dtt = self._satfit( 
+                T/Tscale,
+                self.data['DSVgroup']['fn'],
+                self.data['DSVgroup']['coef'],
+                diff)
+        # Rescale 
+        d *= dscale
         if diff>0:
-            dt *= -d / DSVt
+            dscale /= Tscale
+            dt *= dscale
             if diff>1:
-                dtt *= d / (DSVt * DSVt)
-        return d, dt, dtt
+                dtt *= dscale/Tscale
+        
+        return d,dt,dtt
         
         
     def _dsl(self,T,diff=0):
         """Saturated liquid density
 """
-        DSLt = self.data['DSLgroup']['Tscale']
-        DSLd = self.data['DSLgroup']['dscale']
-        tt = 1. - T/DSLt
         
-        d,dt,dtt = self._poly1(tt, self.data['DSLgroup']['coef'], diff)
-        d *= DSLd
+        Tscale = self.data['DSLgroup']['Tscale']
+        dscale = self.data['DSLgroup']['dscale']
+        
+        d,dt,dtt = self._satfit( 
+                T/Tscale,
+                self.data['DSLgroup']['fn'],
+                self.data['DSLgroup']['coef'],
+                diff)
+        # Rescale 
+        d *= dscale
         if diff>0:
-            dt *= -DSLd / DSLt
+            dscale /= Tscale
+            dt *= dscale
             if diff>1:
-                dtt  *= DSLd / (DSLt * DSLt)
-        return d, dt, dtt
+                dtt *= dscale/Tscale
+        
+        return d,dt,dtt
         
         
     def _ps(self,T,diff=0):
@@ -839,25 +1058,24 @@ nondimensionalized, and the returned values are non-dimensionalzied.
     
 Presumes temperature is in Kelvin, reports pressure in Pa
 """
-        ps = 0.
-        pst = 0.
-        pstt = 0.
+        Tscale = self.data['PSgroup']['Tscale']
+        pscale = self.data['PSgroup']['pscale']
         
-        PSt = self.data['PSgroup']['Tscale']
-        PSp = self.data['PSgroup']['pscale']
-        tt = T/PSt
-        p,pt,ptt = self._poly1(1. - tt, self.data['PSgroup']['coef'], diff)
-        
-        invt = 1. / tt
-        ps = np.exp(p*invt) * PSp
+        p,pt,ptt = self._satfit( 
+                T/Tscale,
+                self.data['PSgroup']['fn'],
+                self.data['PSgroup']['coef'],
+                diff)
+        # Rescale 
+        p *= pscale
         if diff>0:
-            pst = -invt*(pt + invt*p)
+            pscale /= Tscale
+            pt *= pscale
             if diff>1:
-                pstt = pst*pst
-                pstt += invt*(ptt + invt*(2.*pt + invt*(2.*p))) 
-                pstt *= ps / (PSt * PSt)
-            pst *= ps / PSt
-        return ps, pst, pstt
+                ptt *= pscale/Tscale
+        
+        return p,pt,ptt
+        
         
 
     def _Ts(self,p):
@@ -892,19 +1110,18 @@ sub-critical densities to be either purely liquid or vapor.
         pt = 0.
         pd = 0.
 
-        At = self.data['ARgroup']['Tscale']
-        Ad = self.data['ARgroup']['dscale']
+        Tscale = self.data['ARgroup']['Tscale']
+        dscale = self.data['ARgroup']['dscale']
         R = self.data['R']
         # Calculate dimensionless arrays
-        tt = At/T
-        dd = d/Ad
+        tt = Tscale/T
+        dd = d/dscale
         # Calculate the Helmholtz free energy
         _,_,ard,_,artd,ardd = self._ar(tt,dd,diff+1)
-        temp = R*(1. + dd*ard)
-        p = temp*T*d
+        p = T*d*R*(1. + dd*ard)
         if diff>0:
-            pt = d*(temp - R*dd*artd*tt)
-            pd = T*(temp + dd*R*(ard + dd*ardd))
+            pt = R*d*(1 + dd*ard - tt*dd*artd)
+            pd = R*T*(1 + 2*dd*ard + dd*dd*ardd)
 
         return p,pt,pd
         
