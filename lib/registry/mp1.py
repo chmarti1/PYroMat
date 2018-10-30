@@ -2083,7 +2083,7 @@ x   Quality     [dimensionless]
         return s
 
 
-    def hsd(self, quality, *varg, **kwarg):
+    def hsd(self, quality=False, *varg, **kwarg):
         """Enthalpy, Entropy, Density
     h,s,d = hsd(T=None, p=None, d=None, x=None)
     
