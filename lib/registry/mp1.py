@@ -1998,7 +1998,7 @@ Calculates density in [unit_matter / unit_volume]
 """
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
         if I.any():
-            d1[I] = (1.-x[I])/d[I]
+            d1[I] = (1.-x[I])/d1[I]
             d1[I] += x[I]/d2[I]
             d1[I] = 1. / d1[I]
         return d1
