@@ -86,10 +86,23 @@ mp1obj.p(T=300,d=996.74)
 mp1obj.p(T=[373,373],d=996.74)
 mp1obj.p(T=np.asarray(373),d=996.74)
 mp1obj.p(T=np.asarray([373,373]),d=996.74)
+mp1obj.p(T=np.asarray([373,373]),d=996.74,quality=True)
+print('Pressure')
 print(mp1obj.p(T=300,d=996.74))
 print(mp1obj.p(T=600,d=1.8242))
-print(mp1obj.p(T=424.98,x=0.5))
+print(mp1obj.p(T=424.98,x=0.5,quality=True))
 print(mp1obj.p(T=800,d=83.132))
+
+#d
+mp1obj.d(T=300,p=5) 
+mp1obj.d(T=[373,373],p=5)
+mp1obj.d(T=np.asarray(373),p=5)
+mp1obj.d(T=np.asarray([373,373]),p=5)
+print('Density')
+print(mp1obj.d(T=300,p=5))
+print(mp1obj.d(T=600,p=5))
+print(mp1obj.d(T=424.98,x=0.5))
+print(mp1obj.d(T=800,p=250))
 
 # Performing computations at ref A
 #print(mp1obj.T(p=5,d=996.74)) #error
