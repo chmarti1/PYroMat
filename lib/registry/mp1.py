@@ -1332,7 +1332,7 @@ dL and dV are the liquid and vapor densities in kg/m3
                         'temperatures beyond the triple or critical points.')
         elif T is None:
             p = pm.units.pressure(
-                    pm.asarray(p, dtype=float), 
+                    np.asarray(p, dtype=float), 
                     to_units='Pa')
             if p.ndim==0:
                 p = np.reshape(p, (1,))
