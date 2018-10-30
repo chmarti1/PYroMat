@@ -2142,7 +2142,7 @@ methods independently.
             h[I] += (dd*ad + tt*at)*x[I]
             s[I] += (tt*at - a)*x[I]
             # Modify density
-            d1[I] = temp/d[I] 
+            d1[I] = temp/d1[I] 
             d1[I] += x[I]/d2[I]
             d1[I] = 1./d1[I]
             
