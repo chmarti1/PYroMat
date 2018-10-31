@@ -1332,7 +1332,7 @@ dL and dV are the liquid and vapor densities in kg/m3
                         'temperatures beyond the triple or critical points.')
         elif T is None:
             p = pm.units.pressure(
-                    pm.asarray(p, dtype=float), 
+                    np.asarray(p, dtype=float), 
                     to_units='Pa')
             if p.ndim==0:
                 p = np.reshape(p, (1,))
@@ -1998,7 +1998,7 @@ Calculates density in [unit_matter / unit_volume]
 """
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
         if I.any():
-            d1[I] = (1.-x[I])/d[I]
+            d1[I] = (1.-x[I])/d1[I]
             d1[I] += x[I]/d2[I]
             d1[I] = 1. / d1[I]
         return d1
@@ -2083,7 +2083,7 @@ x   Quality     [dimensionless]
         return s
 
 
-    def hsd(self, quality, *varg, **kwarg):
+    def hsd(self, quality=False, *varg, **kwarg):
         """Enthalpy, Entropy, Density
     h,s,d = hsd(T=None, p=None, d=None, x=None)
     
@@ -2142,7 +2142,7 @@ methods independently.
             h[I] += (dd*ad + tt*at)*x[I]
             s[I] += (tt*at - a)*x[I]
             # Modify density
-            d1[I] = temp/d[I] 
+            d1[I] = temp/d1[I] 
             d1[I] += x[I]/d2[I]
             d1[I] = 1./d1[I]
             
@@ -2248,7 +2248,10 @@ along with temperature.
                 (p>self.data['plim'][1]).any()):
             raise pm.utility.PMParamError(
                 'MP1: Pressure is out-of-bounds.')
-                
+        
+        if p.ndim == 0:
+            p = np.asarray([p])
+			
         # broadcast
         s,p = np.broadcast_arrays(s,p)
         # Initialize results
@@ -2299,7 +2302,7 @@ along with temperature.
 
             # Finally, isolate points that are saturated
             Isat[I] = np.logical_and( s[I]<=ssV, s[I]>=ssL )
-            T[Isat] = Tsat
+            T[Isat] = Tsat[Isat]
             if quality:
                 x[Isat] = (s[Isat] - ssL)/(ssV-ssL)
 
@@ -2351,7 +2354,10 @@ along with temperature.
                 (p>self.data['plim'][1]).any()):
             raise pm.utility.PMParamError(
                 'MP1: Pressure is out-of-bounds.')
-                
+        
+        if p.ndim == 0:
+            p = np.asarray([p])
+			
         # broadcast
         h,p = np.broadcast_arrays(h,p)
         # Initialize results
@@ -2400,7 +2406,7 @@ along with temperature.
 
             # Finally, isolate points that are saturated
             Isat[I] = np.logical_and( h[I]<=hsV, h[I]>=hsL )
-            T[Isat] = Tsat
+            T[Isat] = Tsat[Isat]
             if quality:
                 x[Isat] = (h[Isat] - hsL)/(hsV-hsL)
                 
