@@ -2299,7 +2299,7 @@ along with temperature.
 
             # Finally, isolate points that are saturated
             Isat[I] = np.logical_and( s[I]<=ssV, s[I]>=ssL )
-            T[Isat] = Tsat
+            T[Isat] = Tsat[Isat]
             if quality:
                 x[Isat] = (s[Isat] - ssL)/(ssV-ssL)
 
@@ -2400,7 +2400,7 @@ along with temperature.
 
             # Finally, isolate points that are saturated
             Isat[I] = np.logical_and( h[I]<=hsV, h[I]>=hsL )
-            T[Isat] = Tsat
+            T[Isat] = Tsat[Isat]
             if quality:
                 x[Isat] = (h[Isat] - hsL)/(hsV-hsL)
                 
