@@ -2248,7 +2248,10 @@ along with temperature.
                 (p>self.data['plim'][1]).any()):
             raise pm.utility.PMParamError(
                 'MP1: Pressure is out-of-bounds.')
-                
+        
+        if p.ndim == 0:
+            p = np.asarray([p])
+			
         # broadcast
         s,p = np.broadcast_arrays(s,p)
         # Initialize results
@@ -2351,7 +2354,10 @@ along with temperature.
                 (p>self.data['plim'][1]).any()):
             raise pm.utility.PMParamError(
                 'MP1: Pressure is out-of-bounds.')
-                
+        
+        if p.ndim == 0:
+            p = np.asarray([p])
+			
         # broadcast
         h,p = np.broadcast_arrays(h,p)
         # Initialize results
