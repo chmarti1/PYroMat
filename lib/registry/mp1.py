@@ -2304,7 +2304,7 @@ along with temperature.
             Isat[I] = np.logical_and( s[I]<=ssV, s[I]>=ssL )
             T[Isat] = Tsat[Isat]
             if quality:
-                x[Isat] = (s[Isat] - ssL)/(ssV-ssL)
+                x[Isat] = (s[Isat] - ssL[Isat])/(ssV[Isat]-ssL[Isat])
 
         # Isat is now a down-select array
         Isat = np.logical_not(Isat)
@@ -2408,7 +2408,7 @@ along with temperature.
             Isat[I] = np.logical_and( h[I]<=hsV, h[I]>=hsL )
             T[Isat] = Tsat[Isat]
             if quality:
-                x[Isat] = (h[Isat] - hsL)/(hsV-hsL)
+                x[Isat] = (h[Isat] - hsL[Isat])/(hsV[Isat]-hsL[Isat])
                 
         # Isat is now a down-select array
         Isat = np.logical_not(Isat)
