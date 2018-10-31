@@ -170,7 +170,7 @@ print(mp1obj.cv(T=600,d=1.8242))
 print(mp1obj.cv(T=424.98,x=0.5))
 print(mp1obj.cv(T=800,p=250))
 
-#T_s (has bugs)
+#T_s
 mp1obj.T_s(p=5,s=0.39295) 
 mp1obj.T_s(p=[5,5],s=0.39295)
 mp1obj.T_s(p=np.asarray(5),s=0.39295)
@@ -186,7 +186,7 @@ print(mp1obj.T_s(p=[5],s=7.5561))
 print(mp1obj.T_s(p=[5],s=4.3406,quality=True))
 print(mp1obj.T_s(p=[250],s=6.0867))
 
-#T_h (has bugs)
+#T_h
 mp1obj.T_h(p=5,h=113.02) 
 mp1obj.T_h(p=[5,5],h=113.02)
 mp1obj.T_h(p=np.asarray(5),h=113.02)
@@ -202,5 +202,18 @@ print(mp1obj.T_h(p=[5],h=3120.1))
 print(mp1obj.T_h(p=[5],h=1694.095,quality=True))
 print(mp1obj.T_h(p=[250],h=3262.2))
 
-# Performing computations at ref A
-#print(mp1obj.T(p=5,d=996.74)) #error
+#Error in T_s
+print('This Errors Out')
+print(mp1obj.T_s(p=5, s=5, quality=True)) #works, just mixture
+print(mp1obj.T_s(p=5, s=8, quality=True)) #works, just vapor
+print(mp1obj.T_s(p=5, s=[5,6], quality=True)) #works, array of s, just mixture
+#print(mp1obj.T_s(p=5, s=[5,8])) #error, array of s, both liq and vapor. #'iter1_() failed to produce a guess that was in-bounds'
+#print(mp1obj.T_s(p=5, s=[5,8],quality=True)) #Line 2307: ValueError: NumPy boolean array indexing assignment cannot assign 2 input values to the 1 output values where the mask is true
+
+#Same Error in T_h
+print('This Errors Out Too')
+print(mp1obj.T_h(p=5, h=1700, quality=True)) #works, just mixture
+print(mp1obj.T_h(p=5, h=4000, quality=True)) #works, just vapor
+print(mp1obj.T_h(p=5, h=[1700,1800], quality=True)) #works, array of h, just mixture
+#print(mp1obj.T_h(p=5, h=[1700,4000])) #error, array of s, both liq and vapor. #'iter1_() failed to produce a guess that was in-bounds'
+print(mp1obj.T_h(p=5, h=[1700,4000],quality=True)) #Line 2411: ValueError: NumPy boolean array indexing assignment cannot assign 2 input values to the 1 output values where the mask is true
