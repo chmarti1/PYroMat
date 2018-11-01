@@ -678,7 +678,7 @@ param       A dicitonary of keyword arguments are passed directly to the
             # An out-of-bounds index
             IooB = np.logical_or( x < xmin, x > xmax)
             count_oob = 0
-            while IooB.any():
+            while IooB[Ids].any():
                 dx[IooB] /= 2.
                 x[IooB] -= dx[IooB]
                 IooB = np.logical_or( x < xmin, x > xmax)
