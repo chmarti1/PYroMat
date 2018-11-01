@@ -2234,7 +2234,7 @@ along with temperature.
         pm.units.temperature(s,
                 to_units='K', exponent=-1, inplace=True)
         if s.ndim == 0:
-            s.resize((1,))
+            s = np.reshape(s, (1,))
 
         # Set a default pressure?
         if p is None:
@@ -2248,10 +2248,9 @@ along with temperature.
                 (p>self.data['plim'][1]).any()):
             raise pm.utility.PMParamError(
                 'MP1: Pressure is out-of-bounds.')
-        
         if p.ndim == 0:
-            p = np.asarray([p])
-			
+            p = np.reshape(p, (1,))
+            
         # broadcast
         s,p = np.broadcast_arrays(s,p)
         # Initialize results
@@ -2289,7 +2288,7 @@ along with temperature.
             # Grow the boundary by 2%
             # Tb[Isat] += 0.05*T[Isat]
             #T[Isat] = Ta[Isat] + 0.5*T[Isat]
-            
+
             # Isolate points that are vapor
             Isat[I] = s[I] > ssV
             Ta[Isat] = Tsat[Isat]
@@ -2340,7 +2339,7 @@ along with temperature.
         pm.units.matter(h, self.data['mw'],
                 to_units='kg', exponent=-1, inplace=True)
         if h.ndim == 0:
-            h.resize((1,))
+            h = np.reshape(h, (1,))
 
         # Set a default pressure?
         if p is None:
@@ -2356,7 +2355,7 @@ along with temperature.
                 'MP1: Pressure is out-of-bounds.')
         
         if p.ndim == 0:
-            p = np.asarray([p])
+            p = np.reshape(p, (1,))
 			
         # broadcast
         h,p = np.broadcast_arrays(h,p)
