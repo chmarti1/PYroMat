@@ -2130,14 +2130,14 @@ methods independently.
             dd = d2[I] / dscale
             a,at,_,_,_,_ = self._ao(tt,dd,1)
             
-            h[I] = (1. + tt*at)*x[I]
-            s[I] = (tt*at - a)*x[I]
+            h[I] += (1. + tt*at)*x[I]
+            s[I] += (tt*at - a)*x[I]
             
             # The residual part
             Tscale = self.data['ARgroup']['Tscale']
             dscale = self.data['ARgroup']['dscale']
             tt = Tscale / T
-            dd = d1 / dscale
+            dd = d2 / dscale
             a,at,ad,_,_,_ = self._ar(tt,dd,1)
             h[I] += (dd*ad + tt*at)*x[I]
             s[I] += (tt*at - a)*x[I]
