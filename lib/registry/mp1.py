@@ -610,7 +610,7 @@ might be specified
                 param={}):
         """Invert an inner routine.
         
-    _iter1(fn, y, x, xmin, xmax, Ids)
+    _iter1(fn, prop, y, x, Ids, xmin, xmax,)
     
 Iteration is performed in-place on the x array.
 
@@ -1437,8 +1437,8 @@ other conditions, x<0 and d1 == d2.
                         self.data['mw'], to_units='kg')
                 if d1.ndim == 0:
                     d1 = np.reshape(d1,(1,))
-                pm.units.volume(d1, 
-                        to_units='m3', exponent=-1, inplace=True)
+                d1 = pm.units.volume(d1, 
+                        to_units='m3', exponent=-1)
                 # broadcast the arrays
                 T,d1 = np.broadcast_arrays(T,d1)
                 # Isolate the sub-critical temperatures
@@ -1510,7 +1510,7 @@ other conditions, x<0 and d1 == d2.
                         self.data['mw'], to_units='kg')
                 if d1.ndim==0:
                     d1 = np.reshape(d1, (1,))
-                pm.units.volume(d1, to_units='m3', exponent=-1, inplace=True)
+                d1 = pm.units.volume(d1, to_units='m3', exponent=-1)
                 # Broadcast the arrays
                 d1,p = np.broadcast_arrays(d1,p)
                 # This one's an expensive funciton call
