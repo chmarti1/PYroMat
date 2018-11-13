@@ -29,10 +29,10 @@ def _interval(start, stop, count, inc=[1,2,5]):
     """Auto-generate conveniently spaced values in a range
     array = _interval(start, stop, count)
     
-Generates an array of approximately count values beginning after start, 
-and stopping before stop.  Unlike arange() or linspace(), this function
-chooses values that are rounded to a nearest convenient interval.  This
-is commonly done for plotting.
+Generates an array of approximately uniformly spaced values beginning 
+after start, and stopping before stop.  Unlike arange() or linspace(),
+this function chooses values that are rounded to a nearest convenient 
+interval.  This is commonly done for plotting.
 
 The optional 'inc' parameter indicates the intervals that may be used
 in any given decade.  They should be values larger than or equal to 1
@@ -179,7 +179,7 @@ def Tp(mpobj, fig=None, ax=None, Tlim=None, plim=None, dlines=None):
     return ax
 
 
-def Ts(mpobj, fig=None, ax=None, Tlim=None, dlines=None, plines=None):
+def Ts(mpobj, fig=None, ax=None, satlines=True, Tlim=None, dlines=None, plines=None):
     """Temperature-enthalpy diagram
     ax = TS(mpobj)
     

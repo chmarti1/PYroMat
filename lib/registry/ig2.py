@@ -377,7 +377,7 @@ Temperature in      [unit_temperature]
 Density in          [unit_matter / unit_volume]
 Returns pressure in [unit_pressure]
 """
-        p = self._argparse(pressure=True, *varg, **kwarg)
+        p = self._argparse(*varg, pressure=True, **kwarg)
         pm.units.pressure(p, from_units='Pa', inplace=True)
         return p
 
@@ -394,7 +394,7 @@ Temperature in      [unit_temperature]
 Pressure in         [unit_pressure]
 Returns density in  [unit_matter / unit_volume]
 """
-        d = self._argparse(density=True, *varg, **kwarg)
+        d = self._argparse(*varg, density=True, **kwarg)
         pm.units.volume(d, from_units='m3', exponent=-1, inplace=True)
         pm.units.matter(d, self.data['mw'], from_units='kmol', inplace=True)
         return d
@@ -412,7 +412,7 @@ Pressure in            [unit_pressure]
 Density in             [unit_matter / unit_volume]
 Returns temperature in [unit_temperature]
 """
-        T = self._argparse(temperature=True, *varg, **kwarg)
+        T = self._argparse(*varg, temperature=True, **kwarg)
         pm.units.temperature_scale(T, from_units='K', inplace=True)
         return T
 
@@ -432,7 +432,7 @@ density in          [unit_matter / unit_volume]
 Specific heat in    [unit_energy / unit_matter / unit_temperature]
 """
         # Prep temperature and the result arrays
-        T = self._argparse(temperature=True, *varg, **kwarg)
+        T = self._argparse(*varg, temperature=True, **kwarg)
         out = self._cp(T)
         pm.units.energy(out, from_units='kJ', inplace=True)
         pm.units.matter(out, self.data['mw'], exponent=-1, from_units='kmol', inplace=True)
@@ -458,7 +458,7 @@ Returns enthalpy in [unit_energy / unit_matter]
 """
 
         # Prep temperature and the result arrays
-        T = self._argparse(temperature=True, *varg, **kwarg)
+        T = self._argparse(*varg, temperature=True, **kwarg)
         out = self._h(T)[0]
         pm.units.energy(out, from_units='kJ', inplace=True)
         pm.units.matter(out, self.data['mw'], exponent=-1, from_units='kmol', inplace=True)
@@ -480,7 +480,7 @@ Returns in      [unit_energy / unit_matter / unit_temperature]
 """
 
         # Prep temperature and the result arrays
-        T,p = self._argparse(temperature=True, pressure=True, *varg, **kwarg)
+        T,p = self._argparse(*varg, temperature=True, pressure=True, **kwarg)
         out = self._s(T)[0] - pm.units.const_Ru * np.log(p/self.data['pref'])
         pm.units.energy(out, from_units='kJ', inplace=True)
         pm.units.matter(out, self.data['mw'], exponent=-1, from_units='kmol', inplace=True)
@@ -488,7 +488,7 @@ Returns in      [unit_energy / unit_matter / unit_temperature]
         return out
         
 
-    def e(self,T=None,p=None,hf=True):
+    def e(self, *varg, **kwarg):
         """Internal energy
     e(T)   OR  e(p=p, d=d)
 
@@ -505,7 +505,7 @@ Returns energy in   [unit_energy / unit_matter]
 """
 
         # Prep temperature and the result arrays
-        T = self._argparse(temperature=True, *varg, **kwarg)
+        T = self._argparse(*varg, temperature=True, **kwarg)
         out = self._h(T)[0] - pm.units.const_Ru*T
         pm.units.energy(out, from_units='kJ', inplace=True)
         pm.units.matter(out, self.data['mw'], exponent=-1, from_units='kmol', inplace=True)
@@ -527,7 +527,7 @@ density should be in      [unit_matter / unit_volume]
 Returns specific heat in  [unit_energy / unit_matter / unit_temperature]
 """
         # Prep temperature and the result arrays
-        T = self._argparse(temperature=True, *varg, **kwarg)
+        T = self._argparse(*varg, temperature=True, **kwarg)
         out = self._cp(T) - pm.units.const_Ru
         pm.units.energy(out, from_units='kJ', inplace=True)
         pm.units.matter(out, self.data['mw'], exponent=-1, from_units='kmol', inplace=True)
@@ -574,7 +574,7 @@ Accepts unit_temperature
 Returns dimensionless
 """
         # Prep temperature and the result arrays
-        T = self._argparse(temperature=True, *varg, **kwarg)
+        T = self._argparse(*varg, temperature=True, **kwarg)
         out = self._cp(T)[0]
         out = out / (out - pm.units.const_Ru)
         return out

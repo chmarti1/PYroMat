@@ -727,12 +727,19 @@ entropy and pressure might appear
     def _ao(self, tt, dd, diff=2):
         """Dimensionless ideal gas helmholtz free energy (primative routine)
 Evaluates an ideal gas equation of the form
-    a = log(dd) + AOlogt*log(tt) + p(t)
+    a = log(dd) + logt*log(tt) + p(t) + ... c log(1-exp(-theta*tt)) + ...
     
 where
     dd = d / dscale
     tt = Tscale / T
-    AOlt = logt
+
+In the AOgroup dictionary defined by the mp1 data, the polynomial, p,
+is defined by the 'coef0' list.  This list should should be readable
+by the _poly1() method.  The 'logt' constant defines the coefficient
+of the log(tt) term.  
+
+The log/exp expansion is defined by the 'coef1' list.  Each element of
+'coef1' should be a two-element list or tuple containing [theta, c]. 
     
 This is a PRIMATIVE ROUTINE.  The arguments must already be 
 nondimensionalized, and the returned values are non-dimensionalzied.
