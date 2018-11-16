@@ -1888,7 +1888,12 @@ Uses Newton iteration to calculate Ts from the _ps() inner method
         
     def ds(self, *varg, **kwarg):
         """Saturation density
-    dsL, dsV = ds(T=None, p=None)
+    dsL, dsV = ds(T)
+    
+If no keyword is specified, saturation properties interpret the argument
+as temperature.  However, pressure can be specified as well
+
+    dsL, dsV = ds(p=pvalue)
     
 Returns the liquid (dsL) and vapor (dsV) saturation density in units
 [unit_matter / unit_volume]
@@ -1905,7 +1910,12 @@ Returns the liquid (dsL) and vapor (dsV) saturation density in units
 
     def es(self, *varg, **kwarg):
         """Saturation internal energy
-    esL, esV = es(T,p)
+    esL, esV = es(T)
+
+If no keyword is specified, saturation properties interpret the argument
+as temperature.  However, pressure can be specified as well
+
+    esL, esV = es(p=pvalue)
     
 Returns the liquid (esL) and vapor (esV) saturation internal energy in
 units [unit_energy / unit_matter]
@@ -1925,7 +1935,12 @@ units [unit_energy / unit_matter]
 
     def hs(self, *varg, **kwarg):
         """Saturation enthalpy
-    hsL, hsV = hs(T,p)
+    hsL, hsV = hs(T)
+    
+If no keyword is specified, saturation properties interpret the argument
+as temperature.  However, pressure can be specified as well
+
+    hsL, hsV = hs(p=pvalue)
     
 Returns the liquid (hsL) and vapor (hsV) saturation enthalpy in
 units [unit_energy / unit_matter]
@@ -1946,6 +1961,11 @@ units [unit_energy / unit_matter]
     def ss(self, *varg, **kwarg):
         """Saturation entropy
     ssL, ssV = ss(T,p)
+    
+If no keyword is specified, saturation properties interpret the argument
+as temperature.  However, pressure can be specified as well
+
+    ssL, ssV = ss(p=pvalue)
     
 Returns the liquid (ssL) and vapor (ssV) saturation entropy in
 units [unit_energy / unit_matter / unit_temperature]
