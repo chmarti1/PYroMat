@@ -2056,6 +2056,9 @@ Calculates density in [unit_matter / unit_volume]
             d1[I] = (1.-x[I])/d1[I]
             d1[I] += x[I]/d2[I]
             d1[I] = 1. / d1[I]
+            
+        pm.units.matter(d1, self.data['mw'], from_units='kg', inplace=True)
+        pm.units.volume(d1, from_units='m3', inplace=True, exponent=-1)
         return d1
         
         

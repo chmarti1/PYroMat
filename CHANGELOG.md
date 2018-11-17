@@ -76,3 +76,6 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 - Added CO2 and R134a (C2H2F4) to the multiphase data
 - Added ig2 class incorporating the NASA polynomial
 - Added hundreds of new ideal gas data including a better ig.H2O data set
+
+## Version 2.0.8
+- Corrected unit conversion in mp1 density output
