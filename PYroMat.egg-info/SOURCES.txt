@@ -1,4 +1,8 @@
+CHANGELOG.md
+LICENSE.txt
+README.md
 setup.py
+test.py
 PYroMat.egg-info/PKG-INFO
 PYroMat.egg-info/SOURCES.txt
 PYroMat.egg-info/dependency_links.txt
