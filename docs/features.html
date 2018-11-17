@@ -42,89 +42,203 @@ array([1.39990859, 1.39519249, 1.38666408, 1.37575277])</pre>
         <li><span class="code">s</span> Entropy</li>
     </ul>
     <p>
-    Perhaps the best way to show PYroMat's capabilities is to show the results of a call to the <span class="code">info()</span> function.
+    As of version 2.0.7, PYroMat includes data for multi-phase carbon dioxide, multi-phase water, and multi-phase refrigerant 134a (C2H2F4 a.k.a. 1,1,1,2- tetrafloroethane).  Add in the MANY ideal gas species, and there are <b>934 species</b> in total.
+    </p>
+    <p>
+    That's very exciting, but it presents a problem; how do you find what you're looking for!?  We're working on that for version 2.0.8.  Meanwhile, here is a list of every species included in version 2.0.7:
     </p>
 
     <pre class="code">
+>>> import pyromat as pm
 >>> pm.info()
   PYroMat
 Thermodynamic computational tools for Python
-version: 2.0.4
+version: 2.0.7
 ---------------------------------------------------------------
           ID : properties
 ---------------------------------------------------------------
-       ig.Al : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.Al2O : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-    ig.AlBr3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-    ig.AlCl3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.AlF : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.AlF3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.AlH : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.AlI3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.AlO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Ar : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-        ig.B : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.Al : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Al+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Al- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Al2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.Al2Br6 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.Al2Cl6 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.Al2F6 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.Al2I6 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.Al2O : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.Al2O+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.Al2O2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.Al2O2+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.AlBO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.AlBr : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.AlBr3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+      ig.AlC : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.AlCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.AlCl+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.AlCl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.AlCl2+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.AlCl2- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.AlCl2F : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.AlCl3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.AlClF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.AlClF+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.AlClF2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.AlF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.AlF+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.AlF2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.AlF2+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+    ig.AlF2- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.AlF2O : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.AlF2O- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.AlF3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.AlF4- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.AlH : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.AlI : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.AlI3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.AlN : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.AlO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.AlO+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.AlO- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.AlO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.AlO2- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.AlO2H : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+    ig.AlOCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.AlOF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.AlOH : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.AlOH+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.AlOH- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.AlS : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.Ar : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Ar+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+        ig.B : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.B+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.B- : cp cv d e gam h   mw     p_s R s     T_h T_s    
    ig.B10H14 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.B2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
      ig.B2H6 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.B2O3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-   ig.B3F3O3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+      ig.B2O : cp cv d e gam h   mw     p_s R s     T_h T_s    
 ---------------------------------------------------------------
           ID : properties
 ---------------------------------------------------------------
+     ig.B2O2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.B2O3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.B3F3O3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
    ig.B3H3O3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
    ig.B3H6N3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+  ig.B3O3Cl3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.B3O3F3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.B3O3H3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
      ig.B5H9 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.BBr3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.BCl3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.BF : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.BF2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.BF3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.BF4K : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.BH : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.BH3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-    ig.BH3O3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.BHO2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.BKO2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-    ig.BLiO2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+      ig.BCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.BCl+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.BCl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.BCl2+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.BCl2- : cp cv d e gam h   mw     p_s R s     T_h T_s    
 ---------------------------------------------------------------
           ID : properties
 ---------------------------------------------------------------
-       ig.BN : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+     ig.BCl3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.BClF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.BF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.BF2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.BF2+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.BF2- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.BF3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+    ig.BF300 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.BF4K : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.BH : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.BH2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.BH3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.BH3O3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+     ig.BHF2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.BHO2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+     ig.BKO2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+    ig.BLiO2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.BN : cp cv d e gam h   mw     p_s R s     T_h T_s    
     ig.BNaO2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.BO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.BO2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Ba : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-    ig.BaBr2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-    ig.BaCl2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.BaF : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.BaF2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.BO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.BO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.BO2- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.BOCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.BOF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.BOF2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.BS : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.Ba : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.BaBr : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.BaBr2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.BaCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+    ig.BaCl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.BaF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.BaF+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.BaF2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
    ig.BaH2O2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.BaI2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.BaO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.BaS : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Be : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-    ig.BeCl2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+   ig.BaO2H2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.BaOH : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.BaOH+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.BaS : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.Be : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Be+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.Be2O : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.Be2O2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
 ---------------------------------------------------------------
           ID : properties
 ---------------------------------------------------------------
-      ig.BeF : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.BeF2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.BeH : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+   ig.Be2OF2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.Be3O3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.Be4O4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.BeBO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.BeBr : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.BeBr2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.BeCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.BeCl+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.BeCl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.BeClF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.BeF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.BeF2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.BeH : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.BeH+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
    ig.BeH2O2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.BeO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.BeS : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Br : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.Br2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+      ig.BeI : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.BeI2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.BeN : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.BeO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.BeO2H2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.BeOH : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.BeOH+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.BeS : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.Br : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Br2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
     ig.Br2Ca : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
     ig.Br2Fe : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
     ig.Br2Hg : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
     ig.Br2Mg : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
     ig.Br2Pb : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-    ig.Br2Sr : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.Br3P : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
 ---------------------------------------------------------------
           ID : properties
 ---------------------------------------------------------------
+    ig.Br2Sr : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+     ig.Br3P : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
     ig.Br4Si : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
     ig.Br4Ti : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
     ig.Br5Nb : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
@@ -134,129 +248,247 @@ version: 2.0.4
       ig.BrK : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.BrLi : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.BrNa : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-        ig.C : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.C2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-    ig.C2Cl2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-    ig.C2Cl4 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-    ig.C2Cl6 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+        ig.C : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.C+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.C- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.C10H21 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+    ig.C10H8 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.C12D10 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C12D9 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.C12H10 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.C12H23 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C12H9 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.C2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.C2+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.C2- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C2Cl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C2Cl4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C2Cl6 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C2F2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
     ig.C2F3N : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+     ig.C2F4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
 ---------------------------------------------------------------
           ID : properties
 ---------------------------------------------------------------
-     ig.C2F4 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.C2F6 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.C2H : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.C2H2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.C2H4 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-    ig.C2H4O : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-    ig.C2HCl : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.C2N2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.C2O : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.C2Si : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.C3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.C3O2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.C4 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-  ig.C4H12Si : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.C4N2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+      ig.C2H : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C2H2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C2H2O : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C2H3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C2H3N : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C2H3O : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C2H4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C2H4O : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.C2H4O2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.C2H4O4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C2H5 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C2H6 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.C2H6N2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C2H6O : cp cv d e gam h   mw     p_s R s     T_h T_s    
 ---------------------------------------------------------------
           ID : properties
 ---------------------------------------------------------------
+    ig.C2HCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C2HF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C2HO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.C2N : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C2N2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.C2O : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C2Si : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.C3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C3H3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C3H4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C3H5 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C3H6 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C3H6O : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C3H7 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C3H8 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+    ig.C3H8O : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C3O2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.C4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C4H10 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+  ig.C4H12Si : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+     ig.C4H2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C4H4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C4H6 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C4H8 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.C4H8O4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C4H9 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C4N2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
    ig.C4NiO4 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.C5 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.C5 : cp cv d e gam h   mw     p_s R s     T_h T_s    
    ig.C5FeO5 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+    ig.C5H10 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C5H11 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C5H12 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C5H6 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C5H8 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C6D5 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C6D6 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C6H10 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C6H12 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C6H13 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C6H2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C6H5 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C6H5O : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C6H6 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C6H6O : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+    ig.C7H14 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C7H15 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C7H16 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C7H7 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C7H8 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C7H8O : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C8H10 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C8H16 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C8H17 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C8H18 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.C8H8 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.C9H19 : cp cv d e gam h   mw     p_s R s     T_h T_s    
      ig.CBr4 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
     ig.CBrF3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.CBrN : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.CCl2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-   ig.CCl2F2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-    ig.CCl2O : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.CCl3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-    ig.CCl3F : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.CCl4 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-    ig.CClF3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.CClN : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.CF : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
 ---------------------------------------------------------------
           ID : properties
 ---------------------------------------------------------------
-      ig.CF2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+      ig.CCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.CCl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.CCl2F2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.CCl2O : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+     ig.CCl3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.CCl3F : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.CCl4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.CClF3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.CClN : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.CF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.CF+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.CF2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.CF2+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
      ig.CF2O : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.CF3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+      ig.CF3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+     ig.CF3+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
      ig.CF3I : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.CF4 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+      ig.CF4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
      ig.CF4O : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.CFN : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.CFO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.CH : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.CH2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-   ig.CH2Cl2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-   ig.CH2ClF : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-    ig.CH2F2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.CH : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.CH+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.CH2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.CH2Cl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.CH2ClF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.CH2F2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
      ig.CH2O : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.CH3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+      ig.CH3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.CH3Cl : cp cv d e gam h   mw     p_s R s     T_h T_s    
 ---------------------------------------------------------------
           ID : properties
 ---------------------------------------------------------------
-    ig.CH3Cl : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
  ig.CH3Cl3Si : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.CH3F : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.CH4 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.CHCl : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-   ig.CHCl2F : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-    ig.CHCl3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-   ig.CHClF2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+     ig.CH3F : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.CH3O : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.CH4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.CH4O : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.CHCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.CHCl2F : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.CHCl3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.CHClF2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
       ig.CHF : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.CHF3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+     ig.CHF3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
       ig.CHN : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.CHNO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.CHO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.CIN : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
       ig.CKN : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
----------------------------------------------------------------
-          ID : properties
----------------------------------------------------------------
-       ig.CN : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.CN2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.CN : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.CN+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.CN- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.CN2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
      ig.CNNa : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.CO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.CO2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.COS : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.CS : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.CS2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.CSi : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Ca : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.CaCl : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-    ig.CaCl2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.CaF2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.CaHO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.CaI2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.CO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.CO+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.CO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.CO2+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.CO2H : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.COCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.COCl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.COClF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.COF : cp cv d e gam h   mw     p_s R s     T_h T_s    
 ---------------------------------------------------------------
           ID : properties
 ---------------------------------------------------------------
-      ig.CaO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.CaS : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Cl : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.Cl2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+     ig.COF2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.COS : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.CP : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.CS : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.CS2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.CSi : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.Ca : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Ca+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Ca2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.CaBr : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.CaBr2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.CaCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.CaCl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.CaF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.CaF2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+     ig.CaHO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+      ig.CaI : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.CaI2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.CaO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.CaO2H2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.CaOH : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.CaOH+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.CaS : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.Cl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Cl+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Cl- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Cl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
     ig.Cl2Co : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
     ig.Cl2Fe : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
     ig.Cl2Hg : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
     ig.Cl2Mg : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
     ig.Cl2Ni : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+     ig.Cl2O : cp cv d e gam h   mw     p_s R s     T_h T_s    
    ig.Cl2O2S : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
     ig.Cl2Pb : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.Cl2S : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
     ig.Cl2S2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
     ig.Cl2Si : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
     ig.Cl2Sr : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
----------------------------------------------------------------
-          ID : properties
----------------------------------------------------------------
     ig.Cl2Zr : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
     ig.Cl3Fe : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
    ig.Cl3HSi : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
     ig.Cl3OP : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.Cl3P : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
     ig.Cl4Mo : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
     ig.Cl4OW : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
     ig.Cl4Si : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
     ig.Cl4Ti : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
@@ -266,14 +498,15 @@ version: 2.0.4
     ig.Cl5Ta : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.Cl5W : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.Cl6W : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
----------------------------------------------------------------
-          ID : properties
----------------------------------------------------------------
+     ig.ClCN : cp cv d e gam h   mw     p_s R s     T_h T_s    
      ig.ClCs : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.ClCu : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.ClD : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.ClF : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.ClF3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+      ig.ClF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.ClF3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
     ig.ClF5S : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
     ig.ClFO3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.ClH : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
@@ -283,64 +516,91 @@ version: 2.0.4
      ig.ClLi : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.ClNO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.ClNa : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.ClO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
----------------------------------------------------------------
-          ID : properties
----------------------------------------------------------------
-     ig.ClO2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+      ig.ClO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.ClO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
      ig.ClSr : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
        ig.Co : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.CoF2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Cr : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.CrN : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.CrO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.CrO2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.CrO3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Cs : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.Cs2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-   ig.Cs2O4S : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.CsF : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.CsHO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Cu : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.Cr : cp cv d e gam h   mw     p_s R s     T_h T_s    
 ---------------------------------------------------------------
           ID : properties
 ---------------------------------------------------------------
-      ig.Cu2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.CuF : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.CuF2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.CuO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.D2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.D2O : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.DF : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+      ig.CrN : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.CrO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.CrO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.CrO3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.Cs : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Cs+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Cs2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.Cs2Cl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.Cs2F2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.Cs2O : cp cv d e gam h   mw     p_s R s     T_h T_s    
+  ig.Cs2O2H2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.Cs2O4S : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+   ig.Cs2SO4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.CsCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.CsF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+     ig.CsHO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+      ig.CsO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.CsOH : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.CsOH+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.Cu : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Cu+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Cu2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.Cu3Cl3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.CuCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.CuF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.CuF2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.CuO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+        ig.D : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.D+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.D- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+       ig.D2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.D2+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.D2- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.D2O : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.D2S : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.DCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.DF : cp cv d e gam h   mw     p_s R s     T_h T_s    
        ig.DH : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
        ig.DO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+     ig.DOCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
        ig.DS : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-        ig.F : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.F2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+        ig.F : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.F+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.F- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.F2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
      ig.F2Fe : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.F2Hg : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.F2Mg : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
----------------------------------------------------------------
-          ID : properties
----------------------------------------------------------------
       ig.F2N : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.F2O : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+      ig.F2O : cp cv d e gam h   mw     p_s R s     T_h T_s    
     ig.F2O2S : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.F2OS : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.F2P : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.F2Pb : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.F2S : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+     ig.F2S2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
      ig.F2Si : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.F2Sr : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.F2Zr : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.F3Fe : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
       ig.F3N : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.F3OP : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.F3P : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.F3Si : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
----------------------------------------------------------------
-          ID : properties
----------------------------------------------------------------
      ig.F3Ti : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.F4N2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.F4OW : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
@@ -350,178 +610,573 @@ version: 2.0.4
       ig.F5S : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.F6S : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.F6W : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+      ig.FCN : cp cv d e gam h   mw     p_s R s     T_h T_s    
        ig.FH : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
       ig.FHO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
        ig.FK : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.FLi : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
        ig.FN : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.FNa : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
----------------------------------------------------------------
-          ID : properties
----------------------------------------------------------------
-       ig.FO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.FO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.FO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
       ig.FSi : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.FSr : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Fe : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.FeI2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.FeO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.FeS : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Ga : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-        ig.H : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.H2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-   ig.H2MgO2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.H2N : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.H2O : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.H2O2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-   ig.H2O2Sr : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.Fe : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Fe+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Fe- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.Fe2Cl4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.Fe2Cl6 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.FeC5O5 : cp cv d e gam h   mw     p_s R s     T_h T_s    
 ---------------------------------------------------------------
           ID : properties
 ---------------------------------------------------------------
+     ig.FeCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.FeCl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.FeCl3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.FeI2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+      ig.FeO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.FeO2H2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.FeS : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.Ga : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+        ig.H : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.H+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.H- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.H2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.H2+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.H2- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.H2CO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+    ig.H2CO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.H2F2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.H2MgO2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+      ig.H2N : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+      ig.H2O : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.H2O+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.H2O2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.H2O2Sr : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
     ig.H2O4S : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.H2P : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.H2S : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+      ig.H2S : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.H2SO4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.H3B3O6 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.H3F3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
       ig.H3N : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+     ig.H3O+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
       ig.H3P : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+   ig.H4C2O4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.H4F4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
      ig.H4N2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.H4Si : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.HI : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+     ig.H5F5 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.H6F6 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.H7F7 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.HAlO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.HBO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.HBO+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.HBO- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.HBO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.HBS : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+     ig.HBS+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.HBr : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.HC2N : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.HCN : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.HCO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.HCO+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.HCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.HD : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.HD+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.HD- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.HDO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.HF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.HI : cp cv d e gam h   mw     p_s R s     T_h T_s    
        ig.HK : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.HKO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
       ig.HLi : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.HLiO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.HMg : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
        ig.HN : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.HNO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
----------------------------------------------------------------
-          ID : properties
----------------------------------------------------------------
-     ig.HNO2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.HNO3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+      ig.HNC : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.HNCO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.HNO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.HNO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.HNO3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
       ig.HNa : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.HNaO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
        ig.HO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.HO2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.HOSr : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.HP : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.HS : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.HSi : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.He : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Hf : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Hg : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.HgI2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.HgO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+      ig.HO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.HOCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.HOF : cp cv d e gam h   mw     p_s R s     T_h T_s    
 ---------------------------------------------------------------
           ID : properties
 ---------------------------------------------------------------
-        ig.I : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.I2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+     ig.HOSr : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.HP : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.HS : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+    ig.HSO3F : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.HSi : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.He : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.He+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.Hf : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.Hg : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.HgBr2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.HgI2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+      ig.HgO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+        ig.I : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.I2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
      ig.I2Mg : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
      ig.I2Pb : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.I2Sr : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.I4Ti : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
        ig.IK : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.ILi : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-        ig.K : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.K2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+        ig.K : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.K+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.K2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.K2C2N2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.K2Cl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.K2F2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.K2O2H2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
     ig.K2O4S : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Kr : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Li : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.Li2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.Li2O : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+    ig.K2SO4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.KBO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
 ---------------------------------------------------------------
           ID : properties
 ---------------------------------------------------------------
+      ig.KCN : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.KCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.KF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.KF2- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.KH : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.KO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.KO- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.KOH : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.KOH+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.Kr : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Kr+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.Li : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Li+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Li2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.Li2Cl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+    ig.Li2F2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.Li2O : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.Li2O2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+  ig.Li2O2H2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
    ig.Li2O4S : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Mg : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.Mg2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.MgO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.MgS : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Mn : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Mo : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.MoO2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.MoO3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-        ig.N : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.N2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.N2O : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.N2O3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.N2O4 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.N2O5 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+   ig.Li2SO4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.Li3Cl3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.Li3F3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.LiAlF4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.LiBO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.LiCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.LiF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.LiF2- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.LiFO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.LiH : cp cv d e gam h   mw     p_s R s     T_h T_s    
 ---------------------------------------------------------------
           ID : properties
 ---------------------------------------------------------------
-       ig.N3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.NO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.NO2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.NO3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+      ig.LiN : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.LiO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.LiO- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.LiOH : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.LiOH+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.LiON : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.Mg : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Mg+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Mg2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.Mg2F4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.MgBr : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.MgBr2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.MgCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.MgCl+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.MgCl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+    ig.MgClF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.MgF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.MgF+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.MgF2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.MgF2+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.MgH : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.MgI : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.MgI2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.MgN : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.MgO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.MgO2H2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.MgOH : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.MgOH+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.MgS : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.Mn : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+       ig.Mo : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+    ig.Mo2O6 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.Mo3O9 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.Mo4O12 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.Mo5O15 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.MoO2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+     ig.MoO3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+        ig.N : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.N+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.N- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.N2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.N2+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.N2- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.N2C : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.N2D2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+     ig.N2F2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.N2F4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.N2H2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.N2H2O2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.N2H4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.N2O : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.N2O+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.N2O3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.N2O4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.N2O5 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.N3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.N3H : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.NCO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.ND : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.ND2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+      ig.ND3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.NF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.NF2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.NF3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.NH : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.NH+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.NH2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.NH2F : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.NH3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.NH3O : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.NH4+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.NHF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.NHF2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.NO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.NO+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+      ig.NO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.NO2- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.NO2Cl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.NO2F : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.NO3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.NO3- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.NO3F : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.NOCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.NOF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.NOF3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
        ig.NP : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
        ig.NS : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Na : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.Na2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-   ig.Na2O4S : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Nb : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.NbO : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-     ig.NbO2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Ne : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Ni : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-    ig.O10P4 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.Na : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Na+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Na2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
 ---------------------------------------------------------------
           ID : properties
 ---------------------------------------------------------------
-       ig.O2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+  ig.Na2C2N2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.Na2Cl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.Na2F2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.Na2O : cp cv d e gam h   mw     p_s R s     T_h T_s    
+  ig.Na2O2H2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.Na2O4S : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+   ig.Na2SO4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.NaAlF4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.NaBO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.NaBr : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.NaCN : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.NaCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.NaF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.NaF2- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.NaH : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+      ig.NaI : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.NaO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.NaO- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.NaOH : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.NaOH+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.Nb : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.NbO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.NbO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.Ne : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Ne+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.Ni : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.NiCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.NiCl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.NiO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.NiS : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+        ig.O : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.O+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.O- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.O10P4 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.O2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.O2+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.O2- : cp cv d e gam h   mw     p_s R s     T_h T_s    
       ig.O2P : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.O2S : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.O2Si : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.O2Ti : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.O2W : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
      ig.O2Zr : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.O3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.O3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
       ig.O3S : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
       ig.O3W : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+       ig.OD : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.OH : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.OH+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.OH- : cp cv d e gam h   mw     p_s R s     T_h T_s    
        ig.OP : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.OPb : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
        ig.OS : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.OS2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.OSi : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
----------------------------------------------------------------
-          ID : properties
----------------------------------------------------------------
       ig.OSr : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.OTi : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
        ig.OV : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.OZr : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-        ig.P : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.P2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.P4 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+        ig.P : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+       ig.P+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.P2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.P4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.P4O10 : cp cv d e gam h   mw     p_s R s     T_h T_s    
      ig.P4S3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Pb : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.PbS : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+     ig.PCl3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.PF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.PF+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.PF- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.PF2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.PF2+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.PF3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.PF5 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.PH : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.PH3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+       ig.PO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.PO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.Pb : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Pb2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.PbBr : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.PbBr2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.PbBr4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.PbCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.PbCl+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.PbCl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.PbCl2+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.PbCl4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.PbF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.PbF2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.PbF4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+      ig.PbI : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.PbI2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.PbI4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.PbO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.PbS : cp cv d e gam h   mw     p_s R s     T_h T_s    
        ig.Rb : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.Rb2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-        ig.S : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.S2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.S8 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
+        ig.S : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.S+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.S- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.S2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.S2Cl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.S2Cl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.S2F2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.S2O : cp cv d e gam h   mw     p_s R s     T_h T_s    
 ---------------------------------------------------------------
           ID : properties
 ---------------------------------------------------------------
+       ig.S8 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.SCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SCl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.SCl2+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.SD : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.SF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.SF+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.SF- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.SF2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SF2+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SF2- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.SF3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SF3+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SF3- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.SF4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+     ig.SF4+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SF4- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.SF5 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SF5+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SF5- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.SF6 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SF6- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.SH : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.SN : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.SO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.SO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.SO2Cl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.SO2ClF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.SO2F2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.SO3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+     ig.SOF2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
       ig.SSi : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
       ig.SSr : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Si : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.Si2 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.Si3 : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Sr : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Ta : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Ti : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-        ig.V : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Xe : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Zn : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-       ig.Zr : cp cv d e gam h   mw p_d p_s R s T_d T_h T_s    
-      ig.air : cp cv d e gam h   mw           s     T_h T_s X Y
-       ig.f5 : cp cv d e gam h   mw           s     T_h T_s X Y
-      ig.h35 : cp cv d e gam h   mw           s     T_h T_s X Y
+       ig.Si : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Si+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Si2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.Si2C : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.Si2N : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Si3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SiBr : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.SiBr2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.SiBr3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.SiBr4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.SiC : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SiC2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
 ---------------------------------------------------------------
           ID : properties
 ---------------------------------------------------------------
-      mp.H2O : cp cv d e gam h   mw           s     T_h T_s </pre>
+  ig.SiC4H12 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SiCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.SiCl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.SiCl3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.SiCl4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.SiF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SiF2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SiF3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SiF4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.SiH : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SiH+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SiH2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+  ig.SiH2Br2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+  ig.SiH2Cl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.SiH2F2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+   ig.SiH2I2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SiH3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.SiH3Br : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.SiH3Cl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.SiH3F : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.SiH3I : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SiH4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.SiHBr3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.SiHCl3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.SiHF3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.SiHI3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.SiI : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SiI2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.SiN : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.SiO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+     ig.SiO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.SiS : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.Sr : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SrBr : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SrCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.SrCl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.SrF : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SrF+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SrF2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SrI2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.SrO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.SrO2H2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.SrOH : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.SrOH+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.SrS : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+       ig.Ta : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.TaO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.TaO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.Ti : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Ti+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Ti- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.TiCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.TiCl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.TiCl3 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.TiCl4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.TiO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.TiO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+    ig.TiOCl : cp cv d e gam h   mw     p_s R s     T_h T_s    
+   ig.TiOCl2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+        ig.V : cp cv d e gam h   mw     p_s R s     T_h T_s    
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+     ig.VCl4 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.VN : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.VO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.VO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.Xe : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Xe+ : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.Zn : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.Zn- : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.Zr : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.ZrN : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.ZrO : cp cv d e gam h   mw     p_s R s     T_h T_s    
+     ig.ZrO2 : cp cv d e gam h   mw     p_s R s     T_h T_s    
+      ig.air : cp cv d e gam h   mw           s     T_h T_s X Y
+        ig.e : cp cv d e gam h   mw     p_s R s     T_h T_s    
+       ig.f5 : cp cv d e gam h   mw           s     T_h T_s X Y
+---------------------------------------------------------------
+          ID : properties
+---------------------------------------------------------------
+      ig.h35 : cp cv d e gam h   mw           s     T_h T_s X Y
+   mp.C2H2F4 : cp cv d e gam h                s     T_h T_s    
+      mp.CO2 : cp cv d e gam h                s     T_h T_s    
+      mp.H2O : cp cv d e gam h                s     T_h T_s    </pre>
     </div>
 </div>
 

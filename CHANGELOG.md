@@ -70,3 +70,9 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 - Corrected a bug that caused hsd() in the if97 (steam) class to crash
 - Corrected a bug in the configuration object that prevented a parameter summary from displaying correctly in Python 3.
 
+## Version 2.0.7
+- Added the mp1 multi-phase class
+- Migrated steam away from if97 to the mp1 class
+- Added CO2 and R134a (C2H2F4) to the multiphase data
+- Added ig2 class incorporating the NASA polynomial
+- Added hundreds of new ideal gas data including a better ig.H2O data set

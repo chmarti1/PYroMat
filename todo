@@ -1,3 +1,8 @@
-1) refrigerants
-2) if97 region 3 saturation properties are not implemented
-3) extend proper array algorithms to the if97 saturation properties
+1) more refrigerants
+2) improve igmix capabilities
+3) add dynamic ig mixture support
+4) add properties
+5) add more inverse routines
+6) add search and browse interface options for exploring substances and 
+    properties
+7) add "name" and description meta data elements
