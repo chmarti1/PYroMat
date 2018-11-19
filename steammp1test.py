@@ -2,6 +2,9 @@ import pyromat as pm
 import numpy as np
 import matplotlib.pylab as pylab
 
+#Tester for MP1. Not exhaustive, as other bugs have also been identified.
+
+
 #get steam
 mp1obj = pm.get('mp.H2O')
 
