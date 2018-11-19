@@ -19,6 +19,9 @@
 </div>
 
 <div class="section">
+    <div class="toc0"><a href="#install">Installation questions</a></div>
+    <div class="toc1"><a href="#install_pip">PIP problems</a></div>
+    <div class="toc1"><a href="#install_setup">Legacy installation</a></div>
     <div class="toc0"><a href="#cycle">Cycle analysis</a></div>
     <div class="toc1"><a href="#cycle_brayton">Brayton cycle</a></div>
     <div class="toc1"><a href="#cycle_rankine">Rankine cycle</a></div>
@@ -31,6 +34,59 @@
     <div class="toc1"><a href="#faq_redundant">Why two H<sub>2</sub>O entries?</a></div>
     <div class="toc1"><a href="#faq_inconsistent">PYroMat disagrees with my table.  Is that an error?</a></div>
     <div class="toc1"><a href="#faq_units">What unit system does PYroMat use?</a>
+</div>
+
+<h3 class="subtitle" id="install">Installation questions</h3>
+<div class="section">
+    <h3 id="install_pip">PIP problems</h3>
+    <p>
+    Installing from the  <a href="download.html#pypi">Python Package Index</a> (pypi) is probably the easiest way to get up and running with PYroMat, but if the <span class="code">pip</span> utility is not already installed, or if it is not working properly, you may find yourself frustrated.  Hopefully, this FAQ should help you get up and running.
+    </p>
+    <p>
+    There is a very good tutorial maintained by the Python Packaging Authority at <a href="https://packaging.python.org/tutorials/installing-packages/">https://packaging.python.org/tutorials/installing-packages/</a>.  Notice that <span class="code">pip</span> can be applied directly to downloaded zip files and tarballs.
+    </p>
+    <p>
+    Every pip installation problem I've seen so far has either been because pip wasn't installed or because it was an out-dated version.  If you have a version of pip that came with your operating system or that you installed automatically using a package manager, you may be surprised to find that it isn't working as expected.  Problems frequently arise when these installations don't keep pace with the latest releases of pip.  If this is the problem, typing <span class="code">apt upgrade pip</span> doesn't fix anything, and users are often driven to despair.
+    </p>
+    <p>
+    First, try upgrading <span class="code">pip</span> from within.
+    <div class="code">
+    pip install --upgrade pip
+    </div>
+    </p>
+    <p>
+    If that doesn't work, I have had excellent luck with a fresh installation of <span class="code">pip</span>.
+    </p>
+    <p>
+    (Step 1) To install pip directly from the Python Packaging Authority, follow the instructions at <a href="https://pip.pypa.io/en/stable/installing/" target="blank">https://pip.pypa.io/en/stable/installing/</a>.  You only need to download and run <span class="code">get-pip.py</span>.
+    </p>
+    <p>
+    (Step 2) Once pip is installed, make sure to update it.  DO NOT USE ANOTHER PACKAGE MANAGER.  Instead, use pip to update itself.  Follow the instructions here <a href="https://pip.pypa.io/en/stable/installing/#upgrading-pip" target="blank">https://pip.pypa.io/en/stable/installing/#upgrading-pip</a>.
+    </p>
+    <p>
+    I have not yet run into a case where these steps did not address the problem.  If you STILL can't get pip to work, the Python Packaging Authority (PyPA) has a great how-to at <a href="https://packaging.python.org/tutorials/installing-packages/" target="blank">https://packaging.python.org/tutorials/installing-packages/</a>.  Alternatively, you might have success installing from either the <a href="download.html#github">github</a> or the <a href="download.html#sourceforge.html">sourceforge</a> repositories.
+    </p>
+    
+    <h3 id="install_setup">Legacy installation</h3>
+    <p>
+    The Python Packaging Authority has moved away from recommending installation using direct calls to a <span class="code">setup.py</span> script, but they still work.  If you are having a hard time getting <span class="code">pip</span> to work, or if you are experimenting with a non-standard installation, this could be a useful option.
+    </p>
+    <p>
+    Make sure that you have administrative priviledges on your system, and that python is correctly installed.  If you are working inside an integrated development environment (IDE), make sure the python binary you are using to evoke <span class="code">setup.py</span> is the same one your IDE uses.  For example, a Windows installation of Spyder makes its own python system in your home directory, so global system calls won't make changes that are visible to your Spyder install.
+    </p>
+    <p>
+    Obtain a source distribution of PYroMat either from <a href="download.html#github">github</a> or from <a href="download.html#sourceforge">sourceforge</a>.  Decompress the distribution file (either a .zip or .tar.gz or .tar.bz2) and navigate into the root directory.  There, you should find a <span class="code">setup.py</span> file.
+    </p>
+    <div class="code">
+    python setup.py install
+    </div>
+    OR
+    <div class="code">
+    python setup.py --upgrade install
+    </div>
+    <p>
+    If you have problems with direct installation like this, I would guess that they are probably due to some issue with <span class="code">setuptools</span>.  All of the recommended solutions seem to involve pip.  If you were trying to use setup.py in the first place because of a problem with pip, then you are probably pretty frustrated right now.  My only consolation to you is that I've been there before.  The solution is to <a href="#install_pip">fix pip</a>.
+    </p>
 </div>
 
 <h3 class="subtitle" id="cycle">Cycle analysis</h3>

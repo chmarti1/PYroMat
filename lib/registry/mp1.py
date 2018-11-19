@@ -14,6 +14,7 @@ class mp1(pm.reg.__basedata__):
 Provides property methods:
     cp()    Isobaric specific heat
     cv()    Isochoric specific heat
+    gam()   Specific heat ratio
     e()     Internal energy
     h()     Enthalpy
     s()     Entropy
@@ -2055,6 +2056,9 @@ Calculates density in [unit_matter / unit_volume]
             d1[I] = (1.-x[I])/d1[I]
             d1[I] += x[I]/d2[I]
             d1[I] = 1. / d1[I]
+            
+        pm.units.matter(d1, self.data['mw'], from_units='kg', inplace=True)
+        pm.units.volume(d1, from_units='m3', inplace=True, exponent=-1)
         return d1
         
         
@@ -2078,6 +2082,10 @@ p   Pressure    [unit_pressure]
 d   Density     [unit_matter / unit_volume]
 x   Quality     [dimensionless]
 """
+        quality=False
+        if 'quality' in kwarg:
+            quality = kwarg.pop('quality')
+            
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
         e = self._e(T,d1,0)[0]
         if I.any():
@@ -2087,6 +2095,8 @@ x   Quality     [dimensionless]
         pm.units.energy(e, from_units='J', inplace=True)
         pm.units.matter(e, self.data['mw'], 
                 from_units='kg', exponent=-1, inplace=True)
+        if quality:
+            return e,x
         return e
         
         
@@ -2101,6 +2111,10 @@ p   Pressure    [unit_pressure]
 d   Density     [unit_matter / unit_volume]
 x   Quality     [dimensionless]
 """
+        quality=False
+        if 'quality' in kwarg:
+            quality = kwarg.pop('quality')
+            
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
         h = self._h(T,d1,0)[0]
         if I.any():
@@ -2110,6 +2124,8 @@ x   Quality     [dimensionless]
         pm.units.energy(h, from_units='J', inplace=True)
         pm.units.matter(h, self.data['mw'], 
                 from_units='kg', exponent=-1, inplace=True)
+        if quality:
+            return h,x
         return h
 
 
@@ -2117,12 +2133,24 @@ x   Quality     [dimensionless]
         """Entropy  s(T=None, p=None, d=None, x=None)
 From any two of the provided primary properties
     
+    s = mp1.s( ... )
+
+If the optional keyword "quality" is set to True, then a quality array
+will also be returned
+
+    s,x = mp1.s( ..., quality=True)
+
+    gamma,x = mp1.gam( ..., quality=True)
 s   Entropy     [unit_energy / unit_matter / unit_temperature]
 T   Temperature [unit_temperature]
 p   Pressure    [unit_pressure]
 d   Density     [unit_matter / unit_volume]
 x   Quality     [dimensionless]
 """
+        quality=False
+        if 'quality' in kwarg:
+            quality = kwarg.pop('quality')
+            
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
         s = self._s(T,d1,0)[0]
         if I.any():
@@ -2134,17 +2162,28 @@ x   Quality     [dimensionless]
                 from_units='kg', exponent=-1, inplace=True)
         pm.units.temperature(s, from_units='K', 
                 exponent=-1, inplace=True)
+        if quality:
+            return s,x
         return s
 
 
-    def hsd(self, quality=False, *varg, **kwarg):
+    def hsd(self, *varg, **kwarg):
         """Enthalpy, Entropy, Density
     h,s,d = hsd(T=None, p=None, d=None, x=None)
-    
+
+If the optional keyword "quality" is set to True, then a quality array
+will also be returned
+
+    h,s,d,x = mp1.hsd( ..., quality=True)
+
 Calculates the three most commonly used parameters at once.  This 
 method represents substantial computational savings over calling the
 methods independently.
 """
+        quality=False
+        if 'quality' in kwarg:
+            quality = kwarg.pop('quality')
+            
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
         
         # There is no inner hsd funciton.  
@@ -2216,9 +2255,16 @@ methods independently.
         return h,s,d1
         
 
-    def cp(self, quality=False, *varg, **kwarg):
+    def cp(self, *varg, **kwarg):
         """Isobaric Specific Heat  cp(T=None, p=None, d=None, x=None)
 From any two of the provided primary properties
+
+    cp = mp1.cp( ... )
+
+If the optional keyword "quality" is set to True, then a quality array
+will also be returned
+
+    cp,x = mp1.cp( ..., quality=True)
     
 cp  Sp. heat    [unit_energy / unit_matter / unit_temperature]
 T   Temperature [unit_temperature]
@@ -2226,6 +2272,10 @@ p   Pressure    [unit_pressure]
 d   Density     [unit_matter / unit_volume]
 x   Quality     [dimensionless]
 """
+        quality=False
+        if 'quality' in kwarg:
+            quality = kwarg.pop('quality')
+            
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
         cp = self._cp(T,d1)
         if I.any():
@@ -2242,9 +2292,16 @@ x   Quality     [dimensionless]
         return cp
 
 
-    def cv(self, quality=False, *varg, **kwarg):
-        """Isobaric Specific Heat  cp(T=None, p=None, d=None, x=None)
+    def cv(self, *varg, **kwarg):
+        """Isochoric Specific Heat  cv(T=None, p=None, d=None, x=None)
 From any two of the provided primary properties
+
+    cv = mp1.cv( ... )
+
+If the optional keyword "quality" is set to True, then a quality array
+will also be returned
+
+    cv,x = mp1.cv( ..., quality=True)
     
 cv  Sp. heat    [unit_energy / unit_matter / unit_temperature]
 T   Temperature [unit_temperature]
@@ -2252,6 +2309,10 @@ p   Pressure    [unit_pressure]
 d   Density     [unit_matter / unit_volume]
 x   Quality     [dimensionless]
 """
+        quality=False
+        if 'quality' in kwarg:
+            quality = kwarg.pop('quality')
+            
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
         cv = self._cv(T,d1)
         if I.any():
@@ -2266,6 +2327,41 @@ x   Quality     [dimensionless]
         if quality:
             return cv, x
         return cv
+        
+        
+    def gam(self, quality=False, *varg, **kwarg):
+        """Specific Heat Ratio gam(T=None, p=None, d=None, x=None)
+From any two of the provided primary properties
+
+    gamma = mp1.gam( ... )
+
+If the optional keyword "quality" is set to True, then a quality array
+will also be returned
+
+    gamma,x = mp1.gam( ..., quality=True)
+    
+gam Sp. heat ratio [dless]
+T   Temperature [unit_temperature]
+p   Pressure    [unit_pressure]
+d   Density     [unit_matter / unit_volume]
+x   Quality     [dimensionless]
+"""
+        quality=False
+        if 'quality' in kwarg:
+            quality = kwarg.pop('quality')
+            
+        T,d1,d2,x,I = self._argparse(*varg, **kwarg)
+        cv = self._cv(T,d1)
+        cp = self._cp(T,d1)
+        if I.any():
+            cv[I] *= (1.-x[I])
+            cp[I] *= (1.-x[I])
+            cv[I] += self._cv(T[I],d2[I]) * x[I]
+            cp[I] += self._cp(T[I],d2[I]) * x[I]
+        
+        if quality:
+            return cp/cv, x
+        return cp/cv
 
 
     def T_s(self, s, p=None, quality=False, debug=False):
