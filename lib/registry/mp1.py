@@ -610,7 +610,7 @@ might be specified
                 param={}):
         """Invert an inner routine.
         
-    _iter1(fn, y, x, xmin, xmax, Ids)
+    _iter1(fn, prop, y, x, Ids, xmin, xmax,)
     
 Iteration is performed in-place on the x array.
 
@@ -652,6 +652,15 @@ param       A dicitonary of keyword arguments are passed directly to the
         error = np.zeros_like(dx, dtype=float)
         IooB = np.zeros_like(Ids, dtype=bool)
 
+        if verbose:
+            print('Iterating on "' + prop + '"')
+            print('Target values:')
+            print(y)
+            print('Limits:')
+            print(xmin,xmax)
+            print("GO!")
+            print('x', 'yvalue', 'dydx', 'dx', 'Ids')
+
         arg = param.copy()
         count = 0
         while Ids.any():
@@ -676,12 +685,13 @@ param       A dicitonary of keyword arguments are passed directly to the
                 print(x, yy, yyx, dx, Ids)
             x[Ids] += dx[Ids]
             # An out-of-bounds index
-            IooB = np.logical_or( x < xmin, x > xmax)
+            #IooB = np.logical_or( x < xmin, x > xmax)
+            IooB[Ids] = np.logical_or( x[Ids] < xmin[Ids], x[Ids] > xmax[Ids])
             count_oob = 0
             while IooB[Ids].any():
                 dx[IooB] /= 2.
                 x[IooB] -= dx[IooB]
-                IooB = np.logical_or( x < xmin, x > xmax)
+                IooB[Ids] = np.logical_or( x[Ids] < xmin[Ids], x[Ids] > xmax[Ids])
                 # Prevent a while-loop-trap
                 count_oob += 1
                 if count_oob>Nmax:
@@ -709,6 +719,10 @@ pressure and returns the fn(T,d,diff) inner routine.
     d = self._d(T,p)
     return fn(T,d)
     
+When diff is 1 (as it needs to be for _iter1 to work properly), the 
+property's partial derivatives need to be shifted from constant-density
+into constant temperature space.
+    
 For example, a call to _iter1 to calculate temperature while specifying
 entropy and pressure might appear
 
@@ -720,19 +734,37 @@ entropy and pressure might appear
         Tmin, Tmax,             # T bounds
         param={'fn':self._s, 'p':pvalues})
 """
+        # Convert T,p into T,d
         d = self._d(T,p)
-        return fn(T,d,diff)
+        # Assume a standard inner property routine call signature
+        y,yt,yd = fn(T,d,diff=diff)
+        # If the derivative is requested, we need to shift from constant
+        # density to constant pressure.
+        if diff>0:
+            _,pt,pd = self._p(T,d,diff=1)
+            temp = pt/pd
+            yyt = yt - yd*temp
+            yyp = yd + yt/temp
+        # Do not support higher derivatives than 1
+        return y,yyt,yyp
         
 
     def _ao(self, tt, dd, diff=2):
         """Dimensionless ideal gas helmholtz free energy (primative routine)
 Evaluates an ideal gas equation of the form
-    a = log(dd) + AOlogt*log(tt) + p(t)
+    a = log(dd) + logt*log(tt) + p(t) + ... c log(1-exp(-theta*tt)) + ...
     
 where
     dd = d / dscale
     tt = Tscale / T
-    AOlt = logt
+
+In the AOgroup dictionary defined by the mp1 data, the polynomial, p,
+is defined by the 'coef0' list.  This list should should be readable
+by the _poly1() method.  The 'logt' constant defines the coefficient
+of the log(tt) term.  
+
+The log/exp expansion is defined by the 'coef1' list.  Each element of
+'coef1' should be a two-element list or tuple containing [theta, c]. 
     
 This is a PRIMATIVE ROUTINE.  The arguments must already be 
 nondimensionalized, and the returned values are non-dimensionalzied.
@@ -1089,6 +1121,8 @@ Presumes temperature is in Kelvin, reports pressure in Pa
         # Initialize the result array
         T = np.ones_like(p, dtype=float) * \
                 0.5*(self.data['Tt'] + self.data['Tc'])
+        T,Tmin,Tmax = np.broadcast_arrays(T, self.data['Tt'], self.data['Tc'])
+        
         # Create a down-select array
         Ids = np.logical_and(
                 p >= self.data['pt'],
@@ -1100,8 +1134,8 @@ Presumes temperature is in Kelvin, reports pressure in Pa
                 p,                  # such that _ps(T) = p
                 T,                  # The initial T values
                 Ids,                # The down-select array
-                self.data['Tt'],    # Minimum at the triple temp.
-                self.data['Tc'])    # Maximum at the critical temp.
+                Tmin,               # Minimum at the triple temp.
+                Tmax)               # Maximum at the critical temp.
         return T
 
         
@@ -1437,8 +1471,8 @@ other conditions, x<0 and d1 == d2.
                         self.data['mw'], to_units='kg')
                 if d1.ndim == 0:
                     d1 = np.reshape(d1,(1,))
-                pm.units.volume(d1, 
-                        to_units='m3', exponent=-1, inplace=True)
+                d1 = pm.units.volume(d1, 
+                        to_units='m3', exponent=-1)
                 # broadcast the arrays
                 T,d1 = np.broadcast_arrays(T,d1)
                 # Isolate the sub-critical temperatures
@@ -1510,7 +1544,7 @@ other conditions, x<0 and d1 == d2.
                         self.data['mw'], to_units='kg')
                 if d1.ndim==0:
                     d1 = np.reshape(d1, (1,))
-                pm.units.volume(d1, to_units='m3', exponent=-1, inplace=True)
+                d1 = pm.units.volume(d1, to_units='m3', exponent=-1)
                 # Broadcast the arrays
                 d1,p = np.broadcast_arrays(d1,p)
                 # This one's an expensive funciton call
@@ -1881,7 +1915,12 @@ Uses Newton iteration to calculate Ts from the _ps() inner method
         
     def ds(self, *varg, **kwarg):
         """Saturation density
-    dsL, dsV = ds(T=None, p=None)
+    dsL, dsV = ds(T)
+    
+If no keyword is specified, saturation properties interpret the argument
+as temperature.  However, pressure can be specified as well
+
+    dsL, dsV = ds(p=pvalue)
     
 Returns the liquid (dsL) and vapor (dsV) saturation density in units
 [unit_matter / unit_volume]
@@ -1898,7 +1937,12 @@ Returns the liquid (dsL) and vapor (dsV) saturation density in units
 
     def es(self, *varg, **kwarg):
         """Saturation internal energy
-    esL, esV = es(T,p)
+    esL, esV = es(T)
+
+If no keyword is specified, saturation properties interpret the argument
+as temperature.  However, pressure can be specified as well
+
+    esL, esV = es(p=pvalue)
     
 Returns the liquid (esL) and vapor (esV) saturation internal energy in
 units [unit_energy / unit_matter]
@@ -1918,7 +1962,12 @@ units [unit_energy / unit_matter]
 
     def hs(self, *varg, **kwarg):
         """Saturation enthalpy
-    hsL, hsV = hs(T,p)
+    hsL, hsV = hs(T)
+    
+If no keyword is specified, saturation properties interpret the argument
+as temperature.  However, pressure can be specified as well
+
+    hsL, hsV = hs(p=pvalue)
     
 Returns the liquid (hsL) and vapor (hsV) saturation enthalpy in
 units [unit_energy / unit_matter]
@@ -1939,6 +1988,11 @@ units [unit_energy / unit_matter]
     def ss(self, *varg, **kwarg):
         """Saturation entropy
     ssL, ssV = ss(T,p)
+    
+If no keyword is specified, saturation properties interpret the argument
+as temperature.  However, pressure can be specified as well
+
+    ssL, ssV = ss(p=pvalue)
     
 Returns the liquid (ssL) and vapor (ssV) saturation entropy in
 units [unit_energy / unit_matter / unit_temperature]
@@ -2130,14 +2184,14 @@ methods independently.
             dd = d2[I] / dscale
             a,at,_,_,_,_ = self._ao(tt,dd,1)
             
-            h[I] = (1. + tt*at)*x[I]
-            s[I] = (tt*at - a)*x[I]
+            h[I] += (1. + tt*at)*x[I]
+            s[I] += (tt*at - a)*x[I]
             
             # The residual part
             Tscale = self.data['ARgroup']['Tscale']
             dscale = self.data['ARgroup']['dscale']
             tt = Tscale / T
-            dd = d1 / dscale
+            dd = d2 / dscale
             a,at,ad,_,_,_ = self._ar(tt,dd,1)
             h[I] += (dd*ad + tt*at)*x[I]
             s[I] += (tt*at - a)*x[I]
@@ -2214,7 +2268,7 @@ x   Quality     [dimensionless]
         return cv
 
 
-    def T_s(self, s, p=None, quality=False):
+    def T_s(self, s, p=None, quality=False, debug=False):
         """Temperature from entropy
     T = T_s(s, p=None, quality=False)
 
@@ -2316,14 +2370,15 @@ along with temperature.
                 T,
                 Isat,
                 Ta, Tb,
-                param={'fn':self._s, 'p':p})
+                param={'fn':self._s, 'p':p},
+                verbose=debug)
                 
         if quality:
             return T,x
         return T
 
 
-    def T_h(self, h, p=None, quality=False):
+    def T_h(self, h, p=None, quality=False, debug=False):
         """Temperature from enthalpy
     T = T_h(h, p=None, quality=False)
 
@@ -2358,7 +2413,7 @@ along with temperature.
         
         if p.ndim == 0:
             p = np.reshape(p, (1,))
-			
+
         # broadcast
         h,p = np.broadcast_arrays(h,p)
         # Initialize results
@@ -2422,7 +2477,8 @@ along with temperature.
                 T,
                 Isat,
                 Ta, Tb,
-                param={'fn':self._h, 'p':p})
+                param={'fn':self._h, 'p':p},
+                verbose=debug)
                 
         if quality:
             return T,x

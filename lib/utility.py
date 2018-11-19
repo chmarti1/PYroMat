@@ -715,6 +715,7 @@ file in the list will be left alone.
 'Failed to remove file "' + fil + 
 '". Check permissions and check that the file is not open.')
         elif action == 's':
+            N = len(RED[ss])
             # execute the repair
             for index in range(N):
                 if index != select:
