@@ -689,7 +689,7 @@ param       A dicitonary of keyword arguments are passed directly to the
             #IooB = np.logical_or( x < xmin, x > xmax)
             IooB[Ids] = np.logical_or( x[Ids] < xmin[Ids], x[Ids] > xmax[Ids])
             count_oob = 0
-            while IooB.any():
+            while IooB[Ids].any():
                 dx[IooB] /= 2.
                 x[IooB] -= dx[IooB]
                 IooB[Ids] = np.logical_or( x[Ids] < xmin[Ids], x[Ids] > xmax[Ids])
@@ -2452,9 +2452,11 @@ along with temperature.
 
             # Finally, isolate points that are saturated
             Isat[I] = np.logical_and( s[I]<=ssV, s[I]>=ssL )
+            Ta[Isat] = Tsat[Isat]
+            Tb[Isat] = Tsat[Isat]
             T[Isat] = Tsat[Isat]
             if quality:
-                x[Isat] = (s[Isat] - ssL)/(ssV-ssL)
+                x[Isat] = (s[Isat] - ssL[Isat])/(ssV[Isat]-ssL[Isat])
 
         # Isat is now a down-select array
         Isat = np.logical_not(Isat)
@@ -2560,9 +2562,11 @@ along with temperature.
 
             # Finally, isolate points that are saturated
             Isat[I] = np.logical_and( h[I]<=hsV, h[I]>=hsL )
+            Ta[Isat] = Tsat[Isat]
+            Tb[Isat] = Tsat[Isat]
             T[Isat] = Tsat[Isat]
             if quality:
-                x[Isat] = (h[Isat] - hsL)/(hsV-hsL)
+                x[Isat] = (h[Isat] - hsL[Isat])/(hsV[Isat]-hsL[Isat])
                 
         # Isat is now a down-select array
         Isat = np.logical_not(Isat)
