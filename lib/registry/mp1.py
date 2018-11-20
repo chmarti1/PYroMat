@@ -2069,6 +2069,7 @@ Calculates density in [unit_matter / unit_volume]
 Calculates temperature in [unit_temperature]
 """
         T,_,_,_,_ = self._argparse(*varg, **kwarg)
+        pm.units.temperature_scale(T, from_units='K', inplace=True)
         return T
         
         
@@ -2467,6 +2468,9 @@ along with temperature.
                 param={'fn':self._s, 'p':p},
                 verbose=debug)
                 
+        # Convert the results
+        pm.units.temperature_scale(T, from_units='K', inplace=True)
+        
         if quality:
             return T,x
         return T
@@ -2571,6 +2575,10 @@ along with temperature.
                 Ta, Tb,
                 param={'fn':self._h, 'p':p},
                 verbose=debug)
+                
+        
+        # Convert the results
+        pm.units.temperature_scale(T, from_units='K', inplace=True)
                 
         if quality:
             return T,x

@@ -79,3 +79,9 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 
 ## Version 2.0.8
 - Corrected unit conversion in mp1 density output
+
+## Version 2.0.9
+- Skipped due to an error uploading to the Python package index
+
+## Version 2.0.10
+- Temperature units in T_s, T_h, and T in the mp1 class were not being converted: fixed.
