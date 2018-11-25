@@ -30,12 +30,10 @@ setup(
     version=get_version(),
     description="Thermodynamic properties in Python.",
     long_description=\
-"""PYroMat provides a Python interface for thermo-physical properties of a 
-wide range of species. Visit the PYroMat homepage for more documentation, 
-installation options, and more (https://chmarti1.github.io/PYroMat/).""",
+"""PYroMat provides a Python interface for thermo-physical properties for over 900 species. Visit the PYroMat homepage for more documentation, installation options, and more (http://pyromat.org).""",
     author="Chris Martin",
     author_email="crm28@psu.edu",
-    url="https://chmarti1.github.io/PYroMat/",
+    url="http://pyromat.org",
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Education',
