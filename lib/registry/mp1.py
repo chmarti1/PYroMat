@@ -1524,7 +1524,7 @@ other conditions, x<0 and d1 == d2.
         # If p is the primary parameter
         elif p is not None:
             # Convert p to the correct units
-            pm.units.pressure(
+            p = pm.units.pressure(
                     np.asarray(p, dtype=float), 
                     to_units='Pa')
             if p.ndim==0:
