@@ -4,6 +4,17 @@ import matplotlib.pylab as pylab
 
 #Tester for MP1. Not exhaustive, as other bugs have also been identified.
 
+uT = 'K'
+up = 'bar'
+uM = 'kg'
+uE = 'kJ'
+uV = 'm3'
+
+pm.config['unit_temperature'] = uT
+pm.config['unit_pressure'] = up
+pm.config['unit_matter'] = uM
+pm.config['unit_energy'] = uE
+pm.config['unit_volume'] = uV
 
 #get steam
 mp1obj = pm.get('mp.H2O')
@@ -188,6 +199,7 @@ mp1obj.T_s(p=5, s=8, quality=True)
 mp1obj.T_s(p=5, s=[5,6], quality=True)
 mp1obj.T_s(p=5, s=[5,8])
 mp1obj.T_s(p=5, s=[5,8],quality=True)
+mp1obj.T_s(p=[100,10000], s=1.5,quality=True)
 print('T_s')
 print(mp1obj.T_s(p=[5],s=0.39295))
 print(mp1obj.T_s(p=[5],s=7.5561))
@@ -209,6 +221,7 @@ mp1obj.T_h(p=5, h=4000, quality=True)
 mp1obj.T_h(p=5, h=[1700,1800], quality=True)
 mp1obj.T_h(p=5, h=[1700,4000])
 mp1obj.T_h(p=5, h=[1700,4000],quality=True)
+mp1obj.T_h(p=[100,10000], h=1000,quality=True)
 print('T_h')
 print(mp1obj.T_h(p=[5],h=113.02))
 print(mp1obj.T_h(p=[5],h=3120.1))
