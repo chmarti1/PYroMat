@@ -1687,7 +1687,7 @@ other conditions, x<0 and d1 == d2.
         # If p is the primary parameter
         elif p is not None:
             # Convert p to the correct units
-            pm.units.pressure(
+            p = pm.units.pressure(
                     np.asarray(p, dtype=float), 
                     to_units='Pa')
             if p.ndim==0:
@@ -2574,7 +2574,11 @@ along with temperature.
         Isat = np.zeros_like(s, dtype=bool)
         Ta = np.zeros_like(s, dtype=float)
         Tb = np.zeros_like(s, dtype=float)
-        
+        Tsat = np.zeros_like(s, dtype=float)
+        dsL = np.zeros_like(s, dtype=float)
+        dsV = np.zeros_like(s, dtype=float)
+        ssL = np.zeros_like(s, dtype=float)
+        ssV = np.zeros_like(s, dtype=float)
         
         # Start with super-critical points
         I = p >= self.data['pc']
@@ -2585,28 +2589,28 @@ along with temperature.
         I = np.logical_not(I)
         if I.any():
             # Get the saturation temperatures
-            Tsat = self._Ts(p[I])
+            Tsat[I] = self._Ts(p[I])
             # And densities
-            dsL = self._dsl(Tsat,0)[0]
-            dsV = self._dsv(Tsat,0)[0]
+            dsL[I] = self._dsl(Tsat[I],0)[0]
+            dsV[I] = self._dsv(Tsat[I],0)[0]
             # finally, get the saturation entropies
-            ssL = self._s(Tsat,dsL,0)[0]
-            ssV = self._s(Tsat,dsV,0)[0]
+            ssL[I] = self._s(Tsat[I],dsL[I],0)[0]
+            ssV[I] = self._s(Tsat[I],dsV[I],0)[0]
 
             # Isolate points that are liquid
-            Isat[I] = s[I] < ssL
+            Isat[I] = s[I] < ssL[I]
             Ta[Isat] = self.data['Tlim'][0]
             Tb[Isat] = Tsat[Isat]
             T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
 
             # Isolate points that are vapor
-            Isat[I] = s[I] > ssV
+            Isat[I] = s[I] > ssV[I]
             Ta[Isat] = Tsat[Isat]
             Tb[Isat] = self.data['Tlim'][1]
             T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
 
             # Finally, isolate points that are saturated
-            Isat[I] = np.logical_and( s[I]<=ssV, s[I]>=ssL )
+            Isat[I] = np.logical_and( s[I]<=ssV[I], s[I]>=ssL[I] )
             Ta[Isat] = Tsat[Isat]
             Tb[Isat] = Tsat[Isat]
             T[Isat] = Tsat[Isat]
@@ -2678,7 +2682,11 @@ along with temperature.
         Isat = np.zeros_like(h, dtype=bool)
         Ta = np.zeros_like(h, dtype=float)
         Tb = np.zeros_like(h, dtype=float)
-        
+        Tsat = np.zeros_like(h, dtype=float)
+        dsL = np.zeros_like(h, dtype=float)
+        dsV = np.zeros_like(h, dtype=float)
+        hsL = np.zeros_like(h, dtype=float)
+        hsV = np.zeros_like(h, dtype=float)
         
         # Start with super-critical points
         I = p >= self.data['pc']
@@ -2689,28 +2697,28 @@ along with temperature.
         I = np.logical_not(I)
         if I.any():
             # Get the saturation temperatures
-            Tsat = self._Ts(p[I])
+            Tsat[I] = self._Ts(p[I])
             # And densities
-            dsL = self._dsl(Tsat,0)[0]
-            dsV = self._dsv(Tsat,0)[0]
+            dsL[I] = self._dsl(Tsat[I],0)[0]
+            dsV[I] = self._dsv(Tsat[I],0)[0]
             # finally, get the saturation entropies
-            hsL = self._h(Tsat,dsL,0)[0]
-            hsV = self._h(Tsat,dsV,0)[0]
+            hsL[I] = self._h(Tsat[I],dsL[I],0)[0]
+            hsV[I] = self._h(Tsat[I],dsV[I],0)[0]
 
             # Isolate points that are liquid
-            Isat[I] = h[I] < hsL
+            Isat[I] = h[I] < hsL[I]
             Ta[Isat] = self.data['Tlim'][0]
             Tb[Isat] = Tsat[Isat]
             T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
             
             # Isolate points that are vapor
-            Isat[I] = h[I] > hsV
+            Isat[I] = h[I] > hsV[I]
             Ta[Isat] = Tsat[Isat]
             Tb[Isat] = self.data['Tlim'][1]
             T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
             
             # Finally, isolate points that are saturated
-            Isat[I] = np.logical_and( h[I]<=hsV, h[I]>=hsL )
+            Isat[I] = np.logical_and( h[I]<=hsV[I], h[I]>=hsL[I] )
             Ta[Isat] = Tsat[Isat]
             Tb[Isat] = Tsat[Isat]
             T[Isat] = Tsat[Isat]
