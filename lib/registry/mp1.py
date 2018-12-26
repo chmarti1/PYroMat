@@ -607,13 +607,11 @@ might be specified
     
     
     def _iter1(self, fn, prop, y, x, Ids, xmin, xmax,
-                ep=1e-6, Nmax=20, fx_index=1, verbose=False,
-                param={}):
+                ep=1e-6, Nmax=20, fx_index=1, 
+                verbose=False, param={}):
         """Invert an inner routine.
         
     _iter1(fn, prop, y, x, Ids, xmin, xmax,)
-    
-Iteration is performed in-place on the x array.
 
 *** Required Parameters ***
 fn          The inner routine (method) to be inverted.  It must have a 
@@ -626,7 +624,7 @@ fn          The inner routine (method) to be inverted.  It must have a
 prop        The string keyword index of the property to be calculated.
 y           An array of N target values for fn().
 x           The result array.  It should be an N-element floating point
-            array that has already been initialized.
+            array.
 Ids         A down-select boolean index array; only x[Ids],y[Ids] will 
             be evaluated.  This allows iteration in-place on data sets 
             where only a portion of the data require iteration.  If y is
@@ -635,7 +633,9 @@ Ids         A down-select boolean index array; only x[Ids],y[Ids] will
             data set with M elements, where M<=N.
 xmin, xmax  Upper and lower limit arrays for the x values.  These must
             broadcastable to match x and y.  Even values outside of the
-            down-select region should have legal values.
+            down-select region should have legal values.  Note that 
+            these arrays are volatile, and will be written to by the
+            bisection process.
 *** Optional Parameters ***
 ep          Epsilon; fractional error permitted in y (default 1e-6)
 Nmax        Maximum number of iterations (default 20)
@@ -659,10 +659,173 @@ param       A dicitonary of keyword arguments are passed directly to the
             print(y)
             print('Limits:')
             print(xmin,xmax)
-            print("GO!")
             print('x', 'yvalue', 'dydx', 'dx', 'Ids')
 
+
+        # Create an argument dictionary
         arg = param.copy()
+        count = 0
+        while Ids.any():
+            # Build the new argument list
+            for k,v in param.items():
+                # For any array arguments, shrink them along with Ids
+                if isinstance(v,np.ndarray):
+                    arg[k] = v[Ids]
+            # Shrink the primary property array
+            arg[prop] = x[Ids]
+            # Evaluate the funciton and isolate its derivative
+            FF = fn( diff=1, **arg)
+            yy = FF[0]
+            yyx = FF[fx_index]
+            # note that x[Ids], yy, yyx, and all the other floating 
+            # intermediates are now in m-space; the sub-set of values
+            # still under iteration.
+            # Calculate the error, the linear change in x, and the new x
+            error[Ids] = y[Ids] - yy
+            dx[Ids] = error[Ids] / yyx
+            if verbose:
+                print(x, yy, yyx, dx, Ids)
+            x[Ids] += dx[Ids]
+            # An out-of-bounds index
+            #IooB = np.logical_or( x < xmin, x > xmax)
+            IooB[Ids] = np.logical_or( x[Ids] < xmin[Ids], x[Ids] > xmax[Ids])
+            count_oob = 0
+            while IooB[Ids].any():
+                dx[IooB] /= 2.
+                x[IooB] -= dx[IooB]
+                IooB[Ids] = np.logical_or( x[Ids] < xmin[Ids], x[Ids] > xmax[Ids])
+                # Prevent a while-loop-trap
+                count_oob += 1
+                if count_oob>Nmax:
+                    raise pm.utility.PMAnalysisError(
+                        'iter1_() failed to produce a guess that was in-bounds')
+            
+            # Check the iteration convergence
+            Ids[Ids] = abs(error[Ids]) > abs(ep*y[Ids])
+            # Prevent a while-loop-trap
+            count += 1
+            if count>Nmax:                
+                pm.utility.print_warning(\
+                    'iter1_() failed to converge for %d elements after %d attempts'%(\
+                    Ids.sum(), Nmax))
+                return
+
+    
+    def _iter1_(self, fn, prop, y, x, Ids, xmin, xmax,
+                ep=1e-6, Nmax=20, fx_index=1, 
+                verbose=False, param={}):
+        """Invert an inner routine.
+        
+    _iter1(fn, prop, y, x, Ids, xmin, xmax,)
+    
+Iteration is performed in-place on the x array.  Iteration is performed
+in two stages.  First biseciton provides global convergence, and Newton
+iteration is used to polish the solutions for better accuracy.  
+Bisection is slower than Newton iteration, but it is immune to the 
+stability problems that Newton iteration can suffer in systems with high
+curvature.
+
+Note that bisection iteration 
+
+*** Required Parameters ***
+fn          The inner routine (method) to be inverted.  It must have a 
+            call signature 
+                f, fx0, ... = fn(x0, x1, ..., diff)
+            where f is the value of fn, and fx0 is the derivative of fn
+            with respect to prop0. The fx_index keyword can be used to
+            change where fx is found in the returned tuple.  By default
+            it is 1.
+prop        The string keyword index of the property to be calculated.
+y           An array of N target values for fn().
+x           The result array.  It should be an N-element floating point
+            array.
+Ids         A down-select boolean index array; only x[Ids],y[Ids] will 
+            be evaluated.  This allows iteration in-place on data sets 
+            where only a portion of the data require iteration.  If y is
+            a floating point array with N elements, Ids must be a bool
+            array with N elements.  It will specify a down-selected 
+            data set with M elements, where M<=N.
+xmin, xmax  Upper and lower limit arrays for the x values.  These must
+            broadcastable to match x and y.  Even values outside of the
+            down-select region should have legal values.  Note that 
+            these arrays are volatile, and will be written to by the
+            bisection process.
+*** Optional Parameters ***
+ep          Epsilon; fractional error permitted in y (default 1e-6)
+Nmax        Maximum number of iterations (default 20)
+fx_index    The location of the property derivative in the call 
+            signature (default 1)
+param       A dicitonary of keyword arguments are passed directly to the 
+            inner routine being inverted.
+
+"""
+        # As the iteration progresses, the number of True elements in 
+        # Ids will decrease until they are all false
+        # There are some important intermediate values that will also
+        # require indexable arrays
+        dx = np.zeros_like(y, dtype=float)
+        error = np.zeros_like(dx, dtype=float)
+        IooB = np.zeros_like(Ids, dtype=bool)
+        # Bisection working indices
+        Ipos = np.zeros_like(Ids, dtype=bool) 
+        Ineg = np.zeros_like(Ids, dtype=bool)
+
+        if verbose:
+            print('Iterating on "' + prop + '"')
+            print('Target values:')
+            print(y)
+            print('Limits:')
+            print(xmin,xmax)
+            print('Global convergance with bisection')
+            print('xmin', 'x', 'xmax', 'yvalue')
+            
+            
+        # Create an argument dictionary
+        arg = param.copy()
+        # Reduce array arguments by the down-select indices
+        for k,v in param.items():
+            # For any array arguments, shrink them along with Ids
+            if isinstance(v,np.ndarray):
+                arg[k] = v[Ids]
+        
+        # Set up the biseciton process (global convergance)
+        # Test the y vlaues at the bounds to determine monotonic slope
+        arg[prop] = xmax[Ids]
+        yy = fn( diff=1, **arg)[0]
+        arg[prop] = xmin[Ids]
+        Ipos[Ids] = yy > fn(diff=1, **arg)[0]     # Positive slope indices
+        Ineg[Ids] = np.logical_not(Ipos[Ids])   # Negative slope indices
+
+        for count in range(6):
+            # Initialize the result vector to bisect the regions
+            x[Ids] = 0.5*(xmax[Ids] + xmin[Ids])
+            # set the primary property array
+            arg[prop] = x[Ids]
+            # Evaluate the funciton derivative
+            FF = fn( diff=1, **arg)
+            yy = FF[0]
+            
+            if verbose:
+                print(xmin, x, xmax, yy)
+            # Borrow IooB as a working index
+            # Among the positively sloped elements, which are above the target?
+            IooB[Ids] = False
+            IooB[Ipos] = yy[Ipos[Ids]] > y[Ipos]
+            xmax[IooB] = x[IooB]
+            IooB[Ipos] = np.logical_not(IooB[Ipos])
+            xmin[IooB] = x[IooB]
+            IooB[Ids] = False
+            IooB[Ineg] = yy[Ineg[Ids]] > y[Ineg]
+            xmax[IooB] = x[IooB]
+            IooB[Ineg] = np.logical_not(IooB[Ineg])
+            xmin[IooB] = x[IooB]
+            
+            
+            
+        if verbose:
+            print('Polishing with Newton iteration')
+            print('x', 'yvalue', 'dydx', 'dx', 'Ids')
+
         count = 0
         while Ids.any():
             # Build the new argument list
@@ -2435,20 +2598,12 @@ along with temperature.
             Ta[Isat] = self.data['Tlim'][0]
             Tb[Isat] = Tsat[Isat]
             T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
-            # T[Isat] = Tb[Isat] - Ta[Isat]
-            # Grow the boundary by 2%
-            # Tb[Isat] += 0.05*T[Isat]
-            #T[Isat] = Ta[Isat] + 0.5*T[Isat]
 
             # Isolate points that are vapor
             Isat[I] = s[I] > ssV
             Ta[Isat] = Tsat[Isat]
             Tb[Isat] = self.data['Tlim'][1]
             T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
-            # T[Isat] = Tb[Isat] - Ta[Isat]
-            # Grow the boundary by 2%
-            # Ta[Isat] -= 0.05*T[Isat]
-            # T[Isat] = Tb[Isat] - 0.5*T[Isat]
 
             # Finally, isolate points that are saturated
             Isat[I] = np.logical_and( s[I]<=ssV, s[I]>=ssL )
@@ -2546,20 +2701,14 @@ along with temperature.
             Isat[I] = h[I] < hsL
             Ta[Isat] = self.data['Tlim'][0]
             Tb[Isat] = Tsat[Isat]
-            T[Isat] = Tb[Isat] - Ta[Isat]
-            # Grow the boundary by 5%
-            Tb[Isat] += 0.05*T[Isat]
-            T[Isat] = Ta[Isat] + 0.5*T[Isat]
+            T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
             
             # Isolate points that are vapor
             Isat[I] = h[I] > hsV
             Ta[Isat] = Tsat[Isat]
             Tb[Isat] = self.data['Tlim'][1]
-            T[Isat] = Tb[Isat] - Ta[Isat]
-            # Grow the boundary by 5%
-            Ta[Isat] -= 0.05*T[Isat]
-            T[Isat] = Tb[Isat] - 0.5*T[Isat]
-
+            T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
+            
             # Finally, isolate points that are saturated
             Isat[I] = np.logical_and( h[I]<=hsV, h[I]>=hsL )
             Ta[Isat] = Tsat[Isat]
