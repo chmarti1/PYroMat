@@ -1587,9 +1587,14 @@ other conditions, x<0 and d1 == d2.
         elif nparam == 0:
             T = pm.config['def_T']
             p = pm.config['def_p']
-        elif nparam > 2:
+        # There is ONE special case when three parameters are allowed
+        # T,p,x is a special case - NO D!
+        elif nparam == 3 and d is not None:
+            raise utility.PMPParameterError(
+                    'Density may not be specified simultaneously with two other properties.')
+        elif nparam > 3:
             raise utility.PMParameterError(
-                    'Specifying more than two simultaneous parameters is illegal.')
+                    'Specifying more than two simultaneous parameters is illegal (except for T,p,x).')
         
         if T is not None:
             # Make a copy of the array only if necessary
@@ -1618,12 +1623,31 @@ other conditions, x<0 and d1 == d2.
                         (p>self.data['plim'][1]).any()):
                     raise pm.utility.PMParamError('MP1: Pressure is out-of-bounds.')
                     
+                # Deal with the special case that T,p,x are specified
+                if x is not None:
+                    x = np.asarray(x, dtype=float)
+                else:
+                    x = np.array(-1, dtype=float)
+                if x.ndim==0:
+                    x = np.reshape(x,(1,))
+                    
                 # Force compatible arrays
-                T,p = np.broadcast_arrays(T,p)
-                d1 = self._d(T,p)
-                d2 = d1
-                x = np.broadcast_to(-1, T.shape)
-                I = np.broadcast_to(False, T.shape)
+                T,p,x = np.broadcast_arrays(T,p,x)
+                # Which points are not under the dome?
+                I = x<0.
+                
+                # Initialize densities
+                d1 = np.zeros_like(T)
+                d2 = np.zeros_like(T)
+                # deal with the saturated points
+                d1[I] = self._d(T[I],p[I])
+                d2[I] = d1[I]
+                # Deal with densities under the dome
+                I = np.logical_not(I)
+                d1[I] = self._dsl(T[I])[0]
+                d2[I] = self._dsv(T[I])[0]
+
+
                 return T, d1, d2, x, I
             
             # T,d
