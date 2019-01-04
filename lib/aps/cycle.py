@@ -8,7 +8,11 @@ import matplotlib.pyplot as plt
 
 
 class PMCycleError(Exception):
-    pass
+    def __str__(self):
+        return self.message
+        
+    def __repr__(self):
+        return '<PMCycleError: ' + self.message + '>'
 
 
 

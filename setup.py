@@ -50,7 +50,7 @@ setup(
     keywords = 'thermodynamic properties',
     packages=['pyromat'],
     package_dir={'pyromat':install_from},
-    package_data={'':['data/mp/*.hpd', 'data/ig/*.hpd','data/ig2/*.hpd','registry/*.py']},
+    package_data={'':['data/mp/*.hpd', 'data/ig/*.hpd','data/ig2/*.hpd','registry/*.py','aps/*.py']},
     data_files=[('.',[  'README.md', 'CHANGELOG.md', 'LICENSE.txt',
                         'test.py'])],
     install_requires=['numpy>=1.7'],
