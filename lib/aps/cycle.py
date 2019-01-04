@@ -13,9 +13,24 @@ class PMCycleError(Exception):
 
 
 class Cycle(object):
-    """The base Cycle class defines members:
+    """The base Cycle class is a template for the individual cycle analysis 
+classes.  Each cycle defines its own update() method and plotting 
+methods to interact with the data, but this default class establishes
+three generic dictionaries (param, lastparam, and meta) for managing
+cycle-specific data, six generic lists (T, p, d, x, s, and h) for 
+managing the thermodynamic state properties, and two lists (q and w) for
+managing the thermodynamic process properties.
+
+The dictionaries are:
     param       a dictionary of cycle parameters
+    lastparam   a dictionary of cycle parameters and units for the last
+                case that was run with the update() funciton
     meta        a dictionary of cycle analysis results
+Each class defines its own update() method, which is responsible for 
+calculating all of the cycle data from the contents of param[].  First,
+it copies the contents of param into lastparam[].  The intention is that
+lastparam[] should alwas reflect the conditions under which the data 
+were generated - even while param[] is being edited by a user.
 
 The following members describe the fluid properties at the discrete
 cycle states.  They are lists with an element for each state.
@@ -48,6 +63,7 @@ checks.
         if N is None:
             N = 0
         self.param = {}
+        self.lastparam = {}
         self.meta = {}
         self.T = [0] * N
         self.p = [0] * N
@@ -58,17 +74,30 @@ checks.
         self.w = [0] * N
         self.q = [0] * N
         
+        
     def __repr__(self):
+        return '<' + str(self.__class__.__name__) + '>'
+        
+        
+    def __str__(self):
         if self._test() or len(self.T)<1:
             return '<Incomplete ' + str(self.__class__.__name__) + '>'
         
         # What parameters?
         out = str(self.__class__.__name__) + '\nParameters:\n'
-        kk = self.param.keys()
+        kk = self.lastparam.keys()
         kk.sort()
         for this in kk:
-            out += '  ' + this + ' = ' + repr(self.param[this]) + '\n'
+            out += '  ' + this + ' = ' + repr(self.lastparam[this]) + '\n'
         
+        # What results?
+        out += 'Results:\n'
+        kk = self.meta.keys()
+        kk.sort()
+        for this in kk:
+            out += '  ' + this + ' = ' + repr(self.meta[this]) + '\n'
+        
+        # If the results are arrays, don't try to build state or process tables
         if isinstance(self.T[0],np.ndarray) and self.T[0].size>1:
             out += '[Performance data are arrays]\n'
             return out
@@ -88,7 +117,7 @@ checks.
         return out
         
         
-    def _test(self, N=None, require=None):
+    def _test(self, N=None, require=None, verbose=True):
         """Returns a non-zero if there is a problem with the cycle data.
     Cycle.test()
     
@@ -124,15 +153,68 @@ Return codes:
                 len(self.x) != N or\
                 len(self.s) != N or\
                 len(self.h) != N or\
-                len(self.w) != N:
+                len(self.w) != N or\
+                len(self.q) != N:
+            if verbose:
+                pm.utility.print_warning(
+                        "The state or process lists are incorrectly formatted.")
             return 1
         
         if require is not None:
-            for this in require:
-                if this not in self.param:
-                    return 3
+            pset = set(self.param)
+            rset = set(require)
+            extra = pset - rset
+            missing = rset - pset
+            
+            if missing:
+                if verbose:
+                    message = "There were missing mandatory parameters: "
+                    for this in missing:
+                        message += str(this) + ' '
+                pm.utility.print_error(message)
+                return 3
+            
+            if extra:
+                if verbose:
+                    message = "There were unrecognized parameters: "
+                    for this in extra:
+                        message += str(this) + ' '
+                pm.utility.print_error(message)
+                return 3
             
         return 0
+        
+        
+    def _writelast(self):
+        """This helper function automates writing the lastparam[] dict
+"""
+        self.lastparam = self.param.copy()
+
+        # Record the units
+        for unit in ['unit_energy', 'unit_force', 'unit_length', 
+                'unit_mass', 'unit_matter', 'unit_molar', 
+                'unit_pressure', 'unit_temperature', 'unit_time',
+                'unit_volume']:
+            self.lastparam[unit] = pm.config[unit]
+        
+        
+    def _prepparam(self, *varg):
+        """This helper funciton prepares the parameters for use in the model.
+    p1, p2, p3, ... = _prepparam('p1', 'p2', ...)
+    
+The keyword names of each parameter should be be specified in the order
+they are intended to be returned.  Each parameter is forced into a numpy
+array of at least 1 dimension, and the arrays are all broadcast together
+"""
+        out = []
+        for this in varg:
+            p = np.asarray(self.param[this], dtype=float)
+            if p.ndim == 0:
+                p = np.resize(p, (1,))
+            out.append(p)
+            
+        return np.broadcast_arrays(*out)
+        
         
     def _initplot(self, xlabel, ylabel, ax=None, fig=None):
         """Initialize a figure axes
@@ -170,7 +252,72 @@ those will be returned.
         
         
 class BraytonCycle(Cycle):
-    """The Brayton Cycle
+    """The Brayton Cycle is better known as the gas turbine or the jet engine.
+This cycle is differentiated from the Rankine cycle by staying entirely
+in the gas phase.  Most engines using the Brayton cycle use air as the 
+working fluid, but any gas will work.  Using a working fluid with oxygen
+gives a HUGE advantage over the Rankine cycle; the fuel can be burned 
+directly in the working fluid without the need for an expensive, heavy,
+and maintenance prone heat exchanger.  The down-side is that the Brayton
+cycle needs a compressor instead of a pump.  The Otto, and Diesel cycles
+have similar advantages over steam power, but unlike them, the Brayton
+cycle is a truly continuous process.
+
+In this simplified Brayton cycle model, the working fluid is assumed to
+be unaffected in composition in the burner.  Normally, the addition of
+heat would mean that we burned fuel in the working fluid, which would
+add carbon and depleat oxygen in favor of carbon dioxide and water.
+
+Parameters found in the param[] dictionary:
+    p1          The reservoir pressure
+    p2          The boiler pressure
+    fluid       The working fluid
+    eta12       The compressor efficiency (isentropic efficiency)
+    eta23       The burner efficiency (% of heat not lost to the walls)
+    eta34       The turbine efficiency (isentropic efficiency)
+
+Results found in the meta[] dictionary:
+    wnet        The net work produced (w34 + w12)
+    qH          The high-temperature heat (q23)
+    qL          The low-temperature heat (q41)
+    eta         The total system efficiency (wnet / qH)
+
+
+The Brayton cycle consists of four processes and four states.
+
+(State 1)       [Ambient gas at p1, T1]
+
+(Process 1-2)   A compressor that pressurizes the incoming gas; usually
+                to a pre-determined multiple of the inlet pressure.
+                
+(State 2)       [Burner inlet at p2]
+                
+(Process 2-3)   This is usually a burner where fuel is burned directly 
+                in the working fluid.  Alternately, this could be a
+                heat exchanger where heat is added.
+
+(State 3)       [Burner outlet at p2]
+
+(Process 3-4)   The high-temperature gas is expanded through a turbine.
+                Often, the output shaft also drives the compressor, but
+                sometimes, the turbines are split into multiple 
+                independent stages with separate shafts; allowing them
+                to spin at different speeds.  In a jet engine, the 
+                output turbine is absent entirely and replaced with a 
+                transsonic nozzle.  In this model, we presume that the
+                engine is producing shaft work rather than thrust.
+                
+(State 4)       [Turbine exhaust at p1]
+                
+(Process 4-1)   In this process, the exhaust is cooled back to the 
+                ambient temperature.  In most Brayton cycles, there is
+                not heat exchanger for this process.  Instead, this
+                describes the cooling that occurrs when the exhaust 
+                mingles with the ambient air.  As a result, this process
+                is frequently represented with a dashed line to indicate
+                that it is not a part of the engine.
+                
+
 """
     def __init__(self):
         # Call the super init
@@ -181,44 +328,35 @@ class BraytonCycle(Cycle):
                 'p2':20, 
                 'fluid':'ig.air', 
                 'T1':300., 
-                'T3':2000.}
+                'T3':2000.,
+                'q23':None,
+                'eta12':1.,
+                'eta23':1.,
+                'eta34':1.}
         
 
     def update(self):
         """Update the cycle states and processes
 """
-        if self._test(require=('fluid', 'p1', 'p2', 'T1', 'T3')):
+        if self._test(require=('fluid', 'p1', 'p2', 'T1', 'T3', 'q23', 'eta12', 'eta23', 'eta34')):
             raise PMCycleError('There was a problem with the Brayton Cycle configuration')
 
-        fluid = self.param['fluid']
-        p1 = self.param['p1']
-        p2 = self.param['p2']
-        T1 = self.param['T1']
-        T3 = self.param['T3']
+        # Detect the solution mode
+        if self.param['T3'] is not None:
+            mode = 0
+        elif self.param['q23'] is not None:
+            mode = 1
+        else:
+            raise PMCycleError('BraytonCycle requires T3 or q23 to be specified.')
 
+        fluid = self.param['fluid']
         # Parse the subsance input
         if isinstance(fluid, str):
             fluid = pm.get(fluid)
 
-        # Format the pressure inputs
-        p1 = np.asarray(p1,dtype=float)
-        if p1.ndim==0:
-            p1 = np.reshape(p1, (1,))
+        p1,p2,T1,T3,q23,eta12,eta23,eta34 = self._prepparam(
+                'p1','p2','T1','T3', 'q23', 'eta12', 'eta23', 'eta34')
         
-        p2 = np.asarray(p2,dtype=float)
-        if p2.ndim==0:
-            p2 = np.reshape(p2, (1,))
-            
-        T1 = np.asarray(T1,dtype=float)
-        if T1.ndim==0:
-            T1 = np.reshape(T1, (1,))
-        
-        T3 = np.asarray(T3,dtype=float)
-        if T3.ndim==0:
-            T3 = np.reshape(T3, (1,))
-        
-        p1,p2,T1,T3 = np.broadcast_arrays(p1,p2,T1,T3)
-            
         # p1 < p2 < pc
         if (p2 <= p1).any():
             raise PMCycleError('BraytonCycle requires p2 to be greater than p1.')
@@ -226,6 +364,7 @@ class BraytonCycle(Cycle):
         if (T3 <= T1).any():
             raise PMCycleError('BraytonCycle requires T3 to be less than T1.')
         
+        self._writelast()
         
         # Calculate state 1
         self.p[0] = p1
@@ -233,27 +372,45 @@ class BraytonCycle(Cycle):
         self.s[0] = fluid.s(T=T1,p=p1)
         self.h[0] = fluid.h(T=T1,p=p1)
         self.d[0] = fluid.d(T=T1,p=p1)
+        self.x[0] = -1
 
         # Calculate state 2
         self.p[1] = p2
-        self.s[1] = self.s[0]
-        self.T[1] = fluid.T_s(s=self.s[0],p=p2)
-        self.d[1] = fluid.d(T=self.T[1],p=p2)
-        self.h[1] = fluid.h(T=self.T[1],p=p2)
+        Ts2 = fluid.T_s(s=self.s[0], p=p2)
+        hs2 = fluid.h(T=Ts2, p=p2)
+        # Modify the work by the compressor efficiency
+        self.h[1] = self.h[0] + (hs2 - self.h[0])/eta12
+        self.T[1] = fluid.T_h(h=self.h[1], p=p2)
+        self.s[1] = fluid.s(T=self.T[1], p=p2)
+        self.d[1] = fluid.d(T=self.T[1], p=p2)
+        self.x[1] = -1
         
-        # Calculate state 3
-        self.p[2] = p2
-        self.T[2] = T3
-        self.s[2] = fluid.s(T=T3, p=p2)
-        self.h[2] = fluid.h(T=T3, p=p2)
-        self.d[2] = fluid.d(T=T3, p=p2)
-        
+        if mode==0:
+            # Calculate state 3
+            self.p[2] = p2
+            self.T[2] = T3
+            self.s[2] = fluid.s(T=T3, p=p2)
+            self.h[2] = fluid.h(T=T3, p=p2)
+            self.d[2] = fluid.d(T=T3, p=p2)
+            self.x[2] = -1
+        else:
+            self.p[2] = p2
+            self.h[2] = self.h[1] + q23*eta23
+            self.T[2] = fluid.T_h(h=self.h[2], p=p2)
+            self.s[2] = fluid.s(T=self.T[2],p=p2)
+            self.d[2] = fluid.d(T=self.d[2],p=p2)
+            self.x[2] = -1
+            
         # Calculate state 4
         self.p[3] = p1
-        self.s[3] = self.s[2]
-        self.T[3] = fluid.T_s(s=self.s[3], p=p1)
-        self.h[3] = fluid.h(T=self.T[3], p=p1)
-        self.d[3] = fluid.d(T=self.d[3], p=p1)
+        T4s = fluid.T_s(s=self.s[2],p=p1)
+        h4s = fluid.h(T=T4s, p=p1)
+        self.h[3] = self.h[2] + (h4s - self.h[2])*eta34
+        self.T[3] = fluid.T_h(h=self.h[3], p=p1)
+        self.s[3] = fluid.s(T=self.T[3], p=p1)
+        self.d[3] = fluid.d(T=self.T[3], p=p1)
+        self.x[3] = -1
+        
         
         self.w = [
                 self.h[0] - self.h[1],
@@ -267,7 +424,10 @@ class BraytonCycle(Cycle):
                 0.,
                 self.h[0] - self.h[3]]
         
-        self.meta['eta'] = (self.w[2]+self.w[0]) / self.q[1]
+        self.meta['qH'] = self.q[1]
+        self.meta['qL'] = self.q[3]
+        self.meta['wnet'] = self.w[2] + self.w[0]
+        self.meta['eta'] = self.meta['wnet'] / self.meta['qH']
     
     
 class RankineCycle(Cycle):
@@ -280,10 +440,20 @@ All modern systems use at least one additional super-heat process to
 push the steam into the super-heated region.  To model a super-heated
 Rankine cycle, see the RankineSHCycle class.
 
-Parameters:
+Parameters found in the param[] dictionary:
     p1          The reservoir pressure
     p2          The boiler pressure
     fluid       The working fluid
+    eta12       The pump efficiency (isentropic efficiency)
+    eta23       The boiler efficiency (% of heat added to fluid)
+    eta34       The turbine/piston efficiency (isentropic efficiency)
+
+Results found in the meta[] dictionary:
+    wnet        The net work produced (w34 + w12)
+    qH          The high-temperature heat (q23)
+    qL          The low-temperature heat (q41)
+    eta         The total system efficiency (wnet / qH)
+
 
 The basic Rankine cycle consists of four processes and four states.
 
@@ -331,12 +501,6 @@ The basic Rankine cycle consists of four processes and four states.
             raise PMCycleError('There was a problem with the Rankine Cycle configuration')
 
         fluid = self.param['fluid']
-        p1 = self.param['p1']
-        p2 = self.param['p2']
-        eta12 = self.param['eta12']
-        eta23 = self.param['eta23']
-        eta34 = self.param['eta34']
-        
 
         # Parse the subsance input
         if isinstance(fluid, str):
@@ -344,30 +508,10 @@ The basic Rankine cycle consists of four processes and four states.
         if not isinstance(fluid, pm.reg.registry['mp1']):
             raise PMCycleError('RankineCycle requires substances of class mp1')
 
-        # Format the pressure inputs
-        p1 = np.asarray(p1,dtype=float)
-        if p1.ndim==0:
-            p1 = np.reshape(p1, (1,))
+        # Vectorize the parameters
+        p1,p2,eta12,eta23,eta34 = self._prepparam(
+                'p1','p2', 'eta12', 'eta23', 'eta34')
         
-        p2 = np.asarray(p2,dtype=float)
-        if p2.ndim==0:
-            p2 = np.reshape(p2, (1,))
-        
-        eta12 = np.asarray(eta12, dtype=float)
-        if eta12.ndim==0:
-            eta12 = np.reshape(eta12, (1,))
-            
-        eta23 = np.asarray(eta23, dtype=float)
-        if eta23.ndim==0:
-            eta23 = np.reshape(eta23, (1,))
-            
-        eta34 = np.asarray(eta34, dtype=float)
-        if eta12.ndim==0:
-            eta34 = np.reshape(eta34, (1,))
-        
-        p1,p2,eta12,eta23,eta34 = np.broadcast_arrays(p1,p2,eta12,eta23,eta34)
-        
-            
         # Get the critical and triple points
         Tc,pc = fluid.critical()
         Tt,pt = fluid.triple()
@@ -383,8 +527,15 @@ The basic Rankine cycle consists of four processes and four states.
         if (p2 <= p1).any():
             raise PMCycleError('RankineCycle requires p2 to be greater than p1.')
         elif (p2 >= pc).any():
-            raise PMCycleerror('RankineCycle requires p1 to be less than the critical-point pressure')
+            raise PMCycleError('RankineCycle requires p1 to be less than the critical-point pressure')
             
+        if (eta12<0).any() or (eta12>1).any() or (eta23<0).any() or \
+                (eta23>1).any() or (eta34<0).any() or (eta34>1).any():
+            raise PMCycleError('RankineCycle efficiencies must be between 0 and 1.')
+        
+        
+        # Update the lastparam values
+        self._writelast()
         
         # Calculate state 1
         self.p[0] = p1
@@ -438,13 +589,10 @@ The basic Rankine cycle consists of four processes and four states.
                 0.,
                 self.h[0] - self.h[3]]
         
-        self.meta['eta'] = (self.w[2]+self.w[0]) / self.q[1]
-        self.meta['uE'] = pm.config['unit_energy']
-        self.meta['uT'] = pm.config['unit_temperature']
-        self.meta['uP'] = pm.config['unit_pressure']
-        self.meta['uM'] = pm.config['unit_matter']
-        self.meta['uV'] = pm.config['unit_volume']
-        self.meta['fluid'] = fluid
+        self.meta['qH']  = self.q[1]
+        self.meta['qL'] = self.q[3]
+        self.meta['wnet'] = self.w[2] + self.w[0]
+        self.meta['eta' ] = self.meta['wnet'] / self.meta['qH']
     
     
     
@@ -458,9 +606,13 @@ The basic Rankine cycle consists of four processes and four states.
         if isinstance(self.T, np.ndarray) and self.T.size>1:
             raise PMCycleError('Plotting arrays of cycle data is not supported.')
         
+        uE = self.lastparam['unit_energy']
+        uM = self.lastparam['unit_matter']
+        uT = self.lastparam['unit_temperature']
+        
         ax = self._initplot(
-                's (%s/%s%s)'%(self.meta['uE'], self.meta['uM'], self.meta['uT']), 
-                'T (%s)'%(self.meta['uT']), ax=ax, fig=fig)
+                's (%s/%s%s)'%(uE, uM, uT), 
+                'T (%s)'%(uT), ax=ax, fig=fig)
         
         if satstyle is None:
             satstyle = {'lw':2, 'c':'k', 'ls':'solid', 'marker':'None'}
@@ -472,12 +624,15 @@ The basic Rankine cycle consists of four processes and four states.
             boxstyle = {'fc':'w', 'ec':'k', 'boxstyle':'square,pad=.25'}
             
         # Get the working fluid object
-        fluid = self.meta['fluid']
+        if isinstance(self.lastparam['fluid'], str):
+            fluid = pm.get(self.lastparam['fluid'])
+        else:
+            fluid = self.lastparam['fluid']
             
         # Plot the dome
         Tc,pc = fluid.critical()
         Tt,pt = fluid.triple()
-        T = np.linspace(Tt, 0.99999*Tc, 100)
+        T = np.linspace(Tt, Tc*0.999999, 100)
         sL, sV = fluid.ss(T=T)
         ax.plot(sL, T, **satstyle)
         ax.plot(sV, T, **satstyle)
@@ -543,9 +698,25 @@ operating temperatures, which stress the superheater materials.
 Parameters:
     p1          The reservoir pressure
     p2          The boiler pressure
-    T4          Super-heat temperature (optional)
-    d34         Super-heater heat (optional)
+    T4          Super-heat temperature (can be None)
+    q34         Super-heater heat (can be None)
     fluid       The working fluid
+    eta12       The pump efficiency (isentropic)
+    eta23       The boiler efficiency (% heat added to the fluid)
+    eta34       The superheater efficiency (same)
+    eta45       The piston/turbine efficiency (isentropic)
+    
+If the T4 and q34 parameters are both None, then state 4 will be 
+determined by requiring state 5 to be a saturated vapor for the ideal.
+Rankine cycle.  When eta45<1, state 5 will drift into the super-heated
+vapor region.  Alternately, either the superheater heat, q34, or the 
+superheater outlet temperature, T4, can be specified.
+
+Results found in the meta[] dictionary:
+    wnet        The net work produced (w45 + w12)
+    qH          The high-temperature heat (q23 + q34)
+    qL          The low-temperature heat (q51)
+    eta         The total system efficiency (wnet / qH)
 
 The Rankine Super-Heated Cycle consists of five processes and states.
 
@@ -585,53 +756,37 @@ requires some means of specifying the heat added by the superheater.
         self.param = {
                 'p1':1.01325, 
                 'p2':10., 
-                'fluid':'mp.H2O'}
+                'fluid':'mp.H2O',
+                'T4':None,
+                'q34':None,
+                'eta12':1.,
+                'eta23':1.,
+                'eta34':1.,
+                'eta45':1.}
         
 
     def update(self):
         """Update the cycle states and processes
 """
-        if self._test(require=('fluid', 'p1', 'p2')):
+        if self._test(require=('fluid', 'p1', 'p2', 'T4', 'q34', 'eta12', 'eta23', 'eta34', 'eta45')):
             raise PMCycleError('There was a problem with the Rankine Cycle configuration')
 
-        fluid = self.param['fluid']
-        p1 = self.param['p1']
-        p2 = self.param['p2']
-        q34 = 0
-        T4 = 0
+        # Determine the super-heat solution mode
         mode = 0
-        if 'q34' in self.param:
-            q34 = self.param['q34']
+        if self.param['q34'] is not None:
             mode = 2
-        elif 'T4' in self.param:
-            T4 = self.param['T4']
+        elif self.param['T4'] is not None:
             mode = 1
 
+        fluid = self.param['fluid']
         # Parse the subsance input
         if isinstance(fluid, str):
             fluid = pm.get(fluid)
         if not isinstance(fluid, pm.reg.registry['mp1']):
             raise PMCycleError('RankineCycle requires substances of class mp1')
 
-        # Format the pressure inputs
-        p1 = np.asarray(p1,dtype=float)
-        if p1.ndim==0:
-            p1 = np.reshape(p1, (1,))
-        
-        p2 = np.asarray(p2,dtype=float)
-        if p2.ndim==0:
-            p2 = np.reshape(p2, (1,))
-        
-        T4 = np.asarray(T4,dtype=float)
-        if T4.ndim==0:
-            T4 = np.reshape(T4, (1,))
-        
-        q34 = np.asarray(q34,dtype=float)
-        if q34.ndim==0:
-            q34 = np.reshape(q34, (1,))
-        
-        p1,p2,T4,q34 = np.broadcast_arrays(p1,p2,T4,q34)
-            
+        p1,p2,T4,q34,eta12,eta23,eta34,eta45 = self._prepparam(
+                'p1','p2','T4', 'q34', 'eta12', 'eta23', 'eta34', 'eta45')
             
         # Get the critical and triple points
         Tc,pc = fluid.critical()
@@ -640,16 +795,24 @@ requires some means of specifying the heat added by the superheater.
         # Test the inputs
         # pt < p1 < pc
         if (p1 <= pt).any():
-            raise PMCycleError('RankineCycle requires p1 to be greater than the triple-point pressure')
+            raise PMCycleError('RankineSHCycle requires p1 to be greater than the triple-point pressure')
         elif (p1 >= pc).any():
-            raise PMCycleError('Rankine Cycle requires p1 to be less than the critical-point pressure')
+            raise PMCycleError('RankineSHCycle requires p1 to be less than the critical-point pressure')
             
         # p1 < p2 < pc
         if (p2 <= p1).any():
-            raise PMCycleError('RankineCycle requires p2 to be greater than p1.')
+            raise PMCycleError('RankineSHCycle requires p2 to be greater than p1.')
         elif (p2 >= pc).any():
-            raise PMCycleerror('RankineCycle requires p1 to be less than the critical-point pressure')
+            raise PMCycleError('RankineSHCycle requires p1 to be less than the critical-point pressure')
             
+        if (eta12<0).any() or (eta12>1).any() or (eta23<0).any() or \
+                (eta23>1).any() or (eta34<0).any() or (eta34>1).any() or\
+                (eta45<0).any() or (eta45>1).any():
+            raise PMCycleError('RankineSHCycle efficiencies must be between 0 and 1.')
+        
+        
+        # Update the lastparam values
+        self._writelast()
         
         # Calculate state 1
         self.p[0] = p1
@@ -661,11 +824,15 @@ requires some means of specifying the heat added by the superheater.
 
         # Calculate state 2
         self.p[1] = p2
-        self.s[1] = self.s[0]
-        self.T[1] = fluid.T_s(s=self.s[0],p=p2)
-        self.d[1] = fluid.d(T=self.T[1],p=p2)
-        self.h[1] = fluid.h(T=self.T[1], d=self.d[1])
-        self.x[1] = -1.
+        # Start with the isentropic performance
+        T2s = fluid.T_s(s=self.s[0], p=p2)
+        h2s = fluid.h(T=T2s, p=p2)
+        # Adjust the enthalpy rise by the inverse of pump efficiency
+        self.h[1] = self.h[0] + (h2s - self.h[0])/eta12
+        self.T[1],self.x[1] = fluid.T_h(h=self.h[1],p=p2,quality=True)
+        self.d[1] = fluid.d(T=self.T[1], p=p2, x=self.x[1])
+        # Now that we have density, we can use it directly to solve for entropy
+        self.s[1] = fluid.s(T=self.T[1], d=self.d[1])
         
         # Calculate state 3
         self.p[2] = p2
@@ -675,22 +842,15 @@ requires some means of specifying the heat added by the superheater.
         _,self.d[2] = fluid.ds(T=self.T[2])
         self.x[2] = 1.
         
-        # Calculate states 4 and 5
-        # If state 5 is saturated vapor
+        # Calculate states 4 by case
+        # If the target for state5 is a saturated vapor
         if mode == 0:
-            self.p[4] = p1
-            self.T[4] = fluid.Ts(p=p1)
-            _,self.d[4] = fluid.ds(T=self.T[4])
-            _,self.h[4] = fluid.hs(T=self.T[4])
-            _,self.s[4] = fluid.ss(T=self.T[4])
-            self.x[4] = 1.
-            
+            # force s4 to be equal to the sV at p1
             self.p[3] = p2
-            self.s[3] = self.s[4]
-            self.T[3] = fluid.T_s(s=self.s[4], p=p2)
-            self.d[3] = fluid.d(T=self.T[3], p=p2)
-            self.h[3] = fluid.h(T=self.T[3],d=self.d[3])
-            self.x[3] = -1.
+            _,self.s[3] = fluid.ss(p=p1)
+            self.T[3], self.x[3] = fluid.T_s(s=self.s[3], p=p2, quality=True)
+            self.d[3] = fluid.d(T=self.T[3], p=p2, x=self.x[3])
+            self.h[3] = fluid.h(T=self.T[3], d=self.d[3])
                 
         # If state 4 is temperature limited
         elif mode == 1:
@@ -703,41 +863,25 @@ requires some means of specifying the heat added by the superheater.
             self.h[3], self.s[3], self.d[3] = fluid.hsd(T=T4, p=p2)
             self.x[3] = -1.
             
-            # Isentropic expansion
-            self.p[4] = p1
-            self.T[4], self.x[4] = fluid.T_s(s=self.s[3], p=p1, quality=True)
-            # Initialize h,s, and d results
-            self.h[4] = np.zeros_like(self.T[4])
-            self.s[4] = np.zeros_like(self.T[4])
-            self.d[4] = np.zeros_like(self.T[4])
-            # Select points that are super-heated
-            I = self.x[4] < 0
-            self.h[4][I], self.s[4][I], self.d[4][I] = fluid.hsd(T=self.T[4][I], p=p1)
-            I = np.logical_not(I)
-            self.h[4][I], self.s[4][I], self.d[4][I] = fluid.hsd(T=self.T[4][I], x=self.x[4][I])
-            
         # If state 4 is determined by heat addition
         else:
             self.p[3] = p2
             self.h[3] = self.h[2] + q34
-            self.T[3] = fluid.T_h(h=self.h[3], p=p2)
-            self.d[3] = fluid.d(T=self.T[3], p=p2)
+            self.T[3], self.x[3] = fluid.T_h(h=self.h[3], p=p2, quality=True)
+            self.d[3] = fluid.d(T=self.T[3], p=p2, x=self.x[3])
             self.s[3] = fluid.s(T=self.T[3], d=self.d[3])
-            self.x[3] = -1
-            
-            # Isentropic expansion
-            self.p[4] = p1
-            self.T[4], self.x[4] = fluid.T_s(s=self.s[3], p=p1, quality=True)
-            # Initialize h,s, and d results
-            self.h[4] = np.zeros_like(self.T[4])
-            self.s[4] = np.zeros_like(self.T[4])
-            self.d[4] = np.zeros_like(self.T[4])
-            # Select points that are super-heated
-            I = self.x[4] < 0
-            self.h[4][I], self.s[4][I], self.d[4][I] = fluid.hsd(T=self.T[4][I], p=p1)
-            I = np.logical_not(I)
-            self.h[4][I], self.s[4][I], self.d[4][I] = fluid.hsd(T=self.T[4][I], x=self.x[4][I])
-            
+        
+        # Calculate state 5
+        self.p[4] = p1
+        T5s,x5s = fluid.T_s(self.s[3], p=p1, quality=True)
+        h5s = fluid.h(T=T5s, p=p1, x=x5s)
+        # Adjust enthlpy fall by the turbine efficiency
+        self.h[4] = self.h[3] + (h5s - self.h[3])*eta45
+        self.T[4],self.x[4] = fluid.T_h(h=self.h[4], p=p1, quality=True)
+        self.d[4] = fluid.d(T=self.T[4], p=p1, x=self.x[4])
+        # Now that we have density, we can use it directly to solve for entropy
+        self.s[4] = fluid.s(T=self.T[4], d=self.d[4])
+        
         
         self.w = [
                 self.h[0] - self.h[1],
@@ -753,13 +897,10 @@ requires some means of specifying the heat added by the superheater.
                 0.,
                 self.h[0] - self.h[4]]
         
-        self.meta['eta'] = (self.w[3]+self.w[0]) / (self.q[1] + self.q[2])
-        self.meta['uE'] = pm.config['unit_energy']
-        self.meta['uT'] = pm.config['unit_temperature']
-        self.meta['uP'] = pm.config['unit_pressure']
-        self.meta['uM'] = pm.config['unit_matter']
-        self.meta['uV'] = pm.config['unit_volume']
-        self.meta['fluid'] = fluid
+        self.meta['qH']  = self.q[1] + self.q[2]
+        self.meta['qL'] = self.q[3]
+        self.meta['wnet'] = self.w[3] + self.w[0]
+        self.meta['eta' ] = self.meta['wnet'] / self.meta['qH']
         
         
     def tsplot(self, ax=None, fig=None, slabels=True, 
@@ -772,9 +913,14 @@ requires some means of specifying the heat added by the superheater.
         if isinstance(self.T, np.ndarray) and self.T.size>1:
             raise PMCycleError('Plotting arrays of cycle data is not supported.')
         
+        uE = self.lastparam['unit_energy']
+        uM = self.lastparam['unit_matter']
+        uT = self.lastparam['unit_temperature']
+        
         ax = self._initplot(
-                's (%s/%s%s)'%(self.meta['uE'], self.meta['uM'], self.meta['uT']), 
-                'T (%s)'%(self.meta['uT']), ax=ax, fig=fig)
+                's (%s/%s%s)'%(uE, uM, uT), 
+                'T (%s)'%(uT), ax=ax, fig=fig)
+        
         
         if satstyle is None:
             satstyle = {'lw':2, 'c':'k', 'ls':'solid', 'marker':'None'}
@@ -785,7 +931,10 @@ requires some means of specifying the heat added by the superheater.
         boxstyle = {'fc':'w', 'ec':'k', 'boxstyle':'square,pad=.25'}
             
         # Get the working fluid object
-        fluid = self.meta['fluid']
+        if isinstance(self.lastparam['fluid'], str):
+            fluid = pm.get(self.lastparam['fluid'])
+        else:
+            fluid = self.lastparam['fluid']
             
         # Plot the dome
         Tc,pc = fluid.critical()
