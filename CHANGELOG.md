@@ -92,3 +92,4 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 ## Version 2.0.12
 - Corrected data error in CO2 that caused errors near the saturation curve
 - Added support for specifying T,p, and x simultaneously; p is ignored unless x<0
+- Added the aps module with support for calculating the performance of thermodynamic cycles
