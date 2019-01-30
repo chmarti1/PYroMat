@@ -711,21 +711,30 @@ param       A dicitonary of keyword arguments are passed directly to the
                 return
 
     
-    def _iter1_(self, fn, prop, y, x, Ids, xmin, xmax,
+    def _hybrid1(self, fn, prop, y, x, Ids, xmin, xmax,
                 ep=1e-6, Nmax=20, fx_index=1, 
                 verbose=False, param={}):
         """Invert an inner routine.
         
-    _iter1(fn, prop, y, x, Ids, xmin, xmax,)
+    _hybrid1(fn, prop, y, x, Ids, xmin, xmax,)
     
-Iteration is performed in-place on the x array.  Iteration is performed
-in two stages.  First biseciton provides global convergence, and Newton
-iteration is used to polish the solutions for better accuracy.  
-Bisection is slower than Newton iteration, but it is immune to the 
-stability problems that Newton iteration can suffer in systems with high
-curvature.
+Iteration is performed in-place on the x array until fn(x) == y.  The 
+hybrid1 algorithm depends on the xmax and xmin values to bracket a 
+solution.  The funciton, fn, and its derivative are evaluated at the 
+maximum and minimum, and Newton's method is used to generate two 
+candidate next guesses.  The point bisecting the maximum and minimum is
+calculated, providing a third candidate guess.  Of the three candidates,
+the one in the middle is selected for the next iteration step.  If the
+middle point lies outside of xmax and xmin, then the bisection point is
+selected instead.
 
-Note that bisection iteration 
+Once a next guess is selected, the function and its derivative are 
+evaluated there.  This guess is used to replace either xmin or xmax, 
+just like would be done in a bisection algorithm, but then the three-
+candidate voting algorithm is repeated.  Since the calculated next guess
+of the boundaries is unchanged from the last iteration step, only one
+function evaluation is required per step, making the computational cost
+comparable with Newton's method.
 
 *** Required Parameters ***
 fn          The inner routine (method) to be inverted.  It must have a 
@@ -759,75 +768,87 @@ param       A dicitonary of keyword arguments are passed directly to the
             inner routine being inverted.
 
 """
-        # As the iteration progresses, the number of True elements in 
-        # Ids will decrease until they are all false
-        # There are some important intermediate values that will also
-        # require indexable arrays
-        dx = np.zeros_like(y, dtype=float)
-        error = np.zeros_like(dx, dtype=float)
-        IooB = np.zeros_like(Ids, dtype=bool)
-        # Bisection working indices
-        Ipos = np.zeros_like(Ids, dtype=bool) 
-        Ineg = np.zeros_like(Ids, dtype=bool)
-
-        if verbose:
-            print('Iterating on "' + prop + '"')
-            print('Target values:')
-            print(y)
-            print('Limits:')
-            print(xmin,xmax)
-            print('Global convergance with bisection')
-            print('xmin', 'x', 'xmax', 'yvalue')
-            
-            
-        # Create an argument dictionary
+        #================================#
+        # Initialize intermediate arrays #
+        #================================#
+        # Produce arrays of candidate guesses xa and xb are produced by 
+        # the Newton algorithm from xmin and xmax respectively.  
+        # xc is produced by bisection.
+        xa = np.zeros_like(x, dtype=float)
+        xb = np.zeros_like(x, dtype=float)
+        xc = np.zeros_like(x, dtype=float)
+        # Initialize the positive/negative slope indices
+        # The Ipos array indicates for which elements of the x,y array 
+        # pair fn(xmin) < y fn(xmax).  This is a positively sloped fn.
+        Ipos = np.zeros_like(Ids, dtype=bool)
+        # The Iwork index is used to select a data sub-set that is 
+        # currently being worked on
+        Iwork = np.zeros_like(Ids, dtype=bool)
+        
+        # Initialize an argument dicitonary
         arg = param.copy()
-        # Reduce array arguments by the down-select indices
+        
+        # Build the argument list
         for k,v in param.items():
             # For any array arguments, shrink them along with Ids
             if isinstance(v,np.ndarray):
                 arg[k] = v[Ids]
-        
-        # Set up the biseciton process (global convergance)
-        # Test the y vlaues at the bounds to determine monotonic slope
-        arg[prop] = xmax[Ids]
-        yy = fn( diff=1, **arg)[0]
+        # Now, we'll evalaute the funciton at the limits
+        # Start at the minimum
         arg[prop] = xmin[Ids]
-        Ipos[Ids] = yy > fn(diff=1, **arg)[0]     # Positive slope indices
-        Ineg[Ids] = np.logical_not(Ipos[Ids])   # Negative slope indices
-
-        for count in range(6):
-            # Initialize the result vector to bisect the regions
-            x[Ids] = 0.5*(xmax[Ids] + xmin[Ids])
-            # set the primary property array
-            arg[prop] = x[Ids]
-            # Evaluate the funciton derivative
-            FF = fn( diff=1, **arg)
-            yy = FF[0]
-            
-            if verbose:
-                print(xmin, x, xmax, yy)
-            # Borrow IooB as a working index
-            # Among the positively sloped elements, which are above the target?
-            IooB[Ids] = False
-            IooB[Ipos] = yy[Ipos[Ids]] > y[Ipos]
-            xmax[IooB] = x[IooB]
-            IooB[Ipos] = np.logical_not(IooB[Ipos])
-            xmin[IooB] = x[IooB]
-            IooB[Ids] = False
-            IooB[Ineg] = yy[Ineg[Ids]] > y[Ineg]
-            xmax[IooB] = x[IooB]
-            IooB[Ineg] = np.logical_not(IooB[Ineg])
-            xmin[IooB] = x[IooB]
-            
-            
-            
+        FF = fn(diff=1, **arg)
+        yy = FF[0]
+        yyx = FF[fx_index]
+        # Calculate the first candidate solution
+        xa[Ids] = xmin[Ids] - (y[Ids] - yy)/yyx
+        
+        # Check the slope
+        Ipos[Ids] = yy < y[Ids]
+        
+        # Now, evaluate at the maximum 
+        arg[prop] = xmax[Ids]
+        FF = fn(diff=1, **arg)
+        yy = FF[0]
+        yyx = FF[fx_index]
+        # Calculate the second candidate solution
+        xb[Ids] = xmax[Ids] - (y[Ids] - yy)/yyx
+        
+        # Verify that the solution has been bracketed
+        if not np.logical_xor(Ipos[Ids], yy < y[Ids]).all():
+            raise pm.utility.PMParamError('_HYBRID1: At least one max/min value does not bracket a solution!')
+        
+        # Calculate the thrid candidate solution
+        xc[Ids] = 0.5*(xmin[Ids] + xmax[Ids])
+        
         if verbose:
-            print('Polishing with Newton iteration')
-            print('x', 'yvalue', 'dydx', 'dx', 'Ids')
-
+            print(" xmin  xmax  xa  xb  xc ")
+        
         count = 0
         while Ids.any():
+            if verbose:
+                print(xmin, xmax, xa, xc, xb)
+            
+            # Clean Iwork. In the core of the algorithm, only Iwork[Ids]
+            # values are modified. As Ids shrinks, stray values of Iwork
+            # can remain True, causing problems.
+            Iwork[:] = False
+            
+            # The last step has established three candidate solutions
+            # Which should we select?  First, identify all points for
+            # which xa is the next guess.
+            Iwork[Ids] = np.logical_xor(xa[Ids]<xb[Ids], xa[Ids]<xc[Ids])
+            x[Iwork] = xa[Iwork]
+            # Now, find all the xb points that should be the next guess
+            Iwork[Ids] = np.logical_xor(xb[Ids]<xa[Ids], xb[Ids]<xa[Ids])
+            x[Iwork] = xb[Iwork]
+            # Finally, the xc points
+            # Now, find all the xc points that should be the next guess
+            Iwork[Ids] = np.logical_xor(xc[Ids]<xa[Ids], xc[Ids]<xb[Ids])
+            x[Iwork] = xc[Iwork]
+            # Test the candidate points for out-of-bounds.  Use xc instead.
+            Iwork[Ids] = np.logical_or(x[Ids]<=xmin[Ids], x[Ids]>=xmax[Ids])
+            x[Iwork] = xc[Iwork]
+            
             # Build the new argument list
             for k,v in param.items():
                 # For any array arguments, shrink them along with Ids
@@ -839,36 +860,31 @@ param       A dicitonary of keyword arguments are passed directly to the
             FF = fn( diff=1, **arg)
             yy = FF[0]
             yyx = FF[fx_index]
-            # note that x[Ids], yy, yyx, and all the other floating 
-            # intermediates are now in m-space; the sub-set of values
-            # still under iteration.
-            # Calculate the error, the linear change in x, and the new x
-            error[Ids] = y[Ids] - yy
-            dx[Ids] = error[Ids] / yyx
-            if verbose:
-                print(x, yy, yyx, dx, Ids)
-            x[Ids] += dx[Ids]
-            # An out-of-bounds index
-            #IooB = np.logical_or( x < xmin, x > xmax)
-            IooB[Ids] = np.logical_or( x[Ids] < xmin[Ids], x[Ids] > xmax[Ids])
-            count_oob = 0
-            while IooB[Ids].any():
-                dx[IooB] /= 2.
-                x[IooB] -= dx[IooB]
-                IooB[Ids] = np.logical_or( x[Ids] < xmin[Ids], x[Ids] > xmax[Ids])
-                # Prevent a while-loop-trap
-                count_oob += 1
-                if count_oob>Nmax:
-                    raise pm.utility.PMAnalysisError(
-                        'iter1_() failed to produce a guess that was in-bounds')
             
-            # Check the iteration convergence
-            Ids[Ids] = abs(error[Ids]) > abs(ep*y[Ids])
+            # use xc as an intermediate for the next guesses
+            xc[Ids] = x[Ids] + (y[Ids] - yy)/yyx
+            
+            # Where is the guess?
+            # Should it be stored in xmin?
+            Iwork[Ids] = np.logical_xor(yy > y[Ids], Ipos[Ids])
+            xmin[Iwork] = x[Iwork]
+            xa[Iwork] = xc[Iwork]
+            # or in xmax
+            Iwork[Ids] = np.logical_not(Iwork[Ids])
+            xmax[Iwork] = x[Iwork]
+            xb[Iwork] = xc[Iwork]
+            
+            # Calculate the new bisection point
+            xc[Ids] = 0.5*(xmax[Ids] + xmin[Ids])
+            
+            # Check for convergence
+            Ids[Ids] = np.abs(yy-y[Ids]) > np.abs(ep*y[Ids])
+            
             # Prevent a while-loop-trap
             count += 1
             if count>Nmax:                
                 pm.utility.print_warning(\
-                    'iter1_() failed to converge for %d elements after %d attempts'%(\
+                    '_hybrid1() failed to converge for %d elements after %d attempts'%(\
                     Ids.sum(), Nmax))
                 return
 
@@ -2643,7 +2659,8 @@ along with temperature.
 
         # Isat is now a down-select array
         Isat = np.logical_not(Isat)
-        self._iter1(
+#        self._iter1(
+        self._hybrid1(
                 self._tpiter1,
                 'T',
                 s,
