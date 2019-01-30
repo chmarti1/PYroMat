@@ -717,7 +717,12 @@ param       A dicitonary of keyword arguments are passed directly to the
         """Invert an inner routine.
         
     _hybrid1(fn, prop, y, x, Ids, xmin, xmax,)
-    
+
+This hybrid iteration algorithm is named for being a hybrid of biseciton
+and Newton iteration.  On "well behaved" functions it converges as 
+quickly as the Newton algorithm, but on "badly behaved" functions, it 
+is extremely stable.
+
 Iteration is performed in-place on the x array until fn(x) == y.  The 
 hybrid1 algorithm depends on the xmax and xmin values to bracket a 
 solution.  The funciton, fn, and its derivative are evaluated at the 
@@ -2768,7 +2773,7 @@ along with temperature.
                 
         # Isat is now a down-select array
         Isat = np.logical_not(Isat)
-        self._iter1(
+        self._hybrid1(
                 self._tpiter1,
                 'T',
                 h,
