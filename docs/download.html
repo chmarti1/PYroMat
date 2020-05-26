@@ -27,7 +27,10 @@
     <div class="toc0"><a href="#sourceforge">Sourceforge</a></div>
 
     <p>
-    PYroMat supports both Python 2 and Python 3.  If you download a version later than 1.3 from Github or Sourceforge, the root directory will also contain "test.py," which generates a .log file showing the results of tests of each of PYroMat's classes.
+    PYroMat supports both Python 2 and Python 3.
+    </p>
+    <p>
+    If you are having problems with installation, take a look at the <a href="doc_howto.html#install">installation FAQ</a>.
     </p>
 </div>
 
@@ -36,10 +39,15 @@
 <div class="section">
 
     <p>
-    The PYroMat package index can be found at <a href="https://pypi.python.org/pypi/PYroMat">https://pypi.python.org/pypi/PYroMat</a>.  If you already have <a href="https://pypi.python.org/pypi/pip/">PIP</a> installed, you can download and install PYroMat with a single command.  To install from a command line, run the following command as an administrator:
+    The PYroMat package index can be found at <a href="https://pypi.org/project/PYroMat/">https://pypi.org/project/PYroMat/</a>.  If you already have <a href="https://pypi.org/project/pip/">pip</a> installed, you can download and install PYroMat with a single command.  If you don't, have pip installed, see <a href="doc_howto.html#install_pip">this FAQ</a>.  
+    </p>
+    <p>
+    To install PYroMat using pip, run the following command as an administrator:
     <div class="code">
     pip install pyromat
     </div>
+    </p>
+    <p>
     To upgrade from an older version
     <div class="code">
     pip install pyromat --upgrade
@@ -48,39 +56,62 @@
     <p>
     If you are not logged in as an administrator, but you want to be able to install PYroMat globally on your system, pip recommends
     </p>
-    <pre class="code">
+    <div class="code">
     sudo -H pip install pyromat
-    </pre>
+    </div>
+    <p>
+    On many systems, the <span class="code">pip</span> can be replaced by <span class="code">pip3</span> to specify a Python 3 installation over Python 2.
+    </p>
+    <p>
+    If you are having difficulty with <span class="code">pip</span>, see <a href="doc_howto.html#install_pip">this FAQ</a> about making sure <span class="code">pip</span> is properly installed.
+    </p>
 </div>
 
 
 <h3 class="subtitle" id="github">Github</h3>
 <div class="section">
     <p>
-    The PYroMat package index can be found at <a href="https://github.com/chmarti1/PYroMat" target="blank">https://github.com/chmarti1/PYroMat</a>.  If you already have <a href="https://git-scm.com/">GIT</a> installed, fire up your command line:
+    The PYroMat package index can be found at <a href="https://github.com/chmarti1/PYroMat" target="blank">https://github.com/chmarti1/PYroMat</a>.  If you already have <a href="https://git-scm.com/" target="blank">GIT</a> installed, fire up your command line:
     <p>
     <pre class="code">
-    git clone https://github.com/chmarti1/PYroMat.git
-    cd PYroMat
-    python setup.py install</pre>
+git clone https://github.com/chmarti1/PYroMat.git
+pip install PYroMat</pre>
     <p>
     The last command might need to be executed by an administrator on your system.  In Linux, this is usually best done with the command
     </p>
-    <pre class="code">
-    sudo -H python setup.py install</pre>
-    </pre>
-    <p>
-    The PYroMat <a href="https://github.com/chmarti1/PYroMat/issues">issues page</a> on Github is the authoritative record of all errata and their resolutions.
-    </p>
+    <div class="code">
+    sudo -H pip install PYroMat</pre>
+    </div>
 </div>
 
 
 <h3 class="subtitle" id="sourceforge">Sourceforge</h3>
 <div class="section">
-    The PYroMat sourceforge page can be found at <a href="https://sourceforge.net/projects/pyromat/" target="blank">https://sourceforge.net/projects/pyromat/</a>.  Choose one of the .zip or .gz files, download it, and extract it.  In the root directory, you will find the distribution files includeing the <span class="code">setup.py</span> file.  Fire up your command line:
+    <p>
+    The PYroMat sourceforge page can be found at <a href="https://sourceforge.net/projects/pyromat/" target="blank">https://sourceforge.net/projects/pyromat/</a>.  Choose one of the .zip or .tar.gz files, and download it.  There is no need to extract the files.  Fire up your command line:
     <div class="code">
-    python setup.py install
+    pip install PYroMat-X.X.X.zip
     </div>
+    or
+    <div class="code">
+    pip install PYroMat-X.X.X.tar.gz
+    </div>
+    </p>
+    <p>
+    On Linux systems, you may need administrative permissions, so use
+    <div class="code">
+    sudo -H python pip install PYroMat-X.X.X.tar.gz</pre>
+    </div>
+    </p>
+    <p>
+    If you are having trouble, you might try extracting the files and navigating to the root directory.  If the extraction fails, that was probably your problem; you may need <span class="code">unzip</span> or <span class="code">gzip</span> or some other utility to handle the decompression.  On windows, you might consider <a href="https://www.7-zip.org/">7-zip</a>.
+    </p>
+    <p>
+    Once you have extracted the files, you can install directly.  The extraction should have created a directory called <span class="code">PYroMat</span>.  Inside that directory should be a file <span class="code">setup.py</span>.  If so, that's the directory you want:
+    <div class="code">
+    pip install ExtractedDirectoryHere
+    </div>
+    </p>
 </div>
 
 <iframe src="author.html" id="contact"></iframe>

@@ -179,7 +179,7 @@ Returns unit_temperature
             out += X[ss]*pyro.dat.data[ss].d(T,p)
         return out
 
-    def h(self,T=None,p=None,hf=True):
+    def h(self,T=None,p=None):
         """A function for calculating enthalpy."""
         out = 0.
         # If matter is configured to mass, weight by mass
@@ -189,7 +189,7 @@ Returns unit_temperature
         else:
             W = self.X()
         for ss,f in W.items():
-            out += f*pyro.dat.data[ss].h(T,p,hf)
+            out += f*pyro.dat.data[ss].h(T,p)
         return out
 
     def e(self,T=None,p=None):

@@ -1,3 +1,4 @@
+
 1) Merge ideal gas data into a single class with better polynomial evaluation
 2) Look at the 2002 McBryde report and see if it is worth updating some of the species
 3) Update the ig test algorithms
@@ -6,4 +7,10 @@
 6) Transition to the hybrid multiphase inversion algorithm
 7) Improve in-line documentation
 8) Improve the info() function.. add some kind of searching algorithm
+9) more refrigerants
+10) improve igmix capabilities
+11) add dynamic ig mixture support
+12) add properties
+13) add more inverse routines
+14) add "name" and description meta data elements
 
