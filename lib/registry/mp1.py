@@ -607,13 +607,11 @@ might be specified
     
     
     def _iter1(self, fn, prop, y, x, Ids, xmin, xmax,
-                ep=1e-6, Nmax=20, fx_index=1, verbose=False,
-                param={}):
+                ep=1e-6, Nmax=20, fx_index=1, 
+                verbose=False, param={}):
         """Invert an inner routine.
         
     _iter1(fn, prop, y, x, Ids, xmin, xmax,)
-    
-Iteration is performed in-place on the x array.
 
 *** Required Parameters ***
 fn          The inner routine (method) to be inverted.  It must have a 
@@ -626,7 +624,7 @@ fn          The inner routine (method) to be inverted.  It must have a
 prop        The string keyword index of the property to be calculated.
 y           An array of N target values for fn().
 x           The result array.  It should be an N-element floating point
-            array that has already been initialized.
+            array.
 Ids         A down-select boolean index array; only x[Ids],y[Ids] will 
             be evaluated.  This allows iteration in-place on data sets 
             where only a portion of the data require iteration.  If y is
@@ -635,7 +633,9 @@ Ids         A down-select boolean index array; only x[Ids],y[Ids] will
             data set with M elements, where M<=N.
 xmin, xmax  Upper and lower limit arrays for the x values.  These must
             broadcastable to match x and y.  Even values outside of the
-            down-select region should have legal values.
+            down-select region should have legal values.  Note that 
+            these arrays are volatile, and will be written to by the
+            bisection process.
 *** Optional Parameters ***
 ep          Epsilon; fractional error permitted in y (default 1e-6)
 Nmax        Maximum number of iterations (default 20)
@@ -659,9 +659,10 @@ param       A dicitonary of keyword arguments are passed directly to the
             print(y)
             print('Limits:')
             print(xmin,xmax)
-            print("GO!")
             print('x', 'yvalue', 'dydx', 'dx', 'Ids')
 
+
+        # Create an argument dictionary
         arg = param.copy()
         count = 0
         while Ids.any():
@@ -706,6 +707,189 @@ param       A dicitonary of keyword arguments are passed directly to the
             if count>Nmax:                
                 pm.utility.print_warning(\
                     'iter1_() failed to converge for %d elements after %d attempts'%(\
+                    Ids.sum(), Nmax))
+                return
+
+    
+    def _hybrid1(self, fn, prop, y, x, Ids, xmin, xmax,
+                ep=1e-6, Nmax=20, fx_index=1, 
+                verbose=False, param={}):
+        """Invert an inner routine.
+        
+    _hybrid1(fn, prop, y, x, Ids, xmin, xmax,)
+
+This hybrid iteration algorithm is named for being a hybrid of biseciton
+and Newton iteration.  On "well behaved" functions it converges as 
+quickly as the Newton algorithm, but on "badly behaved" functions, it 
+is extremely stable.
+
+Iteration is performed in-place on the x array until fn(x) == y.  The 
+hybrid1 algorithm depends on the xmax and xmin values to bracket a 
+solution.  The funciton, fn, and its derivative are evaluated at the 
+maximum and minimum, and Newton's method is used to generate two 
+candidate next guesses.  The point bisecting the maximum and minimum is
+calculated, providing a third candidate guess.  Of the three candidates,
+the one in the middle is selected for the next iteration step.  If the
+middle point lies outside of xmax and xmin, then the bisection point is
+selected instead.
+
+Once a next guess is selected, the function and its derivative are 
+evaluated there.  This guess is used to replace either xmin or xmax, 
+just like would be done in a bisection algorithm, but then the three-
+candidate voting algorithm is repeated.  Since the calculated next guess
+of the boundaries is unchanged from the last iteration step, only one
+function evaluation is required per step, making the computational cost
+comparable with Newton's method.
+
+*** Required Parameters ***
+fn          The inner routine (method) to be inverted.  It must have a 
+            call signature 
+                f, fx0, ... = fn(x0, x1, ..., diff)
+            where f is the value of fn, and fx0 is the derivative of fn
+            with respect to prop0. The fx_index keyword can be used to
+            change where fx is found in the returned tuple.  By default
+            it is 1.
+prop        The string keyword index of the property to be calculated.
+y           An array of N target values for fn().
+x           The result array.  It should be an N-element floating point
+            array.
+Ids         A down-select boolean index array; only x[Ids],y[Ids] will 
+            be evaluated.  This allows iteration in-place on data sets 
+            where only a portion of the data require iteration.  If y is
+            a floating point array with N elements, Ids must be a bool
+            array with N elements.  It will specify a down-selected 
+            data set with M elements, where M<=N.
+xmin, xmax  Upper and lower limit arrays for the x values.  These must
+            broadcastable to match x and y.  Even values outside of the
+            down-select region should have legal values.  Note that 
+            these arrays are volatile, and will be written to by the
+            bisection process.
+*** Optional Parameters ***
+ep          Epsilon; fractional error permitted in y (default 1e-6)
+Nmax        Maximum number of iterations (default 20)
+fx_index    The location of the property derivative in the call 
+            signature (default 1)
+param       A dicitonary of keyword arguments are passed directly to the 
+            inner routine being inverted.
+
+"""
+        #================================#
+        # Initialize intermediate arrays #
+        #================================#
+        # Produce arrays of candidate guesses xa and xb are produced by 
+        # the Newton algorithm from xmin and xmax respectively.  
+        # xc is produced by bisection.
+        xa = np.zeros_like(x, dtype=float)
+        xb = np.zeros_like(x, dtype=float)
+        xc = np.zeros_like(x, dtype=float)
+        # Initialize the positive/negative slope indices
+        # The Ipos array indicates for which elements of the x,y array 
+        # pair fn(xmin) < y fn(xmax).  This is a positively sloped fn.
+        Ipos = np.zeros_like(Ids, dtype=bool)
+        # The Iwork index is used to select a data sub-set that is 
+        # currently being worked on
+        Iwork = np.zeros_like(Ids, dtype=bool)
+        
+        # Initialize an argument dicitonary
+        arg = param.copy()
+        
+        # Build the argument list
+        for k,v in param.items():
+            # For any array arguments, shrink them along with Ids
+            if isinstance(v,np.ndarray):
+                arg[k] = v[Ids]
+        # Now, we'll evalaute the funciton at the limits
+        # Start at the minimum
+        arg[prop] = xmin[Ids]
+        FF = fn(diff=1, **arg)
+        yy = FF[0]
+        yyx = FF[fx_index]
+        # Calculate the first candidate solution
+        xa[Ids] = xmin[Ids] - (y[Ids] - yy)/yyx
+        
+        # Check the slope
+        Ipos[Ids] = yy < y[Ids]
+        
+        # Now, evaluate at the maximum 
+        arg[prop] = xmax[Ids]
+        FF = fn(diff=1, **arg)
+        yy = FF[0]
+        yyx = FF[fx_index]
+        # Calculate the second candidate solution
+        xb[Ids] = xmax[Ids] - (y[Ids] - yy)/yyx
+        
+        # Verify that the solution has been bracketed
+        if not np.logical_xor(Ipos[Ids], yy < y[Ids]).all():
+            raise pm.utility.PMParamError('_HYBRID1: At least one max/min value does not bracket a solution!')
+        
+        # Calculate the thrid candidate solution
+        xc[Ids] = 0.5*(xmin[Ids] + xmax[Ids])
+        
+        if verbose:
+            print(" xmin  xmax  xa  xb  xc ")
+        
+        count = 0
+        while Ids.any():
+            if verbose:
+                print(xmin, xmax, xa, xc, xb)
+            
+            # Clean Iwork. In the core of the algorithm, only Iwork[Ids]
+            # values are modified. As Ids shrinks, stray values of Iwork
+            # can remain True, causing problems.
+            Iwork[:] = False
+            
+            # The last step has established three candidate solutions
+            # Which should we select?  First, identify all points for
+            # which xa is the next guess.
+            Iwork[Ids] = np.logical_xor(xa[Ids]<xb[Ids], xa[Ids]<xc[Ids])
+            x[Iwork] = xa[Iwork]
+            # Now, find all the xb points that should be the next guess
+            Iwork[Ids] = np.logical_xor(xb[Ids]<xa[Ids], xb[Ids]<xa[Ids])
+            x[Iwork] = xb[Iwork]
+            # Finally, the xc points
+            # Now, find all the xc points that should be the next guess
+            Iwork[Ids] = np.logical_xor(xc[Ids]<xa[Ids], xc[Ids]<xb[Ids])
+            x[Iwork] = xc[Iwork]
+            # Test the candidate points for out-of-bounds.  Use xc instead.
+            Iwork[Ids] = np.logical_or(x[Ids]<=xmin[Ids], x[Ids]>=xmax[Ids])
+            x[Iwork] = xc[Iwork]
+            
+            # Build the new argument list
+            for k,v in param.items():
+                # For any array arguments, shrink them along with Ids
+                if isinstance(v,np.ndarray):
+                    arg[k] = v[Ids]
+            # Shrink the primary property array
+            arg[prop] = x[Ids]
+            # Evaluate the funciton and isolate its derivative
+            FF = fn( diff=1, **arg)
+            yy = FF[0]
+            yyx = FF[fx_index]
+            
+            # use xc as an intermediate for the next guesses
+            xc[Ids] = x[Ids] + (y[Ids] - yy)/yyx
+            
+            # Where is the guess?
+            # Should it be stored in xmin?
+            Iwork[Ids] = np.logical_xor(yy > y[Ids], Ipos[Ids])
+            xmin[Iwork] = x[Iwork]
+            xa[Iwork] = xc[Iwork]
+            # or in xmax
+            Iwork[Ids] = np.logical_not(Iwork[Ids])
+            xmax[Iwork] = x[Iwork]
+            xb[Iwork] = xc[Iwork]
+            
+            # Calculate the new bisection point
+            xc[Ids] = 0.5*(xmax[Ids] + xmin[Ids])
+            
+            # Check for convergence
+            Ids[Ids] = np.abs(yy-y[Ids]) > np.abs(ep*y[Ids])
+            
+            # Prevent a while-loop-trap
+            count += 1
+            if count>Nmax:                
+                pm.utility.print_warning(\
+                    '_hybrid1() failed to converge for %d elements after %d attempts'%(\
                     Ids.sum(), Nmax))
                 return
 
@@ -1424,9 +1608,14 @@ other conditions, x<0 and d1 == d2.
         elif nparam == 0:
             T = pm.config['def_T']
             p = pm.config['def_p']
-        elif nparam > 2:
+        # There is ONE special case when three parameters are allowed
+        # T,p,x is a special case - NO D!
+        elif nparam == 3 and d is not None:
+            raise utility.PMPParameterError(
+                    'Density may not be specified simultaneously with two other properties.')
+        elif nparam > 3:
             raise utility.PMParameterError(
-                    'Specifying more than two simultaneous parameters is illegal.')
+                    'Specifying more than two simultaneous parameters is illegal (except for T,p,x).')
         
         if T is not None:
             # Make a copy of the array only if necessary
@@ -1455,12 +1644,31 @@ other conditions, x<0 and d1 == d2.
                         (p>self.data['plim'][1]).any()):
                     raise pm.utility.PMParamError('MP1: Pressure is out-of-bounds.')
                     
+                # Deal with the special case that T,p,x are specified
+                if x is not None:
+                    x = np.asarray(x, dtype=float)
+                else:
+                    x = np.array(-1, dtype=float)
+                if x.ndim==0:
+                    x = np.reshape(x,(1,))
+                    
                 # Force compatible arrays
-                T,p = np.broadcast_arrays(T,p)
-                d1 = self._d(T,p)
-                d2 = d1
-                x = np.broadcast_to(-1, T.shape)
-                I = np.broadcast_to(False, T.shape)
+                T,p,x = np.broadcast_arrays(T,p,x)
+                # Which points are not under the dome?
+                I = x<0.
+                
+                # Initialize densities
+                d1 = np.zeros_like(T)
+                d2 = np.zeros_like(T)
+                # deal with the saturated points
+                d1[I] = self._d(T[I],p[I])
+                d2[I] = d1[I]
+                # Deal with densities under the dome
+                I = np.logical_not(I)
+                d1[I] = self._dsl(T[I])[0]
+                d2[I] = self._dsv(T[I])[0]
+
+
                 return T, d1, d2, x, I
             
             # T,d
@@ -1524,7 +1732,7 @@ other conditions, x<0 and d1 == d2.
         # If p is the primary parameter
         elif p is not None:
             # Convert p to the correct units
-            pm.units.pressure(
+            p = pm.units.pressure(
                     np.asarray(p, dtype=float), 
                     to_units='Pa')
             if p.ndim==0:
@@ -2411,7 +2619,11 @@ along with temperature.
         Isat = np.zeros_like(s, dtype=bool)
         Ta = np.zeros_like(s, dtype=float)
         Tb = np.zeros_like(s, dtype=float)
-        
+        Tsat = np.zeros_like(s, dtype=float)
+        dsL = np.zeros_like(s, dtype=float)
+        dsV = np.zeros_like(s, dtype=float)
+        ssL = np.zeros_like(s, dtype=float)
+        ssV = np.zeros_like(s, dtype=float)
         
         # Start with super-critical points
         I = p >= self.data['pc']
@@ -2422,36 +2634,28 @@ along with temperature.
         I = np.logical_not(I)
         if I.any():
             # Get the saturation temperatures
-            Tsat = self._Ts(p[I])
+            Tsat[I] = self._Ts(p[I])
             # And densities
-            dsL = self._dsl(Tsat,0)[0]
-            dsV = self._dsv(Tsat,0)[0]
+            dsL[I] = self._dsl(Tsat[I],0)[0]
+            dsV[I] = self._dsv(Tsat[I],0)[0]
             # finally, get the saturation entropies
-            ssL = self._s(Tsat,dsL,0)[0]
-            ssV = self._s(Tsat,dsV,0)[0]
+            ssL[I] = self._s(Tsat[I],dsL[I],0)[0]
+            ssV[I] = self._s(Tsat[I],dsV[I],0)[0]
 
             # Isolate points that are liquid
-            Isat[I] = s[I] < ssL
+            Isat[I] = s[I] < ssL[I]
             Ta[Isat] = self.data['Tlim'][0]
             Tb[Isat] = Tsat[Isat]
             T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
-            # T[Isat] = Tb[Isat] - Ta[Isat]
-            # Grow the boundary by 2%
-            # Tb[Isat] += 0.05*T[Isat]
-            #T[Isat] = Ta[Isat] + 0.5*T[Isat]
 
             # Isolate points that are vapor
-            Isat[I] = s[I] > ssV
+            Isat[I] = s[I] > ssV[I]
             Ta[Isat] = Tsat[Isat]
             Tb[Isat] = self.data['Tlim'][1]
             T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
-            # T[Isat] = Tb[Isat] - Ta[Isat]
-            # Grow the boundary by 2%
-            # Ta[Isat] -= 0.05*T[Isat]
-            # T[Isat] = Tb[Isat] - 0.5*T[Isat]
 
             # Finally, isolate points that are saturated
-            Isat[I] = np.logical_and( s[I]<=ssV, s[I]>=ssL )
+            Isat[I] = np.logical_and( s[I]<=ssV[I], s[I]>=ssL[I] )
             Ta[Isat] = Tsat[Isat]
             Tb[Isat] = Tsat[Isat]
             T[Isat] = Tsat[Isat]
@@ -2460,7 +2664,8 @@ along with temperature.
 
         # Isat is now a down-select array
         Isat = np.logical_not(Isat)
-        self._iter1(
+#        self._iter1(
+        self._hybrid1(
                 self._tpiter1,
                 'T',
                 s,
@@ -2523,7 +2728,11 @@ along with temperature.
         Isat = np.zeros_like(h, dtype=bool)
         Ta = np.zeros_like(h, dtype=float)
         Tb = np.zeros_like(h, dtype=float)
-        
+        Tsat = np.zeros_like(h, dtype=float)
+        dsL = np.zeros_like(h, dtype=float)
+        dsV = np.zeros_like(h, dtype=float)
+        hsL = np.zeros_like(h, dtype=float)
+        hsV = np.zeros_like(h, dtype=float)
         
         # Start with super-critical points
         I = p >= self.data['pc']
@@ -2534,34 +2743,28 @@ along with temperature.
         I = np.logical_not(I)
         if I.any():
             # Get the saturation temperatures
-            Tsat = self._Ts(p[I])
+            Tsat[I] = self._Ts(p[I])
             # And densities
-            dsL = self._dsl(Tsat,0)[0]
-            dsV = self._dsv(Tsat,0)[0]
+            dsL[I] = self._dsl(Tsat[I],0)[0]
+            dsV[I] = self._dsv(Tsat[I],0)[0]
             # finally, get the saturation entropies
-            hsL = self._h(Tsat,dsL,0)[0]
-            hsV = self._h(Tsat,dsV,0)[0]
+            hsL[I] = self._h(Tsat[I],dsL[I],0)[0]
+            hsV[I] = self._h(Tsat[I],dsV[I],0)[0]
 
             # Isolate points that are liquid
-            Isat[I] = h[I] < hsL
+            Isat[I] = h[I] < hsL[I]
             Ta[Isat] = self.data['Tlim'][0]
             Tb[Isat] = Tsat[Isat]
-            T[Isat] = Tb[Isat] - Ta[Isat]
-            # Grow the boundary by 5%
-            Tb[Isat] += 0.05*T[Isat]
-            T[Isat] = Ta[Isat] + 0.5*T[Isat]
+            T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
             
             # Isolate points that are vapor
-            Isat[I] = h[I] > hsV
+            Isat[I] = h[I] > hsV[I]
             Ta[Isat] = Tsat[Isat]
             Tb[Isat] = self.data['Tlim'][1]
-            T[Isat] = Tb[Isat] - Ta[Isat]
-            # Grow the boundary by 5%
-            Ta[Isat] -= 0.05*T[Isat]
-            T[Isat] = Tb[Isat] - 0.5*T[Isat]
-
+            T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
+            
             # Finally, isolate points that are saturated
-            Isat[I] = np.logical_and( h[I]<=hsV, h[I]>=hsL )
+            Isat[I] = np.logical_and( h[I]<=hsV[I], h[I]>=hsL[I] )
             Ta[Isat] = Tsat[Isat]
             Tb[Isat] = Tsat[Isat]
             T[Isat] = Tsat[Isat]
@@ -2570,7 +2773,7 @@ along with temperature.
                 
         # Isat is now a down-select array
         Isat = np.logical_not(Isat)
-        self._iter1(
+        self._hybrid1(
                 self._tpiter1,
                 'T',
                 h,

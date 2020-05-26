@@ -37,7 +37,7 @@ function,
 # utility.load_config() checks this value to establish the read-only version
 # setup.py looks for this line to establish the version at install
 # MUST be unindented
-__version__ = "2.0.10"
+__version__ = "2.0.13"
 
 
 # loading the PYroMat utility functions
@@ -51,6 +51,9 @@ from . import reg
 from . import dat
 # import the units module
 from . import units
+# By default, do not import the module for handling special applications
+# This module has requirements beyond the base pyromat installation
+#from . import aps
 
 reg.regload()
 dat.load()

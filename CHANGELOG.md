@@ -85,3 +85,14 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 
 ## Version 2.0.10
 - Temperature units in T_s, T_h, and T in the mp1 class were not being converted: fixed.
+
+## Version 2.0.11
+- Corrected a bug in units.matter(); inplace directives were not being honored in certain cases, causing odd errors in T_s and T_h()
+
+## Version 2.0.12
+- Corrected data error in CO2 that caused errors near the saturation curve
+- Added support for specifying T,p, and x simultaneously; p is ignored unless x<0
+- Added the aps module with support for calculating the performance of thermodynamic cycles
+
+## Version 2.0.13
+- Transitioned to the _hybrid1() inversion algorithm for mp1's T_s and T_h algorithms

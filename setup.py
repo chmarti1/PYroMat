@@ -30,12 +30,10 @@ setup(
     version=get_version(),
     description="Thermodynamic properties in Python.",
     long_description=\
-"""PYroMat provides a Python interface for thermo-physical properties of a 
-wide range of species. Visit the PYroMat homepage for more documentation, 
-installation options, and more (https://chmarti1.github.io/PYroMat/).""",
+"""PYroMat provides a Python interface for thermo-physical properties for over 900 species. Visit the PYroMat homepage for more documentation, installation options, and more (http://pyromat.org).""",
     author="Chris Martin",
     author_email="crm28@psu.edu",
-    url="https://chmarti1.github.io/PYroMat/",
+    url="http://pyromat.org",
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Education',
@@ -52,7 +50,7 @@ installation options, and more (https://chmarti1.github.io/PYroMat/).""",
     keywords = 'thermodynamic properties',
     packages=['pyromat'],
     package_dir={'pyromat':install_from},
-    package_data={'':['data/mp/*.hpd', 'data/ig/*.hpd','data/ig2/*.hpd','registry/*.py']},
+    package_data={'':['data/mp/*.hpd', 'data/ig/*.hpd','data/ig2/*.hpd','registry/*.py','aps/*.py']},
     data_files=[('.',[  'README.md', 'CHANGELOG.md', 'LICENSE.txt',
                         'test.py'])],
     install_requires=['numpy>=1.7'],

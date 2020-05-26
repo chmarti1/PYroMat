@@ -519,12 +519,12 @@ If the from_units or the to_units values are not specified, the pyromat
     conv = 1.
     if from_units in mass:
         if to_units in mass:
-            return mass(value, from_units, to_units, exponent)
+            return mass(value, from_units, to_units, exponent, inplace=inplace)
         else:
             conv = molar[to_units] / mw / mass[from_units]
     else:
         if to_units in molar:
-            return molar(value, from_units, to_units, exponent)
+            return molar(value, from_units, to_units, exponent, inplace=inplace)
         else:
             conv = mass[to_units] * mw / molar[from_units]
     if exponent:
