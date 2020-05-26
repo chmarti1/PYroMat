@@ -1,3 +1,9 @@
-1) refrigerants
-2) if97 region 3 saturation properties are not implemented
-3) extend proper array algorithms to the if97 saturation properties
+1) Merge ideal gas data into a single class with better polynomial evaluation
+2) Look at the 2002 McBryde report and see if it is worth updating some of the species
+3) Update the ig test algorithms
+4) Add transport/viscosity data to the ig class
+5) Add O2, N2, and air multiphase data
+6) Transition to the hybrid multiphase inversion algorithm
+7) Improve in-line documentation
+8) Improve the info() function.. add some kind of searching algorithm
+
