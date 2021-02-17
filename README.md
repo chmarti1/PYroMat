@@ -4,7 +4,7 @@ Thermodynamic tools for Python
 
 By Chris Martin [crm28@psu.edu](mailto:crm28@psu.edu)
 
-PYroMat is a flexible platform for conveniently working with thermodynamic data.  The expanding collection of substances includes data for the properties people need most, exposed in an intuitively designed object interface [Come read more.](https://chmarti1.github.io/PYroMat/)
+PYroMat is a flexible platform for conveniently working with thermodynamic data.  The expanding collection of substances includes data for the properties people need most, exposed in an intuitively designed object interface [Come read more.](pyromat.org)
 
 ## Installation from the Python Package Index
 If you have pip installed, you can install PYroMat with a single command.
@@ -24,7 +24,7 @@ $ python setup.py install
 See the introduction of the documentation for more information!
 
 ## Configuration
-See pyro/defaults.py for a heavily commented example of a PYro configuration.
+See `defaults.py` for a heavily commented example of a configuration file.
 
 See the configuration chapter of the documentation for detailed descriptions of each parameter.
 

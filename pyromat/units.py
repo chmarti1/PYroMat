@@ -30,8 +30,23 @@ function.
 The setup() function re-defines the various constants used to calculate
 these unit conversions.  Many of them are physical constants, but some
 have arbitrary definitions.  The constants that were used to formulate
-the conversions are exposed as module members beginning with 'const_'
-See the setup() documentation for more details.
+the conversions are exposed as module members beginning with 'const_'. 
+
+Constants that are calculated in terms of other more fundamental 
+constants are shown with their formulae in parentheses.  Constants that
+can be adjusted by a call to the setup() function are shown with their
+default values in parentheses.
+
+const_k     1.38064852e-23      J/K             Boltzmann's constant
+const_Na    6.022140857e23      count/mol       Avagardo's number
+const_Nc    6.24150934e18       count/coulomb   Definition of a Coulomb
+const_Ru    (k*Na)              J/mol/K         Ideal gas constant
+const_Tstd  (273.15)            K               Standard temperature
+const_pstd  (1.01325)           bar             Standard pressure
+const_Nstd  (pstd*1e5/Ru/Tstd)  mol/m3          Standard concentration
+const_g     (9.80665)           m/s2            Accel. d.t. gravity
+const_dh2o  (999.9720)          kg/m3           Water column density
+const_dhg   (13595.1)           kg/m3           Mercury column density
 """
 
 import numpy as np
@@ -181,7 +196,7 @@ const_k = 1.38064852e-23 # J/K
 #Avagadro's number
 # Used by the standard volume and molar units
 const_Na = 6.022140857e23 # count/mol
-#Coulumb
+#Coulomb
 # Used to convert between eV and Joules
 const_Nc = 6.24150934e18 # count/coulomb
 #Universal gas

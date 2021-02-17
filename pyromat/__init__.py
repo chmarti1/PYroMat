@@ -4,7 +4,7 @@ PYroMat is an open-source Python-based software platform for retrieving
 the physical properties of substances.  For complete documentation, 
 visit "pyromat.org"
 
-Chris Martin (c) 2015, 2017, 2018
+Chris Martin (c) 2015-2021
 Released under the GNU General Publice License v3.0
   http://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -37,7 +37,7 @@ function,
 # utility.load_config() checks this value to establish the read-only version
 # setup.py looks for this line to establish the version at install
 # MUST be unindented
-__version__ = "2.0.13"
+__version__ = "2.1.0a"
 
 
 # loading the PYroMat utility functions

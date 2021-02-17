@@ -1,11 +1,11 @@
-import pyromat as pyro
+import pyromat as pm
 import numpy as np
-import os
+import os,sys
 import re
 
 
 
-class ig(pyro.reg.__basedata__):
+class ig(pm.reg.__basedata__):
     """Ideal gas class using the Shomate equation of state.
 This class exposes properties through member methods.  All property 
 functions accept temperature in PYroMat's unit_temperature and 
@@ -46,99 +46,605 @@ Some meta-data on the species can be obtained using methods
         self._contents = None
 
 
-    def _crange(self, T):
-        """Return the temperature range index and raise a meaningful exception
-if it is out of range."""
-        Tlim = self.data['Tlim']
-        if T<Tlim[0]:
-            raise pyro.utility.PMParamError(
-                'Temperature, %f, is out of range for %s (%f to %f)'%(
-                T, self.data['id'], Tlim[0], Tlim[-1]))
-        for index in range(1,len(self.data['Tlim'])):
-            if T<=Tlim[index]:
-                return index-1
-        raise pyro.utility.PMParamError(
-            'Temperature, %f, is out of range for %s (%f to %f)'%(
-            T, self.data['id'], Tlim[0], Tlim[-1]))
+    def _argparse(self, T=None, p=None, d=None,\
+        temperature=False, pressure=False, density=False):
+        """Parse the arguments supplied to an IG2 property method
+    T = _argparse(*varg, **kwarg)
+        OR
+    T,p,d = _argparse(*varg, **kwarg, temperature=True, pressure=True, 
+                        density=True)
+    
+_ARGPARSE automatically applies the default temperature and pressure,
+def_T or def_p, from the pyromat.config system to deal with unspecified
+parameters.  All inputs are re-cast as numpy arrays of at least one 
+dimension and inputs are automatically converted from the configured 
+user units into kJ, kmol, m^3.
 
-
-    def _invT(self, value, prop, p=None):
-        """Inverse property function
-    T = _invT(value, prop, dprop, p=None)
-
-This is an internal service method used to provide T_s and T_h.
-Iterate on values of temperature so that the property method, prop,
-returns value.
-
-The algorithm uses a modified Newton iteration.  The property derivative
-is approximated numerically instead of relying on explicit derivatives.
-The numerical cost of explicitly evaluating a function's derivatives is 
-approximately equal to numerical approximation in 1D, but this 
-drastically simplifies the implementation.
-
-value   the property value to obtain
-prop    the property method to be inverted
-p       the pressure
+The returned variables are arrays of temperature, T, pressure, p, and 
+the density, d.  The optional keywords TEMPERATURE, PRESSURE, and 
+DENSITY are used to indicate which state variables should be returned.
+They are always returned in the order T, p, d.  
 """
-        if p is None:
-            p = pyro.config['def_p']
+        nparam = ((0 if T is None else 1) + 
+                (0 if p is None else 1) + 
+                (0 if d is None else 1))
+                
+        if nparam == 1:
+            if T is None:
+                T = pm.config['def_T']
+            else:
+                p = pm.config['def_p']
+        elif nparam == 0:
+            T = pm.config['def_T']
+            p = pm.config['def_p']
+        elif nparam > 2:
+            raise utility.PMParameterError(
+                    'Specifying more than two simultaneous parameters is illegal.')
 
-        # Generic iteration parameters
-        N = 100 # Maximum iterations
-        small = 1e-8    # A "small" number
-        epsilon = 1e-6  # Iteration precision
+        # Perform the unit conversions, and format the arrays
+        if T is not None:
+            T = pm.units.temperature_scale(np.asarray(T,dtype=float), to_units='K')
+            if T.ndim==0:
+                T = np.reshape(T,(1,))
+                
+        if p is not None:
+            p = pm.units.pressure(np.asarray(p,dtype=float), to_units='bar')
+            if p.ndim==0:
+                p = np.reshape(p,(1,))
+            
+        if d is not None:
+            d = pm.units.matter(np.asarray(d,dtype=float), self.data['mw'], to_units='kmol')
+            d = pm.units.volume(d, to_units='m3', exponent=-1)
+            if d.ndim==0:
+                d = np.reshape(d, (1,))
+        
+        # Convert the IG constant to J/kmol/K
+        R = 1000 * pm.units.const_Ru
+        
+        # Case out the specified state variables
+        # There are three possible combinations
+        if T is not None:
+            # T,p
+            if p is not None:
+                # Broadcast the arrays
+                T,p = np.broadcast_arrays(T,p)
+                # Do we need density?
+                if density:
+                    d = p * 1e5 / (R*T)
+            # T,d
+            else:
+                # Broadcast the arrays
+                T,d = np.broadcast_arrays(T,d)
+                # Do we need pressure?
+                if pressure:
+                    p = d*R*T / 1e5
+        # p,d
+        else:
+            # Broadcast the arrays
+            p,d = np.broadcast_arrays(p,d)
+            # Do we need temperature?
+            if temperature:
+                T = p * 1e5 / (R*d)
+        
+        out = []
+        if temperature:
+            out.append(T)
+        if pressure:
+            out.append(p)
+        if density:
+            out.append(d)
+            
+        if len(out)>1:
+            return tuple(out)
+        elif len(out)==1:
+            return out[0]
+        return
 
-        it = np.nditer((None,value,p),op_flags=[['readwrite','allocate'],['readonly','copy'],['readonly','copy']],op_dtypes='float')
-        for T_,y_,p_ in it:
-            # Use Tk as the iteration parameter.  We will write to T_ later.
-            # Initialize it to be in the center of the species' legal range.
-            Tk = 0.5*(self.data['Tlim'][0] + self.data['Tlim'][-1])
-            Tk1 = Tk
-            # Initialize dT - the change in T
-            dT = 0.
-            # Calculate an error threshold
-            thresh = max(small, abs(epsilon * y_))
-            # Initialize absek1 - the absolute error from the last iteration
-            #    Using +infty will force the error reduction criterion to be met
-            abs_ek1 = float('inf')
-            fail = True
-            for count in range(N):
-                ## CALL THE PROPERTY FUNCTION ##
-                yk = prop(T=Tk,p=p_)
-                # Calculate error
-                ek = yk-y_
-                abs_ek = abs(ek)
-                # Test for convergence
-                if abs_ek < thresh:
-                    T_[...] = Tk
-                    fail = False
-                    break
-                # If the error did not reduce from the last iteration
-                elif abs_ek > abs_ek1:
-                    dT /= 2.
-                    Tk = Tk1 + dT
-                # Continue normal iteration
-                else:
-                    # Shift out the old values
-                    abs_ek1 = abs_ek
-                    Tk1 = Tk
-                    ## ESTIMATE THE DERIVATIVE ##
-                    dT = max(small, epsilon*Tk)    # Make a small perturbation
-                    dydx = (prop(T=Tk+dT,p=p_) - yk)/dT
-                    # Calculate the next step size
-                    dT = -ek / dydx
-                    # Produce a tentative next value
-                    Tk = Tk1 + dT
-                    # Test the guess for containment in the temperature limits
-                    # Shrink the increment until Tk is contained
-                    while Tk<self.data['Tlim'][0] or Tk>self.data['Tlim'][-1]:
-                        dT /= 2.
-                        Tk = Tk1 + dT
-            if fail:
-                raise pyro.utility.PMAnalysisError('_invT() failed to converge!')
-        return it.operands[0]
 
-    def _test(self, report_file=None, report_level=2, basic=False):
+    def _crange(self, T, index):
+        """Return the down-select boolean array for temperature values in range "index".
+    I = _crange(T,index)
+
+I is a boolean array used for boolean indexing of the state properties.    
+I will be returned such that Tlim[index] <= T[I] < Tlim[index]
+"""
+        # If the index corresponds to the last range segment, then make
+        # the upper boundary inclusive.
+        if index == len(self.data['Tlim'])-2:
+            return np.logical_and(\
+                    T >= self.data['Tlim'][index],
+                    T <= self.data['Tlim'][index+1])
+                    
+        return np.logical_and(\
+                    T >= self.data['Tlim'][index],
+                    T < self.data['Tlim'][index+1])
+
+
+    def _iter1(self, fn, prop, y, x, Ids, xmin, xmax,
+                ep=1e-6, Nmax=20, fx_index=1, verbose=False,
+                param={}):
+        """Invert an inner routine.
+        
+    _iter1(fn, prop, y, x, Ids, xmin, xmax,)
+    
+Iteration is performed in-place on the x array.
+
+*** Required Parameters ***
+fn          The inner routine (method) to be inverted.  It must have a 
+            call signature 
+                f, fx0, ... = fn(x0, x1, ..., diff)
+            where f is the value of fn, and fx0 is the derivative of fn
+            with respect to prop0. The fx_index keyword can be used to
+            change where fx is found in the returned tuple.  By default
+            it is 1.
+prop        The string keyword index of the property to be calculated.
+y           An array of N target values for fn().
+x           The result array.  It should be an N-element floating point
+            array that has already been initialized.
+Ids         A down-select boolean index array; only x[Ids],y[Ids] will 
+            be evaluated.  This allows iteration in-place on data sets 
+            where only a portion of the data require iteration.  If y is
+            a floating point array with N elements, Ids must be a bool
+            array with N elements.  It will specify a down-selected 
+            data set with M elements, where M<=N.
+xmin, xmax  Upper and lower limit arrays for the x values.  These must
+            broadcastable to match x and y.  Even values outside of the
+            down-select region should have legal values.
+*** Optional Parameters ***
+ep          Epsilon; fractional error permitted in y (default 1e-6)
+Nmax        Maximum number of iterations (default 20)
+fx_index    The location of the property derivative in the call 
+            signature (default 1)
+param       A dicitonary of keyword arguments are passed directly to the 
+            inner routine being inverted.
+
+"""
+        # As the iteration progresses, the number of True elements in 
+        # Ids will decrease until they are all false
+        # There are some important intermediate values that will also
+        # require indexable arrays
+        dx = np.zeros_like(y, dtype=float)
+        error = np.zeros_like(dx, dtype=float)
+        IooB = np.zeros_like(Ids, dtype=bool)
+
+        arg = param.copy()
+        count = 0
+        while Ids.any():
+            # Build the new argument list
+            for k,v in param.items():
+                # For any array arguments, shrink them along with Ids
+                if isinstance(v,np.ndarray):
+                    arg[k] = v[Ids]
+            # Shrink the primary property array
+            arg[prop] = x[Ids]
+            # Evaluate the funciton and isolate its derivative
+            FF = fn( diff=True, **arg)
+            yy = FF[0]
+            yyx = FF[fx_index]
+            # note that x[Ids], yy, yyx, and all the other floating 
+            # intermediates are now in m-space; the sub-set of values
+            # still under iteration.
+            # Calculate the error, the linear change in x, and the new x
+            error[Ids] = y[Ids] - yy
+            dx[Ids] = error[Ids] / yyx
+            if verbose:
+                print(x, yy, yyx, dx, Ids)
+            x[Ids] += dx[Ids]
+            # An out-of-bounds index
+            IooB = np.logical_or( x < xmin, x > xmax)
+            count_oob = 0
+            while IooB.any():
+                dx[IooB] /= 2.
+                x[IooB] -= dx[IooB]
+                IooB = np.logical_or( x < xmin, x > xmax)
+                # Prevent a while-loop-trap
+                count_oob += 1
+                if count_oob>Nmax:
+                    raise pm.utility.PMAnalysisError(
+                        'iter1_() failed to produce a guess that was in-bounds')
+            
+            # Check the iteration convergence
+            Ids[Ids] = abs(error[Ids]) > abs(ep*y[Ids])
+            # Prevent a while-loop-trap
+            count += 1
+            if count>Nmax:                
+                pm.utility.print_warning(\
+                    'iter1_() failed to converge for %d elements after %d attempts'%(\
+                    Ids.sum(), Nmax))
+                return
+
+
+    def _cp(self,T):
+        """Constant pressure specific heat
+    _cp(T)
+
+Expects temperature in Kelvin and returns cp in kJ/kmol/K"""
+
+        out = np.zeros_like(T, dtype=float)
+        # Loop through the available piece-wise temperature ranges
+        # Use the _crange() method to identify the elements appropriate
+        # for each.
+        for ii in range(len(self.data['Tlim'])-1):
+            C = self.data['C'][ii]
+            I = self._crange(T, ii)
+            t = T[I] / 1000.
+            out[I] = C[0] + t*(C[1] + t*(C[2] + t*C[3])) + C[4] / (t*t)
+        return out
+        
+    def _h(self, T, diff=False):
+        """Enthalpy
+    h = _h(T)
+        OR
+    h,hT = _h(T, diff=True)
+    
+Expects T in Kelvin and returns enthalpy in kJ/kmol/K
+When diff=True, the partial derivative of enthalpy with respect to 
+temperature with constant pressure is also returned.
+"""
+        out = np.zeros_like(T, dtype=float)
+        hT = None
+        if diff:
+            hT = np.zeros_like(T, dtype=float)
+        # Loop through the available piece-wise temperature ranges
+        # Use the _crange() method to identify the elements appropriate
+        # for each.
+        for ii in range(len(self.data['Tlim'])-1):
+            C = self.data['C'][ii]
+            I = self._crange(T, ii)
+            t = T[I] / 1000.
+            out[I] = C[5] + t*(C[0] + t*(C[1]/2. + t*(C[2]/3. + t*C[3]/4.))) - C[4]/t
+            if diff:
+                hT[I] = C[0] + t*(C[1] + t*(C[2] + t*C[3])) + C[4]/(t*t)
+        # Rescale for temperature integral
+        out *= 1000.
+        return out, hT
+        
+        
+    def _s(self, T, diff=False):
+        """Entropy at standard pressure
+    
+    s, sT = _s(T,diff=True)
+    
+Expects T in Kelvin, and returns entropy in kJ/kmol.
+When diff=True, the partial derivatives of entropy with respect to 
+temperature is also returned.  Otherwise it is returned as None.
+"""
+        out = np.zeros_like(T, dtype=float)
+        sT = None
+        if diff:
+            sT = np.zeros_like(T, dtype=float)
+        # Loop through the available piece-wise temperature ranges
+        # Use the _crange() method to identify the elements appropriate
+        # for each.
+        for ii in range(len(self.data['Tlim'])-1):
+            C = self.data['C'][ii]
+            I = self._crange(T, ii)
+            t = T[I] / 1000.
+            out[I] = C[6] + C[0]*np.log(t) + t*(C[1] + t*(C[2]/2. + t*C[3]/3.)) - C[4] / (2*t*t)
+            if diff:
+                sT[I] = C[0]/t + C[1] + t*(C[2] + t*C[3]) + C[4]/(t*t*t)
+                # Rescale for temperature derivative
+                sT[I] /= 1000
+        return out, sT
+
+
+    def _test(self, report=None):
+        """Test the ig data model against a series of criteria
+        
+    _test()     # Prints results to stdout
+        OR
+    _test(report='/path/to/file')   # Writes a report file
+        OR
+    _test(report=open_file_descriptor)  # Appends to an open report file
+    
+Returns True when all criteria are satisfied and False otherwise.
+
+The criteria are:
+1. Data integrity
+    1.1 Tlim must be monotonic
+    1.2 Tlim dimensions must match coefficient dimensions
+            len(Tlim) == len(C)+1
+    1.3 There must be 8 coefficients
+            len(C[ii]) == 8 for all ii in range(len(C))
+            
+DATA INTEGRITY FAILURES ARE FATAL
+FAILURES HERE WILL HALT THE TEST
+
+2. Model continuity
+    2.1 cp should not have discontinuities at the Tlim boundaries
+    2.2 h should not have discontinuities
+    2.3 s should not have discontinuities
+    
+3. Tabulated reference data should agree with the model in the currently
+        configured unit system.
+    3.1 cp should agree with tabulated reference data to within 0.01%
+    3.2 s should agree with reference data to within 0.1 J/mol/K
+    3.3 h should agree with reference data to wihtin 0.01 kJ/mol/K
+    3.4 density at 1000K and 10bar should agree to within .01%.
+    3.5 R should agree to within .01%.
+    3.6 cv should match cp-R at all tabulated conditions to within .01%.
+    3.7 e should match h-RT at all tabulated conditions to within .01%.
+    3.8 gam should match cp/cv at all tabulated conditions to .001
+    
+Optional keywords that configure the test:
+keyword (default)   
+Description
+
+"""
+        # Recurse with a fresh file descriptor if the file is a string
+        if isinstance(report, str):
+            with open(report, 'w') as ff:
+                return self._test(report=ff)
+        elif report is None:
+            report = sys.stdout
+        
+        # Perform the checks
+        result = True
+                
+        Tlim = self.data['Tlim']
+        C = self.data['C']
+        
+        report.write(repr(self) + '\n1. Data integrity\n')
+        
+        # 1.1: Tlim must be monotonic
+        test = True
+        for t0,t1 in zip(Tlim[:-1], Tlim[1:]):
+            test = test and (t0<t1)
+        if test:
+            report.write('[passed]')
+        else:
+            report.write('[FAILED]')
+        report.write('    1.1: Tlim must increase monotonically\n')
+        result = result and test
+        
+        # 1.2: Tlim and C dims must match
+        test = (len(Tlim) == len(C)+1)
+        result = result and test
+        if test:
+            report.write('[passed]')
+        else:
+            report.write('[FAILED]')
+        report.write('    1.2: Tlim and C dimensions must be compatible\n')
+        
+        # 1.3: C must have 8 coefficients
+        test = True
+        for cc in C:
+            test = test and (len(cc)==8)
+        result = result and test
+        if test:
+            report.write('[passed]')
+        else:
+            report.write('[FAILED]')
+        report.write('    1.3: All temperature regions must have 8 coefficients\n')
+        
+        if not result:
+            report.write('[FATAL] Data integrity test failed. Aborting further checks.\n')
+            return False
+        
+        # 2. tests for discontinuities
+        report.write('2. Model continuity\n')
+        cptest = []
+        htest = []
+        stest = []
+        for T in Tlim[1:-1]:
+            T = pm.units.temperature_scale(T, from_units='K')
+            # Perturb the temperature by +/- 0.01%
+            TT = T * np.array([0.9999, 1.0001])
+            # Check specific heat continuity to within 0.01%
+            cp = self.cp(TT)
+            if np.abs(cp[0] - cp[1]) / cp[0] > .0001:
+                cptest.append(T)
+            # Check enthalpy continuity to within 0.01%
+            h = self.h(TT)
+            # Adjust for the known change in temperature
+            h[1] -= cp[1] * T * .0001
+            h[0] += cp[0] * T * .0001
+            if np.abs(h[0] - h[1]) / h[0] > .0001:
+                htest.append(T)
+            s = self.s(TT)
+            # Adjust for the known change in temperature
+            s[1] -= cp[1] * .0001
+            s[0] += cp[0] * .0001
+            if np.abs(s[0] - s[1]) / s[0] > .0001:
+                stest.append(T)
+        
+        if cptest:
+            report.write('[FAILED]')
+            result = False
+        else:
+            report.write('[passed]')
+        report.write('    2.1 cp() must be continuous at piecewise boundaries.\n')
+        if cptest:
+            report.write('                Failure at T=')
+            for T in cptest:
+                report.write('%.2f,'%T)
+            report.write('\n')
+        
+        if htest:
+            report.write('[FAILED]')
+            result = False
+        else:
+            report.write('[passed]')
+        report.write('    2.2 h() must be continuous at piecewise boundaries.\n')
+        if htest:
+            report.write('                Failure at T=')
+            for T in htest:
+                report.write('%.2f,'%T)
+            report.write('\n')
+
+        if stest:
+            report.write('[FAILED]')
+            result = False
+        else:
+            report.write('[passed]')
+        report.write('    2.3 s() must be continuous at piecewise boundaries.\n')
+        if stest:
+            report.write('                Failure at T=')
+            for T in stest:
+                report.write('%.2f,'%T)
+            report.write('\n')
+            
+        # 3. Test for model consistency with tabulated values
+        # Start by converting the table into the currently configured units
+        report.write('3. Numerical consistency checks\n')
+        TAB = np.array(self.data['TAB'])
+        T = pm.units.temperature_scale(TAB[:,0], from_units='K')
+        p = pm.units.pressure(self._pref_bar, from_units='bar')
+        cp_test = self.cp(T)
+        cv_test = self.cv(T)
+        h_test = self.h(T)
+        e_test = self.e(T)
+        gam_test = self.gam(T)
+        s_test = self.s(T=T, p=p)
+        
+        
+        cp = pm.units.energy(TAB[:,1], from_units='J')
+        pm.units.matter(cp, self.data['mw'], from_units='mol', inplace=True, exponent=-1)
+        pm.units.temperature(cp, from_units='K', inplace=True, exponent=-1)
+        
+        s = pm.units.energy(TAB[:,2], from_units='J')
+        pm.units.matter(s, self.data['mw'], from_units='mol', inplace=True, exponent=-1)
+        pm.units.temperature(s, from_units='K', inplace=True, exponent=-1)
+        # Convert the entropy error threshold too
+        serr = pm.units.energy(0.1, from_units='J')
+        serr = pm.units.matter(serr, self.data['mw'], from_units='mol', exponent=-1)
+        serr = pm.units.temperature(serr, from_units='K', exponent=-1)
+        
+        h0 = self.h(pm.units.temperature_scale(298.15, from_units='K'))
+        h = pm.units.energy(TAB[:,4], from_units='kJ')
+        pm.units.matter(h, self.data['mw'], from_units='mol', inplace=True, exponent=-1)
+        
+        # Convert the enthalpy error threshold too
+        # herr is also used below on energy checks
+        herr = pm.units.energy(0.01, from_units='kJ')
+        herr = pm.units.matter(herr, self.data['mw'], from_units='mol', exponent=-1)
+
+        I = (np.abs(cp_test - cp)/cp > .001)
+        if np.any(I):
+            result = False
+            report.write('[FAILED]')
+        else:
+            report.write('[passed]')
+        report.write('    3.1 cp must agree with tabulated data to within 0.1%\n')
+        if np.all(I):
+            report.write('            Failed at all temperatures.\n')
+        elif np.any(I):
+            report.write('            Failed at T=')
+            for tt in T[I]:
+                report.write('%.2f,'%tt)
+            report.write('\n')
+            
+        I = np.abs(s_test - s) > serr
+        if np.any(I):
+            report.write('[FAILED]')
+            result = False
+        else:
+            report.write('[passed]')
+        report.write('    3.2 s must agree with tabulated data to within 0.1 J/mol/K\n')
+        if np.all(I):
+            report.write('            Failed at all temperatures.\n')
+        elif np.any(I):
+            report.write('            Failed at T=')
+            for tt in T[I]:
+                report.write('%.2f,'%tt)
+            report.write('\n')
+        
+        # 3.3 h must agree with tabulated data
+        I = np.abs(h_test - h0 - h) > np.maximum(herr, np.abs(h) * .001)
+        if np.any(I):
+            report.write('[FAILED]')
+            result = False
+        else:
+            report.write('[passed]')
+        report.write('    3.3 h must agree with tabulated data to within 0.01 kJ/mol or 0.1%\n')
+        if np.all(I):
+            report.write('            Failed at all temperatures.\n')
+        elif np.any(I):
+            report.write('            Failed at T=')
+            for tt in T[I]:
+                report.write('%.2f,'%tt)
+            report.write('\n')
+        
+        # 3.4 density at 1000K and 10bar should agree to within .01%.
+        TT = 1000.
+        pp = 10.
+        dd = pp*1e5 / (pm.units.const_Ru * 1000.)
+        dd = pm.units.matter(dd, self.data['mw'], from_units='mol')
+        dd = pm.units.volume(dd, from_units='m3', exponent=-1)
+        TT = pm.units.temperature_scale(TT, from_units = 'K')
+        pp = pm.units.pressure(pp, from_units='bar')
+        
+        if np.abs(self.d(T=TT, p=pp) - dd)/dd > .0001:
+            report.write('[FAILED]')
+            result = False
+        else:
+            report.write('[passed]')
+        report.write('    3.4 Density at 1000K and 10bar must match IG law to within .01%\n')
+        
+        # 3.5 R should agree to within .01%.
+        R = pm.units.energy(pm.units.const_Ru, from_units='J')
+        R = pm.units.matter(R, self.data['mw'], from_units='mol', exponent=-1)
+        R = pm.units.temperature(R, from_units='K', exponent=-1)
+        if np.abs(self.R() - R)/R > .0001:
+            report.write('[FAILED]')
+            result = False
+        else:
+            report.write('[passed]')
+        report.write('    3.5 Ideal gas constant must match to within 0.01%\n')
+        
+        # 3.6 cv should match cp-R at all tabulated conditions to within .01%.
+        I = np.abs(cv_test + self.R() - cp_test)/cv_test > .0001
+        if np.any(I):
+            report.write('[FAILED]')
+            result = False
+        else:
+            report.write('[passed]')
+        report.write('    3.6: cv == cp - R to within .01% at all tabulated values\n')
+        if np.all(I):
+            report.write('            Failed at all temperatures.\n')
+        elif np.any(I):
+            report.write('            Failed at T=')
+            for tt in T[I]:
+                report.write('%.2f,'%tt)
+            report.write('\n')
+        
+        # 3.7 e should match h-RT at all tabulated conditions to within .01 kJ/mol.
+        # Borrow the same herr as from the enthalpy checks
+        I = np.abs(e_test + self.R()*T - h_test)/e_test > herr
+        if np.any(I):
+            report.write('[FAILED]')
+            result = False
+        else:
+            report.write('[passed]')
+        report.write('    3.7: e == h - R*T to within .01 kJ/mol at all tabulated values\n')
+        if np.all(I):
+            report.write('            Failed at all temperatures.\n')
+        elif np.any(I):
+            report.write('            Failed at T=')
+            for tt in T[I]:
+                report.write('%.2f,'%tt)
+            report.write('\n')
+    
+        # 3.8 gam should match cp/cv at all tabulated conditions to .001
+        I = np.abs(gam_test - cp_test/cv_test) > .001
+        if np.any(I):
+            report.write('[FAILED]')
+            result = False
+        else:
+            report.write('[passed]')
+        report.write('    3.7: gam = cp/cv to within .001 at all tabulated values\n')
+        if np.all(I):
+            report.write('            Failed at all temperatures.\n')
+        elif np.any(I):
+            report.write('            Failed at T=')
+            for tt in T[I]:
+                report.write('%.2f,'%tt)
+            report.write('\n')
+            
+        return result
+        
+
+    def __test(self, report_file=None, report_level=2, basic=False):
         """Test the data and algorithm against tabulated data
     _test(report_file=None, report_level=2, basic=False)
 
@@ -211,7 +717,7 @@ The following test criteria are used:
         elif hasattr(report_file,'write'):
             ff = report_file
         else:
-            raise pyro.utility.PMParamError('Unrecognized file type')
+            raise pm.utility.PMParamError('Unrecognized file type')
 
         # Start with some basic stuff
         
@@ -238,10 +744,10 @@ The following test criteria are used:
         # epsilon  The acceptable fractional error 
         # small    An acceptable total error (for values that can be close to 0)
         def _prop_test(crit, prop, args, ref, units, epsilon=.001, small=0.):
-            pyro.config['unit_energy'] = units[0]
-            pyro.config['unit_matter'] = units[1]
-            pyro.config['unit_pressure'] = units[2]
-            pyro.config['unit_temperature'] = units[3]
+            pm.config['unit_energy'] = units[0]
+            pm.config['unit_matter'] = units[1]
+            pm.config['unit_pressure'] = units[2]
+            pm.config['unit_temperature'] = units[3]
             
             if report_level >= REP_VITAL:
                 ff.write(crit + '...')
@@ -250,10 +756,9 @@ The following test criteria are used:
                 error = abs(prop(*args) - ref)
             except:
                 if report_level>=REP_VITAL:
-                    message = os.sys.exc_info()[1].message
                     ff.write('[ERROR]\n')
                     if report_level>=REP_ALL:
-                      ff.write('    %s\n'%message)
+                      ff.write('    ' + repr(os.sys.exc_info()[1].args))
                 return False
 
             fail = (error > abs(epsilon*ref)) * (error > small)
@@ -338,9 +843,9 @@ The following test criteria are used:
             if report_level >= REP_VITAL:
                 ff.write('  0d...')
 
-            pyro.config['unit_temperature']='K'
-            pyro.config['unit_energy']='J'
-            pyro.config['unit_matter']='mol'
+            pm.config['unit_temperature']='K'
+            pm.config['unit_energy']='J'
+            pm.config['unit_matter']='mol'
             T = np.array(self.data['Tlim'][1:-1])
             clow = self.cp(T-.01)
             chigh = self.cp(T+.01)
@@ -508,11 +1013,11 @@ The following test criteria are used:
         ## 
         ## Criterion 4a - Using molar units
         ##
-        pyro.config['unit_energy'] = 'J'
-        pyro.config['unit_matter'] = 'mol'
-        pyro.config['unit_temperature'] = 'K'
-        error = abs(self.R() - pyro.units.const_Ru)
-        fail = (error > .0001 * pyro.units.const_Ru)
+        pm.config['unit_energy'] = 'J'
+        pm.config['unit_matter'] = 'mol'
+        pm.config['unit_temperature'] = 'K'
+        error = abs(self.R() - pm.units.const_Ru)
+        fail = (error > .0001 * pm.units.const_Ru)
         subresult &= not fail
         if report_level >= REP_VITAL:
             ff.write('  4a   J mol bar   K...%10f...'%error)
@@ -523,10 +1028,10 @@ The following test criteria are used:
         ## 
         ## Criterion 4b - Using mass units
         ##
-        pyro.config['unit_energy'] = 'J'
-        pyro.config['unit_matter'] = 'kg'
-        pyro.config['unit_temperature'] = 'K'
-        R = pyro.units.const_Ru * 1000. / self.data['mw']
+        pm.config['unit_energy'] = 'J'
+        pm.config['unit_matter'] = 'kg'
+        pm.config['unit_temperature'] = 'K'
+        R = pm.units.const_Ru * 1000. / self.data['mw']
         error = abs(self.R() - R)
         fail = (error > .0001 * R)
         subresult &= not fail
@@ -551,14 +1056,14 @@ The following test criteria are used:
         # Criterion 5 - density should match IG density            #
         #==========================================================#
         subresult = True
-        pyro.config['unit_volume'] = 'm3'
+        pm.config['unit_volume'] = 'm3'
         units = ['J','kg','bar','K']
 
         ##
         ## 5a - mass units
         ##
         p = 5.0
-        R = pyro.units.const_Ru * 1000. / self.data['mw']
+        R = pm.units.const_Ru * 1000. / self.data['mw']
         d = p * 1e5 / R / Tref
         subresult &= _prop_test('  5a          kg/m3', self.d, 
             (Tref,p), d, units)
@@ -584,7 +1089,7 @@ The following test criteria are used:
         #==========================================================#
         subresult = True
         units = ['J','mol','bar','K']
-        R = pyro.units.const_Ru
+        R = pm.units.const_Ru
         tag = '   6 %3s %3s %3s %3s'%tuple(units)
         subresult &= _prop_test(tag, self.cv, (Tref,), cpref-R, units)
 
@@ -601,7 +1106,7 @@ The following test criteria are used:
         #==========================================================#
         subresult = True
         units = ['J','mol','bar','K']
-        R = pyro.units.const_Ru
+        R = pm.units.const_Ru
         tag = '   7 %3s %3s %3s %3s'%tuple(units)
         subresult &= _prop_test(tag, self.e, (Tref,None,False), href-R*Tref, units, small=10.)
 
@@ -618,7 +1123,7 @@ The following test criteria are used:
         #==========================================================#
         subresult = True
         units = ['J','mol','bar','K']
-        R = pyro.units.const_Ru
+        R = pm.units.const_Ru
         tag = '   8 %3s %3s %3s %3s'%tuple(units)
         subresult &= _prop_test(tag, self.gam, (Tref,), cpref/(cpref-R), units)
 
@@ -669,6 +1174,7 @@ redundant string parsing.
         return self._contents
 
 
+
     def Tlim(self):
         """Temperature limits
     (Tmin, Tmax) = Tlim()
@@ -677,191 +1183,15 @@ Returns the temperature limits on the ig data set.
 Accepts None
 Returns unit_temperature
 """
-        Tmin = pyro.units.temperature_scale(self.data['Tlim'][0], from_units='K')
-        Tmax = pyro.units.temperature_scale(self.data['Tlim'][-1], from_units='K')
+        Tmin = pm.units.temperature_scale(self.data['Tlim'][0], from_units='K')
+        Tmax = pm.units.temperature_scale(self.data['Tlim'][-1], from_units='K')
         return (Tmin,Tmax)
 
-
-    def cp(self,T=None,p=None):
-        """Constant-pressure specific heat
-    cp(T,p)
-Both arguments are optional, and will default to 'def_T' and 'def_p'
-configuration parameters if they are left undefined.  Ideal gas specific 
-heat is not actually a function of p, but it is permitted as an argument 
-for cross-compatibility between species' function calls.
-
-Accepts unit_temperature
-        unit_pressure
-Returns unit_energy / unit_matter
-"""
-        # Check for default values
-        if T is None:
-            T = pyro.config['def_T']
-        # Don't bother checking for the p default value
-        # It's value isn't used in the calculation, and None will 
-        # still be broadcast correclty as a scalar.
-
-        # Perform temperature conversion
-        T = pyro.units.temperature_scale(T,to_units='K')
-
-        # Calculate a scaling factor for the output
-        scale = pyro.units.energy(from_units='J')
-        scale = pyro.units.matter(scale,self.data['mw'],from_units='mol',exponent=-1)
-        scale = pyro.units.temperature(scale,from_units='K',exponent=-1)
-
-        # Create an iterator over T and out
-        it = np.nditer((T,None),op_flags=[['readonly','copy'],['readwrite','allocate']],op_dtypes='float')
-
-        for TT,oo in it:
-            C = self.data['C'][self._crange(TT)]
-            t = TT/1000.
-            oo[...] = C[0] + t*(C[1] + t*(C[2] + t*C[3]))
-            oo[...] += C[4]/t/t
-            oo[...] *= scale
-        # Broadcast the result to match the dims of p
-        return it.operands[1]
-        
-    def h(self,T=None,p=None,hf=True):
-        """Enthalpy
-    h(T,p)
-Both arguments are optional, and will default to 'def_T' and 'def_p'
-configuration parameters if they are left undefined.  Ideal gas enthalpy
-is not actually a function of p, but it is permitted as an argument 
-for cross-compatibility between species' function calls.
-
-There is an optional parameter, hf, that is a boolean indicating whether
-the enthalpy of formation should be included in the enthalpy.  If hf is
-false, h() will calculate the enthalpy to be zero a T=298.15K (25C)
-
-Accepts unit_temperature
-        unit_pressure
-Returns unit_energy / unit_matter
-"""
-        # Check for default values
-        if T is None:
-            T = pyro.config['def_T']
-        # Don't bother checking for the p default value
-        # It's value isn't used in the calculation, and None will 
-        # still be broadcast correclty as a scalar.
-
-        # Perform temperature conversion
-        T = pyro.units.temperature_scale(T,to_units='K')
-
-        # Calculate a scaling factor for the output
-        scale = pyro.units.energy(from_units='kJ')
-        scale = pyro.units.matter(scale,self.data['mw'],from_units='mol',exponent=-1)
-
-        # Create an iterator over T and out
-        it = np.nditer((T,None),op_flags=[['readonly','copy'],['readwrite','allocate']],op_dtypes='float')
-        if hf:
-            C7 = 0.
-        else:
-            C7 = self.data['C'][0][7]
-        for TT,oo in it:
-            C = self.data['C'][self._crange(TT)]
-            t = TT/1000.
-            oo[...] = C[5] + t*(C[0] + t*(C[1]/2. + t*(C[2]/3. + t*C[3]/4.)))
-            oo[...] -= C[4]/t + C7
-            oo[...] *= scale
-        # Broadcast the result to match the dims of p
-        return it.operands[1]
-
-    def s(self,T=None,p=None):
-        """Entropy
-    s(T,p)
-Both arguments are optional, and will default to 'def_T' and 'def_p'
-configuration parameters if they are left undefined. 
-
-Accepts unit_temperature
-        unit_pressure
-Returns unit_energy / unit_matter / unit_temperature
-"""
-        # Check for default values
-        if T is None:
-            T = pyro.config['def_T']
-        if not isinstance(T,np.ndarray):
-            T = np.array(T)
-
-        if p is None:
-            p = pyro.config['def_p']
-        if not isinstance(p,np.ndarray):
-            p = np.array(p)
-
-        # Perform temperature conversion
-        T = pyro.units.temperature_scale(T,to_units='K')
-        # and pressure conversion
-        p = pyro.units.pressure(p,to_units='bar')
-
-        # Calculate a scaling factor for the output
-        scale = pyro.units.energy(from_units='J')
-        scale = pyro.units.matter(scale,self.data['mw'],from_units='mol',exponent=-1)
-        scale = pyro.units.temperature(scale,from_units='K',exponent=-1)
-
-        # Create an iterator over T, p, and out
-        it = np.nditer((T,p,None),op_flags=[['readonly','copy'],['readonly','copy'],['readwrite','allocate']],op_dtypes='float')
-
-        for TT,pp,oo in it:
-            C = self.data['C'][self._crange(TT)]
-            t = TT/1000.
-            oo[...] = C[6] + C[0]*np.log(t)
-            oo[...] += t*(C[1] + t*(C[2]/2. + t*C[3]/3.))
-            oo[...] -= C[4]/t/t/2.
-            oo[...] -= pyro.units.const_Ru * np.log(pp/self._pref_bar)
-            oo[...] *= scale
-        # Broadcast the result to match the dims of p
-        return it.operands[2]
-
-    def e(self,T=None,p=None,hf=True):
-        """Energy
-    e(T,p)
-Both arguments are optional, and will default to 'def_T' and 'def_p'
-configuration parameters if they are left undefined.  Ideal gas enthalpy
-is not actually a function of p, but it is permitted as an argument 
-for cross-compatibility between species' function calls.
-
-There is an optional parameter, hf, that is a boolean indicating whether
-the enthalpy of formation should be included in the enthalpy.  If hf is
-False, h() will calculate the enthalpy to be zero a T=273.15K, and the
-internal energy will also be adjusted.
-
-Accepts unit_temperature
-        unit_pressure
-Returns unit_energy / unit_matter
-"""
-        # Check for default values
-        if T is None:
-            T = pyro.config['def_T']
-        # Don't bother checking for the p default value
-        # It's value isn't used in the calculation, and None will 
-        # still be broadcast correclty as a scalar.
-
-        # Perform temperature conversion
-        T = pyro.units.temperature_scale(T,to_units='K')
-
-        # Calculate a scaling factor for the output
-        scale = pyro.units.energy(from_units='kJ')
-        scale = pyro.units.matter(scale,self.data['mw'],from_units='mol',exponent=-1)
-
-        # Create an iterator over T and out
-        it = np.nditer((T,None),op_flags=[['readonly','copy'],['readwrite','allocate']],op_dtypes='float')
-
-        R = 1e-3 * pyro.units.const_Ru
-        if hf:
-            C7 = 0.
-        else:
-            C7 = self.data['C'][0][7]
-        for TT,oo in it:
-            C = self.data['C'][self._crange(TT)]
-            t = TT/1000.
-            oo[...] = C[5] + t*(C[0] + t*(C[1]/2. + t*(C[2]/3. + t*C[3]/4.)))
-            oo[...] -= C[4]/t + C7
-            oo[...] -= TT * R
-            oo[...] *= scale
-        # Broadcast the result to match the dims of p
-        return it.operands[1]
-
-
-    def d(self,T=None,p=None):
+    ######################################
+    # Pressure, density, and temperature #
+    ######################################
+    
+    def d(self,*varg, **kwarg):
         """Density
     d(T,p)
 Both arguments are optional, and will default to 'def_T' and 'def_p'
@@ -873,36 +1203,47 @@ Accepts unit_temperature
         unit_pressure
 Returns unit_matter / unit_volume
 """
-        # Check for default values
-        if T is None:
-            T = pyro.config['def_T']
-        elif hasattr(T,'__iter__') and not isinstance(T,np.ndarray):
-            T = np.array(T)
-        if p is None:
-            p = pyro.config['def_p']
-        elif hasattr(p,'__iter__') and not isinstance(p,np.ndarray):
-            p = np.array(p)
+        d = self._argparse(*varg, density=True, **kwarg)
+        scale = pm.units.matter(1., self.data['mw'], from_units='kmol')
+        scale = pm.units.volume(scale, from_units='m3', exponent=-1)
+        np.multiply(d, scale, out=d)
+        return d
         
-        p = pyro.units.pressure(p, to_units='Pa')
-        T = pyro.units.temperature_scale(T, to_units='K')
-        R = pyro.units.matter(pyro.units.const_Ru, self.data['mw'], from_units='mol', exponent=-1)
+    def T(self, *varg, **kwarg):
+        """Temperature
+    T(p,d)
+        OR
+    T(d=d)
 
-        return pyro.units.volume(p / R / T, from_units='m3', exponent=-1)
+If pressure is omitted, it will default to the 'def_p' configuration 
+value.  If density is omitted, then the default temperature will be 
+returned (converted to the appropriate units).
 
+Accepts unit_pressure
+        unit_matter / unit_volume
+Returns unit_temperature
+"""
+        T = self._argparse(*varg, temperature=True, **kwarg)
+        pm.units.temperature_scale(T, from_units='K', inplace=True)
+        return T
+        
+    def p(self, *varg, **kwarg):
+        """Pressure
+    p(T,d)
+        OR
+    T(d=d)
 
-    def cv(self,T=None,p=None):
-        """Constant-volume specific heat
-    cv(T,p)
-Both arguments are optional, and will default to 'def_T' and 'def_p'
-configuration parameters if they are left undefined.  Ideal gas specific 
-heat is not actually a function of p, but it is permitted as an argument 
-for cross-compatibility between species' function calls.
+If temperature is omitted, it will default to the 'def_T' configuration 
+value.  If density is omitted, then the default pressure will be 
+returned (converted to the appropriate units).
 
 Accepts unit_temperature
-        unit_pressure
-Returns unit_energy/unit_matter/unit_temperature
+        unit_matter / unit_volume
+Returns unit_pressure
 """
-        return self.cp(T,p) - self.R()
+        p = self._argparse(*varg, pressure=True, **kwarg)
+        pm.units.pressure(p, from_units='bar', inplace=True)
+        return p
 
     def mw(self,T=None,p=None):
         """Molecular weight
@@ -915,8 +1256,8 @@ Accepts unit_temperature
         unit_pressure
 Returns unit_mass/unit_molar
 """
-        mw = pyro.units.mass(self.data['mw'],from_units='g')
-        mw = pyro.units.molar(mw,from_units='mol',exponent=-1)
+        mw = pm.units.mass(self.data['mw'],from_units='g')
+        mw = pm.units.molar(mw,from_units='mol',exponent=-1)
         return mw
 
     def R(self,T=None,p=None):
@@ -930,12 +1271,12 @@ Accepts unit_temperature
         unit_pressure
 Returns unit_energy/unit_temperature/unit_matter
 """
-        R = pyro.units.energy(pyro.units.const_Ru, from_units='J')
-        R = pyro.units.temperature(R, from_units='K', exponent=-1)
-        R = pyro.units.matter(R, self.data['mw'], from_units='mol', exponent=-1)
+        R = pm.units.energy(pm.units.const_Ru, from_units='J')
+        R = pm.units.temperature(R, from_units='K', exponent=-1)
+        R = pm.units.matter(R, self.data['mw'], from_units='mol', exponent=-1)
         return R
 
-    def gam(self,T=None,p=None):
+    def gam(self,*varg, **kwarg):
         """Specific heat ratio
     gam(T,p)
 Both arguments are optional, and will default to 'def_T' and 'def_p'
@@ -947,40 +1288,175 @@ Accepts unit_temperature
         unit_pressure
 Returns dimensionless
 """
-        cp = self.cp(T,p)
-        return cp/(cp-self.R())
+        T = self._argparse(*varg, temperature=True, **kwarg)
+        cp = self._cp(T)
+        return cp/(cp-pm.units.const_Ru)
 
-    def p_d(self,d,T=None):
-        """Pressure from density and temperature
-    p = ig_instance.p_d(d)
-        or
-    p = ig_instance.p_d(d,T)
 
-Returns the pressure as a function of density and temperature
+    def cp(self, *varg, **kwarg):
+        """Constant-pressure specific heat
+    cp(T=T)
+        OR
+    cp(p=p, d=d)
+        OR
+    cp(T,p)
 
-Accepts unit_matter / unit_volume
-        unit_temperature
-Returns unit_pressure
+Accepts temperature, pressure, and/or density as inputs as necessary to
+determine the thermodynamic state being queried.  Missing temperature or
+pressure parameters will default to config['def_T'] and config['def_p'] 
+respectively.
+
+For example, these calls are identical:
+>>> cp()
+>>> cp(T=pyromat.config['def_T'], p=pyromat.config['def_p'])
+
+Accepts unit_temperature
+        unit_pressure
+        unit_matter / unit_volume
+Returns unit_energy / unit_matter / unit_temperature
 """
-        p0 = pyro.config['def_p']
-        d0 = self.d(T=T,p=def_p)
-        return p0 * d / d0
+        T = self._argparse(*varg, temperature=True, **kwarg)
+        # Apply the model
+        out = self._cp(T)
+        # calculate a conversion factor
+        scale = pm.units.energy(1, from_units='kJ')
+        scale = pm.units.temperature(scale, from_units='K', exponent=-1)
+        scale = pm.units.matter(scale, self.data['mw'], from_units='kmol', exponent=-1)
+        # Apply the conversion factor in-place and return
+        np.multiply(out, scale, out=out)
+        return out
+        
+    def cv(self,*varg, **kwarg):
+        """Constant-volume specific heat
+    cv(T=T)
+        OR
+    cv(p=p, d=d)
+        OR
+    cv(T,p)
 
-    def p_s(self,s,T=None):
-        """Pressure as a function of entropy
-    p = ig_instance.p_s(s)
-        or
-    p = ig_instance.p_s(s,T)
+Accepts temperature, pressure, and/or density as inputs as necessary to
+determine the thermodynamic state being queried.  Missing temperature or
+pressure parameters will default to config['def_T'] and config['def_p'] 
+respectively.
 
-Returns the pressure as a function of entropy and temperature.
+For example, these calls are identical:
+>>> cv()
+>>> cv(T=pyromat.config['def_T'], p=pyromat.config['def_p'])
 
-Accepts unit_energy / unit_matter / unit_temperature
-        unit_temperature
-Returns unit_pressure
+Accepts unit_temperature
+        unit_pressure
+        unit_matter / unit_volume
+Returns unit_energy / unit_matter / unit_temperature
 """
-        def_p = pyro.config['def_p']
-        s0 = self.s(T=T,p=def_p)
-        return def_p * np.exp((s0 - s)/self.R())
+        T = self._argparse(*varg, temperature=True, **kwarg)
+        # Apply the model
+        out = self._cp(T) - pm.units.const_Ru
+        # calculate a conversion factor
+        scale = pm.units.energy(1, from_units='kJ')
+        scale = pm.units.temperature(scale, from_units='K', exponent=-1)
+        scale = pm.units.matter(scale, self.data['mw'], from_units='kmol', exponent=-1)
+        # Apply the conversion factor in-place and return
+        np.multiply(out, scale, out=out)
+        return out
+        
+    def h(self,*varg, **kwarg):
+        """Enthalpy
+    h(T=T)
+        OR
+    h(p=p, d=d)
+        OR
+    h(T,p)
+
+Accepts temperature, pressure, and/or density as inputs as necessary to
+determine the thermodynamic state being queried.  Missing temperature or
+pressure parameters will default to config['def_T'] and config['def_p'] 
+respectively.
+
+For example, these calls are identical:
+>>> h()
+>>> h(T=pyromat.config['def_T'], p=pyromat.config['def_p'])
+
+Accepts unit_temperature
+        unit_pressure
+        unit_matter / unit_volume
+Returns unit_energy / unit_matter
+"""
+        T = self._argparse(*varg, temperature=True, **kwarg)
+        # Apply the model
+        out = self._h(T)[0]
+        # calculate a conversion factor
+        scale = pm.units.energy(1, from_units='kJ')
+        scale = pm.units.matter(scale, self.data['mw'], from_units='kmol', exponent=-1)
+        # Apply the conversion factor in-place and return
+        np.multiply(out, scale, out=out)
+        return out
+
+    def s(self,*varg,**kwarg):
+        """Entropy
+    s(T=T, p=p)
+        OR
+    s(p=p, d=d)
+        OR
+    s(T,p)
+        OR
+    ...
+
+Accepts temperature, pressure, and/or density as inputs as necessary to
+determine the thermodynamic state being queried.  Missing temperature or
+pressure parameters will default to config['def_T'] and config['def_p'] 
+respectively.
+
+For example, these calls are identical:
+>>> s()
+>>> s(T=pyromat.config['def_T'], p=pyromat.config['def_p'])
+
+Accepts unit_temperature
+        unit_pressure
+        unit_matter / unit_volume
+Returns unit_energy / unit_matter / unit_temperature
+"""
+        T,p = self._argparse(*varg, temperature=True, pressure=True, **kwarg)
+        # Apply the model
+        out = self._s(T)[0] - pm.units.const_Ru * np.log(p/self._pref_bar)
+        # calculate a conversion factor
+        scale = pm.units.energy(1, from_units='kJ')
+        scale = pm.units.temperature(scale, from_units='K', exponent=-1)
+        scale = pm.units.matter(scale, self.data['mw'], from_units='kmol', exponent=-1)
+        # Apply the conversion factor in-place and return
+        np.multiply(out, scale, out=out)
+        return out
+
+    def e(self,*varg, **kwarg):
+        """Internal Energy
+    e(T=T)
+        OR
+    e(p=p, d=d)
+        OR
+    e(T,p)
+
+Accepts temperature, pressure, and/or density as inputs as necessary to
+determine the thermodynamic state being queried.  Missing temperature or
+pressure parameters will default to config['def_T'] and config['def_p'] 
+respectively.
+
+For example, these calls are identical:
+>>> h()
+>>> h(T=pyromat.config['def_T'], p=pyromat.config['def_p'])
+
+Accepts unit_temperature
+        unit_pressure
+        unit_matter / unit_volume
+Returns unit_energy / unit_matter
+"""
+        T = self._argparse(*varg, temperature=True, **kwarg)
+        # Apply the model
+        out = self._h(T)[0] - pm.units.const_Ru*T
+        # calculate a conversion factor
+        scale = pm.units.energy(1, from_units='J')
+        scale = pm.units.matter(scale, self.data['mw'], from_units='mol', exponent=-1)
+        # Apply the conversion factor in-place and return
+        np.multiply(out, scale, out=out)
+        return out
 
 
     def T_s(self,s,p=None):
@@ -993,7 +1469,27 @@ Accepts unit_energy / unit_matter / unit_temperature
         unit_pressure
 Returns unit_temperature
 """
-        return self._invT(s, self.s, p)
+        if p is None:
+            p = pm.config['def_p']
+        p = pm.units.pressure(np.asarray(p, dtype=float), to_units='bar')
+        if p.ndim==0:
+            p = np.reshape(p, (1,))
+        
+        s = pm.units.energy(np.asarray(s, dtype=float), to_units='kJ')
+        s = pm.units.matter(s, self.data['mw'], to_units='kmol', exponent=-1)
+        s = pm.units.temperature(s, to_units='K', exponent=-1)
+        if s.ndim == 0:
+            s = np.reshape(s, (1,))
+            
+        s,p = np.broadcast_arrays(s,p)
+        # Adjust s by the pressure term
+        s += pm.units.const_Ru * np.log(p/self._pref_bar)
+        
+        I = np.ones_like(s, dtype=bool)
+        T = np.full_like(s, 0.5*(self.data['Tlim'][0]+self.data['Tlim'][-1]))
+        self._iter1(self._s, 'T', s, T, I, self.data['Tlim'][0], self.data['Tlim'][-1], verbose=True)
+        pm.units.temperature_scale(T, from_units='K')
+        return T
 
 
     def T_h(self,h,p=None):
@@ -1008,22 +1504,32 @@ Accepts unit_energy / unit_matter / unit_temperature
         unit_pressure
 Returns unit_temperature
 """
-        return self._invT(h, self.h, p)
+        # Convert the 
+        h = pm.units.energy(h, to_units='kJ')
+        h = pm.units.matter(h, self.data['mw'], to_units='kmol', exponent=-1)
+        if h.ndim==0:
+            h = np.reshape(h, (1,))
+        
+        Ids = np.ones_like(h, dtype=bool)
+        T = np.full_like(h, 0.5*(self.data['Tlim'][0] + self.data['Tlim'][-1]))
+        
+        self._iter1(self._h, 'T', h, T, Ids, self.data['Tlim'][0], self.data['Tlim'][-1], verbose=True)
+        pm.units.temperature_scale(T, from_units='K', inplace=True)
+        return T
 
-    def T_d(self,d,p=None):
-        """Temperature from density and pressure
-    T = ig_instance.T_d(d)
+
+    def p_s(self,s,T=None):
+        """Pressure as a function of entropy
+    p = ig_instance.p_s(s)
         or
-    T = ig_instance.T_d(d,p)
+    p = ig_instance.p_s(s,T)
 
-Returns the temperature as a function of density and pressure
+Returns the pressure as a function of entropy and temperature.
 
-Accepts unit_matter / unit_volume
-        unit_pressure
-Returns unit_temperature
+Accepts unit_energy / unit_matter / unit_temperature
+        unit_temperature
+Returns unit_pressure
 """
-        T0 = pyro.config['def_T']
-        d0 = self.d()
-        # Convert to an absolute scale
-        T0 = pyro.units.temperature_scale(T0,to_units='abs')
-        return pyro.units.temperature_scale(T0 * d0 / d, from_units='abs')
+        def_p = pm.config['def_p']
+        s0 = self.s(T=T,p=def_p)
+        return def_p * np.exp((s0 - s)/self.R())

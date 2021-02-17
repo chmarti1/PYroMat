@@ -78,13 +78,13 @@ They are always returned in the order T, p, d.
                 T = np.reshape(T,(1,))
                 
         if p is not None:
-            p = pm.units.pressure(np.asarray(p,dtype=float), to_units='Pa')
+            p = pm.units.pressure(np.asarray(p,dtype=float), to_units='bar')
             if p.ndim==0:
                 p = np.reshape(p,(1,))
             
         if d is not None:
-            d = pm.units.matter(np.asarray(d,dtype=float), to_units='kmol')
-            d = pm.units.volume(d, to_units='m3', exponent=-1)
+            d = pm.units.matter(np.asarray(d,dtype=float), self.data['mw'], to_units='kmol')
+            pm.units.volume(d, to_units='m3', exponent=-1, inplace=True)
             if d.ndim==0:
                 d = np.reshape(d, (1,))
         
@@ -100,21 +100,21 @@ They are always returned in the order T, p, d.
                 T,p = np.broadcast_arrays(T,p)
                 # Do we need density?
                 if density:
-                    d = p / (R*T)
+                    d = p * 1e5 / (R*T)
             # T,d
             else:
                 # Broadcast the arrays
                 T,d = np.broadcast_arrays(T,d)
                 # Do we need pressure?
                 if pressure:
-                    p = d*R*T
+                    p = d*R*T / 1e5
         # p,d
         else:
             # Broadcast the arrays
             p,d = np.broadcast_arrays(p,d)
             # Do we need temperature?
             if temperature:
-                T = p / (R*d)
+                T = p*1e5 / (R*d)
         
         out = []
         if temperature:
@@ -293,20 +293,21 @@ efficient than calculating specific heat separately.
         return pm.units.const_Ru * out, dh
 
 
-    def _s(self, T, diff=False):
-        """Standard entropy (at p=pref)
-    s,sT = _s(T)
+    def _s(self, T, p, diff=False):
+        """Entropy at reference pressure
+
+    s, sT = _s(T, diff=True)
     
 Expects temperature in Kelvin, p in bar, and returns s in kJ/kmol/K 
 
-If the optional keyword, diff, is True, then the first derivative of 
-entropy is also returned; otherwise it is None.  This is more 
-efficient than calculating ds/dT from specific heat separately.
+If the optional keyword, diff, is True, then the derivative of entropy
+with respect to temperature is also returned.  Otherwise, it is returned
+as None.
 """
         out = np.zeros_like(T,dtype=float)
-        ds = None
+        sT = None
         if diff:
-            ds = np.zeros_like(T,dtype=float)
+            sT = np.zeros_like(T,dtype=float)
         # Loop through the piece-wise temperature ranges
         for index in range(len(self.data['Tlim'])-1):
             # Which elements are in-range?
@@ -314,17 +315,21 @@ efficient than calculating ds/dT from specific heat separately.
             term = 4.
             for c in self.data['C'][index][4:0:-1]:
                 if diff:
-                    ds[I] = out[I] + T[I]*ds[I]
+                    sT[I] = sT[I] + T[I]*sT[I]
                 out[I] = c/term + T[I]*out[I]
                 term -= 1.
             if diff:
-                ds[I] = out[I] + T[I]*ds[I]
-                ds[I] += self.data['C'][index][0] / T[I]
-                ds[I] *= pm.units.const_Ru
+                sT[I] = out[I] + T[I]*sT[I]
+                sT[I] += self.data['C'][index][0] / T[I]
             out[I] = T[I]*out[I]\
                     + self.data['C'][index][6]\
                     + self.data['C'][index][0] * np.log(T[I])
-        return pm.units.const_Ru * out, ds
+        
+        # Rescale the outputs
+        out[...] = pm.units.const_Ru * out
+        if diff:
+            sT *= pm.units.const_Ru
+        return out, sT
 
 
     def contents(self):
@@ -466,7 +471,7 @@ Returns enthalpy in [unit_energy / unit_matter]
 
     def s(self,*varg, **kwarg):
         """Entropy
-    h(T)   OR  h(p=p, d=d)
+    s(T)   OR  s(p=p, d=d)
 
 Accepts any combination of state parameters that permit the calculation
 of temperature.  Returns the constant-pressure specific heat.  Missing 
@@ -481,7 +486,7 @@ Returns in      [unit_energy / unit_matter / unit_temperature]
 
         # Prep temperature and the result arrays
         T,p = self._argparse(*varg, temperature=True, pressure=True, **kwarg)
-        out = self._s(T)[0] - pm.units.const_Ru * np.log(p/self.data['pref'])
+        out = self._s(T,p)[0] - pm.units.const_Ru * np.log(p/self.data['pref'])
         pm.units.energy(out, from_units='kJ', inplace=True)
         pm.units.matter(out, self.data['mw'], exponent=-1, from_units='kmol', inplace=True)
         pm.units.temperature(out, from_units='K', exponent=-1, inplace=True)
@@ -631,23 +636,24 @@ Returns temperature in  [unit_temperature]
         s = pm.units.energy(np.asarray(s, dtype=float), to_units='kJ')
         s = pm.units.matter(s, self.data['mw'], to_units='kmol', exponent=-1)
         s = pm.units.temperature(s, to_units='K', exponent=-1)
+        if s.ndim==0:
+            s = np.reshape(s, (1,))
         
         s,p = np.broadcast_arrays(s,p)
-        # Return the entropy value to standard pressure
+        # Adjust for pressure
         s += pm.units.const_Ru * np.log(p/self.data['pref'])
         
         Ids = np.ones_like(s, dtype=bool)
-        T = np.ones_like(s, dtype=float) * (self.data['Tlim'][0] + self.data['Tlim'][1]) * 0.5
+        T = np.full_like(s, 0.5*(self.data['Tlim'][0]+self.data['Tlim'][-1]))
         
-        self._iter1(self._s, 'T', s, T, Ids, self.data['Tlim'][0], self.data['Tlim'][-1])
+        self._iter1(self._s, 'T', s, T, Ids, self.data['Tlim'][0], self.data['Tlim'][-1], param={'p':p})
         pm.units.temperature_scale(T, from_units='K', inplace=True)
         return T
-
-
+        
+        
+        
     def T_h(self,h):
         """Temperature as a function of enthalpy
-    T = T_h(h)
-        or
     T = T_h(h)
 
 Returns the temperature as a function of enthalpy and pressure
@@ -661,7 +667,7 @@ Returns temperature as [unit_temperature]
             h = np.reshape(h, (1,))
         
         Ids = np.ones_like(h, dtype=bool)
-        T = np.ones_like(h, dtype=float) * (self.data['Tlim'][0] + self.data['Tlim'][1]) * 0.5
+        T = np.full_like(h, 0.5*(self.data['Tlim'][0]+self.data['Tlim'][-1]))
         
         self._iter1(self._h, 'T', h, T, Ids, self.data['Tlim'][0], self.data['Tlim'][-1])
         pm.units.temperature_scale(T, from_units='K', inplace=True)
