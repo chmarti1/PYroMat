@@ -8,12 +8,22 @@ import re
 class ig(pm.reg.__basedata__):
     """Ideal gas class using the Shomate equation of state.
 This class exposes properties through member methods.  All property 
-functions accept temperature in PYroMat's unit_temperature and 
-pressure in PYroMat's unit_pressure.  The following are the member 
+methods accept any two of temperature, pressure, or density.  By default
+if no keywords are given, the argument order is (temperature,pressure).
+If one or both of the properties is missing, the defaults will be 
+applied instead, starting with temperature (config['def_T']) and then
+pressure, (config['def_p']).
+
+There are basic state functions that allow the calculation of any one
+in terms of the other two:
+  T()  temperature      (unit_temperature)
+  p()  pressure         (unit_pressure)
+  d()  density          (unit_matter / unit_volume)
+
+The following are the member 
 methods and their unit conventions:
   cp() spec. heat       (unit_energy / unit_temperature / unit_matter)
   cv() spec. heat       (unit_energy / unit_temperature / unit_matter)
-  d()  density          (unit_matter / unit_volume)
   e()  internal energy  (unit_energy / unit_matter)
   h()  enthalpy         (unit_energy / unit_matter)
   gam()  spec. heat ratio (dless)
@@ -24,17 +34,18 @@ methods and their unit conventions:
 There are also routines to invert properties; e.g. calculating 
 temperature from enthalpy or from entropy and pressure.
   T_h()  temperature from enthalpy
-  T_d()  temperature from density and pressure
   T_s()  temperature from entropy and pressure
   p_s()  pressure from entropy and temperature
-  p_d()  pressure from density and temperature
 
 Some meta-data on the species can be obtained using methods
-  Tlim() a two-element array with the min,max temperatures supported by
-         the data set.
+  Tlim()      a two-element array with the min,max temperatures 
+              supported by the data set.
   contents()  returns a dictionary with a key entry for each atom in
               the chemical formula and the corresponding integer 
               quantity of each.
+              
+For more information on any of these methods, access the in-line 
+documentation using Python's built-in "help()" function.
 """
 
     def __init__(self,*arg,**kwarg):
@@ -88,7 +99,7 @@ They are always returned in the order T, p, d.
                 T = np.reshape(T,(1,))
                 
         if p is not None:
-            p = pm.units.pressure(np.asarray(p,dtype=float), to_units='bar')
+            p = pm.units.pressure(np.asarray(p,dtype=float), to_units='Pa')
             if p.ndim==0:
                 p = np.reshape(p,(1,))
             
@@ -110,21 +121,21 @@ They are always returned in the order T, p, d.
                 T,p = np.broadcast_arrays(T,p)
                 # Do we need density?
                 if density:
-                    d = p * 1e5 / (R*T)
+                    d = p / (R*T)
             # T,d
             else:
                 # Broadcast the arrays
                 T,d = np.broadcast_arrays(T,d)
                 # Do we need pressure?
                 if pressure:
-                    p = d*R*T / 1e5
+                    p = d*R*T
         # p,d
         else:
             # Broadcast the arrays
             p,d = np.broadcast_arrays(p,d)
             # Do we need temperature?
             if temperature:
-                T = p * 1e5 / (R*d)
+                T = p / (R*d)
         
         out = []
         if temperature:
@@ -301,7 +312,7 @@ temperature with constant pressure is also returned.
         
         
     def _s(self, T, diff=False):
-        """Entropy at standard pressure
+        """Entropy at reference pressure
     
     s, sT = _s(T,diff=True)
     
@@ -1242,7 +1253,7 @@ Accepts unit_temperature
 Returns unit_pressure
 """
         p = self._argparse(*varg, pressure=True, **kwarg)
-        pm.units.pressure(p, from_units='bar', inplace=True)
+        pm.units.pressure(p, from_units='Pa', inplace=True)
         return p
 
     def mw(self,T=None,p=None):
@@ -1498,7 +1509,9 @@ Returns unit_temperature
         or
     T = T_h(h,p)
 
-Returns the temperature as a function of enthalpy and pressure
+Returns the temperature as a function of enthalpy and pressure.  Ideal 
+gas enthalpy is not a function of pressure, so the p term is merely a
+placeholder.
 
 Accepts unit_energy / unit_matter / unit_temperature
         unit_pressure
@@ -1530,6 +1543,22 @@ Accepts unit_energy / unit_matter / unit_temperature
         unit_temperature
 Returns unit_pressure
 """
-        def_p = pm.config['def_p']
-        s0 = self.s(T=T,p=def_p)
-        return def_p * np.exp((s0 - s)/self.R())
+        s = pm.units.energy(np.asarray(s,dtype=float), to_units='kJ')
+        s = pm.units.matter(s, to_units='kmol', exponent=-1)
+        s = pm.units.temperature(s, to_units='K', exponent=-1)
+        
+        if s.ndim==0:
+            s = np.reshape(s, (1,))
+        
+        if T is None:
+            T = pm.config['def_T']
+        T = pm.units.temperature_scale(np.asarray(T, dtype=float), to_units='K')
+        if T.ndim == 0:
+            T = np.reshape(T, (1,))
+        
+        s,T = np.broadcast_arrays(s,T)
+        
+        p0 = 1e5 * self._pref_bar
+        p = p0 * np.exp((self._s(T)[0] - s)/pm.units.const_Ru)
+        pm.units.pressure(p, from_units = 'Pa', inplace=True)
+        return p
