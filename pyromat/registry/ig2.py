@@ -161,6 +161,324 @@ I will be returned such that Tlim[index] <= T[I] < Tlim[index]
                     T < self.data['Tlim'][index+1])
             
 
+    def _test(self, tab, report=None):
+        """Test the ig data model against a series of criteria
+        
+    _test(tab)     # Prints results to stdout
+        OR
+    _test(tab, report='/path/to/file')   # Writes a report file
+        OR
+    _test(tab, report=open_file_descriptor)  # Appends to an open report file
+    
+tab is a 2D array-like object (numpy array or nested lists) with 
+tabulated data for testing against the 
+    
+Returns True when all criteria are satisfied and False otherwise.
+
+The criteria are:
+1. Data integrity
+    1.1 Tlim must be monotonic
+    1.2 Tlim dimensions must match coefficient dimensions
+            len(Tlim) == len(C)+1
+    1.3 There must be 8 coefficients
+            len(C[ii]) == 8 for all ii in range(len(C))
+            
+DATA INTEGRITY FAILURES ARE FATAL
+FAILURES HERE WILL HALT THE TEST
+
+2. Model continuity
+    2.1 cp should not have discontinuities at the Tlim boundaries
+    2.2 h should not have discontinuities
+    2.3 s should not have discontinuities
+    
+3. Tabulated reference data should agree with the model in the currently
+        configured unit system.
+    3.1 cp should agree with tabulated reference data to within 0.01%
+    3.2 s should agree with reference data to within 0.1 J/mol/K
+    3.3 h should agree with reference data to wihtin 0.01 kJ/mol/K
+    3.4 density at 1000K and 10bar should agree to within .01%.
+    3.5 R should agree to within .01%.
+    3.6 cv should match cp-R at all tabulated conditions to within .01%.
+    3.7 e should match h-RT at all tabulated conditions to within .01%.
+    3.8 gam should match cp/cv at all tabulated conditions to .001
+    
+Optional keywords that configure the test:
+keyword (default)   
+Description
+
+"""
+        # Recurse with a fresh file descriptor if the file is a string
+        if isinstance(report, str):
+            with open(report, 'w') as ff:
+                return self._test(report=ff)
+        elif report is None:
+            report = sys.stdout
+        
+        # Perform the checks
+        result = True
+                
+        Tlim = self.data['Tlim']
+        C = self.data['C']
+        
+        report.write(repr(self) + '\n1. Data integrity\n')
+        
+        # 1.1: Tlim must be monotonic
+        test = True
+        for t0,t1 in zip(Tlim[:-1], Tlim[1:]):
+            test = test and (t0<t1)
+        if test:
+            report.write('[passed]')
+        else:
+            report.write('[FAILED]')
+        report.write('    1.1: Tlim must increase monotonically\n')
+        result = result and test
+        
+        # 1.2: Tlim and C dims must match
+        test = (len(Tlim) == len(C)+1)
+        result = result and test
+        if test:
+            report.write('[passed]')
+        else:
+            report.write('[FAILED]')
+        report.write('    1.2: Tlim and C dimensions must be compatible\n')
+        
+        # 1.3: C must have 8 coefficients
+        test = True
+        for cc in C:
+            test = test and (len(cc)==8)
+        result = result and test
+        if test:
+            report.write('[passed]')
+        else:
+            report.write('[FAILED]')
+        report.write('    1.3: All temperature regions must have 8 coefficients\n')
+        
+        if not result:
+            report.write('[FATAL] Data integrity test failed. Aborting further checks.\n')
+            return False
+        
+        # 2. tests for discontinuities
+        report.write('2. Model continuity\n')
+        cptest = []
+        htest = []
+        stest = []
+        for T in Tlim[1:-1]:
+            T = pm.units.temperature_scale(T, from_units='K')
+            # Perturb the temperature by +/- 0.01%
+            TT = T * np.array([0.9999, 1.0001])
+            # Check specific heat continuity to within 0.01%
+            cp = self.cp(TT)
+            if np.abs(cp[0] - cp[1]) / cp[0] > .0001:
+                cptest.append(T)
+            # Check enthalpy continuity to within 0.01%
+            h = self.h(TT)
+            # Adjust for the known change in temperature
+            h[1] -= cp[1] * T * .0001
+            h[0] += cp[0] * T * .0001
+            if np.abs(h[0] - h[1]) / h[0] > .0001:
+                htest.append(T)
+            s = self.s(TT)
+            # Adjust for the known change in temperature
+            s[1] -= cp[1] * .0001
+            s[0] += cp[0] * .0001
+            if np.abs(s[0] - s[1]) / s[0] > .0001:
+                stest.append(T)
+        
+        if cptest:
+            report.write('[FAILED]')
+            result = False
+        else:
+            report.write('[passed]')
+        report.write('    2.1 cp() must be continuous at piecewise boundaries.\n')
+        if cptest:
+            report.write('                Failure at T=')
+            for T in cptest:
+                report.write('%.2f,'%T)
+            report.write('\n')
+        
+        if htest:
+            report.write('[FAILED]')
+            result = False
+        else:
+            report.write('[passed]')
+        report.write('    2.2 h() must be continuous at piecewise boundaries.\n')
+        if htest:
+            report.write('                Failure at T=')
+            for T in htest:
+                report.write('%.2f,'%T)
+            report.write('\n')
+
+        if stest:
+            report.write('[FAILED]')
+            result = False
+        else:
+            report.write('[passed]')
+        report.write('    2.3 s() must be continuous at piecewise boundaries.\n')
+        if stest:
+            report.write('                Failure at T=')
+            for T in stest:
+                report.write('%.2f,'%T)
+            report.write('\n')
+            
+        # 3. Test for model consistency with tabulated values
+        # Start by converting the table into the currently configured units
+        report.write('3. Numerical consistency checks\n')
+        TAB = np.array(self.data['TAB'])
+        T = pm.units.temperature_scale(TAB[:,0], from_units='K')
+        p = pm.units.pressure(self._pref_bar, from_units='bar')
+        cp_test = self.cp(T)
+        cv_test = self.cv(T)
+        h_test = self.h(T)
+        e_test = self.e(T)
+        gam_test = self.gam(T)
+        s_test = self.s(T=T, p=p)
+        
+        
+        cp = pm.units.energy(TAB[:,1], from_units='J')
+        pm.units.matter(cp, self.data['mw'], from_units='mol', inplace=True, exponent=-1)
+        pm.units.temperature(cp, from_units='K', inplace=True, exponent=-1)
+        
+        s = pm.units.energy(TAB[:,2], from_units='J')
+        pm.units.matter(s, self.data['mw'], from_units='mol', inplace=True, exponent=-1)
+        pm.units.temperature(s, from_units='K', inplace=True, exponent=-1)
+        # Convert the entropy error threshold too
+        serr = pm.units.energy(0.1, from_units='J')
+        serr = pm.units.matter(serr, self.data['mw'], from_units='mol', exponent=-1)
+        serr = pm.units.temperature(serr, from_units='K', exponent=-1)
+        
+        h0 = self.h(pm.units.temperature_scale(298.15, from_units='K'))
+        h = pm.units.energy(TAB[:,4], from_units='kJ')
+        pm.units.matter(h, self.data['mw'], from_units='mol', inplace=True, exponent=-1)
+        
+        # Convert the enthalpy error threshold too
+        # herr is also used below on energy checks
+        herr = pm.units.energy(0.01, from_units='kJ')
+        herr = pm.units.matter(herr, self.data['mw'], from_units='mol', exponent=-1)
+
+        I = (np.abs(cp_test - cp)/cp > .001)
+        if np.any(I):
+            result = False
+            report.write('[FAILED]')
+        else:
+            report.write('[passed]')
+        report.write('    3.1 cp must agree with tabulated data to within 0.1%\n')
+        if np.all(I):
+            report.write('            Failed at all temperatures.\n')
+        elif np.any(I):
+            report.write('            Failed at T=')
+            for tt in T[I]:
+                report.write('%.2f,'%tt)
+            report.write('\n')
+            
+        I = np.abs(s_test - s) > serr
+        if np.any(I):
+            report.write('[FAILED]')
+            result = False
+        else:
+            report.write('[passed]')
+        report.write('    3.2 s must agree with tabulated data to within 0.1 J/mol/K\n')
+        if np.all(I):
+            report.write('            Failed at all temperatures.\n')
+        elif np.any(I):
+            report.write('            Failed at T=')
+            for tt in T[I]:
+                report.write('%.2f,'%tt)
+            report.write('\n')
+        
+        # 3.3 h must agree with tabulated data
+        I = np.abs(h_test - h0 - h) > np.maximum(herr, np.abs(h) * .001)
+        if np.any(I):
+            report.write('[FAILED]')
+            result = False
+        else:
+            report.write('[passed]')
+        report.write('    3.3 h must agree with tabulated data to within 0.01 kJ/mol or 0.1%\n')
+        if np.all(I):
+            report.write('            Failed at all temperatures.\n')
+        elif np.any(I):
+            report.write('            Failed at T=')
+            for tt in T[I]:
+                report.write('%.2f,'%tt)
+            report.write('\n')
+        
+        # 3.4 density at 1000K and 10bar should agree to within .01%.
+        TT = 1000.
+        pp = 10.
+        dd = pp*1e5 / (pm.units.const_Ru * 1000.)
+        dd = pm.units.matter(dd, self.data['mw'], from_units='mol')
+        dd = pm.units.volume(dd, from_units='m3', exponent=-1)
+        TT = pm.units.temperature_scale(TT, from_units = 'K')
+        pp = pm.units.pressure(pp, from_units='bar')
+        
+        if np.abs(self.d(T=TT, p=pp) - dd)/dd > .0001:
+            report.write('[FAILED]')
+            result = False
+        else:
+            report.write('[passed]')
+        report.write('    3.4 Density at 1000K and 10bar must match IG law to within .01%\n')
+        
+        # 3.5 R should agree to within .01%.
+        R = pm.units.energy(pm.units.const_Ru, from_units='J')
+        R = pm.units.matter(R, self.data['mw'], from_units='mol', exponent=-1)
+        R = pm.units.temperature(R, from_units='K', exponent=-1)
+        if np.abs(self.R() - R)/R > .0001:
+            report.write('[FAILED]')
+            result = False
+        else:
+            report.write('[passed]')
+        report.write('    3.5 Ideal gas constant must match to within 0.01%\n')
+        
+        # 3.6 cv should match cp-R at all tabulated conditions to within .01%.
+        I = np.abs(cv_test + self.R() - cp_test)/cv_test > .0001
+        if np.any(I):
+            report.write('[FAILED]')
+            result = False
+        else:
+            report.write('[passed]')
+        report.write('    3.6: cv == cp - R to within .01% at all tabulated values\n')
+        if np.all(I):
+            report.write('            Failed at all temperatures.\n')
+        elif np.any(I):
+            report.write('            Failed at T=')
+            for tt in T[I]:
+                report.write('%.2f,'%tt)
+            report.write('\n')
+        
+        # 3.7 e should match h-RT at all tabulated conditions to within .01 kJ/mol.
+        # Borrow the same herr as from the enthalpy checks
+        I = np.abs(e_test + self.R()*T - h_test)/e_test > herr
+        if np.any(I):
+            report.write('[FAILED]')
+            result = False
+        else:
+            report.write('[passed]')
+        report.write('    3.7: e == h - R*T to within .01 kJ/mol at all tabulated values\n')
+        if np.all(I):
+            report.write('            Failed at all temperatures.\n')
+        elif np.any(I):
+            report.write('            Failed at T=')
+            for tt in T[I]:
+                report.write('%.2f,'%tt)
+            report.write('\n')
+    
+        # 3.8 gam should match cp/cv at all tabulated conditions to .001
+        I = np.abs(gam_test - cp_test/cv_test) > .001
+        if np.any(I):
+            report.write('[FAILED]')
+            result = False
+        else:
+            report.write('[passed]')
+        report.write('    3.7: gam = cp/cv to within .001 at all tabulated values\n')
+        if np.all(I):
+            report.write('            Failed at all temperatures.\n')
+        elif np.any(I):
+            report.write('            Failed at T=')
+            for tt in T[I]:
+                report.write('%.2f,'%tt)
+            report.write('\n')
+            
+        return result
+
     
     def _iter1(self, fn, prop, y, x, Ids, xmin, xmax,
                 ep=1e-6, Nmax=20, fx_index=1, verbose=False,

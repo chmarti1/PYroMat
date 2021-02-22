@@ -376,6 +376,8 @@ FAILURES HERE WILL HALT THE TEST
     3.6 cv should match cp-R at all tabulated conditions to within .01%.
     3.7 e should match h-RT at all tabulated conditions to within .01%.
     3.8 gam should match cp/cv at all tabulated conditions to .001
+    3.9 T_h() should match T to within 0.01%
+    3.10 T_s() should match T to within 0.01%
     
 Optional keywords that configure the test:
 keyword (default)   
@@ -500,13 +502,13 @@ Description
         report.write('3. Numerical consistency checks\n')
         TAB = np.array(self.data['TAB'])
         T = pm.units.temperature_scale(TAB[:,0], from_units='K')
-        p = pm.units.pressure(self._pref_bar, from_units='bar')
+        pref = pm.units.pressure(self._pref_bar, from_units='bar')
         cp_test = self.cp(T)
         cv_test = self.cv(T)
         h_test = self.h(T)
         e_test = self.e(T)
         gam_test = self.gam(T)
-        s_test = self.s(T=T, p=p)
+        s_test = self.s(T=T, p=pref)
         
         
         cp = pm.units.energy(TAB[:,1], from_units='J')
@@ -643,7 +645,7 @@ Description
             result = False
         else:
             report.write('[passed]')
-        report.write('    3.7: gam = cp/cv to within .001 at all tabulated values\n')
+        report.write('    3.8: gam = cp/cv to within .001 at all tabulated values\n')
         if np.all(I):
             report.write('            Failed at all temperatures.\n')
         elif np.any(I):
@@ -651,6 +653,44 @@ Description
             for tt in T[I]:
                 report.write('%.2f,'%tt)
             report.write('\n')
+            
+        # Trim the temperature, entropy and enthalpy arrays of the limiting boundaries
+        T = T[1:-1]
+        h = h_test[1:-1]
+        s = s_test[1:-1]
+        
+        # 3.9 T_h should match T at all tabulated conditions to within .01%
+        I = np.abs(T - self.T_h(h))/T > .0001
+        if np.any(I):
+            report.write('[FAILED]')
+            result = False
+        else:
+            report.write('[passed]')
+        report.write('    3.9: T == T_h(h) to within .01% at all tabulated values.\n')
+        if np.all(I):
+            report.write('            Failed at all temperatures.\n')
+        elif np.any(I):
+            report.write('            Failed at T=')
+            for tt in T[I]:
+                report.write('%.2f,'%tt)
+            report.write('\n')
+            
+        # 3.10 T_s should match T at all tabulated conditions to within .01%
+        I = np.abs(T - self.T_s(s,p=pref))/T > .0001
+        if np.any(I):
+            report.write('[FAILED]')
+            result = False
+        else:
+            report.write('[passed]')
+        report.write('    3.10: T == T_s(s) to within .01% at all tabulated values.\n')
+        if np.all(I):
+            report.write('            Failed at all temperatures.\n')
+        elif np.any(I):
+            report.write('            Failed at T=')
+            for tt in T[I]:
+                report.write('%.2f,'%tt)
+            report.write('\n')
+            
             
         return result
         
@@ -1498,7 +1538,7 @@ Returns unit_temperature
         
         I = np.ones_like(s, dtype=bool)
         T = np.full_like(s, 0.5*(self.data['Tlim'][0]+self.data['Tlim'][-1]))
-        self._iter1(self._s, 'T', s, T, I, self.data['Tlim'][0], self.data['Tlim'][-1], verbose=True)
+        self._iter1(self._s, 'T', s, T, I, self.data['Tlim'][0], self.data['Tlim'][-1])
         pm.units.temperature_scale(T, from_units='K')
         return T
 
@@ -1526,7 +1566,7 @@ Returns unit_temperature
         Ids = np.ones_like(h, dtype=bool)
         T = np.full_like(h, 0.5*(self.data['Tlim'][0] + self.data['Tlim'][-1]))
         
-        self._iter1(self._h, 'T', h, T, Ids, self.data['Tlim'][0], self.data['Tlim'][-1], verbose=True)
+        self._iter1(self._h, 'T', h, T, Ids, self.data['Tlim'][0], self.data['Tlim'][-1])
         pm.units.temperature_scale(T, from_units='K', inplace=True)
         return T
 
