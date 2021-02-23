@@ -375,7 +375,7 @@ FAILURES HERE WILL HALT THE TEST
     3.5 R should agree to within .01%.
     3.6 cv should match cp-R at all tabulated conditions to within .01%.
     3.7 e should match h-RT at all tabulated conditions to within .01%.
-    3.8 gam should match cp/cv at all tabulated conditions to .001
+    3.8 gam should match cp/cv at all tabulated conditions to .0001
     3.9 T_h() should match T to within 0.01%
     3.10 T_s() should match T to within 0.01%
     
@@ -638,8 +638,8 @@ Description
                 report.write('%.2f,'%tt)
             report.write('\n')
     
-        # 3.8 gam should match cp/cv at all tabulated conditions to .001
-        I = np.abs(gam_test - cp_test/cv_test) > .001
+        # 3.8 gam should match cp/cv at all tabulated conditions to .0001
+        I = np.abs(gam_test - cp_test/cv_test) > .0001
         if np.any(I):
             report.write('[FAILED]')
             result = False
@@ -1468,7 +1468,7 @@ Returns unit_energy / unit_matter / unit_temperature
 """
         T,p = self._argparse(*varg, temperature=True, pressure=True, **kwarg)
         # Apply the model
-        out = self._s(T)[0] - pm.units.const_Ru * np.log(p/self._pref_bar)
+        out = self._s(T)[0] - pm.units.const_Ru * np.log(p/(self._pref_bar*1e5))
         # calculate a conversion factor
         scale = pm.units.energy(1, from_units='kJ')
         scale = pm.units.temperature(scale, from_units='K', exponent=-1)
