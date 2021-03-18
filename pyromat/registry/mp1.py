@@ -4,7 +4,7 @@
 #   energy in terms of density and temperature.
 #
 #   VERSION 2 (7/2020)
-#   - fixed bug in _tpiter1(): bad partial derivative conversion
+#   - fixed bug in _tpiter(): bad partial derivative conversion
 #   - added singularity detection to _ar() for improved performance
 #       near the critical point
 #   
@@ -796,14 +796,21 @@ param       A dicitonary of keyword arguments are passed directly to the
         xb = np.zeros_like(x, dtype=float)
         xc = np.zeros_like(x, dtype=float)
         
+        # Make local copies of xmax and xmin
+        xmax = np.array(xmax)
+        xmin = np.array(xmin)
+        
         # The Iab, Ibc, and Ica indices are used to store comparsion
         # truth values for sorting the candidate solutions, and Iwork
         # is used to assign the values
         Iab = np.zeros_like(Ids, dtype=bool)
         Ibc = np.zeros_like(Ids, dtype=bool)
         Ica = np.zeros_like(Ids, dtype=bool)
-        Ioob = np.zeros_like(Ids, dtype=bool)
         Iwork = np.zeros_like(Ids, dtype=bool)
+        
+        if verbose:
+            print("Fn: " + repr(fn.__name__))
+            print("param: " + repr(param))
         
         # Initialize an argument dicitonary
         arg = param.copy()
@@ -866,23 +873,7 @@ param       A dicitonary of keyword arguments are passed directly to the
             Iab[:] = False
             Ibc[:] = False
             Ica[:] = False
-            Ioob[:] = False
             Iwork[:] = False
-            
-            # First, identify points for which one of the guesses is 
-            # out of bounds.  Borrow yy for the minimum of xmin,xmax
-            yy = np.minimum(xmin[Ids], xmax[Ids])
-            Ioob[Ids] = np.logical_or(xa[Ids] <= yy, xb[Ids] <= yy)
-            yy = np.maximum(xmin[Ids], xmax[Ids])
-            Ioob[Ids] = np.logical_or(Iwork[Ids], 
-                np.logical_or(xa[Ids] >= yy, xb[Ids] >= yy))
-            
-            # If one of the Newton iteration guesses is out-of-bounds, 
-            # don't trust either of them; default to bisection!
-            x[Ioob] = xc[Ioob]
-            
-            # What's left?
-            Ioob = np.logical_not(Ioob)
             
             # The last step has established three candidate solutions
             # Which should we select?  First, compare the three candidate
@@ -897,19 +888,12 @@ param       A dicitonary of keyword arguments are passed directly to the
             # Now, assign all values for which xb is the next guess
             Iwork[Ids] = Iab[Ids] == Ibc[Ids]
             x[Iwork] = xb[Iwork]
-            # Finally, assign all values for which xc is the next guess
-            # This will apply when xc is the middle choice, but also when
-            # either xa or xb is out-of-bounds.  If either is out of
-            # bounds, then the Newton iteration should not be trusted!
+            # Now, assign all value for which xc is the next guess
             Iwork[Ids] = Ibc[Ids] == Ica[Ids]
-            # Borrow yy for the minimum of xmin,xmax
-            yy = np.minimum(xmin[Ids],xmax[Ids])
-            Iwork[Ids] = np.logical_or(Iwork[Ids], 
-                np.logical_or(xa[Ids]<=yy, xb[Ids]<=yy))
-            # Borrow yy for the maximum of xmin,xmax
-            yy = np.maximum(xmin[Ids],xmax[Ids])
-            Iwork[Ids] = np.logical_or(Iwork[Ids], 
-                np.logical_or(xa[Ids]>=yy, xb[Ids]>=yy))    
+            x[Iwork] = xc[Iwork]
+            # Finally, for any that are out of bounds, revert to the
+            # bisection value
+            Iwork[Ids] = np.logical_and(x[Ids] >= xmax[Ids], x[Ids] <= xmin[Ids])
             x[Iwork] = xc[Iwork]
 
             
@@ -960,43 +944,77 @@ param       A dicitonary of keyword arguments are passed directly to the
         if verbose:
             print(f"Converged for all elements in {count} iterations.")
 
-            
-    def _tpiter1(self, T, p, fn, diff=1):
-        """T,p iterator wrapper (primative routine)
-    _tpiter1(T,p,fn,diff=1)
-    
-    This wrapper function evaluates density from temperature and 
-pressure and returns the fn(T,d,diff) inner routine.  
 
-    d = self._d(T,p)
-    return fn(T,d)
+    def _tpiter(self, T, p, fn, da, db, diff=1):
+        """T,p iterator wrapper (primative routine)
+    _tpiter(T,p,fn, da, db, diff=1)
     
-When diff is 1 (as it needs to be for _iter1 to work properly), the 
+    This wrapper function evaluates a property inner routine from 
+temperature and pressure.  It is intended to be used to allow 1D 
+iteration on a property with respect to temperature 
+
+When diff is 1 (as it needs to be for _hybrid1 to work properly), the 
 property's partial derivatives need to be shifted from constant-density
 into constant pressure space.
-    
-For example, a call to _iter1 to calculate temperature while specifying
-entropy and pressure might appear
 
-    self._iter1( self._tpiter,  # Don't use _s, use _tpiter
+_tpiter accpets five required arguments:
+    T   Temperature numpy array in Kelvin
+    p   Pressure numpy array in Pa
+    fn  Property inner routine to be evaluated (e.g. self._h or self._s)
+    da  Lower bound on density
+    db  Upper bound on density
+    
+The density bounds must be evaluated in advance of iteration from the 
+saturation points along the pressure curve.  This prevents problems
+while iterating near the phase change.  If iterating on T,p only it is 
+not possible to determine which side of the phase transition the 
+condition is supposed to be on.  That information is available by 
+comparing the target property against its saturation values, but 
+repeating that step every iteration step is not efficient.
+
+For example, a call to _hybrid1 to calculate temperature while 
+specifying entropy and pressure might appear
+
+    self._hybrid1( self._tpiter, # Don't use _s, use _tpiter
         'T',                    # We want to calculate T
         svalues,                # Here are the target entropy values
         T,                      # The pre-initialized T array
         Ids,                    # The pre-initialized down-select array
         Tmin, Tmax,             # T bounds
-        param={'fn':self._s, 'p':pvalues})
+        param={'fn':self._s, 'p':pvalues, 'da':d_min, 'db':d_max})
 """
-        # Convert T,p into T,d
-        d = self._d(T,p)
+        
+        d = np.empty_like(p, dtype=float)
+        I = np.ones_like(p, dtype=bool)
+        self._hybrid1(self._p, 'd', p, d, I, da, db,
+                ep=1e-6, Nmax=20, fx_index=2, 
+                verbose=False, param={'T':T})
+        
         # Assume a standard inner property routine call signature
         y,yt,yd = fn(T,d,diff=diff)
         # If the derivative is requested, we need to shift from constant
         # density to constant pressure.
         if diff>0:
             _,pt,pd = self._p(T,d,diff=1)
-            # Partial derivative of density wrt T at const. p
-            dt = -pt / pd
-            yt = yt + yd * dt
+            # Correct the partial derivatives of the property to be 
+            #  with respect to T,p instead of T,d.  Since d is used for
+            #  density, let's use D for derivative and _T or _d for
+            #  partial derivatives
+            # The property, y,
+            #   Dy(T,d) = y_T DT + y_d Dd    <== as evaluated by fn()
+            # Pressure, p,
+            #   Dp(T,d) = p_T DT + p_d Dd    <== as evaluated by _p()
+            # So, differentials in density w.r.t. temperature while 
+            # holding pressure constant, Dp = 0, and
+            #   Dd/DT | p=const = -p_T / p_d
+            # Differentials with density w.r.t. pressure while holding 
+            # temperature constant, DT = 0, and
+            #   Dd/Dp | T=const = 1/p_d
+            # Therefore, 
+            #   Dd = (-p_T / p_d) DT + (1 / p_d) Dp
+            # Finally,
+            #   Dy = (y_T - y_d p_T / p_d) DT + (y_d / p_d) Dp
+            yt = yt - yd * pt / pd
             yp = yd / pd
         # Do not support higher derivatives than 1
         return y,yt,yp
@@ -2824,7 +2842,7 @@ along with temperature.
         Isat = np.logical_not(Isat)
 #        self._iter1(
         self._hybrid1(
-                self._tpiter1,
+                self._tpiter,
                 'T',
                 s,
                 T,
@@ -2907,7 +2925,7 @@ along with temperature.
         # Isat is now a down-select array
         Isat = np.logical_not(Isat)
         self._hybrid1(
-            self._tpiter1,
+            self._tpiter,
             'T',
             h,
             T,
@@ -2988,7 +3006,8 @@ be returned.  For example
 
             # Initialize the results
             T = np.zeros_like(h, dtype=float)
-            x = -np.ones_like(h,dtype=float)
+            if quality:
+                x = -np.ones_like(h,dtype=float)
             I = np.ones_like(h,dtype=bool)
             # Ta, Tb := min and max temperature boundaries
             Ta = np.full_like(h, self.data['Tlim'][0])
@@ -3039,44 +3058,49 @@ be returned.  For example
             # broadcast
             h,p = np.broadcast_arrays(h,p)
             # Initialize results
-            T = np.zeros_like(h, dtype=float)
-            x = -np.ones_like(h,dtype=float)
+            T = np.empty_like(h, dtype=float)
+            if quality:
+                x = np.full_like(h, -1, dtype=float)
             # Some important intermediates
             # Isat := boolean indices
             Isat = np.zeros_like(h, dtype=bool)
             # Ta, Tb := min and max temperature boundaries
-            Ta = np.zeros_like(h, dtype=float)
-            Tb = np.zeros_like(h, dtype=float)
-            # Tsat,dsL,dsV,hsL,hsV := saturation properties at sub-critical points
-            Tsat = np.zeros_like(h, dtype=float)
-            dsL = np.zeros_like(h, dtype=float)
-            dsV = np.zeros_like(h, dtype=float)
-            hsL = np.zeros_like(h, dtype=float)
-            hsV = np.zeros_like(h, dtype=float)
+            Ta = np.empty_like(h, dtype=float)
+            Tb = np.empty_like(h, dtype=float)
+            # da, db := min and max density boundaries
+            da = np.empty_like(h, dtype=float)
+            db = np.empty_like(h, dtype=float)
+            # Working arrays for the saturation densities
+            dsL = np.empty_like(h, dtype=float)
+            dsV = np.empty_like(h, dtype=float) 
             
             # Start with super-critical points
             I = p >= self.data['pc']
+            # These can use the global data limits
             Ta[I] = self.data['Tlim'][0]
             Tb[I] = self.data['Tlim'][1]
-            #T[I] = 0.5*(Ta[I] + Tb[I])
+            # For the lower density limit, use 0.1 of ideal gas
+            da[I] = 0.1 * p[I] / (self.data['R'] * Tb[I])
+            db[I] = self.data['dlim'][1]
             # Now work with the sub-critical points
             I = np.logical_not(I)
             if I.any():
-                # Get the saturation temperatures
-                Tsat[I] = self._Ts(p[I])
-                # And densities
+                # Get the saturation temperature and densities
+                Tsat = self._Ts(p[I])
                 dsL[I] = self._dsl(Tsat[I],0)[0]
                 dsV[I] = self._dsv(Tsat[I],0)[0]
-                # finally, get the saturation entropies
-                hsL[I] = self._h(Tsat[I],dsL[I],0)[0]
-                hsV[I] = self._h(Tsat[I],dsV[I],0)[0]
+
+                # Now, get the saturation enthalpies
+                # We will use these to identify the state
+                hsL = self._h(Tsat[I],dsL[I],0)[0]
+                hsV = self._h(Tsat[I],dsV[I],0)[0]
 
                 # Isolate points that are liquid
-                # Move the boundary temperature a tiny increment off the 
-                # saturation line to avoid a singularity
-                Isat[I] = h[I] < hsL[I]
+                Isat[I] = h[I] < hsL
                 Ta[Isat] = self.data['Tlim'][0]
-                Tb[Isat] = Tsat[Isat] * (1-5e-5)
+                Tb[Isat] = Tsat[Isat]
+                da[Isat] = dsL[Isat] * (1 - 1e-3)
+                db[Isat] = self.data['dlim'][1]
                 
                 # Isolate points that are vapor
                 # Move the boundary temperature a tiny increment off the
@@ -3084,10 +3108,11 @@ be returned.  For example
                 Isat[I] = h[I] > hsV[I]
                 Ta[Isat] = Tsat[Isat] * (1+5e-5)
                 Tb[Isat] = self.data['Tlim'][1]
-                #T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
+                da[Isat] = 0.1 * p[Isat] / (self.data['R'] * Tb[Isat])
+                db[Isat] = dsV[Isat] * (1 + 1e-3)
                 
                 # Finally, isolate points that are saturated
-                Isat[I] = np.logical_and( h[I]<=hsV[I], h[I]>=hsL[I] )
+                Isat[I] = np.logical_and( h[I]<=hsV, h[I]>=hsL)
                 #Ta[Isat] = Tsat[Isat]
                 #Tb[Isat] = Tsat[Isat]
                 T[Isat] = Tsat[Isat]
@@ -3095,15 +3120,16 @@ be returned.  For example
                     x[Isat] = (h[Isat] - hsL[Isat])/(hsV[Isat]-hsL[Isat])
                     
             # Isat is now a down-select array
+            # There is no need to iterate on the saturated values
             Isat = np.logical_not(Isat)
             self._hybrid1(
-                self._tpiter1,
+                self._tpiter,
                 'T',
                 h,
                 T,
                 Isat,
                 Ta, Tb,
-                param={'fn':self._h, 'p':p},
+                param={'fn':self._h, 'p':p, 'da':da, 'db':db},
                 verbose=debug,
                 Nmax=50)
                     
