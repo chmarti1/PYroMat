@@ -2970,6 +2970,8 @@ be returned.  For example
 
     T,x = T_h(s, p=p, quality=True)
     
+*** BUG FOUND
+Fails to properly initialize density limits for values near saturation
 """
         # Prepare the h array
         h = pm.units.energy(
@@ -3064,6 +3066,7 @@ be returned.  For example
             # Some important intermediates
             # Isat := boolean indices
             Isat = np.zeros_like(h, dtype=bool)
+            Tsat = np.empty_like(h, dtype=bool)
             # Ta, Tb := min and max temperature boundaries
             Ta = np.empty_like(h, dtype=float)
             Tb = np.empty_like(h, dtype=float)
@@ -3086,7 +3089,7 @@ be returned.  For example
             I = np.logical_not(I)
             if I.any():
                 # Get the saturation temperature and densities
-                Tsat = self._Ts(p[I])
+                Tsat[I] = self._Ts(p[I])
                 dsL[I] = self._dsl(Tsat[I],0)[0]
                 dsV[I] = self._dsv(Tsat[I],0)[0]
 
@@ -3105,7 +3108,7 @@ be returned.  For example
                 # Isolate points that are vapor
                 # Move the boundary temperature a tiny increment off the
                 # saturation line to avoid a singularity
-                Isat[I] = h[I] > hsV[I]
+                Isat[I] = h[I] > hsV
                 Ta[Isat] = Tsat[Isat] * (1+5e-5)
                 Tb[Isat] = self.data['Tlim'][1]
                 da[Isat] = 0.1 * p[Isat] / (self.data['R'] * Tb[Isat])
