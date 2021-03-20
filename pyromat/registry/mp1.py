@@ -807,6 +807,9 @@ param       A dicitonary of keyword arguments are passed directly to the
         Ibc = np.zeros_like(Ids, dtype=bool)
         Ica = np.zeros_like(Ids, dtype=bool)
         Iwork = np.zeros_like(Ids, dtype=bool)
+        Iaoob = np.zeros_like(Ids, dtype=bool) # Out-of-bounds arrays
+        Iboob = np.zeros_like(Ids, dtype=bool) # 
+        Iswap = np.zeros_like(Ids, dtype=bool) # which were swapped?
         
         if verbose:
             print("Fn: " + repr(fn.__name__))
@@ -829,7 +832,7 @@ param       A dicitonary of keyword arguments are passed directly to the
         # Calculate the first candidate solution
         xa[Ids] = xmin[Ids] + (y[Ids] - yy)/yyx
         # is fn(xmin) < y?  If not, we will need to swap elements
-        Iwork[Ids] = yy >= y[Ids]
+        Iswap[Ids] = yy >= y[Ids]
         
         # Now, evaluate at the maximum 
         arg[prop] = xmax[Ids]
@@ -840,7 +843,7 @@ param       A dicitonary of keyword arguments are passed directly to the
         xb[Ids] = xmax[Ids] + (y[Ids] - yy)/yyx
         
         # Verify that the limits bracket a solution
-        if not np.logical_xor(Iwork[Ids], yy >= y[Ids]).all():
+        if not np.logical_xor(Iswap[Ids], yy >= y[Ids]).all():
             if verbose:
                 print(" xmin  xmax  xa  xb  xc ")
                 print(xmin, xmax, xa, xb, xc)
@@ -849,17 +852,16 @@ param       A dicitonary of keyword arguments are passed directly to the
             pm.utility.print_error('_HYBRID1: Failure to bracket a solution. Check function arguments to be sure they reference a valid state. This error usually occurs in inversion routines very close to the saturation line or if the properties are out-of-range.')
             raise pm.utility.PMParamError('_HYBRID1: At least one max/min value does not bracket a solution!')
         
-        # Swap elements where fn(xmin) > fn(xmax)
-        # borrow yy as a temporary variable
-        yy = xmax[Iwork]
-        xmax[Iwork] = xmin[Iwork]
-        xmin[Iwork] = yy
-        yy = xb[Iwork]
-        xb[Iwork] = xa[Iwork]
-        xa[Iwork] = yy
-        
         # Calculate the thrid candidate solution
         xc[Ids] = 0.5*(xmin[Ids] + xmax[Ids])
+        
+        # finally, initialize out-of-bounds flags
+        # These keep track of the Newton guess out-of-bounds test results
+        # Start with the bounds that were swapped.
+        Iaoob[Ids] = np.logical_or(xmin[Ids] >= xa[Ids], \
+                xa[Ids] >= xmax[Ids])
+        Iboob[Ids] = np.logical_or(xmin[Ids] >= xb[Ids], \
+                xb[Ids] >= xmax[Ids])
         
         if verbose:
             print(" xmin  xmax  xa  xb  xc ")
@@ -891,13 +893,11 @@ param       A dicitonary of keyword arguments are passed directly to the
             # Now, assign all value for which xc is the next guess
             Iwork[Ids] = Ibc[Ids] == Ica[Ids]
             x[Iwork] = xc[Iwork]
-            # Finally, for any that are out of bounds, revert to the
-            # bisection value
-            Iwork[Ids] = np.logical_and(x[Ids] >= xmax[Ids], x[Ids] <= xmin[Ids])
+            # Finally, if either of the Newton guesses was out of bounds
+            # then revert to bisection for safety
+            Iwork[Ids] = np.logical_or(Iaoob[Ids], Iboob[Ids])
             x[Iwork] = xc[Iwork]
-
-            
-            
+                        
             # Build the new argument list
             for k,v in param.items():
                 # For any array arguments, shrink them along with Ids
@@ -910,33 +910,36 @@ param       A dicitonary of keyword arguments are passed directly to the
             yy = FF[0]
             yyx = FF[fx_index]
             
-            # use xc as an intermediate for the next guesses
-            xc[Ids] = x[Ids] + (y[Ids] - yy)/yyx
+            # use xc as a temporary variable
+            # First, calculate the size of the change in x
+            xc[Ids] = x[Ids] + (y[Ids] - yy) / yyx
+            # x is now the next guess
+            # xc is its next projected guess
             
             # Where is the guess?
             # Should it be stored in xmin?
-            Iwork[Ids] = yy <= y[Ids]
+            # xor with Iswap forces a swap when needed
+            Iwork[Ids] = np.logical_xor(yy <= y[Ids], Iswap[Ids])
             xmin[Iwork] = x[Iwork]
             xa[Iwork] = xc[Iwork]
+            # Test OOB
+            Iaoob[Iwork] = np.logical_or(xc[Iwork] <= xmin[Iwork], xc[Iwork] >= xmax[Iwork])
             # or in xmax
             Iwork[Ids] = np.logical_not(Iwork[Ids])
             xmax[Iwork] = x[Iwork]
             xb[Iwork] = xc[Iwork]
-            
+            Iboob[Iwork] = np.logical_or(xc[Iwork] <= xmin[Iwork], xc[Iwork] >= xmax[Iwork])            
             # Calculate the new bisection point
             xc[Ids] = 0.5*(xmax[Ids] + xmin[Ids])
             
             # Check for convergence
-            # Converge when the yy value matches y or when the gap between
-            # xmax and xmin is really small
+            # if xmax-xmin is small OR
+            # if the y error is small
             Ids[Ids] = np.logical_and(\
-                np.abs(yy-y[Ids]) > np.abs(ep*y[Ids]),\
-                np.abs(xmax[Ids] - xmin[Ids]) > np.abs(ep*x[Ids]))
-            
-            
+                    np.abs((xmax[Ids] - xmin[Ids])/x[Ids]) > ep,\
+                    np.abs((yy - y[Ids])/y[Ids]) > ep)
+                        
             # Prevent a while-loop-trap
-            # There's no need to raise a warning.  If the Nmax limit is
-            # Exceeded, then the 
             count += 1
             if count>Nmax:
                 pm.utility.print_warning(f'_HYBRID1: Failed to converge for {Ids.sum()} elements in {Nmax} iterations.')
@@ -987,7 +990,7 @@ specifying entropy and pressure might appear
         d = np.empty_like(p, dtype=float)
         I = np.ones_like(p, dtype=bool)
         self._hybrid1(self._p, 'd', p, d, I, da, db,
-                ep=1e-6, Nmax=20, fx_index=2, 
+                ep=1e-6, Nmax=30, fx_index=2, 
                 verbose=False, param={'T':T})
         
         # Assume a standard inner property routine call signature
@@ -3066,7 +3069,7 @@ Fails to properly initialize density limits for values near saturation
             # Some important intermediates
             # Isat := boolean indices
             Isat = np.zeros_like(h, dtype=bool)
-            Tsat = np.empty_like(h, dtype=bool)
+            Tsat = np.empty_like(h, dtype=float)
             # Ta, Tb := min and max temperature boundaries
             Ta = np.empty_like(h, dtype=float)
             Tb = np.empty_like(h, dtype=float)
@@ -3092,12 +3095,10 @@ Fails to properly initialize density limits for values near saturation
                 Tsat[I] = self._Ts(p[I])
                 dsL[I] = self._dsl(Tsat[I],0)[0]
                 dsV[I] = self._dsv(Tsat[I],0)[0]
-
                 # Now, get the saturation enthalpies
                 # We will use these to identify the state
                 hsL = self._h(Tsat[I],dsL[I],0)[0]
                 hsV = self._h(Tsat[I],dsV[I],0)[0]
-
                 # Isolate points that are liquid
                 Isat[I] = h[I] < hsL
                 Ta[Isat] = self.data['Tlim'][0]
@@ -3115,13 +3116,13 @@ Fails to properly initialize density limits for values near saturation
                 db[Isat] = dsV[Isat] * (1 + 1e-3)
                 
                 # Finally, isolate points that are saturated
-                Isat[I] = np.logical_and( h[I]<=hsV, h[I]>=hsL)
+                Isat[I] = np.logical_and( np.logical_not(Isat[I]), h[I]>=hsL)
                 #Ta[Isat] = Tsat[Isat]
                 #Tb[Isat] = Tsat[Isat]
                 T[Isat] = Tsat[Isat]
                 if quality:
                     x[Isat] = (h[Isat] - hsL[Isat])/(hsV[Isat]-hsL[Isat])
-                    
+
             # Isat is now a down-select array
             # There is no need to iterate on the saturated values
             Isat = np.logical_not(Isat)
