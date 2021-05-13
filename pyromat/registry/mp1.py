@@ -726,7 +726,7 @@ param       A dicitonary of keyword arguments are passed directly to the
     
     def _hybrid1(self, fn, prop, y, x, Ids, xmin, xmax,
                 ep=1e-6, Nmax=20, fx_index=1, 
-                verbose=False, param={}):
+                verbose=False, paranoid=True, param={}):
         """Hybrid numerical inversion of an inner routine (primative routine)
         
     _hybrid1(fn, prop, y, x, Ids, xmin, xmax,)
@@ -782,6 +782,10 @@ ep          Epsilon; fractional error permitted in y (default 1e-6)
 Nmax        Maximum number of iterations (default 20)
 fx_index    The location of the property derivative in the call 
             signature (default 1)
+paranoid    If any of the candidate guesses is out of bounds, the revert to
+            bisection.  Otherwise, only test the median guess.  Paranoid 
+            operation can be essential in functions with +/- slope inflections
+            in the domain.
 param       A dicitonary of keyword arguments are passed directly to the 
             inner routine being inverted.
 
@@ -831,7 +835,9 @@ param       A dicitonary of keyword arguments are passed directly to the
         yyx = FF[fx_index]
         # Calculate the first candidate solution
         xa[Ids] = xmin[Ids] + (y[Ids] - yy)/yyx
-        # is fn(xmin) < y?  If not, we will need to swap elements
+        # If f(xmin) > f(xmax) then the nominal slope of the curve is negative
+        # That means that these boundaries will need to be updated in reverse
+        # of the other boundaries.
         Iswap[Ids] = yy >= y[Ids]
         
         # Now, evaluate at the maximum 
@@ -854,14 +860,6 @@ param       A dicitonary of keyword arguments are passed directly to the
         
         # Calculate the thrid candidate solution
         xc[Ids] = 0.5*(xmin[Ids] + xmax[Ids])
-        
-        # finally, initialize out-of-bounds flags
-        # These keep track of the Newton guess out-of-bounds test results
-        # Start with the bounds that were swapped.
-        Iaoob[Ids] = np.logical_or(xmin[Ids] >= xa[Ids], \
-                xa[Ids] >= xmax[Ids])
-        Iboob[Ids] = np.logical_or(xmin[Ids] >= xb[Ids], \
-                xb[Ids] >= xmax[Ids])
         
         if verbose:
             print(" xmin  xmax  xa  xb  xc ")
@@ -893,10 +891,18 @@ param       A dicitonary of keyword arguments are passed directly to the
             # Now, assign all value for which xc is the next guess
             Iwork[Ids] = Ibc[Ids] == Ica[Ids]
             x[Iwork] = xc[Iwork]
-            # Finally, if either of the Newton guesses was out of bounds
-            # then revert to bisection for safety
-            Iwork[Ids] = np.logical_or(Iaoob[Ids], Iboob[Ids])
-            x[Iwork] = xc[Iwork]
+            # finally, deal with the xa and xb out-of-bounds case
+            if paranoid:
+                # In paranoid mode, either xa and xb being out of bounds
+                # forces xc to be selected
+                Iwork[Ids] = np.logical_xor(np.logical_or(xa[Ids] < xmin[Ids], xa[Ids] > xmax[Ids]), Iswap[Ids])
+                x[Iwork] = xc[Iwork]
+                Iwork[Ids] = np.logical_xor(np.logical_or(xb[Ids] < xmin[Ids], xb[Ids] > xmax[Ids]), Iswap[Ids])
+                x[Iwork] = xc[Iwork]
+            else:
+                Iwork[Ids] = np.logical_xor(np.logical_or(x[Ids] < xmin[Ids], xa[Ids] > xmax[Ids]), Iswap[Ids])
+                x[Iwork] = xc[Iwork]
+                
                         
             # Build the new argument list
             for k,v in param.items():
@@ -948,9 +954,9 @@ param       A dicitonary of keyword arguments are passed directly to the
             print(f"Converged for all elements in {count} iterations.")
 
 
-    def _tpiter(self, T, p, fn, da, db, diff=1):
+    def _tpiter(self, T, p, fn, diff=1, debug=False):
         """T,p iterator wrapper (primative routine)
-    _tpiter(T,p,fn, da, db, diff=1)
+    _tpiter(T,p,fn, da, db, diff=1, debug=False)
     
     This wrapper function evaluates a property inner routine from 
 temperature and pressure.  It is intended to be used to allow 1D 
@@ -988,10 +994,40 @@ specifying entropy and pressure might appear
 """
         
         d = np.empty_like(p, dtype=float)
-        I = np.ones_like(p, dtype=bool)
+        I = np.zeros_like(p, dtype=bool)
+        da = np.empty_like(p, dtype=float)
+        db = np.empty_like(p, dtype=float)
+        
+        # We need to establish boundaries for the isothermal density iterations
+        # Start with super-critical points
+        Isat = T >= self.data['Tc']
+        # use 10% of the IG density for the lower boundary
+        da[Isat] = 0.1 * p[Isat] / (self.data['R'] * T[Isat])
+        db[Isat] = self.data['dlim'][1]
+        
+        # Now, move on to the sub-critical points
+        Isat = np.logical_not(Isat)
+        if Isat.any():
+            ps = self._ps(T[Isat])[0]
+            dsV = self._dsv(T[Isat])[0]
+            dsL = self._dsl(T[Isat])[0]
+            
+            # Start with the vapor points
+            I[Isat] = p[Isat] < ps
+            da[I] = 0.1 * p[Isat] / (self.data['R'] * T[Isat])
+            db[I] = 0.98 * dsV + 0.02 * dsL
+            
+            # Now, the liquid points
+            I[Isat] = np.logical_not(I[Isat])
+            da[I] = 0.98 * dsL + 0.02 * dsV
+            db[I] = self.data['dlim'][1]
+        
+        # Re-initialize the down-select vector to True
+        I[:] = True
+        
         self._hybrid1(self._p, 'd', p, d, I, da, db,
                 ep=1e-6, Nmax=30, fx_index=2, 
-                verbose=False, param={'T':T})
+                verbose=debug, param={'T':T})
         
         # Assume a standard inner property routine call signature
         y,yt,yd = fn(T,d,diff=diff)
@@ -2798,48 +2834,42 @@ along with temperature.
         Isat = np.zeros_like(s, dtype=bool)
         Ta = np.zeros_like(s, dtype=float)
         Tb = np.zeros_like(s, dtype=float)
-        Tsat = np.zeros_like(s, dtype=float)
-        dsL = np.zeros_like(s, dtype=float)
-        dsV = np.zeros_like(s, dtype=float)
-        ssL = np.zeros_like(s, dtype=float)
-        ssV = np.zeros_like(s, dtype=float)
+        Tsat = np.empty_like(s, dtype=float)
         
         # Start with super-critical points
         I = p >= self.data['pc']
         Ta[I] = self.data['Tlim'][0]
         Tb[I] = self.data['Tlim'][1]
-        T[I] = 0.5*(Ta[I] + Tb[I])
+        
         # Now work with the sub-critical points
         I = np.logical_not(I)
         if I.any():
             # Get the saturation temperatures
             Tsat[I] = self._Ts(p[I])
             # And densities
-            dsL[I] = self._dsl(Tsat[I],0)[0]
-            dsV[I] = self._dsv(Tsat[I],0)[0]
+            dsL = self._dsl(Tsat[I],0)[0]
+            dsV = self._dsv(Tsat[I],0)[0]
             # finally, get the saturation entropies
-            ssL[I] = self._s(Tsat[I],dsL[I],0)[0]
-            ssV[I] = self._s(Tsat[I],dsV[I],0)[0]
+            ssL = self._s(Tsat,dsL,0)[0]
+            ssV = self._s(Tsat,dsV,0)[0]
 
             # Isolate points that are liquid
-            Isat[I] = s[I] < ssL[I]
+            Isat[I] = s[I] < ssL
             Ta[Isat] = self.data['Tlim'][0]
             Tb[Isat] = Tsat[Isat]
-            T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
-
+            
             # Isolate points that are vapor
-            Isat[I] = s[I] > ssV[I]
+            Isat[I] = s[I] > ssV
             Ta[Isat] = Tsat[Isat]
             Tb[Isat] = self.data['Tlim'][1]
-            T[Isat] = 0.5*(Ta[Isat] + Tb[Isat])
 
             # Finally, isolate points that are saturated
-            Isat[I] = np.logical_and( s[I]<=ssV[I], s[I]>=ssL[I] )
+            Isat[I] = np.logical_and( s[I]<=ssV, s[I]>=ssL )
             Ta[Isat] = Tsat[Isat]
             Tb[Isat] = Tsat[Isat]
             T[Isat] = Tsat[Isat]
             if quality:
-                x[Isat] = (s[Isat] - ssL[Isat])/(ssV[Isat]-ssL[Isat])
+                x[Isat] = (s[Isat] - ssL)/(ssV-ssL)
 
         # Isat is now a down-select array
         Isat = np.logical_not(Isat)
@@ -2851,7 +2881,7 @@ along with temperature.
                 T,
                 Isat,
                 Ta, Tb,
-                param={'fn':self._s, 'p':p},
+                param={'fn':self._s, 'p':p, 'debug':debug},
                 verbose=debug,
                 Nmax=50)
                 
