@@ -866,6 +866,10 @@ param       A dicitonary of keyword arguments are passed directly to the
         
         count = 0
         while Ids.any():
+            if count>Nmax:
+                pm.utility.print_warning(f'_HYBRID1: Failed to converge for {Ids.sum()} elements in {Nmax} iterations.')
+                return
+            
             if verbose:
                 print(xmin, xmax, xa, xb, xc)
             
@@ -947,9 +951,7 @@ param       A dicitonary of keyword arguments are passed directly to the
                         
             # Prevent a while-loop-trap
             count += 1
-            if count>Nmax:
-                pm.utility.print_warning(f'_HYBRID1: Failed to converge for {Ids.sum()} elements in {Nmax} iterations.')
-                return
+
         if verbose:
             print(f"Converged for all elements in {count} iterations.")
 
@@ -3061,15 +3063,14 @@ along with temperature.
     T,x = T_s(s, p=p, quality=True)
 """
         # Prepare the s array
-        s = pm.units.energy(
-                np.asarray(s,dtype=float),
+        h = pm.units.energy(
+                np.asarray(h,dtype=float),
                 to_units='J')
-        pm.units.matter(s, self.data['mw'],
+        pm.units.matter(h, self.data['mw'],
                 to_units='kg', exponent=-1, inplace=True)
-        pm.units.temperature(s,
-                to_units='K', exponent=-1, inplace=True)
-        if s.ndim == 0:
-            s = np.reshape(s, (1,))
+
+        if h.ndim == 0:
+            h = np.reshape(h, (1,))
 
         # Set a default pressure?
         if p is None and d is None:
@@ -3104,8 +3105,8 @@ along with temperature.
             Tb = np.empty_like(h, dtype=float)
             Tsat = np.empty_like(h, dtype=float)
             
-            # Start with super-critical points
-            I = p >= self.data['pc']
+            # Start with super-critical and sub-triple points
+            I = np.logical_or(p >= self.data['pc'], p<=self.data['pt'])
             Ta[I] = self.data['Tlim'][0]
             Tb[I] = self.data['Tlim'][1]
             
@@ -3114,12 +3115,12 @@ along with temperature.
             if I.any():
                 # Get the saturation temperatures
                 Tsat[I] = self._Ts(p[I])
-                # And densities (use hsL and hsV as temporaries)
+                # And densities (use ssL and ssV as temporaries)
                 hsL = self._dsl(Tsat[I],0)[0]
                 hsV = self._dsv(Tsat[I],0)[0]
                 # finally, get the saturation entropies
-                hsL = self._h(Tsat,hsL,0)[0]
-                hsV = self._h(Tsat,hsV,0)[0]
+                hsL = self._h(Tsat[I],hsL,0)[0]
+                hsV = self._h(Tsat[I],hsV,0)[0]
 
                 # Isolate points that are liquid
                 Isat[I] = h[I] < hsL
