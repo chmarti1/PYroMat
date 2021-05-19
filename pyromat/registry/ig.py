@@ -220,6 +220,9 @@ param       A dicitonary of keyword arguments are passed directly to the
 
         arg = param.copy()
         count = 0
+
+        if verbose:
+            print('x, yy, yyx, dx, Ids')
         while Ids.any():
             # Build the new argument list
             for k,v in param.items():
@@ -263,7 +266,6 @@ param       A dicitonary of keyword arguments are passed directly to the
                     'iter1_() failed to converge for %d elements after %d attempts'%(\
                     Ids.sum(), Nmax))
                 return
-
 
     def _cp(self,T):
         """Constant pressure specific heat
@@ -1510,40 +1512,71 @@ Returns unit_energy / unit_matter
         return out
 
 
-    def T_s(self,s,p=None):
+    def T_s(self,s,p=None, d=None, debug=False):
         """Temperature as a function of entropy
     T = T_s(s)
         or
     T = T_s(s,p)
+        or
+    T = T_s(s,d)
 
 Accepts unit_energy / unit_matter / unit_temperature
         unit_pressure
+        unit_matter / unit_volume
 Returns unit_temperature
 """
-        if p is None:
+        if p is None and d is None:
             p = pm.config['def_p']
-        p = pm.units.pressure(np.asarray(p, dtype=float), to_units='bar')
-        if p.ndim==0:
-            p = np.reshape(p, (1,))
-        
+                    
         s = pm.units.energy(np.asarray(s, dtype=float), to_units='kJ')
         s = pm.units.matter(s, self.data['mw'], to_units='kmol', exponent=-1)
         s = pm.units.temperature(s, to_units='K', exponent=-1)
         if s.ndim == 0:
             s = np.reshape(s, (1,))
             
-        s,p = np.broadcast_arrays(s,p)
-        # Adjust s by the pressure term
-        s += pm.units.const_Ru * np.log(p/self._pref_bar)
-        
-        I = np.ones_like(s, dtype=bool)
-        T = np.full_like(s, 0.5*(self.data['Tlim'][0]+self.data['Tlim'][-1]))
-        self._iter1(self._s, 'T', s, T, I, self.data['Tlim'][0], self.data['Tlim'][-1])
+        # If isobaric
+        if p is not None:
+            p = pm.units.pressure(np.asarray(p, dtype=float), to_units='bar')
+            if p.ndim==0:
+                p = np.reshape(p, (1,))
+            
+            s,p = np.broadcast_arrays(s,p)
+            # Adjust s by the pressure term
+            s += pm.units.const_Ru * np.log(p/self._pref_bar)
+            
+            I = np.ones_like(s, dtype=bool)
+            T = np.full_like(s, 0.5*(self.data['Tlim'][0]+self.data['Tlim'][-1]))
+            self._iter1(self._s, 'T', s, T, I, self.data['Tlim'][0], self.data['Tlim'][-1], verbose=debug)
+        # If isochoric
+        else:
+            d = pm.units.matter(np.asarray(d, dtype=float),
+                    self.data['mw'], to_units='kmol')
+            d = pm.units.volume(d, to_units='m3', exponent=-1)
+            
+            s,d = np.broadcast_arrays(s,d)
+            
+            R = pm.units.const_Ru
+            # Define a custom iterator function
+            def fn(T,d,diff):
+                sd = 0.
+                s,sT = self._s(T,diff)
+                
+                s -= R*np.log(d * R * T / (self._pref_bar * 1e2))
+                if diff:
+                    sT -= R / T
+                    sd = -R / d
+
+                return s,sT,sd
+            
+            I = np.ones_like(s, dtype=bool)
+            T = np.full_like(s, 0.5*(self.data['Tlim'][0]+self.data['Tlim'][-1]))
+            self._iter1(fn, 'T', s, T, I, self.data['Tlim'][0], self.data['Tlim'][-1], param={'d':d}, verbose=debug)
+            
         pm.units.temperature_scale(T, from_units='K')
         return T
 
 
-    def T_h(self,h,p=None):
+    def T_h(self,h,p=None, d=None):
         """Temperature as a function of enthalpy
     T = T_h(h)
         or
