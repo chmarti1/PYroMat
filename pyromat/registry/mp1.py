@@ -214,7 +214,10 @@ id              What substance is this?
 doc             Where did it come from?
 class           What class should be used to evaluate the data?
 """
-        
+    
+    
+    def __test(self, report_file=None, report_level=2, basic=False):
+        pass
 
 
     def _poly2(self,x,y,group,diff=2):    
@@ -899,12 +902,12 @@ param       A dicitonary of keyword arguments are passed directly to the
             if paranoid:
                 # In paranoid mode, either xa and xb being out of bounds
                 # forces xc to be selected
-                Iwork[Ids] = np.logical_xor(np.logical_or(xa[Ids] < xmin[Ids], xa[Ids] > xmax[Ids]), Iswap[Ids])
+                Iwork[Ids] = np.logical_or(xa[Ids] < xmin[Ids], xa[Ids] > xmax[Ids])
                 x[Iwork] = xc[Iwork]
-                Iwork[Ids] = np.logical_xor(np.logical_or(xb[Ids] < xmin[Ids], xb[Ids] > xmax[Ids]), Iswap[Ids])
+                Iwork[Ids] = np.logical_or(xb[Ids] < xmin[Ids], xb[Ids] > xmax[Ids])
                 x[Iwork] = xc[Iwork]
             else:
-                Iwork[Ids] = np.logical_xor(np.logical_or(x[Ids] < xmin[Ids], xa[Ids] > xmax[Ids]), Iswap[Ids])
+                Iwork[Ids] = np.logical_or(x[Ids] < xmin[Ids], xa[Ids] > xmax[Ids])
                 x[Iwork] = xc[Iwork]
                 
                         
@@ -1000,8 +1003,8 @@ Optional parameters (and their defaults) are:
 
         # Only check sub-critical temperatures for saturation
         I = T < self.data['Tc']
-        dsL[I],dsLt[I],_ = self._dsl(T[I])
-        dsV[I],dsVt[I],_ = self._dsv(T[I])
+        dsL[I],dsLt[I],_ = self._dsl(T[I],diff=diff)
+        dsV[I],dsVt[I],_ = self._dsv(T[I],diff=diff)
         # Down-select for densities between the saturation properties
         I[I] = np.logical_and(d[I] <= dsL[I], d[I] >= dsV[I])
         if I.any():
@@ -1010,15 +1013,14 @@ Optional parameters (and their defaults) are:
             xd = 1./(dsL[I]/dsV[I] - 1.)
             # Calculate quality
             x = (dsL[I]/d[I] - 1.) * xd
-            # Construct quality's deriv. w.r.t. temperature in steps
-            xt = x * (dsL[I]/dsV[I]) * xd * (dsVt[I]/dsV[I] - dsLt[I]/dsL[I])
-            # Progress xd
-            xd *= dsL[I] / d[I]
-            # Continue to construct xt
-            xt += xd * (dsL[I]/d[I])
-            # finalize xd
-            xd /= -d[I]
-            
+            if diff:
+                # Construct quality's deriv. w.r.t. temperature in steps
+                # First, the most complicated term: the denominator's derivative
+                xt = x * xd * (dsL[I]/dsV[I]) * (dsVt[I]/dsV[I] - dsLt[I]/dsL[I])
+                # Continue to construct xt
+                xt += xd*dsLt[I]/d[I]
+                # Finalize xd
+                xd *= -dsL[I] / d[I] / d[I]
             # Evaluate the saturation properties
             y[I],yt[I],yd[I] = fn(T[I],dsV[I],diff=diff)
             yy,yyt,yyd = fn(T[I],dsL[I],diff=diff)
@@ -2143,58 +2145,6 @@ other conditions, x<0 and d1 == d2.
         return h,hT,hd
 
 
-    def _hh(self, T, d, diff=0):
-        """enthalpy (inner routine)
-    h,hT,hd = _hh(T,d,diff=0,quality=False)
-    
-This is a wrapper for _h() that respects densities under the dome.  This
-is primarily useful for _T_hd()
-"""
-        x = -np.ones_like(T, dtype=float)
-        dsL = np.zeros_like(T,dtype=float)
-        dsLt = np.zeros_like(T,dtype=float)
-        dsV = np.zeros_like(T,dtype=float)
-        dsVt = np.zeros_like(T,dtype=float)
-        h = np.zeros_like(T,dtype=float)
-        hT = np.zeros_like(h)
-        hd = np.zeros_like(h)
-        
-        # Find sub-critical temperature indices
-        I = T < self.data['Tc']
-        # Only work on sub-critical temperatures
-        if I.any():
-            # Are any of the densities under the dome?
-            dsL[I],dsLt[I],_ = self._dsl(T[I], diff=diff)
-            dsV[I],dsVt[I],_ = self._dsv(T[I], diff=diff)
-            # downselect I for densities under the dome
-            I[I] = np.logical_and(d[I] <= dsL[I], d[I] >= dsV[I])
-            # Only continue if some of the points are saturated
-            if I.any():
-                # Evaluate the enthalpies under the dome
-                hsL,hsLt,hsLd = self._h(T[I],dsL[I],diff=diff)
-                hsV,hsVt,hsVd = self._h(T[I],dsV[I],diff=diff)
-                # Calculate the qualities under the dome
-                # Convert dsL and dsV into specific volumes
-                dsL[I] = 1./dsL[I]
-                dsV[I] = 1./dsV[I]
-                x[I] = (1./d[I] - dsL[I])/(dsV[I] - dsL[I])
-                # Finally, calculate their enthalpy
-                h[I] = x[I]*hsV + (1.-x[I])*hsL
-                if diff>0:
-                    # Convert sensitivities into specific volumes
-                    dsLt[I] = -dsLt[I] * dsL[I] * dsL[I]
-                    dsVt[I] = -dsVt[I] * dsV[I] * dsV[I]
-                    # Calculate the sensitivity of x to T
-                    xt = ((1-x[I])*dsLt[I] - x[I]*dsVt[I])/(dsV[I]-dsL[I])
-                    hT[I] = x[I]*hsVt + (1.-x[I])*hsLt + xt * (hsV - hsL)
-                    hd[I] = (1./dsV[I]*d[I]*d[I]) * (hsL - hsV)
-        
-        # Now, calculate enthalpy for everything else
-        I = np.logical_not(I)
-        h[I],hT[I],hd[I] = self._h(T[I], d[I], diff=diff)
-        return h,hT,hd
-
-
     def _s(self,T,d,diff=0):
         """entropy (inner routine)
     s,sT,sd = _s(T,d,diff=0)
@@ -3046,6 +2996,131 @@ along with temperature.
         if quality:
             return T,x
         return T
+
+
+    def d_s(self, s, T=None, quality=False, debug=False):
+        """Density from entropy
+    d = d_s(s,T=T)
+    
+If temperature is not specified, the default temperature will be used 
+(config['def_T']).
+
+The optional keyword flag, quality, will cause quality to be returned along
+with pressure.
+"""
+        # Prepare the s array
+        s = pm.units.energy(
+                np.asarray(s,dtype=float),
+                to_units='J')
+        pm.units.matter(s, self.data['mw'],
+                to_units='kg', exponent=-1, inplace=True)
+        pm.units.temperature(s,
+                to_units='K', exponent=-1, inplace=True)
+        if s.ndim == 0:
+            s = np.reshape(s, (1,))
+
+        # Set a default pressure?
+        if T is None:
+            T = pm.config['def_T']
+
+        ###########################################
+        # Isothermal (isobaric not yet supported) #
+        ###########################################
+
+        T = pm.units.temperature_scale(np.asarray(T, dtype=float), to_units='K')
+        if T.ndim == 0:
+            T = np.reshape(T, (1,))
+            
+        # Enforce temperature limits
+        if ((T<self.data['Tlim'][0]).any() or
+                (T>self.data['Tlim'][1]).any()):
+            raise pm.utility.PMParamError(
+                'MP1.p_s: Temperature is out-of-bounds.')
+
+        # broadcast
+        s,T = np.broadcast_arrays(s,T)
+        # Initialize results
+        d = np.empty_like(s, dtype=float)
+        if quality:
+            x = np.full_like(s, -1, dtype=float)
+        # Some important intermediates
+        da = np.empty_like(s, dtype=float)
+        db = np.empty_like(s, dtype=float)
+        ssL = np.empty_like(s, dtype=float)
+        ssV = np.empty_like(s, dtype=float)
+        p = np.empty_like(s, dtype=float)
+        Isat = np.zeros_like(s, dtype=bool)
+        
+        # for points with sub-critical temperatures, we will test for
+        # saturation
+        I = T < self.data['Tc']
+        if I.any():
+            # Use upper and lower density limits as temporaries
+            # da=liquid, db=vapor
+            da[I] = self._dsl(T[I])[0]
+            db[I] = self._dsv(T[I])[0]
+            ssL[I] = self._s(T[I], da[I])[0]
+            ssV[I] = self._s(T[I], db[I])[0]
+
+            # Start with liquid points. 
+            Isat[I] = s[I] < ssL
+            #da[I] = da[I]  # the lower bound is already correct; sat.liq.
+            db[Isat] = self.data['dlim'][1]
+            
+            # Now, move on to vapor points
+            Isat[I] = s[I] > ssV
+            da[Isat] = self.data['dlim'][0]
+            #db[I] = db[I]  # the upper bound is already correct; sat.vap.
+            
+            # Finally, deal with points that are saturated
+            Isat[I] = np.logical_and(ssL <= s[I], s[I] <= ssV)
+            # Isat now indicates the saturated points
+            # We already know the solution there; no iteraiton needed
+            x[Isat] = (s[Isat]-ssL[Isat])/(ssV[Isat]-ssL[Isat])
+            d[Isat] = 1./ ( 1./da[Isat] * (1-x[Isat]) + 1./db[Isat] * x[Isat])
+
+        # Isat is now True for all non-saturated points
+        Isat = np.logical_not(Isat)
+        
+        # For most data sets, the minim density is zero, but that is not
+        # actually a legal value.  If necessary, iterate on the lower 
+        # bound until the solution is bracketed
+        I = (da == 0.)
+        if I.any() and Isat.any():
+            # Adjust the density a bit
+            da[I] = np.full_like(s, .9999 * self.data['dlim'][0] + .0001 * self.data['dlim'][1], dtype=float)
+            # calculate the entropy at the minimum and test to ensure inclusion
+            s_ = self._s(T=T[I],d=da[I])[0]
+            I[I] = s_ < s[I]
+            count = 0
+            while I.any():
+                # dump out if this has been going on for too long
+                count += 1
+                if count > 20:
+                    raise pm.utility.PMAnalysisError('Failed to find a lower-density bound to bracket a solution.')
+                da[I] = 0.5*(self.data['dlim'][0] + da[I])
+                s_[I] = self._s(T=T[I], d=da[I])[0]
+                I[I] = s_[I] < s[I]
+        
+        self._hybrid1(
+                self._s,
+                'd',
+                s,
+                d,
+                Isat,
+                da, db,
+                param={'T':T},
+                verbose=debug,
+                fx_index=2,
+                Nmax=50)
+
+        pm.units.matter(self.data['mw'], d, from_units='kg', inplace=True)
+        pm.units.volume(d, from_units='m3', inplace=True, exponent=-1)
+        if quality:
+            return d,x
+        return d
+            
+
 
 
     def T_h(self, h, p=None, d=None, quality=False, debug=False):
