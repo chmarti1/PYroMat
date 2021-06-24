@@ -730,5 +730,72 @@ file in the list will be left alone.
 
 
 
+def proptest(fn, kwarg, truth, ep, text, report, percent=True, findex=None):
+    """Test a property method against truth values
+    result = proptest(fn, kwarg, truth, ep, text report, percent=True)
+    
+PROPTEST is a utility function for performing numerical integrity checks on
+property methods.  Returns True if the test is successful and False if not.
 
+    fn
+The method under test.  For functions that return tuples of array values 
+(like saturation properties), the optional findex index should be set.  It 
+is treated as the index of the element in the tuple that will be tested.
 
+    kwarg
+The argument tuple and keyword argument dictionary to pass to fn
+
+    truth
+The array of truth values expected from fn(**kwarg).
+    
+    ep
+The fractional permissible error.  By setting the optional percent keyword to
+False, ep is interpreted as absolute error instead of fractional.
+    
+    text
+A string (usually a single-line) to insert in the report detailing the test 
+being run.  A successful test appears in the reort as:
+    "[passed]    __string__inserted__here__"
+A failed test appears in the report as:
+    "[FAILED]    __string__inserted__here__"
+    " ... postmortem table ... "
+A newline will be inserted at the end of the text string, so do not add one 
+unless you want there to be a double-line-break.
+
+    report
+An open file descriptor to which report summary text should be printed.
+"""
+    if findex is None:
+        test = fn(**kwarg)
+    else:
+        test = fn(**kwarg)[findex]
+        
+    test,truth = np.broadcast_arrays(test,truth)
+    error = test - truth
+    if percent:
+        error /= truth
+    I = np.nonzero(np.abs(error) > ep)[0]
+    
+    # If the test failed, do post-mortem
+    if I.size:
+        # We'll log the result shape to use for broadcasting
+        shape = test.shape
+        # Build an ordered list of the values to print in the table
+        labels = ['test', 'truth', 'error']
+        table = [test, truth, error]
+        for index,value in kwarg.items():
+            labels.append(index)
+            table.append(np.broadcast_to(value, shape))
+        # Now build the output
+        # Print that the test failed
+        report.write('[FAILED]    ' + text + '\n')
+        # Print a table of the values that failed.
+        for index,value in zip(labels, table):
+            report.write('{: >15s}: '.format(index))
+            for vv in value[I]:
+                report.write('{: >15.6e}'.format(vv))
+            report.write('\n')
+        return False
+        
+    report.write('[passed]    ' + text + '\n')
+    return True

@@ -350,7 +350,9 @@ temperature is also returned.  Otherwise it is returned as None.
         OR
     _test(report=open_file_descriptor)  # Appends to an open report file
     
-Returns True when all criteria are satisfied and False otherwise.
+Returns True when all criteria are satisfied and False otherwise.  Unlike ig2,
+the ig class uses embedded tabulated data for numerical tests.  No external 
+validation table is needed.
 
 The criteria are:
 1. Data integrity

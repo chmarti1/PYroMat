@@ -170,9 +170,16 @@ I will be returned such that Tlim[index] <= T[I] < Tlim[index]
         OR
     _test(tab, report=open_file_descriptor)  # Appends to an open report file
     
-tab is a 2D array-like object (numpy array or nested lists) with 
-tabulated data for testing against the 
+tab is a 2D array-like object (numpy array or nested lists) with tabulated 
+"truth" data for testing against the calculated values.  The tab table must 
+have four columns with units:
+
+    T (K),   cp (J/mol/K),      s (J/mol/K),    h-h(298.15) (kJ/mol/K)
     
+These units and values are chosen to be consistent with the typical tabulation
+of JANAF tables.  Please note that the enthalpy is in kJ and not J, and that 
+it is expressed as the difference from standard temperature (298.15K).
+
 Returns True when all criteria are satisfied and False otherwise.
 
 The criteria are:

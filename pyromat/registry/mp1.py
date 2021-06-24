@@ -11,7 +11,7 @@
 
 import numpy as np
 import pyromat as pm
-
+import os,sys
 
 
 class mp1(pm.reg.__basedata__):
@@ -43,7 +43,12 @@ For example, enthalpy might be called
     h(T,x)
 or any other combination of two.  See the method documentation for more
 details.
-    
+
+Most property methods also accept the "quality" as an optional keyword.  When
+it is set to True, the property will also return the vapor/liquid mixture
+quality in a tuple with the property value.  For example,
+    h,x = h(T,d,quality=True)
+
 There are also saturation property methods:
     es()    Saturation internal energy
     hs()    Saturation enthalpy
@@ -53,9 +58,10 @@ And saturation equations of state methods:
     Ts()    Saturaiton temperature
     ds()    Saturation density
     ps()    Saturation pressure
-    
-All saturation properties accept T OR p as arguments.  See the method 
-documentation for more details.
+
+Saturation methods accept either temperature or pressure as an argument.  
+The density saturation method returns both liquid and vapor densities in a 
+tuple pair.  See their in-line documentaiton for more details.
 
 *** MORE DOCUMENTATION ***
 MP1 models thermo-physical properties of a liquid-gas system using a 
@@ -123,35 +129,34 @@ one of the inner methods.
 PSgroup         Saturated pressure data group
     Tscale      Temperature scale for normalizing T in the fit
     pscale      Pressure scale for re-scaling the result
-    coef        a coefficient group to be passed to _poly1()
-If tt = T/Tscale
-    tt*log(ps/pscale) = p(1-tt)
-where p() is the polynomial defined by the coef list.
+    coef        a coefficient group to be passed to _satfit()
+    fn          An integer index identifying the fit form to use 
+                (see the _satfit method for details)
 
 DSLgroup        Saturated liquid density data group
     Tscale      Temperature scale for normalizing T in the fit
     dscale      Density scale for re-scaling the result
     coef        a coefficient group to be passed to _poly1()
-If tt = T/Tscale
-    dsl / dscale = p(1-tt)
-where p() is the polynomial defined by the coef list.
+    fn          An integer index identifying the fit form to use 
+                (see the _satfit method for details)
 
 DSVgroup        Saturated vapor density data group; a dict containing:
     Tscale      Temperature scale for normalizing T in the fit
     dscale      Density scale for re-scaling the result
     coef        a coefficient group to be passed to _poly1()
-If tt = T/Tscale
-    log(dsv/dscale) = p(1-tt)
-where p() is the polynomial defined by the coef list.
+    fn          An integer index identifying the fit form to use 
+                (see the _satfit method for details)
 
 AOgroup        Helmholtz free energy ideal gas group; a dict containing:
     Tscale      Temperature scale for normalizing T
     dscale      density scale for normalizing d
     logt        a scalar coefficient of a log(tt) term
-    coef        a coefficient list to be passed to _poly1()
+    coef0       a coefficient list to be passed to _poly1() to build p0 below
+    coef1       a simple Nx2 coefficient list used to build q(tt) below
 If tt = Tscale/T    <=== INVERSE!
 and dd = d/dscale
-    ao = log(d) + LOGT*log(tt) + p(tt)
+    ao = log(d) + LOGT*log(tt) + p0(tt) + q(tt)
+        q1(tt) = sum_k coef1[k,1] * log(1 - exp(-tt*coef[k,0]))
     Ao = ao * R * T
 where LOGT is the coefficient defined by the 'logt' parameter, and p is
 the polynomial defined by the coef list
@@ -176,7 +181,7 @@ is multiplied by exp(-dd**k) where k is the index in the coef list.
     
 coef1 is an optional list of lists of coefficients forming a matrix
 [...
-    [ c, d, t, a, b, gam, ep ], ...
+    [ t, d, b, a, gam, ep, c ], ...
 ]
     ar1 = c * dd**d * tt**t * exp(-a*(dd-ep)**2 - b*(tt-gam)**2) + ...
     Ar1 = ar1 * R * T
@@ -185,7 +190,7 @@ to form the residual.  If coef1 is not defined, it will be ignored.
 
 coef2 is an optional list of lists of coefficients forming a matrix
 [...
-    [ c, a, b, m, A, B, C, D ], ...
+    [ a, b, m, A, B, C, D, c ], ...
 ]
     X = ((1-tt) + A*((dd-1)**2)**(0.5/m))**2 + B*((dd-1)**2)**a
     ar2 = c * X**b * d * exp(-C*(dd-1)**2 - D*(tt-1)**2) + ...
@@ -216,9 +221,324 @@ class           What class should be used to evaluate the data?
 """
     
     
-    def __test(self, report_file=None, report_level=2, basic=False):
-        pass
+    def _test(self, tab, sattab, report=None, basic=False):
+        """Test the MP1 class model
+    _test(tab, sattab)     # Prints to stdout
+        OR
+    _test(tab, sattab, report_file='/path/to/report')  # Prints to a file
+        OR
+    _test(tab, sattab, report_file=open_file_descriptor)   # Prints to a file
+    
+tab and sattab are nested lists or 2D numpy arrays forming tables of "truth"
+data used for validation of the core data and property methods.
 
+If the optional "basic" keyword is set to True, only the data integrity checks
+are completed (see below).
+
+** tab **
+The TAB table is used to test the core properties, and should have columns 
+and units
+
+    T (K)   p (Pa)  d (kg/m3)   cp (kJ/kg/K)    s (kJ/kg/K)     h (kJ/kg)
+
+The units are selected to match those typically used in the publication of
+so-called Span and Wagner equations of state.
+
+** sattab **
+The SATTAB table is used to test the saturation property functions, and should
+have columns and units
+
+    T (K)   p (Pa)  dL (kg/m3)  dV (kg/m3)
+
+where dL and dV are the liquid and vapor densities respectively.
+
+Test criteria:
+(0) Data Integrity
+    0.1 AOgroup must contain positive scalars, Tscale, dscale
+    0.2 AOgroup's logt parameter must be a scalar
+    0.2 AOgroup's coef0 parameter must be a legal poly1 group
+    0.4 AOgroup's coef1 parameter must be a table with two columns
+    0.5 ARgroup must contain Tscale, dscale
+    0.6 ARgroup's coef0 must be a list of legal poly2 groups
+    0.7 ARgroup's coef1 must be a table with seven columns
+    0.8 ARgroup's coef2 must be a table with eight columns
+    0.9 PSgroup must contain positive scalars Tscale, pscale and integer, fn
+    0.10 PSgroup's coef must be a legal poly1 group
+    0.11 DSLgroup must contain positive scalars Tscale, dscale and integer, fn
+    0.12 DSLgroup's coef must be a legal poly1 group
+    0.13 DSVgroup must contain positive scalars Tscale, dscale and integer, fn
+    0.14 DSVgroup's coef must be a legal poly1 group
+(1) Saturation 
+    1.1 Saturation pressure agrees to within 0.01%
+    1.2 Liquid saturation density agrees to within 0.01%
+    1.3 Vapor saturation density agrees to within 0.01%
+(2) Inverse Saturation
+    2.1 Saturation temperature agrees to within 0.01%
+(3) Equation of State
+    3.1 Density must agree to within 0.01%
+    3.2 Pressure must agree to within 0.01%
+    3.3 Temperature must agree to within 0.01%
+(4) Core Properties
+    4.1 Specific heat (cp) must agree to within 0.01%
+    4.2 Entropy must agree to within 0.01%
+    4.3 Enthalpy must agree to within 0.01%
+(5) Inverse Properties
+    5.1 Temperature from entropy and pressure must agree to within 0.01%
+    5.2 Temperature from entropy and density must agree to within 0.01%
+    5.3 Density from entropy and temperature must agree to within 0.01%
+    5.4 Temperature from enthalpy and pressure must agree to within 0.01%
+    5.5 Temperature from enthalpy and density must agree to within 0.01%
+
+"""
+        # Recurse with a fresh file descriptor if the file is a string
+        if isinstance(report, str):
+            with open(report, 'w') as ff:
+                return self._test(report=ff)
+        elif report is None:
+            report = sys.stdout
+            
+        result = True
+        
+        report.write('PYroMat version: ' + pm.config['version'] + '\n')
+        report.write('Species: ' + self.data['id'] + '\n')
+        
+        # CRITERION 0
+        # Basic Data integrity
+        def _check_poly1(coef):
+            # Loop through the coefficient groups
+            for cgi,cc in enumerate(coef):
+                if not isinstance(cc, (list,tuple)):
+                    return True, f'Coef. group {cgi} was neither a list nor a tuple.'
+                # Check pre- and post-exponents
+                pre = cc[0]
+                post = cc[1]
+                if not isinstance(pre, (int,float)):
+                    return True, f'In coef. group {cgi} pre-exponent must be scalar. Found: {pre}'
+                if not isinstance(post, (int,float)):
+                    return True, f'In coef. group {cgi} post-exponent must be scalar. Found: {post}'
+                for ti, term in enumerate(cc[2:]):
+                    if not isinstance(term,(list,tuple)):
+                        return True, f'In coef. group {cgi}, the {ti} term is neither a list nor a tuple: {term}'
+                    if len(term) != 2:
+                        return True, f'In coef. group {cgi}, the {ti} term should have 2 elements.  Found: {term}'
+                    if not isinstance(term[0], int) or term[0] <0:
+                        return True, f'In coef. group {cgi}, the {ti} term exponent was not a non-negative integer.  {term}'
+
+            return False, ''
+            
+        def _check_poly2(coef):
+            # Loop through the coefficient groups
+            for cgi,cc in enumerate(coef):
+                if not isinstance(cc, (list,tuple)):
+                    return True, f'Coef. group {cgi} was neither a list nor a tuple.'
+                # Check pre- and post-exponents
+                pre = cc[0]
+                post = cc[1]
+                if not isinstance(pre, list) or len(pre) != 2:
+                    return True, f'In coef. group {cgi} pre-exponent must be a two-element list. Found: {pre}'
+                if not isinstance(post, list) or len(post) != 2:
+                    return True, f'In coef. group {cgi} post-exponent must be a two-element list. Found: {post}'
+                prex,prey = pre
+                postx,posty = post
+                if not isinstance(prex, (int,float)) or not isinstance(prey, (int,float)) or not isinstance(postx, (int,float)) or not isinstance(posty, (int,float)):
+                    return True, f'In coef. group {cgi}, pre- and post-exponents must be scalars.  Pre: {pre}, Post: {post}'
+                
+                for ti, term in enumerate(cc[2:]):
+                    if not isinstance(term,(list,tuple)):
+                        return True, f'In coef. group {cgi}, the {ti} term is neither a list nor a tuple: {term}'
+                    if len(term) != 3:
+                        return True, f'In coef. group {cgi}, the {ti} term should have 3 elements.  Found: {term}'
+                    if not isinstance(term[0], int) or term[0] <0:
+                        return True, f'In coef. group {cgi}, the {ti} term exponent was not a non-negative integer.  {term}'
+
+            return False, ''
+
+        #0.1 AOgroup must contain positive scalars, Tscale, dscale
+        error = False
+        for test in ['Tscale', 'dscale']:
+            if test in self.data['AOgroup']:
+                pass
+            elif self.data['AOgroup'][test] > 0:
+                pass
+            else:
+                error = True
+                break
+        if error:
+            report.write('[FAILED]    0.1 AOgroup must contain positive scalars, Tscale, dscale\n')
+            report.write('            ' + test + ' = ' + repr(self.data['AOgroup'][test]) + '\n')
+            result = False
+        else:
+            report.write('[passed]    0.1 AOgroup must contain positive scalars, Tscale, dscale\n')
+            
+        #0.2 AOgroup's logt parameter must be a scalar
+        if 'logt' in self.data['AOgroup'] and not isinstance(self.data['AOgroup']['logt'], (float,int)):
+            report.write('[FAILED]    0.2 AOgroup logt parameter must be a scalar\n')
+            report.write('            logt = ' + repr(self.data['AOgroup']['logt']) + '\n')
+            result = False
+        else:
+            report.write('[passed]    0.2 AOgroup logt parameter must be a scalar\n')
+        
+        #0.3 AOgroup's coef0 parameter must be a legal poly1 group
+        error = False
+        if 'coef0' in self.data['AOgroup']:
+            error,message = _check_poly1(self.data['AOgroup']['coef0'])
+        if error:
+            report.write('[FAILED]    0.3 AOgroup coef0 parameter must be a legal poly1 group\n')
+            report.write('            ' + message + '\n')
+            result = False
+        else:
+            report.write('[passed]    0.3 AOgroup coef0 parameter must be a legal poly1 group\n')
+        
+        #0.4 AOgroup's coef1 parameter must be a table with two columns
+        error = False
+        if 'coef1' in self.data['AOgroup']:
+            if not isinstance(self.data['AOgroup']['coef1'], (list,tuple)):
+                error = True
+                message = 'coef1 was not iterable.'
+            else:
+                for row in self.data['AOgroup']['coef1']:
+                    if not isinstance(row, (list,tuple)) or len(row) != 2:
+                        error = True
+                        message = 'coef1 has at least one row without 2 columns'
+        if error:
+            report.write('[FAILED]    0.4 AOgroup coef1 parameter must be a table with two columns\n')
+            report.write('            ' + message + '\n')
+            result = False
+        else:
+            report.write('[passed]    0.4 AOgroup coef1 parameter must be a table with two columns\n')            
+            
+        #0.5 ARgroup must contain Tscale, dscale
+        error = False
+        for test in ['Tscale', 'dscale']:
+            if test in self.data['ARgroup']:
+                pass
+            elif self.data['ARgroup'][test] > 0:
+                pass
+            else:
+                error = True
+                break
+        if error:
+            report.write('[FAILED]    0.5 ARgroup must contain positive scalars, Tscale, dscale\n')
+            report.write('            ' + test + ' = ' + repr(self.data['ARgroup'][test]) + '\n')
+            result = False
+        else:
+            report.write('[passed]    0.5 ARgroup must contain positive scalars, Tscale, dscale\n')
+            
+        #0.6 ARgroup's coef0 must be a list of legal poly2 groups
+        error = False
+        message = ''
+        if 'coef0' in self.data['ARgroup']:
+            if not isinstance(self.data['ARgroup']['coef0'], (list,tuple)):
+                error = True
+                message = 'coef0 was not iterable.'
+            else:
+                for cgi,cg in enumerate(self.data['ARgroup']['coef0']):
+                    error,message = _check_poly2(cg)
+                    if error:
+                        message = 'Error in term number ' + str(cgi) + '\n            ' + message
+                        break
+        if error:
+            result = False
+            report.write('[FAILED]    ARgroup coef0 must be a list of legal poly2 groups\n')
+            report.write('            ' + message + '\n')
+        else:
+            report.write('[passed]    ARgroup coef0 must be a list of legal poly2 groups\n')
+            
+        #0.7 ARgroup's coef1 must be a table with seven columns
+        error = False
+        message = ''
+        if 'coef1' in self.data['ARgroup']:
+            if not isinstance(self.data['ARgroup']['coef1'], (list,tuple)):
+                error = True
+                message = 'coef1 was not iterable.'
+            else:
+                for row in self.data['ARgroup']['coef1']:
+                    if len(row) != 7:
+                        error = True
+                        message = 'coef1 has at least one row without 7 columns'
+        if error:
+            result = False
+            report.write('[FAILED]    ARgroup coef1 must be a table with seven columns\n')
+            report.write('            ' + message + '\n')
+        else:
+            report.write('[passed]    ARgroup coef1 must be a table with seven columns\n')
+            
+        #0.8 ARgroup's coef2 must be a table with eight columns
+        error = False
+        message = ''
+        if 'coef2' in self.data['ARgroup']:
+            if not isinstance(self.data['ARgroup']['coef2'], (list,tuple)):
+                error = True
+                message = 'coef2 was not iterable.'
+            else:
+                for row in self.data['ARgroup']['coef2']:
+                    if len(row) != 8:
+                        error = True
+                        message = 'coef2 has at least one row without 8 columns'
+        if error:
+            result = False
+            report.write('[FAILED]    ARgroup coef2 must be a table with eight columns\n')
+            report.write('            ' + message + '\n')
+        else:
+            report.write('[passed]    ARgroup coef2 must be a table with eight columns\n')
+        
+        #0.9 PSgroup must contain positive scalars Tscale, pscale and integer, fn
+        #0.10 PSgroup's coef must be a legal poly1 group
+        #0.11 DSLgroup must contain positive scalars Tscale, dscale and integer, fn
+        #0.12 DSLgroup's coef must be a legal poly1 group
+        #0.13 DSVgroup must contain positive scalars Tscale, dscale and integer, fn
+        #0.14 DSVgroup's coef must be a legal poly1 group
+        
+        if basic:
+            return result
+        
+        # First, extract the sattab columns
+        sattab = np.asarray(sattab, dtype=float)
+        T = pm.units.temperature_scale(sattab[:,0], from_units='K')
+        p = pm.units.pressure(sattab[:,1], from_units='Pa')
+        dL = pm.units.matter(self.data['mw'], sattab[:,2], from_units='kg')
+        pm.units.volume(dL, from_units='m3', inplace=True)
+        dV = pm.units.matter(self.data['mw'], sattab[:,3], from_units='kg')
+        pm.units.volume(dV, from_units='m3', inplace=True)
+        
+        # CRITERION 1
+        # Saturation numerical integrity
+        report.write('\n1. Saturation Properties\n')
+        result = pm.utility.proptest(self.ps, {'T':T}, truth=p, ep=.0001, 
+                text='1.1 Saturation pressure must agree to within .01%', 
+                report=report) or result
+        result = pm.utility.proptest(self.ds, {'T':T}, truth=dL, ep=.0001, 
+                text='1.2 Liquid saturation density must agree to within .01%', 
+                report=report, findex=0) or result
+        result = pm.utility.proptest(self.ds, {'T':T}, truth=dV, ep=.0001, 
+                text='1.3 Vapor saturation density must agree to within .01%', 
+                report=report, findex=1) or result
+        # CRITERION 2
+        # Inverse saturation
+        report.write('2. Inverse Saturation Properties\n')
+        result = pm.utility.proptest(self.Ts, {'p':p}, truth=T, ep=.0001, 
+                text='2.1 Saturation temperature must agree to within .01%', 
+                report=report, findex=1) or result
+        # Throw away the saturation table values; we're done with those
+        # Switch to the core property table
+        T = pm.units.temperature_scale(tab[:,0], from_units='K')
+        p = pm.units.pressure(tab[:,1], from_units='Pa')
+        d = pm.units.matter(self.data['mw'], tab[:,2], from_units='kg')
+        pm.units.volume(d, from_units='m3', exponent=-1, inplace=True)
+        cp = pm.units.energy(tab[:,3], from_units='kJ')
+        pm.units.temperature(cp, from_units='K', exponent=-1, inplace=True)
+        pm.units.matter(self.data['mw'], cp, from_units='kg', exponent=-1, inplace=True)
+        s = pm.units.energy(tab[:,4], from_units='kJ')
+        pm.units.temperature(s, from_units='K', exponent=-1, inplace=True)
+        pm.units.matter(self.data['mw'], s, from_units='kg', exponent=-1, inplace=True)
+        h = pm.units.energy(tab[:,5], from_units='kJ')
+        pm.units.matter(self.data['mw'], h, from_units='kg', exponent=-1, inplace=True)
+        
+        # CRITERION 3
+        # Equation of state
+        
+        return result
+        
 
     def _poly2(self,x,y,group,diff=2):    
         """Polynomial evaluation (primative routine)
