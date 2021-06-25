@@ -83,7 +83,7 @@ Returns a substance data class for the substance named.
 
 
 
-def info( name=None ):
+def info( name=None, contains=None, collection=None, verbose=True):
     """Print information on substance data
     info()
         or
@@ -97,45 +97,92 @@ for the substance named.
 
     month = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
-    if name:
-        if not (name in dat.data):    
-            utility.print_error('No substance named "' + str(name) + '" was found in the loaded dat.')
-            raise utility.PMParamError('Invaid substance name.')
+    # Create a list of the available data
+    members = list(dat.data.keys())
+    # Apply the relevant filters
+    # Start with filters most likely to narrow things down...
+    if name is not None:
+        ii = 0
+        while ii < len(members):
+            candidate = members[ii]
+            if name not in candidate:
+                del members[ii]
+            else:
+                ii += 1
+    if collection is not None:
+        ii = 0
+        while ii < len(members):
+            candidate = members[ii]
+            if not candidate.startswith(collection):
+                del members[ii]
+            else:
+                ii += 1
+    if contains is not None:
+        if isinstance(contains, str):
+            contains = [contains]
+        ii = 0
+        while ii < len(members):
+            candidate = dat.data[members[ii]]
+            match = False
+            for species in contains:
+                if not hasattr(candidate, 'contents') or species not in candidate.contents:
+                    del members[ii]
+                    ii-=1
+                    break
+            ii += 1
 
-        utility.sys.stdout.write( '***\nInformation summary for substance: "' + name + '"\n***\n' )
+    if not verbose:
+        return members
+
+    # If operating verbosely, we'll need to print to stdout
+    target = utility.sys.stdout
+
+    # If the filters eliminated everything
+    if not members:
+        target.write('No substances matched the critera.\n')
+        if name:
+            target.write('  name: ' + name + '\n')
+        if collection:
+            target.write('  collection: ' + collection + '\n')
+        if contains:
+            target.write('  contains: ' + str(contains) + '\n')
+    # If there's only one member left
+    elif len(members) == 1:
+
+        target.write( '***\nInformation summary for substance: "' + name + '"\n***\n' )
 
         out = 'Uses class:   ' + dat.data[name].data['class'] + '\n'
-        utility.sys.stdout.write( out )
+        target.write( out )
 
         # identify the file
         fil = dat.data[name].data['fromfile']
-        utility.sys.stdout.write('\nLoaded from:  ' + fil + '\n')
+        target.write('\nLoaded from:  ' + fil + '\n')
 
         # get the time last modified
         tt = utility.time.localtime( utility.os.path.getmtime(fil))
         out = '\nLast updated: {0.tm_hour}:{0.tm_min:02d} {1:s} {0.tm_mday}, {0.tm_year}\n\n'.format( tt, month[tt.tm_mon-1] )
-        utility.sys.stdout.write( out )
+        target.write( out )
 
         utility.print_line(dat.data[name].__doc__,'')
 
     else:
 
         # Print a version summary
-        utility.sys.stdout.write('  PYroMat\nThermodynamic computational tools for Python\n')
-        utility.sys.stdout.write('version: ' + str(config['version']) + '\n')
+        target.write('  PYroMat\nThermodynamic computational tools for Python\n')
+        target.write('version: ' + str(config['version']) + '\n')
 
         # Generate a table of existing data
         # Print the ID string, the date modified, and the file path
         
         # first, obtain a sorted list of the loaded data
-        ids = list(dat.data.keys())
+        ids = list(members)
         ids.sort()
         # find the longest id string
         idlen = 2
         for ss in ids:
             idlen = max(idlen, len(ss))
         # A list of properties for wich to search
-        proplist = ['cp', 'cv', 'd', 'e', 'gam', 'h', 'k', 'mw', 'p_d', 'p_s', 'R', 's', 'T_d', 'T_h', 'T_s', 'X', 'Y']
+        proplist = ['T', 'p', 'd', 'cp', 'cv', 'gam', 'e', 'h', 's', 'mw', 'R', 's', 'T_h', 'T_s', 'p_s', 'd_s', 'X', 'Y']
         proplen = 0
         for prop in proplist:
             proplen += len(prop) + 1
@@ -148,13 +195,13 @@ for the substance named.
         index = 0
         for ss in ids:
             if index%15 == 0:
-                utility.sys.stdout.write(head)
+                target.write(head)
             index+=1
 
-            utility.sys.stdout.write( fmt.format(ss) )
+            target.write( fmt.format(ss) )
             for prop in proplist:
                 if hasattr(dat.data[ss],prop):
-                    utility.sys.stdout.write( ' ' + prop )
+                    target.write( ' ' + prop )
                 else:
-                    utility.sys.stdout.write( ' ' * (len(prop)+1) )
-            utility.sys.stdout.write('\n')
+                    target.write( ' ' * (len(prop)+1) )
+            target.write('\n')
