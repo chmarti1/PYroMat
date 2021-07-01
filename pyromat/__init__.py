@@ -122,10 +122,9 @@ for the substance named.
             contains = [contains]
         ii = 0
         while ii < len(members):
-            candidate = dat.data[members[ii]]
-            match = False
+            atoms = dat.data[members[ii]].atoms()
             for species in contains:
-                if not hasattr(candidate, 'contents') or species not in candidate.contents:
+                if species not in atoms:
                     del members[ii]
                     ii-=1
                     break
@@ -148,6 +147,7 @@ for the substance named.
             target.write('  contains: ' + str(contains) + '\n')
     # If there's only one member left
     elif len(members) == 1:
+        name = members.pop()
 
         target.write( '***\nInformation summary for substance: "' + name + '"\n***\n' )
 

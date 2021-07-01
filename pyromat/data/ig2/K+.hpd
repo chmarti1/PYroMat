@@ -1,1 +1,40 @@
-{"C": [[2.5, 0.0, 0.0, 0.0, 0.0, 61075.1051, 4.34740449], [2.5, 0.0, 0.0, 0.0, 0.0, 61075.1051, 4.34740449]], "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n", "class": "ig2", "pref": 100000.0, "Tlim": [298.15, 1000.0, 6000.0], "Tref": 298.15, "mw": 39.09775, "ho": 61820.4801, "id": "ig.K+", "names": []}
+{
+    "C": [
+        [
+            2.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            61075.1051,
+            4.34740449
+        ],
+        [
+            2.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            61075.1051,
+            4.34740449
+        ]
+    ],
+    "Tlim": [
+        298.15,
+        1000.0,
+        6000.0
+    ],
+    "Tref": 298.15,
+    "atoms": {
+        "K": 1,
+        "e": -1
+    },
+    "class": "ig2",
+    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/K+.hpd",
+    "ho": 61820.4801,
+    "id": "ig.K+",
+    "mw": 39.09775,
+    "names": [],
+    "pref": 100000.0
+}

@@ -668,27 +668,19 @@ as None.
         return out, sT
 
 
-    def contents(self):
-        """Return the atomic contents dictionary
-    C = contents()
-
-Returns a dictionary, C, with keywords that are elements and integer
-values representing the number of each present in the species ID.  There
-is promise that PYroMat has a data entry for each of the elements named.
-
-For example, the species ID ig.CO2 would return the dictionary
-{'C':1, 'O':2}
-
-This is entirely dissimilar from queries to the igmix class, which list
-their constituents by their species ID.  These include the collection 
-and and the chemical formula, and all constituents MUST have a valid 
-species ID.
-
-After the first call to contents(), the dictionary is stored in
-the _contents member so that subsequent calls will not result in
-redundant string parsing.  
+    def atoms(self):
+        """Return a dictionary specifying the chemical composition of the substance.
+    aa = atoms()
+    
+The dictionary keys are the symbols of atoms and their corresponding values 
+are the integer quantities in the chemical formula.  For example
+    aa = {'C':1, 'O':2}
+would represent carbon dioxide.
 """
-        return self.data['contents'].copy()
+        aa = self.data.get('atoms')
+        if aa is None:
+            raise pm.utility.PMDataError('The substance does not have atomic composition data: ' + self.data['id'])
+        return aa.copy()
 
 
     def Tlim(self):

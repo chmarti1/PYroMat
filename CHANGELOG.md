@@ -96,3 +96,13 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 
 ## Version 2.0.13
 - Transitioned to the _hybrid1() inversion algorithm for mp1's T_s and T_h algorithms
+
+
+## Version 2.1.0
+- Completed total transition and validation to `_hybrid1()` in the `mp1` class
+- Added `d_s()` to the `mp1` class
+- Standardized `igmix`, `ig`, and `ig2` classes to use the same argument parsing rules
+- Standardized `igmix`, `ig`, and `ig2` inverse property routines `T_s`, `T_h`, `p_s`.
+- Added filtering capabilities to `info()`
+- Added `atom()` to all classes to retrieve atomic composition data.
+- Updated the `dat.updatefiles()` function to correct bugs in Python 3.

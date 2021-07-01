@@ -1,1 +1,40 @@
-{"C": [[11.1532484, -0.00949415433, 0.000195571181, -2.4975252e-07, 9.84873213e-11, -26771.1735, -15.909611], [18.5354704, 0.0391420468, -1.38030268e-05, 2.22403874e-09, -1.3345258e-13, -31950.0783, -70.190284]], "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n", "class": "ig2", "pref": 100000.0, "Tlim": [200.0, 1000.0, 6000.0], "Tref": 298.15, "mw": 100.20404, "ho": -22587.0196, "id": "ig.C7H16", "names": []}
+{
+    "C": [
+        [
+            11.1532484,
+            -0.00949415433,
+            0.000195571181,
+            -2.4975252e-07,
+            9.84873213e-11,
+            -26771.1735,
+            -15.909611
+        ],
+        [
+            18.5354704,
+            0.0391420468,
+            -1.38030268e-05,
+            2.22403874e-09,
+            -1.3345258e-13,
+            -31950.0783,
+            -70.190284
+        ]
+    ],
+    "Tlim": [
+        200.0,
+        1000.0,
+        6000.0
+    ],
+    "Tref": 298.15,
+    "atoms": {
+        "C": 7,
+        "H": 16
+    },
+    "class": "ig2",
+    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/C7_H16.hpd",
+    "ho": -22587.0196,
+    "id": "ig.C7H16",
+    "mw": 100.20404,
+    "names": [],
+    "pref": 100000.0
+}

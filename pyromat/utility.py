@@ -657,7 +657,7 @@ file in the list will be left alone.
 (S)uppress:     Modify filenames to prevent loading
 """)
                 while f_go:
-                    action = raw_input('(I/D/S):').lower()
+                    action = input('(I/D/S):').lower()
                     # accept the input when it is i, d, or s
                     f_go = not (action in 'ids')
                     # if the input is unacceptable, scold the user

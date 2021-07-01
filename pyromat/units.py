@@ -230,12 +230,12 @@ unit conversion routines will be updated.
             const_Nstd, const_g, const_dh2o, connst_dhg,\
             energy, length, time, mass, molar, temperature, \
             volume, pressure, force\
-    #Boltzman
-    const_k = 1.38064852e-23 # J/K
-    #Avagadro
-    const_Na = 6.022140857e23 # count/mol
-    #Coulumb
-    const_Nc = 6.24150934e18 # count/coulomb
+    #Boltzmann: fundamental definition of Kelvin from BIPM
+    const_k = 1.380649e-23 # J/K
+    #Avagadro: Fundamental definition of the mole from BIPM
+    const_Na = 6.02214076e23 # count/mol
+    #Coulumb: Fundamental definition of Ampere from BIPM
+    const_Nc = 1/1.602176634e-19 # count/coulomb
     #Universal gas
     const_Ru = const_k * const_Na # J/mol/K
     #Standard Temperature
@@ -245,7 +245,7 @@ unit conversion routines will be updated.
     # Standard molar concentration
     const_Nstd = const_pstd*1e5/const_Ru/const_Tstd  # mol/m^3
     # Acceleration due to gravity on Earth
-    const_g = 9.80665   # m/s^2
+    const_g = g   # m/s^2
     # Density of water (for water column pressure)
     const_dh2o = dh2o
     # Density of mercury (for mercury column pressure)

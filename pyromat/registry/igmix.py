@@ -152,6 +152,7 @@ _Tlim       Lower and upper temperature limits of the most restrictive
         for ss in self._x:
             self._x[ss] /= total_x
             self._y[ss] /= total_y
+            
         
 
 
@@ -416,6 +417,30 @@ hT is in kJ/kmol/K
                 hT += x * spec_hT
             
         return h,hT
+        
+        
+    def atoms(self):
+        """Return a dictionary specifying the chemical composition of the substance.
+    aa = atoms()
+    
+This dictionary will be a sum of the atoms of the constituent gases weighted
+by the mixture composition by volume.  This results in atom quantities that
+are floating point instead of integer.  The number indicates the moles of
+each atom contained per mole of mixed gas.
+"""
+        self._bootstrap()
+        atoms = {}
+        for ss,x in self._x.items():
+            spec = pm.dat.data.get(ss)
+            ss_atoms = spec.data.get('atoms')
+            if ss_atoms is None:
+                raise pm.utility.PMDataError('Mixture contains a species with no atomic data: ' + self.data['id'] + '-->' + spec.data['id'])
+            for atom,qty in ss_atoms.items():
+                if atom not in atoms:
+                    atoms[atom] = 0
+                atoms[atom] += qty * x
+        return atoms
+        
         
        
     def Tlim(self):

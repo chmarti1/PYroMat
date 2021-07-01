@@ -63,6 +63,9 @@ Saturation methods accept either temperature or pressure as an argument.
 The density saturation method returns both liquid and vapor densities in a 
 tuple pair.  See their in-line documentaiton for more details.
 
+What is the chemical formula and charge of the substance?
+    atoms() Returns a dictionary specifying the chemical composition.
+
 *** MORE DOCUMENTATION ***
 MP1 models thermo-physical properties of a liquid-gas system using a 
 general fit for helmholtz free energy.  These "Spand & Wagner" fits are 
@@ -210,7 +213,7 @@ Tc, pc, dc      Critical temperature, pressure, and density
 Tt, pt          Triple-point temperature and pressure
 R               Ideal gas constant 8.314 / mw
 mw              Molecular weight
-contents        A dictionary with a key for each atom and a value for 
+atoms           A dictionary with a key for each atom and a value for 
                 its count in the molecule.  For example, CO2 would 
                 have content = {'C':1, 'O':2}
                 
@@ -2560,6 +2563,20 @@ other conditions, x<0 and d1 == d2.
     #               #
     # USER ROUTINES #
     #               #
+    
+    def atoms(self):
+        """Return a dictionary specifying the chemical composition of the substance.
+    aa = atoms()
+    
+The dictionary keys are the symbols of atoms and their corresponding values 
+are the integer quantities in the chemical formula.  For example
+    aa = {'C':1, 'O':2}
+would represent carbon dioxide.
+"""
+        aa = self.data.get('atoms')
+        if aa is None:
+            raise pm.utility.PMDataError('The substance does not have atomic composition data: ' + self.data['id'])
+        return aa.copy()
     
     #               #
     # Data limits   #

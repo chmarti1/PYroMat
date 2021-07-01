@@ -109,7 +109,7 @@ data
     # check results. 
     if check:
         if not isinstance(check, dict):
-            check = {'changed':[], 'added':pyro.dat.data.keys(), 'removed':[], 'redundant':{}, 'suppressed':[], 'bad':[], 'data':{}}
+            check = {'changed':[], 'added':list(pyro.dat.data.keys()), 'removed':[], 'redundant':{}, 'suppressed':[], 'bad':[], 'data':{}}
             root = True
         loadto = check['data']
         CH = check['changed']

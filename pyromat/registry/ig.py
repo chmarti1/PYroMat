@@ -1196,37 +1196,19 @@ The following test criteria are used:
         return result
 
 
-    def contents(self):
-        """Construct an atomic contents dictionary
-    C = contents()
-
-Returns a dictionary, C, with keywords that are elements and integer
-values representing the number of each present in the species ID.  There
-is promise that PYroMat has a data entry for each of the elements named.
-
-For example, the species ID ig.CO2 would return the dictionary
-{'C':1, 'O':2}
-
-This is entirely dissimilar from queries to the igmix class, which list
-their constituents by their species ID.  These include the collection 
-and and the chemical formula, and all constituents MUST have a valid 
-species ID.
-
-After the first call to contents(), the dictionary is stored in
-the _contents member so that subsequent calls will not result in
-redundant string parsing.  
+    def atoms(self):
+        """Return a dictionary specifying the chemical composition of the substance.
+    aa = atoms()
+    
+The dictionary keys are the symbols of atoms and their corresponding values 
+are the integer quantities in the chemical formula.  For example
+    aa = {'C':1, 'O':2}
+would represent carbon dioxide.
 """
-        if self._contents is None:
-            self._contents = {}
-            # Get the chemical formula portion of the ID
-            ID = self.data['id'].split('.')[-1]
-            for key,value in re.findall('([A-Z][a-z]*)([0-9]*)', ID):
-                if value:
-                    self._contents[str(key)] = int(value)
-                else:
-                    self._contents[str(key)] = 1
-                
-        return self._contents
+        aa = self.data.get('atoms')
+        if aa is None:
+            raise pm.utility.PMDataError('The substance does not have atomic composition data: ' + self.data['id'])
+        return aa.copy()
 
 
 

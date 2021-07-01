@@ -6,9 +6,9 @@
 7) Improve in-line documentation
 8) Improve the info() function.. add some kind of searching algorithm
 9) more refrigerants
-10) improve igmix capabilities
+
 11) add dynamic ig mixture support
 12) add properties (e.g. speed of sound, gibbs free energy)
-13) add more inverse routines (e.g. p_s)
+
 14) add "name" and description meta data elements
 
