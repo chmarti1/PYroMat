@@ -91,12 +91,11 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 
 ## Version 2.0.12
 - Corrected data error in CO2 that caused errors near the saturation curve
-- Added support for specifying T,p, and x simultaneously; p is ignored unless x<0
+- Added support for specifying T,p, and x simultaneously; p is ignored unless x is less than 0
 - Added the aps module with support for calculating the performance of thermodynamic cycles
 
 ## Version 2.0.13
-- Transitioned to the _hybrid1() inversion algorithm for mp1's T_s and T_h algorithms
-
+- Transitioned to the `_hybrid1()` inversion algorithm for mp1's `T_s` and `T_h` algorithms
 
 ## Version 2.1.0
 - Completed total transition and validation to `_hybrid1()` in the `mp1` class
@@ -106,3 +105,8 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 - Added filtering capabilities to `info()`
 - Added `atom()` to all classes to retrieve atomic composition data.
 - Updated the `dat.updatefiles()` function to correct bugs in Python 3.
+- Changed `PMConfigEntry.apply_default()` to `restore_default()`
+- Changed `PMConfig.write()` algorithm to deal more gracefully with appendable entries
+- Added function type 0 to `mp1._satfit` for future melting line support.
+- Added `mp.N2` and `mp.CH4` multiphase models.
+- Added `R()` and `mw()` to the `mp1` class.

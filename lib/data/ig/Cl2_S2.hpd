@@ -1,0 +1,70 @@
+{
+  "atoms": {
+    "Cl": 2,
+    "S": 2
+  },
+  "id": "ig.Cl2S2",
+  "mw": 135.036,
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:30:16 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10025-67-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "Tlim": [
+    1000.0,
+    1500.0
+  ],
+  "C": [
+    [
+      76.499,
+      15.01043,
+      -8.794643,
+      1.471627,
+      -0.66344,
+      -42.37262,
+      411.9324,
+      -16.736
+    ]
+  ],
+  "TAB": [
+    [
+      1000.0,
+      83.52,
+      423.4,
+      366.9,
+      56.47
+    ],
+    [
+      1100.0,
+      83.78,
+      431.3,
+      372.4,
+      64.83
+    ],
+    [
+      1200.0,
+      83.93,
+      438.6,
+      377.6,
+      73.22
+    ],
+    [
+      1300.0,
+      83.99,
+      445.4,
+      382.6,
+      81.62
+    ],
+    [
+      1400.0,
+      83.98,
+      451.6,
+      387.3,
+      90.02
+    ],
+    [
+      1500.0,
+      83.9,
+      457.4,
+      391.8,
+      98.41
+    ]
+  ],
+  "class": "ig"
+}

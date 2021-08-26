@@ -4,7 +4,7 @@ Installation file for PYro
 Chris Martin (c) 2016,2018
 """
 
-from setuptools import setup
+import setuptools
 import os
 
 # Where is the installation?
@@ -24,13 +24,16 @@ def get_version():
                 break
     return localtemp[lookfor]
 
+# Load the README for the long description
+with open('./README.md', 'r') as ff:
+    readme = ff.read()
 
-setup(
+setuptools.setup(
     name='PYroMat',
     version=get_version(),
     description="Thermodynamic properties in Python.",
-    long_description=\
-"""PYroMat provides a Python interface for thermo-physical properties for over 900 species. Visit the PYroMat homepage for more documentation, installation options, and more (http://pyromat.org).""",
+    long_description=readme,
+    long_description_content_type = "text/markdown",
     author="Chris Martin",
     author_email="crm28@psu.edu",
     url="http://pyromat.org",
@@ -48,11 +51,11 @@ setup(
         'Programming Language :: Python :: 3'],
     license = 'GNU General Public License v3 (GPLv3)',
     keywords = 'thermodynamic properties',
-    packages=['pyromat'],
-    package_dir={'pyromat':install_from},
-    package_data={'':['data/mp/*.hpd', 'data/ig/*.hpd','data/ig2/*.hpd','registry/*.py','aps/*.py']},
-    data_files=[('.',[  'README.md', 'CHANGELOG.md', 'LICENSE.txt',
-                        'test.py'])],
+    packages=setuptools.find_packages(where=install_from),
+    package_dir={'':install_from},
+    py_modules=['dat', 'reg', 'utility', 'units'],
+    package_data={'':['config.py', 'data/mp/*.hpd', 'data/ig/*.hpd','data/ig2/*.hpd','registry/*.py','aps/*.py']},
+    license_files=['LICENSE.txt'],
     install_requires=['numpy>=1.7'],
     provides=['pyromat']
     )

@@ -16,32 +16,19 @@ If you are upgrading, you can always use
 $ pip install pyromat --upgrade
 ```
 
-## Manual Installation
-If you want to install from the GitHub distribution, navigate into the root distribution directory.  Execute the command as an administrator
-```
-$ python setup.py install
-```
-See the introduction of the documentation for more information!
-
-## Configuration
-See `defaults.py` for a heavily commented example of a configuration file.
-
-See the configuration chapter of the documentation for detailed descriptions of each parameter.
-
 ## Getting started
 ```python
 >>> import pyromat as pm
 >>> O2 = pm.get('ig.O2')
 >>> h = O2.h(492,1.01)  # enthalpy at 492K, 1.01bar
 >>> pm.info('O2')     # where did these data come from?
->>> dir(O2)             # what other methods are available?
->>> pm.info()         # what other species are available? (lots)
+>>> pm.config['unit_pressure'] = 'psi'  # Don't like working in bar?
 ```
 
 Happy calculating!
 
 ## License
-Copyright (c) 2018 Christopher R. Martin
+Copyright (c) 2015-2021 Christopher R. Martin
 
 PYroMat is released under the GNU [General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0.en.html).
 
