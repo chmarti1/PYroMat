@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 """
-Installation file for PYro
-Chris Martin (c) 2016,2018
+Installation file for PYroMat
+Chris Martin (c) 2016,2018,2021
 """
 
 import setuptools
 import os
 
 # Where is the installation?
-install_from = 'lib'
+install_from = 'src'
 # Where is the master __init__ file?
-install_init = os.path.join(install_from, '__init__.py')
+install_init = 'src/pyromat/__init__.py'
 
 
 # scans __init__.py for the __version__ string
@@ -54,7 +54,7 @@ setuptools.setup(
     packages=setuptools.find_packages(where=install_from),
     package_dir={'':install_from},
     py_modules=['dat', 'reg', 'utility', 'units'],
-    package_data={'':['config.py', 'data/mp/*.hpd', 'data/ig/*.hpd','data/ig2/*.hpd','registry/*.py','aps/*.py']},
+    package_data={'pyromat':['config.py', 'data/mp/*.hpd', 'data/ig/*.hpd','data/ig2/*.hpd','registry/*.py','aps/*.py']},
     license_files=['LICENSE.txt'],
     install_requires=['numpy>=1.7'],
     provides=['pyromat']

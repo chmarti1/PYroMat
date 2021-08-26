@@ -1,0 +1,65 @@
+Metadata-Version: 2.1
+Name: PYroMat
+Version: 2.1.0
+Summary: Thermodynamic properties in Python.
+Home-page: http://pyromat.org
+Author: Chris Martin
+Author-email: crm28@psu.edu
+License: GNU General Public License v3 (GPLv3)
+Keywords: thermodynamic properties
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Education
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: Intended Audience :: Manufacturing
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering :: Physics
+Classifier: Topic :: Scientific/Engineering :: Chemistry
+Classifier: Topic :: Scientific/Engineering :: Atmospheric Science
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 3
+Provides: pyromat
+Description-Content-Type: text/markdown
+License-File: LICENSE.txt
+
+# PYroMat
+
+Thermodynamic tools for Python
+
+By Chris Martin [crm28@psu.edu](mailto:crm28@psu.edu)
+
+PYroMat is a flexible platform for conveniently working with thermodynamic data.  The expanding collection of substances includes data for the properties people need most, exposed in an intuitively designed object interface [Come read more.](pyromat.org)
+
+## Installation from the Python Package Index
+If you have pip installed, you can install PYroMat with a single command.
+```
+$ pip install pyromat 
+```
+If you are upgrading, you can always use
+```
+$ pip install pyromat --upgrade
+```
+
+## Getting started
+```python
+>>> import pyromat as pm
+>>> O2 = pm.get('ig.O2')
+>>> h = O2.h(492,1.01)  # enthalpy at 492K, 1.01bar
+>>> pm.info('O2')     # where did these data come from?
+>>> pm.config['unit_pressure'] = 'psi'  # Don't like working in bar?
+```
+
+Happy calculating!
+
+## License
+Copyright (c) 2015-2021 Christopher R. Martin
+
+PYroMat is released under the GNU [General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0.en.html).
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+
+
