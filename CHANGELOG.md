@@ -110,3 +110,4 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 - Added function type 0 to `mp1._satfit` for future melting line support.
 - Added `mp.N2` and `mp.CH4` multiphase models.
 - Added `R()` and `mw()` to the `mp1` class.
+- Adjusted all multi-phase R-values to agree with Ru / mw to numerical (double) precision.  For most properties, the change will not be noticeable, but it brings some into better agreement with published values.  In all cases, the change is on the order .01% or smaller.
