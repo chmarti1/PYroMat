@@ -19,7 +19,7 @@ def get_version():
     localtemp = {lookfor:'0.0'}
     with open(install_init,'r') as init_file:
         for line in init_file:
-            if line[:len(lookfor)] == lookfor:
+            if line.startswith(lookfor):
                 exec(line, {}, localtemp)
                 break
     return localtemp[lookfor]
@@ -51,8 +51,8 @@ setuptools.setup(
         'Programming Language :: Python :: 3'],
     license = 'GNU General Public License v3 (GPLv3)',
     keywords = 'thermodynamic properties',
-    packages=setuptools.find_packages(where=install_from),
-    package_dir={'':install_from},
+    packages=['pyromat'],
+    package_dir={'':'src'},
     py_modules=['dat', 'reg', 'utility', 'units'],
     package_data={'pyromat':['config.py', 'data/mp/*.hpd', 'data/ig/*.hpd','data/ig2/*.hpd','registry/*.py','aps/*.py']},
     license_files=['LICENSE.txt'],

@@ -5,13 +5,13 @@
     "N": 2
   },
   "doc": "Roland Spand, Eric Lemon, Richard Jacobsen, Wolfgang Wagner, Akimichi Yokozeki, \"Reference Equation of State for Thermodynamic Properties of Nitrogen for Temperatures from 63.151 to 1000 K and Pressures to 2200 MPa,\" Journal of Physical and Chemical Reference Data v29, pp1361, 2000. doi:10.1063/1.1349047",
-  "mw": 28.0134,
-  "dc": 313.3,
+  "mw": 28.01348,
+  "dc": 313.299958972,
   "Tc": 126.192,
   "pc": 3395800.0,
   "Tt": 63.151,
   "pt": 12523.0,
-  "R": 296.80474344420884,
+  "R": 296.80220444419047,
   "Tlim": [
     63.151,
     1000.0
@@ -54,7 +54,7 @@
   "DSLgroup": {
     "fn": 2,
     "Tscale": 126.192,
-    "dscale": 313.3,
+    "dscale": 313.299958972,
     "coef": [
       [
         0.3294,
@@ -85,7 +85,7 @@
   "DSVgroup": {
     "fn": 3,
     "Tscale": 126.192,
-    "dscale": 313.3,
+    "dscale": 313.299958972,
     "coef": [
       [
         0.34,
@@ -119,7 +119,7 @@
   },
   "AOgroup": {
     "Tscale": 126.192,
-    "dscale": 313.3,
+    "dscale": 313.299958972,
     "logt": 2.5,
     "coef0": [
       [
@@ -156,7 +156,7 @@
   },
   "ARgroup": {
     "Tscale": 126.192,
-    "dscale": 313.3,
+    "dscale": 313.299958972,
     "coef0": [
       [
         [

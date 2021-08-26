@@ -1,5 +1,5 @@
-include lib/*.py
-exclude lib/solve.py
-recursive-include lib/data *.hpd
-recursive-include lib/registry *.py
+include src/pyromat/*.py
+exclude src/pyromat/solve.py
+recursive-include src/pyromat/data *.hpd
+recursive-include src/pyromat/registry *.py
 include CHANGELOG.md

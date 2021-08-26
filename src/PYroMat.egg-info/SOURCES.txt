@@ -12,7 +12,6 @@ src/pyromat/__init__.py
 src/pyromat/config.py
 src/pyromat/dat.py
 src/pyromat/reg.py
-src/pyromat/solve.py
 src/pyromat/units.py
 src/pyromat/utility.py
 src/pyromat/aps/__init__.py
@@ -1202,6 +1201,9 @@ src/pyromat/data/ig2/Zr_N.hpd
 src/pyromat/data/ig2/Zr_O.hpd
 src/pyromat/data/ig2/Zr_O2.hpd
 src/pyromat/data/ig2/e.hpd
+src/pyromat/data/igmix/air.hpd
+src/pyromat/data/igmix/f5.hpd
+src/pyromat/data/igmix/h35.hpd
 src/pyromat/data/mp/C2_H2_F4.hpd
 src/pyromat/data/mp/C_H4.hpd
 src/pyromat/data/mp/C_O2.hpd

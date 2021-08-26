@@ -2639,17 +2639,19 @@ Returns the molecular weight of the substance in
 Returns the ideal gas constant in
     [unit_energy / unit_matter / unit_temperature]
     
-The mp1 data set includes a values for R lifted from the original data set, 
-but R() calculates a value from the units module's value of Ru (derived from
-the Boltzmann constant) and the substance's molecular weight.  These values
-should be consistent, but the latter will probably have more significant 
-figures.
+The mp1 data set includes a values for R lifted from the original data set.
+The gas constant can be independently calculated from the universal gas 
+constant or more precisely from the Boltzmann constant.  
+    R = Ru / mw         # mw = molecular weight
+        OR
+    R = k * Na / mw     # Na = avagadro's number
+    
+The value returned by R is based on the value stored in the species data,
+from which all other properties are constructed.
 """
-        # Calculate R in kJ/kg/K
-        mw = self.data['mw']
-        R = pm.units.const_Ru / mw
-        R = pm.units.energy(R, from_units = 'kJ')
-        R = pm.units.matter(mw, R, from_units='kg', exponent=-1)
+        # R is stored in in J/kg/K
+        R = pm.units.energy(self.data['R'], from_units = 'J')
+        R = pm.units.matter(R, self.data['mw'], from_units='kg', exponent=-1)
         R = pm.units.temperature(R, from_units='K', exponent=-1)
         return R
         
