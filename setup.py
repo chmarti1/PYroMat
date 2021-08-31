@@ -54,7 +54,7 @@ setuptools.setup(
     packages=['pyromat'],
     package_dir={'':'src'},
     py_modules=['dat', 'reg', 'utility', 'units'],
-    package_data={'pyromat':['config.py', 'data/mp/*.hpd', 'data/ig/*.hpd','data/ig2/*.hpd','registry/*.py','aps/*.py']},
+    package_data={'pyromat':['config.py', 'data/mp/*.hpd', 'data/ig/*.hpd','data/ig2/*.hpd','data/igmix/*.hpd','registry/*.py','aps/*.py']},
     license_files=['LICENSE.txt'],
     install_requires=['numpy>=1.7'],
     provides=['pyromat']
