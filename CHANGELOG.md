@@ -114,3 +114,6 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 
 ## Version 2.1.1
 - Corrected a bug in `setup.py` that prevented the ideal gas mixture data from being installed correctly.  
+
+## Version 2.2.2
+- Corrected a bug in `mp1.T_s` and `mp1.T_h` that caused a crash when calculating quality of arrays in isobaric mode.

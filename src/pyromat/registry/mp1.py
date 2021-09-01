@@ -3268,6 +3268,11 @@ along with temperature.
             Ta = np.empty_like(s, dtype=float)
             Tb = np.empty_like(s, dtype=float)
             Tsat = np.empty_like(s, dtype=float)
+            # It's tempting not to define these as full-sized arrays, but
+            # They need to be down-selected for points under the dome to 
+            # calculate quality.
+            ssL = np.empty_like(s, dtype=float)
+            ssV = np.empty_like(s, dtype=float)
             
             # Start with super-critical and sub-triple points
             I = np.logical_or(p >= self.data['pc'], p<=self.data['pt'])
@@ -3279,30 +3284,27 @@ along with temperature.
             if I.any():
                 # Get the saturation temperatures
                 Tsat[I] = self._Ts(p[I])
-                # And densities (use ssL and ssV as temporaries)
-                ssL = self._dsl(Tsat[I],0)[0]
-                ssV = self._dsv(Tsat[I],0)[0]
                 # finally, get the saturation entropies
-                ssL = self._s(Tsat[I],ssL,0)[0]
-                ssV = self._s(Tsat[I],ssV,0)[0]
+                ssL[I] = self._s(Tsat[I], self._dsl(Tsat[I],0)[0] ,0)[0]
+                ssV[I] = self._s(Tsat[I], self._dsv(Tsat[I],0)[0] ,0)[0]
 
                 # Isolate points that are liquid
-                Isat[I] = s[I] < ssL
+                Isat[I] = s[I] < ssL[I]
                 Ta[Isat] = self.data['Tlim'][0]
                 Tb[Isat] = Tsat[Isat]*(1-1e-6)
                 
                 # Isolate points that are vapor
-                Isat[I] = s[I] > ssV
+                Isat[I] = s[I] > ssV[I]
                 Ta[Isat] = Tsat[Isat]*(1+1e-6)
                 Tb[Isat] = self.data['Tlim'][1]
 
                 # Finally, isolate points that are saturated
-                Isat[I] = np.logical_and( s[I]<=ssV, s[I]>=ssL )
+                Isat[I] = np.logical_and( s[I]<=ssV[I], s[I]>=ssL[I] )
                 Ta[Isat] = Tsat[Isat]
                 Tb[Isat] = Tsat[Isat]
                 T[Isat] = Tsat[Isat]
                 if quality:
-                    x[Isat] = (s[Isat] - ssL)/(ssV-ssL)
+                    x[Isat] = (s[Isat] - ssL[Isat])/(ssV[Isat]-ssL[Isat])
 
             # Isat is now a down-select array
             Isat = np.logical_not(Isat)
@@ -3563,6 +3565,11 @@ along with temperature.
             Ta = np.empty_like(h, dtype=float)
             Tb = np.empty_like(h, dtype=float)
             Tsat = np.empty_like(h, dtype=float)
+            # It's tempting not to define these as full-sized arrays, but
+            # They need to be down-selected for points under the dome to 
+            # calculate quality.
+            hsL = np.empty_like(h, dtype=float)
+            hsV = np.empty_like(h, dtype=float)
             
             # Start with super-critical and sub-triple points
             I = np.logical_or(p >= self.data['pc'], p<=self.data['pt'])
@@ -3574,30 +3581,27 @@ along with temperature.
             if I.any():
                 # Get the saturation temperatures
                 Tsat[I] = self._Ts(p[I])
-                # And densities (use ssL and ssV as temporaries)
-                hsL = self._dsl(Tsat[I],0)[0]
-                hsV = self._dsv(Tsat[I],0)[0]
-                # finally, get the saturation entropies
-                hsL = self._h(Tsat[I],hsL,0)[0]
-                hsV = self._h(Tsat[I],hsV,0)[0]
+                # finally, get the saturation enthalpies
+                hsL[I] = self._h(Tsat[I], self._dsl(Tsat[I],0)[0] ,0)[0]
+                hsV[I] = self._h(Tsat[I], self._dsv(Tsat[I],0)[0] ,0)[0]
 
                 # Isolate points that are liquid
-                Isat[I] = h[I] < hsL
+                Isat[I] = h[I] < hsL[I]
                 Ta[Isat] = self.data['Tlim'][0]
                 Tb[Isat] = Tsat[Isat]*(1-1e-6)
                 
                 # Isolate points that are vapor
-                Isat[I] = h[I] > hsV
+                Isat[I] = h[I] > hsV[I]
                 Ta[Isat] = Tsat[Isat]*(1+1e-6)
                 Tb[Isat] = self.data['Tlim'][1]
 
                 # Finally, isolate points that are saturated
-                Isat[I] = np.logical_and( h[I]<=hsV, h[I]>=hsL )
+                Isat[I] = np.logical_and( h[I]<=hsV[I], h[I]>=hsL[I] )
                 Ta[Isat] = Tsat[Isat]
                 Tb[Isat] = Tsat[Isat]
                 T[Isat] = Tsat[Isat]
                 if quality:
-                    x[Isat] = (h[Isat] - hsL)/(hsV-hsL)
+                    x[Isat] = (h[Isat] - hsL[Isat])/(hsV[Isat]-hsL[Isat])
 
             # Isat is now a down-select array
             Isat = np.logical_not(Isat)
