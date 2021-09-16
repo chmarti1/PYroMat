@@ -818,7 +818,7 @@ Returns in      [unit_energy / unit_matter / unit_temperature]
 
         # Prep temperature and the result arrays
         T,p = self._argparse(*varg, temperature=True, pressure=True, **kwarg)
-        out = self._s(T,p)[0] - pm.units.const_Ru * np.log(p/self.data['pref'])
+        out = self._s(T)[0] - pm.units.const_Ru * np.log(p/self.data['pref'])
         pm.units.energy(out, from_units='kJ', inplace=True)
         pm.units.matter(out, self.data['mw'], exponent=-1, from_units='kmol', inplace=True)
         pm.units.temperature(out, from_units='K', exponent=-1, inplace=True)
