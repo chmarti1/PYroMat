@@ -912,7 +912,7 @@ Returns dimensionless
 """
         # Prep temperature and the result arrays
         T = self._argparse(*varg, temperature=True, **kwarg)
-        out = self._cp(T)[0]
+        out = self._cp(T)
         out = out / (out - pm.units.const_Ru)
         return out
 

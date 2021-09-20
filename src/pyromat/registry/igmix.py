@@ -58,7 +58,7 @@ documentation using Python's built-in "help()" function.
         # Initialize the bootstrap flag
         # Initialization has to be split into two phases.  Calculation
         # of mean mixture properties cannot be completed until all other
-        # members of the collection have been loaded.  The _bootsrap()
+        # members of the collection have been loaded.  The _bootstrap()
         # method is responsible for completing the process, and the _bs
         # flag indicates whether it has already been completed.
         self._bs = False
@@ -80,7 +80,7 @@ documentation using Python's built-in "help()" function.
         """Calculates internal parameters that are essential for the property functions
 This operation cannot be completed by __init__ at load time because 
 there is no no way to ensure that all of the constituent species have
-already been loaded.  Instead, _boostrap() is called by the property
+already been loaded.  Instead, _bootstrap() is called by the property
 methods to be certain the relevant parameters have been calculated.  If
 the _bs member flag has already been set, this method returns 
 immediately.
@@ -363,7 +363,7 @@ T must be a numpy array in Kelvin
         # routines.  They use molar units by default.
         for ss,x in self._x.items():
             # Retrieve the species
-            out += x * pm.dat.data[ss]._cp(T)[0]
+            out += x * pm.dat.data[ss]._cp(T)
             
         return out
         
@@ -543,7 +543,7 @@ Accepts:    Temperature [unit_temperature]
             Density     [unit_matter / unit_volume]
 Returns:    Spec. Heat  [unit_energy / unit_temperature / unit_matter]
 """
-        self._boostrap()
+        self._bootstrap()
         # Parse the arguments to isolate temperature in K
         T = self._argparse(*varg, temperature=True, **kwarg)
 
@@ -556,7 +556,7 @@ Returns:    Spec. Heat  [unit_energy / unit_temperature / unit_matter]
         return out
 
 
-    def cv(self,T=None,p=None):
+    def cv(self,*varg,**kwarg):
         """Constant-volume specific heat
     cp(T)
         OR
@@ -572,7 +572,7 @@ Accepts:    Temperature [unit_temperature]
             Density     [unit_matter / unit_volume]
 Returns:    Spec. Heat  [unit_energy / unit_temperature / unit_matter]
 """
-        self._boostrap()
+        self._bootstrap()
         # Parse the arguments to isolate temperature in K
         T = self._argparse(*varg, temperature=True, **kwarg)
         
@@ -582,6 +582,7 @@ Returns:    Spec. Heat  [unit_energy / unit_temperature / unit_matter]
         pm.units.energy(out, from_units='kJ', inplace=True)
         pm.units.matter(out, self._mw, from_units='kmol', inplace=True, exponent=-1)
         pm.units.temperature(out, from_units='K', inplace=True, exponent=-1)
+        return out
 
 
     def h(self,*varg, **kwarg):
@@ -702,8 +703,8 @@ Accepts:    Temperature [unit_temperature]
             Density     [unit_matter / unit_volume]
 Returns:    Gamma       [d-less]
 """
-        self._bootsrap()
-        T,p = self._argparse(*varg, temperature=True, **kwarg)
+        self._bootstrap()
+        T = self._argparse(*varg, temperature=True, **kwarg)
         out = self._cp(T)
         return out / (out - pm.units.const_Ru)
 

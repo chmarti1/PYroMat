@@ -98,12 +98,12 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 - Transitioned to the `_hybrid1()` inversion algorithm for mp1's `T_s` and `T_h` algorithms
 
 ## Version 2.1.0
-- Completed total transition and validation to `_hybrid1()` in the `mp1` class  
+- Completed total transition to and validation of `_hybrid1()` in the `mp1` class  
 - Added `d_s()` to the `mp1` class  
 - Standardized `igmix`, `ig`, and `ig2` classes to use the same argument parsing rules  
 - Standardized `igmix`, `ig`, and `ig2` inverse property routines `T_s`, `T_h`, `p_s`.  
 - Added filtering capabilities to `info()`  
-- Added `atom()` to all classes to retrieve atomic composition data.  
+- Added `atoms()` to all classes to retrieve atomic composition data.  
 - Updated the `dat.updatefiles()` function to correct bugs in Python 3.  
 - Changed `PMConfigEntry.apply_default()` to `restore_default()`  
 - Changed `PMConfig.write()` algorithm to deal more gracefully with appendable entries.  
@@ -115,5 +115,12 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 ## Version 2.1.1
 - Corrected a bug in `setup.py` that prevented the ideal gas mixture data from being installed correctly.  
 
-## Version 2.2.2
+## Version 2.1.2
 - Corrected a bug in `mp1.T_s` and `mp1.T_h` that caused a crash when calculating quality of arrays in isobaric mode.
+
+## Version 2.1.3
+- Corrected a bug in `ig2.s` that caused a crash with pressure arrays
+
+## Version 2.1.4
+- Corrected keystroke errors in `igmix` methods
+- Corrected a bug in `igmix` and `ig2` that caused incorrect values when working with arrays in `cp` and `gam`
