@@ -3452,17 +3452,17 @@ with pressure.
             ssV[I] = self._s(T[I], db[I])[0]
 
             # Start with liquid points.
-            Isat[I] = s[I] < ssL
+            Isat[I] = s[I] < ssL[I]
             #da[I] = da[I]  # the lower bound is already correct; sat.liq.
             db[Isat] = self.data['dlim'][1]
 
             # Now, move on to vapor points
-            Isat[I] = s[I] > ssV
+            Isat[I] = s[I] > ssV[I]
             da[Isat] = self.data['dlim'][0]
             #db[I] = db[I]  # the upper bound is already correct; sat.vap.
 
             # Finally, deal with points that are saturated
-            Isat[I] = np.logical_and(ssL <= s[I], s[I] <= ssV)
+            Isat[I] = np.logical_and(ssL[I] <= s[I], s[I] <= ssV[I])
             # Isat now indicates the saturated points
             # We already know the solution there; no iteraiton needed
             x[Isat] = (s[Isat]-ssL[Isat])/(ssV[Isat]-ssL[Isat])
@@ -3477,7 +3477,7 @@ with pressure.
         I = (da == 0.)
         if I.any() and Isat.any():
             # Adjust the density a bit
-            da[I] = np.full_like(s, .9999 * self.data['dlim'][0] + .0001 * self.data['dlim'][1], dtype=float)
+            da[I] = np.full_like(s, .9999 * self.data['dlim'][0] + .0001 * self.data['dlim'][1], dtype=float)[I]
             # calculate the entropy at the minimum and test to ensure inclusion
             s_ = self._s(T=T[I],d=da[I])[0]
             I[I] = s_ < s[I]
