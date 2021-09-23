@@ -124,3 +124,6 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 ## Version 2.1.4
 - Corrected keystroke errors in `igmix` methods
 - Corrected a bug in `igmix` and `ig2` that caused incorrect values when working with arrays in `cp` and `gam`
+
+## Version 2.1.5
+- Corrected a bug in `mp1.d_s()` that caused crashes above the critical point
