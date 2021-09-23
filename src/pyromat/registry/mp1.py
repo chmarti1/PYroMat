@@ -2197,10 +2197,10 @@ other conditions, x<0 and d1 == d2.
         # There is ONE special case when three parameters are allowed
         # T,p,x is a special case - NO D!
         elif nparam == 3 and d is not None:
-            raise utility.PMPParameterError(
+            raise pm.utility.PMPParameterError(
                     'Density may not be specified simultaneously with two other properties.')
         elif nparam > 3:
-            raise utility.PMParameterError(
+            raise pm.utility.PMParameterError(
                     'Specifying more than two simultaneous parameters is illegal (except for T,p,x).')
 
         if T is not None:
