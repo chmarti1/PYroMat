@@ -1181,6 +1181,10 @@ param       A dicitonary of keyword arguments are passed directly to the
                 print(xmin, xmax, xa, xb, xc)
                 print(" y")
                 print(y)
+                print("Iswap")
+                print(Iswap)
+                print("yb")
+                print(yy)
             pm.utility.print_error('_HYBRID1: Failure to bracket a solution. Check function arguments to be sure they reference a valid state. This error usually occurs in inversion routines very close to the saturation line or if the properties are out-of-range.')
             raise pm.utility.PMParamError('_HYBRID1: At least one max/min value does not bracket a solution!')
         
@@ -2047,7 +2051,7 @@ inverted to calculate T
         # Separate out sub-critical and super-critical values for 
         # initial conditions.  For pressures that are super-critical, 
         # use the extreme temperature limits of the data set.
-        Itest = np.logical_and(p>=self.data['pc'], I)
+        Itest = np.asarray(p>=self.data['pc'], dtype=bool)
         Ta[Itest] = self.data['Tlim'][0]
         Tb[Itest] = self.data['Tlim'][1]
         T[Itest] = 0.5*(self.data['Tlim'][0] + self.data['Tlim'][1])
@@ -2096,6 +2100,7 @@ inverted to calculate T
             # Eliminate these from the down-select array - no iteraiton required.
             I[Isat] = False
         
+        print(Ta, Tb, d)
         self._hybrid1(
                 self._p,
                 'T',
@@ -2104,7 +2109,7 @@ inverted to calculate T
                 I,
                 Ta,
                 Tb,
-                param={'d':d})
+                param={'d':d}, verbose=True)
         
         if sat:
             return T, dsL, dsV, Isat
