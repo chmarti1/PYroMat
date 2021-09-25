@@ -127,3 +127,6 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 
 ## Version 2.1.5
 - Corrected a bug in `mp1.d_s()` that caused crashes above the critical point
+
+## Version 2.1.6
+- Moved `mp1.T()` to use `_tditer()` to address bracketing errors at super-critical states.
