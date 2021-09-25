@@ -2100,16 +2100,15 @@ inverted to calculate T
             # Eliminate these from the down-select array - no iteraiton required.
             I[Isat] = False
         
-        print(Ta, Tb, d)
         self._hybrid1(
-                self._p,
+                self._tditer,
                 'T',
                 p,
                 T,
                 I,
                 Ta,
                 Tb,
-                param={'d':d}, verbose=True)
+                param={'fn':self._p, 'd':d}, verbose=True)
         
         if sat:
             return T, dsL, dsV, Isat
