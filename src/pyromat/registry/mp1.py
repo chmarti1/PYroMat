@@ -2108,7 +2108,7 @@ inverted to calculate T
                 I,
                 Ta,
                 Tb,
-                param={'fn':self._p, 'd':d}, verbose=True)
+                param={'fn':self._p, 'd':d})
         
         if sat:
             return T, dsL, dsV, Isat
