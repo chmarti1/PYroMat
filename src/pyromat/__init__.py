@@ -40,7 +40,11 @@ To search for species, see the info() funciton's other features
 # utility.load_config() checks this value to establish the read-only version
 # setup.py looks for this line to establish the version
 # MUST be unindented
+<<<<<<< HEAD
 __version__ = "2.1.6"
+=======
+__version__ = "2.1.7"
+>>>>>>> alpha
 
 
 # loading the PYroMat utility functions
