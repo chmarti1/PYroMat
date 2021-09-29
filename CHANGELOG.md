@@ -130,3 +130,9 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 
 ## Version 2.1.6
 - Moved `mp1.T()` to use `_tditer()` to address bracketing errors at super-critical states.
+
+## Version 2.1.7
+- Suppressed accidental verbose output in `mp1._T()`
+
+## Version 2.1.8
+- Improved convergence performance of `mp1.d()` very close to the phase transition.  Opened the bracketing interval by 1% to compensate for small numerical errors.

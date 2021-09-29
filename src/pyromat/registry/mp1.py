@@ -1978,17 +1978,15 @@ T and p MUST be ndarrays
             da[Istate] = 0.5 * p[Istate] / (self.data['R'] * T[Istate])
             db[Istate] = self._dsv(T[Istate], 0)[0]
             #d[Istate] = db[Istate] - da[Istate]
-            # Move the saturation bounds by 5%
-            db[Istate] += .05 * d[Istate]
-            d[Istate] = 0.5*d[Istate] + da[Istate]
+            # Move the saturation bounds by 1%
+            db[Istate] *= 1.01
             # Now, isolate the liquid points; set the lower density to the
             # saturated liquid density
             Istate[Itest] = np.logical_not(Istate[Itest])
             da[Istate] = self._dsl(T[Istate], 0)[0]
             db[Istate] = self.data['dlim'][1]
-            d[Istate] = db[Istate] - da[Istate]
-            da[Istate] -= .05*d[Istate]
-            d[Istate] = db[Istate] - 0.5*d[Istate]
+            # Reduce the lower density by 1%
+            da[Istate] *= 0.99
         
         # perform the iteration
         #self._iter1(
@@ -2073,19 +2071,15 @@ inverted to calculate T
             # Shift the saturation temperature to Tb
             Tb[Isat] = Ta[Isat]
             Ta[Isat] = self.data['Tlim'][0]
-            T[Isat] = Tb[Isat] - Ta[Isat]
-            # Grow the boundary by 5%
-            Tb[Isat] += 0.05*T[Isat]
-            T[Isat] = Ta[Isat] + 0.5*T[Isat]
+            # Grow the boundary by 1%
+            Tb[Isat] *= 1.01
             
             # Now, identify the vapor points
             Isat[Itest] = d[Itest] < dsV[Itest]
             # Leave Ta as the saturation temperature
             Tb[Isat] = self.data['Tlim'][1]
-            T[Isat] = Tb[Isat] - Tb[Isat]
             # Grow the boundary by 5%
-            Ta[Isat] -= 0.05*T[Isat]
-            T[Isat] = Tb[Isat] - 0.5*T[Isat]
+            Ta[Isat] *= 0.99
             
             # Now, get the saturated states
             Isat[Itest] = np.logical_and(
@@ -2094,7 +2088,7 @@ inverted to calculate T
             # We now have the solution at these points.
             # Assign the value to T
             T[Isat] = Ta[Isat]
-            # Put safe values in Ta and Tb
+            # Put safe values in Ta and Tb... just in case
             Tb[Isat] = self.data['Tlim'][1]
             Ta[Isat] = self.data['Tlim'][0]
             # Eliminate these from the down-select array - no iteraiton required.
@@ -3453,13 +3447,15 @@ with pressure.
 
             # Start with liquid points. 
             Isat[I] = s[I] < ssL[I]
-            #da[I] = da[I]  # the lower bound is already correct; sat.liq.
+            # Adjust the lower bound by 1% to account for numerical inconsistencies
+            da[Isat] *= 0.99
             db[Isat] = self.data['dlim'][1]
             
             # Now, move on to vapor points
             Isat[I] = s[I] > ssV[I]
             da[Isat] = self.data['dlim'][0]
-            #db[I] = db[I]  # the upper bound is already correct; sat.vap.
+            # Adjust the upper bound by 1% to account for numerical inconsistencies
+            db[Isat] *= 1.01
             
             # Finally, deal with points that are saturated
             Isat[I] = np.logical_and(ssL[I] <= s[I], s[I] <= ssV[I])
@@ -3476,7 +3472,8 @@ with pressure.
         # bound until the solution is bracketed
         I = (da == 0)
         if I.any() and Isat.any():
-            # Adjust the density a bit
+            # Come up with a bracketing value for density that is not zero
+            # Most data sets use the minimum density as 0, but that crashes
             da[I] = .9999 * self.data['dlim'][0] + .0001 * self.data['dlim'][1]
             # calculate the entropy at the minimum and test to ensure inclusion
             s_ = self._s(T=T[I],d=da[I])[0]
