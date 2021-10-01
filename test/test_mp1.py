@@ -463,3 +463,11 @@ def test_multi_e(water, ref_a, ref_b, ref_c, ref_d):
     assert water.e(p=p, d=d) == approx(e, abs=1e-0)
     assert water.e(T=T, d=d) == approx(e, abs=1e-0)
     assert water.e(p=np.array(p), T=np.array(T), x=np.array(x)) == approx(e, abs=1e-0)
+
+
+def test_d_s_crash(water):
+    # A documented crash condition that reaches s_ and I with different sizes
+    # within d_s
+    s = 8
+    T = [275, 335]
+    d = water.d_s(T=T, s=s)
