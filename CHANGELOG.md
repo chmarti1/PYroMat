@@ -139,3 +139,7 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 
 ## Version 2.1.9
 - Corrected an array handling bug that caused intermittent crashes in `mp1.d_s()`.
+
+## Version 2.1.10
+- Corrected a bug in `igmix.T()` that caused it to return pressure
+- Corrected a bug: `igmix._argparse()` tried to use `data['mw']` for density conversion.

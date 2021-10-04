@@ -208,7 +208,7 @@ They are always returned in the order T, p, d.
                 p = np.reshape(p,(1,))
             
         if d is not None:
-            d = pm.units.matter(np.asarray(d,dtype=float), self.data['mw'], to_units='kmol')
+            d = pm.units.matter(np.asarray(d,dtype=float), self._mw, to_units='kmol')
             pm.units.volume(d, to_units='m3', exponent=-1, inplace=True)
             if d.ndim==0:
                 d = np.reshape(d, (1,))
@@ -520,9 +520,9 @@ Accepts     Pressure     [unit_pressure]
 Returns     Temperature  [unit_temperature]
 """
         self._bootstrap()
-        p = self._argparse(*varg, pressure=True, **kwarg)
-        pm.units.pressure(p, from_units='Pa', inplace=True)
-        return p
+        T = self._argparse(*varg, temperature=True, **kwarg)
+        pm.units.temperature_scale(T, from_units='K', inplace=True)
+        return T
 
     #
     # Class property functions
