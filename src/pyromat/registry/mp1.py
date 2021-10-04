@@ -3476,17 +3476,20 @@ with pressure.
             # Most data sets use the minimum density as 0, but that crashes
             da[I] = .9999 * self.data['dlim'][0] + .0001 * self.data['dlim'][1]
             # calculate the entropy at the minimum and test to ensure inclusion
-            s_ = self._s(T=T[I],d=da[I])[0]
-            I[I] = s_ < s[I]
+            # Recycle the ssL array as a temporary for the lower-bound entropy
+            ssL[I] = self._s(T=T[I],d=da[I])[0]
+            I[I] = ssL[I] < s[I]
             count = 0
+            # Keep going as long as the lower bound entropy is less than
+            # the target entropy for any points
             while I.any():
                 # dump out if this has been going on for too long
                 count += 1
                 if count > 20:
                     raise pm.utility.PMAnalysisError('Failed to find a lower-density bound to bracket a solution.')
                 da[I] = 0.5*(self.data['dlim'][0] + da[I])
-                s_[I] = self._s(T=T[I], d=da[I])[0]
-                I[I] = s_[I] < s[I]
+                ssL[I] = self._s(T=T[I], d=da[I])[0]
+                I[I] = ssL[I] < s[I]
         
         # Now, values are actually bracketed.  Now, we can iterate.
         self._hybrid1(
