@@ -1198,7 +1198,7 @@ param       A dicitonary of keyword arguments are passed directly to the
                 Ids[bads] = np.logical_not(Ids[bads])
                 x[bads] = np.nan
                 pm.utility.print_warning(
-                    '_HYBRID1: Failure to bracket a solution for input element(s): {}. Values set to np.nan. Check function arguments to be sure they reference a valid state. This error usually occurs in inversion routines very close to the saturation line or if the properties are out-of-range.'.format(np.array(np.where(bads)).flatten()))
+                    '_HYBRID1: Failure to bracket a solution for input element(s): {}. Values set to np.nan. Check function arguments to be sure they reference a valid state. This error usually occurs in inversion routines very close to the saturation line or if the properties are out-of-range.'.format(np.flatnonzero(bads)))
 
         # Calculate the thrid candidate solution
         xc[Ids] = 0.5*(xmin[Ids] + xmax[Ids])
