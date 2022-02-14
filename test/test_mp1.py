@@ -471,3 +471,12 @@ def test_d_s_crash(water):
     s = 8
     T = [275, 335]
     d = water.d_s(T=T, s=s)
+    assert not np.isnan(d).any()
+
+
+def test_multipoint_nan_failure(water):
+    h = [4372, 4373]  # kJ/kg
+    p = 1000  # bar
+    ans = water.T_h(h=h, p=p)  # expect [1272.80748982, np.nan] as T exceeds Tmax
+    assert not np.isnan(ans[0])
+    assert np.isnan(ans[1])
