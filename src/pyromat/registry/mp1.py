@@ -3077,8 +3077,8 @@ methods independently.
             tt = Tscale / T
             dd = d2 / dscale
             a,at,ad,_,_,_ = self._ar(tt,dd,1)
-            h[I] += (dd*ad + tt*at)*x[I]
-            s[I] += (tt*at - a)*x[I]
+            h[I] += (dd[I]*ad[I] + tt[I]*at[I])*x[I]
+            s[I] += (tt[I]*at[I] - a[I])*x[I]
             # Modify density
             d1[I] = temp/d1[I] 
             d1[I] += x[I]/d2[I]
