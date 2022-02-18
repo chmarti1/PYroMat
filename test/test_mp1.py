@@ -480,3 +480,9 @@ def test_multipoint_nan_failure(water):
     ans = water.T_h(h=h, p=p)  # expect [1272.80748982, np.nan] as T exceeds Tmax
     assert not np.isnan(ans[0])
     assert np.isnan(ans[1])
+
+
+def test_error_condition(water):
+    # A documented crash condition that reaches parts of hsd with different
+    # sizes of I.
+    water.hsd(p=[1.611654e-2, 2.8095e-2], d=[999.056])
