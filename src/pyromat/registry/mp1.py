@@ -2153,9 +2153,19 @@ dL and dV are the liquid and vapor densities in kg/m3
         return T, dL, dV
         
         
-    def _argparse(self, T=None, p=None, d=None, x=None):
+    def _argparse(self, **kwarg):
         """Present a standard argument scheme for all user-layer property methods
-    T,d1,d2,x,I = _argparse(T=None, p=None, d=None, x=None)
+    T,d1,d2,x,I = _argparse( .. keyword arguments ..)
+
+Accepts keyword arguments:
+    e   internal energy - requires p, d, v, or x
+    h   enthalpy - requires p, d, v, or x
+    s   entropy - requires T, p, d, v, or x
+    T   temperature
+    p   pressure
+    d   density
+    v   specific volume
+    x   quality
 
 T the temperature array in K.
 d1 and d2 are densities in kg/m3.  If the conditions are under the dome,
@@ -2170,36 +2180,92 @@ evaluated as independent arrays.  When the conditions are under the dome
 d1 and d2 represent the liquid and vapor densities respectively.  At all 
 other conditions, x<0 and d1 == d2.
 """
-        # Case out the possible combinations
-        # There are 11 possible pairs: Unspecified, T, p, d, x
-        # 
-        # 1) Convert the inputs to an array of dimension 1 or greater
-        # 2) Convert the inputs into the correct units
-        # 3) Broadcast the arrays appropriately
-        # 4) Calculate T,d1,d2,x, and I
+        # 1) Apply defaults if there are missing arguments
+        # 2) Apply the argument rules... there are several
+        # 3) Convert the arguments to arrays with dim 1 or greater
+        # 4) convert to standard units
+        # 5) Case out the possible combinations
+        #    --> Deal with out-of-bounds here
+        # 6) Broadcast the arrays appropriately
+        # 7) Calculate T,d1,d2,x, and I
         
-        # First, assign defaults if necessary
-        # count the assigned parameters
-        nparam = ((0 if T is None else 1) + 
-                (0 if p is None else 1) + 
-                (0 if d is None else 1) + 
-                (0 if x is None else 1))
-        if nparam == 1:
-            if T is None:
-                T = pm.config['def_T']
+
+        # Count the number of arguments
+        nargs = len(kwarg)
+        # 1) Apply defaults if there are missing arguments
+        if nargs == 1:
+            if 'T' not in kwarg:
+                kwarg['T'] = pm.config['def_T']
             else:
                 p = pm.config['def_p']
-        elif nparam == 0:
+        elif nargs == 0:
             T = pm.config['def_T']
             p = pm.config['def_p']
-        # There is ONE special case when three parameters are allowed
-        # T,p,x is a special case - NO D!
-        elif nparam == 3 and d is not None:
-            raise utility.PMPParameterError(
-                    'Density may not be specified simultaneously with two other properties.')
-        elif nparam > 3:
-            raise utility.PMParameterError(
+        
+        # 2) Apply the argument rules
+        # Re-measure the number of arguments and use sets to enforce
+        # the remaining rules
+        nargs = len(kwarg)
+        args = set(kwarg.keys())
+        inverse_args = set(['e','h','s'])
+        basic_args = set(['T','d','v','x'])
+        legal_args = inverse_args + basic_args
+            
+        # 2.1: There may only be 2 arguments UNLESS the input is T,p,x
+        if nargs>2 and (args - set(['T','p','x'])):
+            raise pm.utility.PMParameterError(
                     'Specifying more than two simultaneous parameters is illegal (except for T,p,x).')
+        
+        # 2.2: All arguments must be "legal" recognized arguments
+        these_args = args - legal_args:
+        if these_args:
+            message = 'Unrecognized propert(y/ies):'
+            prefix = '  '
+            for name in these_args:
+                message += prefix + name
+                prefix = ', '
+            raise pm.utility.PMParameterError(message)
+        
+        # 2.4: Density and specific volume cannot be specified together
+        if 'd' in args and 'v' in args:
+            raise pm.utility.PMParameterError('Density (d) and specific volume (v) cannot be specified together.')
+        
+        # 3) Convert all arguments to numpy arrays
+        for name,value in kwarg.items():
+            value = np.asarray(value, dtype=float)
+            if value.ndim == 0:
+                value = np.reshape(value, (1,))
+            kwarg[name] = value
+            
+        # 4) Convert the units appropriately
+        if 'T' in kwarg:
+            kwarg['T'] = pm.units.temperature_scale(kwarg['T'], to_units='K')
+        if 'p' in kwarg:
+            kwarg['p'] = pm.units.pressure(kwarg['p'], to_units='Pa')
+        if 'v' in kwarg:
+            value = pm.units.volume(kwarg['v'], to_units='m3')
+            kwarg['v'] = pm.units.matter(value, self.data['mw'], to_units='kg', exponent=-1)
+        if 'd' in kwarg:
+            value = pm.units.volume(kwarg['d'], to_units='m3', exponent=-1)
+            kwarg['d'] = pm.units.matter(value, self.data['mw'], to_units='kg')
+        if 'h' in kwarg:
+            value = kwarg['h']
+            value = pm.units.energy(value, to_units='J')
+            value = pm.units.matter(value, self.data['mw'], to_units='kg')
+            kwarg['h'] = value
+        if 'e'  in kwarg:
+            value = kwarg['e']
+            value = pm.units.energy(value, to_units='J')
+            value = pm.units.matter(value, self.data['mw'], to_units='kg')
+            kwarg['e'] = value
+        if 's' in kwarg:
+            value = kwarg['s']
+            value = pm.units.energy(value, to_units='J')
+            value = pm.units.matter(value, self.data['mw'], to_units='kg')
+            kwarg['s'] = value
+        if 'x' in kwarg:
+            if 
+        
         
         if T is not None:
             # Make a copy of the array only if necessary
