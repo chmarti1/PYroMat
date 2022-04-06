@@ -2181,13 +2181,18 @@ d1 and d2 represent the liquid and vapor densities respectively.  At all
 other conditions, x<0 and d1 == d2.
 """
         # 1) Apply defaults if there are missing arguments
-        # 2) Apply the argument rules... there are several
-        # 3) Convert the arguments to arrays with dim 1 or greater
-        # 4) convert to standard units
-        # 5) Case out the possible combinations
+        # 2) Apply the argument rules...
+        #   2.1: All arguments must be legal
+        #   2.2: Only 2 arguments unless T,p,x
+        #   2.3: Only 1 inverse property
+        #   2.4: d and v may not be specified together 
+        # 3) Replace specific volume with density if it appears
+        # 4) Convert the arguments to arrays with dim 1 or greater
+        # 5) convert to standard units
+        # 6) Case out the possible combinations
         #    --> Deal with out-of-bounds here
-        # 6) Broadcast the arrays appropriately
-        # 7) Calculate T,d1,d2,x, and I
+        # 7) Broadcast the arrays appropriately
+        # 8) Calculate T,d1,d2,x, and I
         
 
         # Count the number of arguments
@@ -2210,7 +2215,10 @@ other conditions, x<0 and d1 == d2.
         inverse_args = set(['e','h','s'])
         basic_args = set(['T','d','v','x'])
         legal_args = inverse_args + basic_args
-            
+        # Group the available arguments into basic and inverse sets
+        inverse_args &= args
+        basic_args &= args
+        
         # 2.1: There may only be 2 arguments UNLESS the input is T,p,x
         if nargs>2 and (args - set(['T','p','x'])):
             raise pm.utility.PMParameterError(
@@ -2226,25 +2234,41 @@ other conditions, x<0 and d1 == d2.
                 prefix = ', '
             raise pm.utility.PMParameterError(message)
         
-        # 2.4: Density and specific volume cannot be specified together
-        if 'd' in args and 'v' in args:
-            raise pm.utility.PMParameterError('Density (d) and specific volume (v) cannot be specified together.')
+        # 2.3: Only one inverse property is allowed
+        inverse_args = inverse_args.intersection(args)
+        if len(inverse_args) > 1:
+            message = 'Properties may not be specified together:'
+            prefix = ' '
+            for name in inverse_args:
+                message += prefix + named
+                prefix = ', '
+            raise pm.utility.PMParamError(message)
         
-        # 3) Convert all arguments to numpy arrays
+        # 2.4 and 3
+        if 'v' in args:
+            # 2.4: Density and specific volume cannot be specified together
+            if 'd' in args:
+                raise pm.utility.PMParameterError('Density (d) and specific volume (v) cannot be specified together.')
+
+            # 3) Add d if v is present
+            # This happens after the check for number of arguments, but d
+            # and v will now both be in the arguments
+            kwarg['d'] = 1./kwarg.pop('v')
+            args.add('d')
+            args.remove('v')
+        
+        # 4) Convert all arguments to numpy arrays
         for name,value in kwarg.items():
             value = np.asarray(value, dtype=float)
             if value.ndim == 0:
                 value = np.reshape(value, (1,))
             kwarg[name] = value
             
-        # 4) Convert the units appropriately
+        # 5) Convert the units appropriately
         if 'T' in kwarg:
             kwarg['T'] = pm.units.temperature_scale(kwarg['T'], to_units='K')
         if 'p' in kwarg:
             kwarg['p'] = pm.units.pressure(kwarg['p'], to_units='Pa')
-        if 'v' in kwarg:
-            value = pm.units.volume(kwarg['v'], to_units='m3')
-            kwarg['v'] = pm.units.matter(value, self.data['mw'], to_units='kg', exponent=-1)
         if 'd' in kwarg:
             value = pm.units.volume(kwarg['d'], to_units='m3', exponent=-1)
             kwarg['d'] = pm.units.matter(value, self.data['mw'], to_units='kg')
@@ -2263,10 +2287,32 @@ other conditions, x<0 and d1 == d2.
             value = pm.units.energy(value, to_units='J')
             value = pm.units.matter(value, self.data['mw'], to_units='kg')
             kwarg['s'] = value
-        if 'x' in kwarg:
-            if 
+        # x is dimensionless
+        # v has been replaced with d
         
+        # 5) Case out the different combinations
         
+        # If one of the arguments requires an inverse routine...
+        if inverse_args:
+            # Isolate the inverse property argument - there is only one
+            # see rule 2.3
+            invp = inverse_args.pop()
+            # There will only be one basic argument too - see rule 2.1
+            basp = basic_args.pop()
+            
+            # TP iteration
+            if basp == 'p':
+                
+            # T iteration
+            elif basp == 'd':
+                
+            # Tx iteration
+            elif basp == 'x':
+                
+            # d iteration
+            elif basp == 'T':
+                
+            
         if T is not None:
             # Make a copy of the array only if necessary
             T = pm.units.temperature_scale(
