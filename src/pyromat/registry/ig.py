@@ -3,6 +3,12 @@ import numpy as np
 import os,sys
 import re
 
+#
+# ig works in internal units
+#   Energy: kJ
+#   Matter: kmol
+#   Pressure: Pa
+#
 
 
 class ig(pm.reg.__basedata__):
@@ -52,19 +58,15 @@ documentation using Python's built-in "help()" function.
         super(self.__class__,self).__init__(*arg,**kwarg)
 
         # Important constants
-        self._pref_bar = 1.0
+        self._pref_pa = 1e5
         # Initialize the species contents dictionary
         self._contents = None
 
 
-    def _argparse(self, T=None, p=None, d=None,\
-        temperature=False, pressure=False, density=False):
+    def _argparse(self, *varg, **kwarg):
         """Parse the arguments supplied to an IG2 property method
-    T = _argparse(*varg, **kwarg)
-        OR
-    T,p,d = _argparse(*varg, **kwarg, temperature=True, pressure=True, 
-                        density=True)
-    
+    T,p,d = _argparse(*varg, **kwarg)
+
 _ARGPARSE automatically applies the default temperature and pressure,
 def_T or def_p, from the pyromat.config system to deal with unspecified
 parameters.  All inputs are re-cast as numpy arrays of at least one 
@@ -72,85 +74,241 @@ dimension and inputs are automatically converted from the configured
 user units into kJ, kmol, m^3.
 
 The returned variables are arrays of temperature, T, pressure, p, and 
-the density, d.  The optional keywords TEMPERATURE, PRESSURE, and 
-DENSITY are used to indicate which state variables should be returned.
-They are always returned in the order T, p, d.  
+the density, d.  Temperature will always be returned, and at least one
+of p and d will be populated as well, but one of them may be None.  
+_argparse decides which to populate based on what is most efficient.
 """
-        nparam = ((0 if T is None else 1) + 
-                (0 if p is None else 1) + 
-                (0 if d is None else 1))
-                
-        if nparam == 1:
-            if T is None:
-                T = pm.config['def_T']
+        # 1) Handle varg and kward and their defaults
+        # 2) Apply the argument rules...
+        #   2.1: All arguments must be legal
+        #   2.2: Only 2 arguments
+        #   2.3: Only 1 inverse property
+        #   2.4: d and v may not be specified together 
+        # 3) Convert the arguments to arrays with dim 1 or greater
+        # 4) Convert to standard units
+        # 5) Check for out-of-bounds on basic arguments
+        # 6) Replace specific volume with density if it appears
+        # 7) Case out the possible combinations
+        # 8) Broadcast the arrays appropriately
+        # 9) Calculate T,p,d
+        
+
+        # Fancy tool for tracking iteration issues
+        debug = False
+
+        # 1) Handle varg and kwarg and apply defaults
+
+        # If varg is specified, assign its values to T,p
+        if len(varg) > 0:
+            if 'T' in kwarg:
+                raise pm.utility.PMParamError('T was specified both positionally and with a keyword.')
+            kwarg['T'] = varg[0]
+        if len(varg) > 1:
+            if 'p' in kwarg:
+                raise pm.utility.PMParamError('p was specified both positionally and with a keyword.')
+            kwarg['p'] = varg[1]
+        if len(varg) > 2:
+            raise pm.utility.PMParamError('There are only two positional arguments: T, p.')
+
+        # Count the number of arguments
+        nargs = len(kwarg)
+        if nargs == 1:
+            if 'T' not in kwarg:
+                kwarg['T'] = pm.config['def_T']
             else:
-                p = pm.config['def_p']
-        elif nparam == 0:
-            T = pm.config['def_T']
-            p = pm.config['def_p']
-        elif nparam > 2:
-            raise utility.PMParameterError(
+                kwarg['p'] = pm.config['def_p']
+        elif nargs == 0:
+            kwarg['T'] = pm.config['def_T']
+            kwarg['p'] = pm.config['def_p']
+        
+        # 2) Apply the argument rules
+        # Re-measure the number of arguments and use sets to enforce
+        # the remaining rules
+        nargs = len(kwarg)
+        args = set(kwarg.keys())
+        # inverse_methods is a map between the property names that require
+        # iteration and the inner method that calculates it.  Inverse 
+        # args is a set of their names that will be used for argument 
+        # parsing
+        inverse_methods = {'e':self._e, 'h':self._h, 's':self._s}
+        inverse_args = set(inverse_methods.keys())
+        # basic_args are the remaining legal arguments that do not need
+        # iteration (OK, p does, but it's special). 
+        # legal_args are all arguments that can be legally accepted.
+        basic_args = set(['T','p','d','v'])
+        legal_args = inverse_args.union(basic_args)
+        # Group the available arguments into basic and inverse sets
+        inverse_args &= args
+        basic_args &= args
+        
+        # 2.1: There may only be 2 arguments
+        if nargs>2:
+            raise pm.utility.PMParamError(
                     'Specifying more than two simultaneous parameters is illegal.')
-
-        # Perform the unit conversions, and format the arrays
-        if T is not None:
-            T = pm.units.temperature_scale(np.asarray(T,dtype=float), to_units='K')
-            if T.ndim==0:
-                T = np.reshape(T,(1,))
-                
-        if p is not None:
-            p = pm.units.pressure(np.asarray(p,dtype=float), to_units='Pa')
-            if p.ndim==0:
-                p = np.reshape(p,(1,))
-            
-        if d is not None:
-            d = pm.units.matter(np.asarray(d,dtype=float), self.data['mw'], to_units='kmol')
-            d = pm.units.volume(d, to_units='m3', exponent=-1)
-            if d.ndim==0:
-                d = np.reshape(d, (1,))
         
-        # Convert the IG constant to J/kmol/K
+        # 2.2: All arguments must be "legal" recognized arguments
+        these_args = args - legal_args
+        if these_args:
+            message = 'Unrecognized propert(y/ies):'
+            prefix = '  '
+            for name in these_args:
+                message += prefix + name
+                prefix = ', '
+            raise pm.utility.PMParamError(message)
+        
+        # 2.3: Only one inverse property is allowed
+        inverse_args = inverse_args.intersection(args)
+        if len(inverse_args) > 1:
+            message = 'Properties may not be specified together:'
+            prefix = ' '
+            for name in inverse_args:
+                message += prefix + name
+                prefix = ', '
+            raise pm.utility.PMParamError(message)
+        
+        # 2.4: Density and specific volume cannot be specified together
+        if 'v' in args and 'd' in args:
+            raise pm.utility.PMParamError('Density (d) and specific volume (v) cannot be specified together.')
+        
+        # 3) Convert all arguments to numpy arrays
+        #    The asarray function does NOT copy the array if it is already
+        #    a numpy array.
+        for name,value in kwarg.items():
+            value = np.asarray(value, dtype=float)
+            if value.ndim == 0:
+                value = np.reshape(value, (1,))
+            kwarg[name] = value
+        
+        # 4) Convert the units appropriately
+        #   This step will only make a copy of the array if the units need
+        #   to be converted.  Otherwise, the array is passed through verbatim
+        #   As a result, the input array will ONLY be copied if it needs to
+        #   be reshaped, converted, or retyped.
+        # 5) Check for out-of-bounds on the converted values
+        #   Checking before arrays are broadcast minimizes the number of
+        #   elements that need to be inspected
+        # 6) Replace v with d if it appears
+        if 'T' in kwarg:
+            kwarg['T'] = pm.units.temperature_scale(kwarg['T'], to_units='K')
+            I = np.logical_or(kwarg['T'] < self.data['Tlim'][0], kwarg['T'] > self.data['Tlim'][-1])
+            if I.any():
+                message = 'Temeprature is out of range.  Problematic values are:\n'
+                prefix = '  '
+                for value in kwarg['T'][I][:8]:
+                    message += prefix + str(value)
+                if np.sum(I) > 8:
+                    message += ', ...'
+                raise pm.utility.PMParamError(message)
+        if 'p' in kwarg:
+            kwarg['p'] = pm.units.pressure(kwarg['p'], to_units='Pa')
+        if 'd' in kwarg:
+            value = pm.units.volume(kwarg['d'], to_units='m3', exponent=-1)
+            kwarg['d'] = pm.units.matter(value, self.data['mw'], to_units='kmol')
+        if 'v' in kwarg:
+            # Convert and replace with d at the same time
+            value = pm.units.volume(kwarg['v'], to_units='m3')
+            kwarg['d'] = 1./pm.units.matter(value, self.data['mw'], to_units='kmol', exponent=-1)
+            args.add('d')
+            del kwarg['v']
+            args.remove('v')
+        if 'h' in kwarg:
+            value = kwarg['h']
+            value = pm.units.energy(value, to_units='kJ')
+            value = pm.units.matter(value, self.data['mw'], to_units='kmol', exponent=-1)
+            kwarg['h'] = value
+        if 'e'  in kwarg:
+            value = kwarg['e']
+            value = pm.units.energy(value, to_units='kJ')
+            value = pm.units.matter(value, self.data['mw'], to_units='kmol', exponent=-1)
+            kwarg['e'] = value
+        if 's' in kwarg:
+            value = kwarg['s']
+            value = pm.units.energy(value, to_units='kJ')
+            value = pm.units.matter(value, self.data['mw'], to_units='kmol', exponent=-1)
+            value = pm.units.temperature(value, to_units='K', exponent=-1)
+            kwarg['s'] = value
+
+        # Convert R into J/kmol/K - use this for p = dRT
+        # Do NOT use this for s, e, and h relationships
         R = 1000 * pm.units.const_Ru
-        
-        # Case out the specified state variables
-        # There are three possible combinations
-        if T is not None:
-            # T,p
-            if p is not None:
-                # Broadcast the arrays
-                T,p = np.broadcast_arrays(T,p)
-                # Do we need density?
-                if density:
-                    d = p / (R*T)
-            # T,d
-            else:
-                # Broadcast the arrays
-                T,d = np.broadcast_arrays(T,d)
-                # Do we need pressure?
-                if pressure:
-                    p = d*R*T
-        # p,d
-        else:
-            # Broadcast the arrays
-            p,d = np.broadcast_arrays(p,d)
-            # Do we need temperature?
-            if temperature:
-                T = p / (R*d)
-        
-        out = []
-        if temperature:
-            out.append(T)
-        if pressure:
-            out.append(p)
-        if density:
-            out.append(d)
-            
-        if len(out)>1:
-            return tuple(out)
-        elif len(out)==1:
-            return out[0]
-        return
 
+
+
+        T = p = d = None
+        # If there was an argument that requires an inverse routine
+        if inverse_args:
+            # There can only be one, see rule 2.3
+            invp = inverse_args.pop()
+            invfn = inverse_methods[invp]
+            
+            # what else do we have?
+            # There can only be one, see rule 2.1
+            basp = basic_args.pop()
+            
+            # If density is specified
+            if basp == 'd':
+                y,d = np.broadcast_arrays(kwarg[invp], kwarg[basp])
+                p = None
+                T = np.full_like(y, 0.5*(self.data['Tlim'][0] + self.data['Tlim'][-1]))
+                I = np.ones_like(y,dtype=bool)
+                # density and entropy are specified, special iteration is required
+                if invp == 's':
+                    self._iter1(self._sditer, 'T', y, T, I, self.data['Tlim'][0], self.data['Tlim'][1], param={'d':d})
+                else:
+                    self._iter1(invfn, 'T', y, T, I, self.data['Tlim'][0], self.data['Tlim'][1])
+            # If pressure is specified
+            elif basp == 'p':
+                y,p = np.broadcast_arrays(kwarg[invp], kwarg[basp])
+                # If the property is entropy, adjust it for pressure
+                if invp == 's':
+                    y = y + pm.units.const_Ru * np.log(p / self._pref_pa)
+                T = np.full_like(y, 0.5*(self.data['Tlim'][0] + self.data['Tlim'][-1]))
+                I = np.ones_like(y,dtype=bool)
+                self._iter1(invfn, 'T', y, T, I, self.data['Tlim'][0], self.data['Tlim'][-1])
+            # If temperature is specified
+            elif basp == 'T':
+                # If entropy is specified, pressure can be explicitly calculated.
+                if invp == 's':
+                    s0 = self._s(T)[0]
+                    p = self._pref_pa * np.exp((s0-y)/pm.units.const_Ru)
+                # Otherwise, this is an illegal combination!
+                else:
+                    raise pm.utility.PMParamError('Cannot simultaneously specify parameters: T, {:s}'.format(invp))
+        # If temperature is specified
+        elif 'T' in args:
+            # There isn't much work to do
+            if 'p' in args:
+                T,p = np.broadcast_arrays(kwarg['T'],kwarg['p'])
+            elif 'd' in args:
+                T,d = np.broadcast_arrays(kwarg['T'],kwarg['d'])
+            else:
+                message = 'Please report a bug: Unhandled event [T] in ig._argparse with args:'
+                prefix = ' '
+                for name in args:
+                    message += prefix + name
+                    prefix = ', '
+                raise pm.utility.PMParamError(message)
+        # If pressure is specified
+        elif 'p' in args:
+            if 'd' in args:
+                p,d = np.broadcast_arrays(kwarg['p'], kwarg['d'])
+                T = p / (R * d)
+            else:
+                message = 'Please report a bug: Unhandled event [p] in ig._argparse with args:'
+                prefix = ' '
+                for name in args:
+                    message += prefix + name
+                    prefix = ', '
+                raise pm.utility.PMParamError(message)
+        else:
+            message = 'Please report a bug: Unhandled event [MASTER] in ig._argparse with args:'
+            prefix = ' '
+            for name in args:
+                message += prefix + name
+                prefix = ', '
+            raise pm.utility.PMParamError(message)
+            
+        return T,p,d
 
     def _crange(self, T, index):
         """Return the down-select boolean array for temperature values in range "index".
@@ -266,6 +424,18 @@ param       A dicitonary of keyword arguments are passed directly to the
                     'iter1_() failed to converge for %d elements after %d attempts'%(\
                     Ids.sum(), Nmax))
                 return
+                
+    def _sditer(self, T, d, diff=1):
+        s,sT = self_s(T, diff)
+        R = 1000 * pm.units.const_Ru
+        s -= pm.units.const_Ru * np.log(d * R * T / self._pref_pa)
+        if diff:
+            sT -= R/T
+        else:
+            sT = None
+        return s,sT
+        
+        
 
     def _cp(self,T):
         """Constant pressure specific heat
@@ -290,7 +460,7 @@ Expects temperature in Kelvin and returns cp in kJ/kmol/K"""
         OR
     h,hT = _h(T, diff=True)
     
-Expects T in Kelvin and returns enthalpy in kJ/kmol/K
+Expects T in Kelvin and returns enthalpy in kJ/kmol
 When diff=True, the partial derivative of enthalpy with respect to 
 temperature with constant pressure is also returned.
 """
@@ -312,6 +482,18 @@ temperature with constant pressure is also returned.
         out *= 1000.
         return out, hT
         
+    def _e(self, T, diff=False):
+        """Internal Energy
+    e = _e(T)
+        OR
+    e,eT = _e(T, diff=True)
+    
+Expects T in Kelvin and returns energy in kJ/kmol
+When diff=True, the partial derivative of energy with respect to 
+temperature with constant pressure is also returned.
+"""
+        h,hT = self._h(T,diff)
+        return h-R*T, hT-R
         
     def _s(self, T, diff=False):
         """Entropy at reference pressure
@@ -506,7 +688,7 @@ Description
         report.write('3. Numerical consistency checks\n')
         TAB = np.array(self.data['TAB'])
         T = pm.units.temperature_scale(TAB[:,0], from_units='K')
-        pref = pm.units.pressure(self._pref_bar, from_units='bar')
+        pref = pm.units.pressure(self._pref_pa, from_units='pa')
         cp_test = self.cp(T)
         cv_test = self.cv(T)
         h_test = self.h(T)
@@ -788,7 +970,7 @@ The following test criteria are used:
         href = TAB[:,4]         # J/mol
 
         ##
-        pref = self._pref_bar
+        pref = self._pref_pa / 1e5
 
         # Create a generic property test function
         # crit  criterion string for the report (1a, 2b, etc...)
@@ -1020,7 +1202,7 @@ The following test criteria are used:
         # Criterion 3 - s should agree with tabulated data         #
         #==========================================================#
         subresult = True
-        p0 = self._pref_bar
+        p0 = self._pref_pa / 1e5
         ##
         ## Criterion 3a - molar units
         ##
@@ -1240,7 +1422,9 @@ Accepts unit_temperature
         unit_pressure
 Returns unit_matter / unit_volume
 """
-        d = self._argparse(*varg, density=True, **kwarg)
+        T,p,d = self._argparse(*varg, **kwarg)
+        if d is None:
+            d = p / (1000*pm.units.const_Ru * T)
         scale = pm.units.matter(1., self.data['mw'], from_units='kmol')
         scale = pm.units.volume(scale, from_units='m3', exponent=-1)
         np.multiply(d, scale, out=d)
@@ -1260,7 +1444,7 @@ Accepts unit_pressure
         unit_matter / unit_volume
 Returns unit_temperature
 """
-        T = self._argparse(*varg, temperature=True, **kwarg)
+        T,p,d = self._argparse(*varg, **kwarg)
         pm.units.temperature_scale(T, from_units='K', inplace=True)
         return T
         
@@ -1278,7 +1462,9 @@ Accepts unit_temperature
         unit_matter / unit_volume
 Returns unit_pressure
 """
-        p = self._argparse(*varg, pressure=True, **kwarg)
+        T,p,d = self._argparse(*varg, **kwarg)
+        if p is None:
+            p = d * 1000*pm.units.const_Ru * T
         pm.units.pressure(p, from_units='Pa', inplace=True)
         return p
 
@@ -1325,7 +1511,7 @@ Accepts unit_temperature
         unit_pressure
 Returns dimensionless
 """
-        T = self._argparse(*varg, temperature=True, **kwarg)
+        T,p,d = self._argparse(*varg, **kwarg)
         cp = self._cp(T)
         return cp/(cp-pm.units.const_Ru)
 
@@ -1352,7 +1538,7 @@ Accepts unit_temperature
         unit_matter / unit_volume
 Returns unit_energy / unit_matter / unit_temperature
 """
-        T = self._argparse(*varg, temperature=True, **kwarg)
+        T,p,d = self._argparse(*varg, **kwarg)
         # Apply the model
         out = self._cp(T)
         # calculate a conversion factor
@@ -1385,7 +1571,7 @@ Accepts unit_temperature
         unit_matter / unit_volume
 Returns unit_energy / unit_matter / unit_temperature
 """
-        T = self._argparse(*varg, temperature=True, **kwarg)
+        T,p,d = self._argparse(*varg, **kwarg)
         # Apply the model
         out = self._cp(T) - pm.units.const_Ru
         # calculate a conversion factor
@@ -1418,7 +1604,7 @@ Accepts unit_temperature
         unit_matter / unit_volume
 Returns unit_energy / unit_matter
 """
-        T = self._argparse(*varg, temperature=True, **kwarg)
+        T,p,d = self._argparse(*varg, **kwarg)
         # Apply the model
         out = self._h(T)[0]
         # calculate a conversion factor
@@ -1452,9 +1638,11 @@ Accepts unit_temperature
         unit_matter / unit_volume
 Returns unit_energy / unit_matter / unit_temperature
 """
-        T,p = self._argparse(*varg, temperature=True, pressure=True, **kwarg)
+        T,p,d = self._argparse(*varg, **kwarg)
+        if p is None:
+            p = d * (1000*pm.units.const_Ru * T)
         # Apply the model
-        out = self._s(T)[0] - pm.units.const_Ru * np.log(p/(self._pref_bar*1e5))
+        out = self._s(T)[0] - pm.units.const_Ru * np.log(p/self._pref_pa)
         # calculate a conversion factor
         scale = pm.units.energy(1, from_units='kJ')
         scale = pm.units.temperature(scale, from_units='K', exponent=-1)
@@ -1485,7 +1673,7 @@ Accepts unit_temperature
         unit_matter / unit_volume
 Returns unit_energy / unit_matter
 """
-        T = self._argparse(*varg, temperature=True, **kwarg)
+        T,p,d = self._argparse(*varg, **kwarg)
         # Apply the model
         out = self._h(T)[0] - pm.units.const_Ru*T
         # calculate a conversion factor
@@ -1520,13 +1708,13 @@ Returns unit_temperature
             
         # If isobaric
         if p is not None:
-            p = pm.units.pressure(np.asarray(p, dtype=float), to_units='bar')
+            p = pm.units.pressure(np.asarray(p, dtype=float), to_units='pa')
             if p.ndim==0:
                 p = np.reshape(p, (1,))
             
             s,p = np.broadcast_arrays(s,p)
             # Adjust s by the pressure term
-            s += pm.units.const_Ru * np.log(p/self._pref_bar)
+            s += pm.units.const_Ru * np.log(p/self._pref_pa)
             
             I = np.ones_like(s, dtype=bool)
             T = np.full_like(s, 0.5*(self.data['Tlim'][0]+self.data['Tlim'][-1]))
@@ -1545,7 +1733,7 @@ Returns unit_temperature
                 sd = 0.
                 s,sT = self._s(T,diff)
                 
-                s -= R*np.log(d * R * T / (self._pref_bar * 1e2))
+                s -= R*np.log(d * R * T * 1000 / (self._pref_pa))
                 if diff:
                     sT -= R / T
                     sd = -R / d
@@ -1615,7 +1803,6 @@ Returns unit_pressure
         
         s,T = np.broadcast_arrays(s,T)
         
-        p0 = 1e5 * self._pref_bar
-        p = p0 * np.exp((self._s(T)[0] - s)/pm.units.const_Ru)
+        p = self._pref_pa * np.exp((self._s(T)[0] - s)/pm.units.const_Ru)
         pm.units.pressure(p, from_units = 'Pa', inplace=True)
         return p

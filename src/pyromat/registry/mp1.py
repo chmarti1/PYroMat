@@ -2249,7 +2249,7 @@ other conditions, x<0 and d1 == d2.
             if 'T' not in kwarg:
                 kwarg['T'] = pm.config['def_T']
             else:
-                p = pm.config['def_p']
+                kwarg['p'] = pm.config['def_p']
         elif nargs == 0:
             kwarg['T'] = pm.config['def_T']
             kwarg['p'] = pm.config['def_p']
@@ -2295,7 +2295,7 @@ other conditions, x<0 and d1 == d2.
             message = 'Properties may not be specified together:'
             prefix = ' '
             for name in inverse_args:
-                message += prefix + named
+                message += prefix + name
                 prefix = ', '
             raise pm.utility.PMParamError(message)
         
@@ -2303,12 +2303,6 @@ other conditions, x<0 and d1 == d2.
         if 'v' in args and 'd' in args:
             raise pm.utility.PMParameterError('Density (d) and specific volume (v) cannot be specified together.')
 
-            # 3) Add d if v is present
-            # This happens after the check for number of arguments, but d
-            # and v will now both be in the arguments
-            kwarg['d'] = 1./kwarg.pop('v')
-            args.add('d')
-            args.remove('v')
         
         # 3) Convert all arguments to numpy arrays
         #    The asarray function does NOT copy the array if it is already
@@ -2349,17 +2343,18 @@ other conditions, x<0 and d1 == d2.
         if 'h' in kwarg:
             value = kwarg['h']
             value = pm.units.energy(value, to_units='J')
-            value = pm.units.matter(value, self.data['mw'], to_units='kg')
+            value = pm.units.matter(value, self.data['mw'], to_units='kg', exponent=-1)
             kwarg['h'] = value
         if 'e'  in kwarg:
             value = kwarg['e']
             value = pm.units.energy(value, to_units='J')
-            value = pm.units.matter(value, self.data['mw'], to_units='kg')
+            value = pm.units.matter(value, self.data['mw'], to_units='kg', exponent=-1)
             kwarg['e'] = value
         if 's' in kwarg:
             value = kwarg['s']
             value = pm.units.energy(value, to_units='J')
-            value = pm.units.matter(value, self.data['mw'], to_units='kg')
+            value = pm.units.matter(value, self.data['mw'], to_units='kg', exponent=-1)
+            value = pm.units.temperature(value, to_units='K', exponent=-1)
             kwarg['s'] = value
         # x is dimensionless - no need to convert anything
         if 'x' in kwarg:
@@ -2492,7 +2487,7 @@ other conditions, x<0 and d1 == d2.
                         T,
                         Isat,
                         Ta, Tb,
-                        param={'fn':self._h, 'd':d, 'debug':debug},
+                        param={'fn':invfn, 'd':d, 'debug':debug},
                         verbose=debug,
                         Nmax=50)
                 
@@ -2720,7 +2715,7 @@ other conditions, x<0 and d1 == d2.
                 message = 'Please report a bug: Unhandled event [T] in _argparse with args:'
                 prefix = ' '
                 for name in args:
-                    message += prefix + named
+                    message += prefix + name
                     prefix = ', '
                 raise pm.utility.PMParamError(message)
         # p
@@ -2776,7 +2771,7 @@ other conditions, x<0 and d1 == d2.
                 message = 'Please report a bug: Unhandled event [p] in _argparse with args:'
                 prefix = ' '
                 for name in args:
-                    message += prefix + named
+                    message += prefix + name
                     prefix = ', '
                 raise pm.utility.PMParamError(message)
                 
@@ -2795,13 +2790,13 @@ other conditions, x<0 and d1 == d2.
                 message = 'Please report a bug: Unhandled event [d] in _argparse with args:'
                 prefix = ' '
                 for name in args:
-                    message += prefix + named
+                    message += prefix + name
                     prefix = ', '
                 raise pm.utility.PMParamError(message)
         message = 'Please report a bug: Unhandled event [MASTER] in _argparse with args:'
         prefix = ' '
         for name in args:
-            message += prefix + named
+            message += prefix + name
             prefix = ', '
         raise pm.utility.PMParamError(message)
 
