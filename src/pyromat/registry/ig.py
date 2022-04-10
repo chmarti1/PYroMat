@@ -1412,15 +1412,24 @@ Returns unit_temperature
     
     def d(self,*varg, **kwarg):
         """Density
-    d(T,p)
-Both arguments are optional, and will default to 'def_T' and 'def_p'
-configuration parameters if they are left undefined.  It is important to 
-note that density can be either a molar or mass density depending on the
-"unit_matter" configuration directive.
+    d(...)
 
-Accepts unit_temperature
-        unit_pressure
-Returns unit_matter / unit_volume
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Returns density in unit_matter / unit_volume
 """
         T,p,d = self._argparse(*varg, **kwarg)
         if d is None:
@@ -1430,37 +1439,80 @@ Returns unit_matter / unit_volume
         np.multiply(d, scale, out=d)
         return d
         
+    def v(self,*varg, **kwarg):
+        """Specific volume
+    v(...)
+
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Returns volume in unit_volume / unit_matter
+"""
+        return 1./self.d(*varg, **kwarg)
+        
     def T(self, *varg, **kwarg):
         """Temperature
-    T(p,d)
-        OR
-    T(d=d)
+    T(...)
 
-If pressure is omitted, it will default to the 'def_p' configuration 
-value.  If density is omitted, then the default temperature will be 
-returned (converted to the appropriate units).
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
 
-Accepts unit_pressure
-        unit_matter / unit_volume
-Returns unit_temperature
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Returns temperature in unit_temperature
 """
+        # T is a special case.  If there is only one parameter given,
+        # the default should not be T=def_T, so we need to override
+        # the behavior of _argparse.
+        if len(varg) + len(kwarg) == 1:
+            kwarg['p'] = pm.config['def_p']
+        
         T,p,d = self._argparse(*varg, **kwarg)
         pm.units.temperature_scale(T, from_units='K', inplace=True)
         return T
         
     def p(self, *varg, **kwarg):
         """Pressure
-    p(T,d)
-        OR
-    T(d=d)
+    p(...)
 
-If temperature is omitted, it will default to the 'def_T' configuration 
-value.  If density is omitted, then the default pressure will be 
-returned (converted to the appropriate units).
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
 
-Accepts unit_temperature
-        unit_matter / unit_volume
-Returns unit_pressure
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Returns pressure in unit_pressure
 """
         T,p,d = self._argparse(*varg, **kwarg)
         if p is None:
@@ -1468,16 +1520,12 @@ Returns unit_pressure
         pm.units.pressure(p, from_units='Pa', inplace=True)
         return p
 
-    def mw(self,T=None,p=None):
+    def mw(self, *varg, **kwarg):
         """Molecular weight
-    mw(T,p)
-Accepts temperature and pressure to conform with the property method 
-prototype, but ignores their values.  This method returns a scalar value
-in all cases.
+    mw(...)
 
-Accepts unit_temperature
-        unit_pressure
-Returns unit_mass/unit_molar
+Ignores the arguments are returns molecular weight as 
+unit_mass / unit_molar
 """
         mw = pm.units.mass(self.data['mw'],from_units='g')
         mw = pm.units.molar(mw,from_units='mol',exponent=-1)
@@ -1485,14 +1533,10 @@ Returns unit_mass/unit_molar
 
     def R(self,T=None,p=None):
         """Ideal gas constant
-    R(T,p)
-Accepts temperature and pressure to conform with the property method 
-prototype, but ignores their values.  This method returns a scalar value
-in all cases.
+    R(...)
 
-Accepts unit_temperature
-        unit_pressure
-Returns unit_energy/unit_temperature/unit_matter
+Ignores the arguments are returns the gas constant as
+unit_energy / unit_matter / unit_temperature
 """
         R = pm.units.energy(pm.units.const_Ru, from_units='J')
         R = pm.units.temperature(R, from_units='K', exponent=-1)
@@ -1501,15 +1545,24 @@ Returns unit_energy/unit_temperature/unit_matter
 
     def gam(self,*varg, **kwarg):
         """Specific heat ratio
-    gam(T,p)
-Both arguments are optional, and will default to 'def_T' and 'def_p'
-configuration parameters if they are left undefined.  Ideal gas specific 
-heat ratio is not actually a function of p, but it is permitted as an 
-argument for cross-compatibility between species' function calls.
+    gam(...)
 
-Accepts unit_temperature
-        unit_pressure
-Returns dimensionless
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Returns ideal gas ratio, which is dimensionless.
 """
         T,p,d = self._argparse(*varg, **kwarg)
         cp = self._cp(T)
@@ -1518,25 +1571,24 @@ Returns dimensionless
 
     def cp(self, *varg, **kwarg):
         """Constant-pressure specific heat
-    cp(T=T)
-        OR
-    cp(p=p, d=d)
-        OR
-    cp(T,p)
+    cp(...)
 
-Accepts temperature, pressure, and/or density as inputs as necessary to
-determine the thermodynamic state being queried.  Missing temperature or
-pressure parameters will default to config['def_T'] and config['def_p'] 
-respectively.
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
 
-For example, these calls are identical:
->>> cp()
->>> cp(T=pyromat.config['def_T'], p=pyromat.config['def_p'])
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
 
-Accepts unit_temperature
-        unit_pressure
-        unit_matter / unit_volume
-Returns unit_energy / unit_matter / unit_temperature
+Returns specific heat in unit_energy / unit_matter / unit_temperature
 """
         T,p,d = self._argparse(*varg, **kwarg)
         # Apply the model
@@ -1551,25 +1603,24 @@ Returns unit_energy / unit_matter / unit_temperature
         
     def cv(self,*varg, **kwarg):
         """Constant-volume specific heat
-    cv(T=T)
-        OR
-    cv(p=p, d=d)
-        OR
-    cv(T,p)
+    p(...)
 
-Accepts temperature, pressure, and/or density as inputs as necessary to
-determine the thermodynamic state being queried.  Missing temperature or
-pressure parameters will default to config['def_T'] and config['def_p'] 
-respectively.
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
 
-For example, these calls are identical:
->>> cv()
->>> cv(T=pyromat.config['def_T'], p=pyromat.config['def_p'])
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
 
-Accepts unit_temperature
-        unit_pressure
-        unit_matter / unit_volume
-Returns unit_energy / unit_matter / unit_temperature
+Returns specific heat in unit_energy / unit_matter / unit_temperature
 """
         T,p,d = self._argparse(*varg, **kwarg)
         # Apply the model
@@ -1584,25 +1635,24 @@ Returns unit_energy / unit_matter / unit_temperature
         
     def h(self,*varg, **kwarg):
         """Enthalpy
-    h(T=T)
-        OR
-    h(p=p, d=d)
-        OR
-    h(T,p)
+    h(...)
 
-Accepts temperature, pressure, and/or density as inputs as necessary to
-determine the thermodynamic state being queried.  Missing temperature or
-pressure parameters will default to config['def_T'] and config['def_p'] 
-respectively.
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
 
-For example, these calls are identical:
->>> h()
->>> h(T=pyromat.config['def_T'], p=pyromat.config['def_p'])
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
 
-Accepts unit_temperature
-        unit_pressure
-        unit_matter / unit_volume
-Returns unit_energy / unit_matter
+Returns enthalpy in unit_energy / unit_matter
 """
         T,p,d = self._argparse(*varg, **kwarg)
         # Apply the model
@@ -1616,27 +1666,24 @@ Returns unit_energy / unit_matter
 
     def s(self,*varg,**kwarg):
         """Entropy
-    s(T=T, p=p)
-        OR
-    s(p=p, d=d)
-        OR
-    s(T,p)
-        OR
-    ...
+    s(...)
 
-Accepts temperature, pressure, and/or density as inputs as necessary to
-determine the thermodynamic state being queried.  Missing temperature or
-pressure parameters will default to config['def_T'] and config['def_p'] 
-respectively.
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
 
-For example, these calls are identical:
->>> s()
->>> s(T=pyromat.config['def_T'], p=pyromat.config['def_p'])
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
 
-Accepts unit_temperature
-        unit_pressure
-        unit_matter / unit_volume
-Returns unit_energy / unit_matter / unit_temperature
+Returns entropy in unit_energy / unit_matter / unit_temperature
 """
         T,p,d = self._argparse(*varg, **kwarg)
         if p is None:
@@ -1652,26 +1699,25 @@ Returns unit_energy / unit_matter / unit_temperature
         return out
 
     def e(self,*varg, **kwarg):
-        """Internal Energy
-    e(T=T)
-        OR
-    e(p=p, d=d)
-        OR
-    e(T,p)
+        """Internal energy
+    e(...)
 
-Accepts temperature, pressure, and/or density as inputs as necessary to
-determine the thermodynamic state being queried.  Missing temperature or
-pressure parameters will default to config['def_T'] and config['def_p'] 
-respectively.
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
 
-For example, these calls are identical:
->>> h()
->>> h(T=pyromat.config['def_T'], p=pyromat.config['def_p'])
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
 
-Accepts unit_temperature
-        unit_pressure
-        unit_matter / unit_volume
-Returns unit_energy / unit_matter
+Returns internal energy in unit_energy / unit_matter
 """
         T,p,d = self._argparse(*varg, **kwarg)
         # Apply the model
@@ -1684,8 +1730,10 @@ Returns unit_energy / unit_matter
         return out
 
 
-    def T_s(self,s,p=None, d=None, debug=False):
+    def T_s(self,s,*varg, **kwarg):
         """Temperature as a function of entropy
+** Depreciated - use T() **
+        
     T = T_s(s)
         or
     T = T_s(s,p)
@@ -1697,62 +1745,16 @@ Accepts unit_energy / unit_matter / unit_temperature
         unit_matter / unit_volume
 Returns unit_temperature
 """
-        if p is None and d is None:
-            p = pm.config['def_p']
-                    
-        s = pm.units.energy(np.asarray(s, dtype=float), to_units='kJ')
-        s = pm.units.matter(s, self.data['mw'], to_units='kmol', exponent=-1)
-        s = pm.units.temperature(s, to_units='K', exponent=-1)
-        if s.ndim == 0:
-            s = np.reshape(s, (1,))
-            
-        # If isobaric
-        if p is not None:
-            p = pm.units.pressure(np.asarray(p, dtype=float), to_units='pa')
-            if p.ndim==0:
-                p = np.reshape(p, (1,))
-            
-            s,p = np.broadcast_arrays(s,p)
-            # Adjust s by the pressure term
-            s += pm.units.const_Ru * np.log(p/self._pref_pa)
-            
-            I = np.ones_like(s, dtype=bool)
-            T = np.full_like(s, 0.5*(self.data['Tlim'][0]+self.data['Tlim'][-1]))
-            self._iter1(self._s, 'T', s, T, I, self.data['Tlim'][0], self.data['Tlim'][-1], verbose=debug)
-        # If isochoric
-        else:
-            d = pm.units.matter(np.asarray(d, dtype=float),
-                    self.data['mw'], to_units='kmol')
-            d = pm.units.volume(d, to_units='m3', exponent=-1)
-            
-            s,d = np.broadcast_arrays(s,d)
-            
-            R = pm.units.const_Ru
-            # Define a custom iterator function
-            def fn(T,d,diff):
-                sd = 0.
-                s,sT = self._s(T,diff)
-                
-                s -= R*np.log(d * R * T * 1000 / (self._pref_pa))
-                if diff:
-                    sT -= R / T
-                    sd = -R / d
-
-                return s,sT,sd
-            
-            I = np.ones_like(s, dtype=bool)
-            T = np.full_like(s, 0.5*(self.data['Tlim'][0]+self.data['Tlim'][-1]))
-            self._iter1(fn, 'T', s, T, I, self.data['Tlim'][0], self.data['Tlim'][-1], param={'d':d}, verbose=debug)
-            
-        pm.units.temperature_scale(T, from_units='K')
-        return T
+        return self.T(*varg, s=s, **kwarg)
 
 
-    def T_h(self,h,p=None, d=None):
+    def T_h(self,h,*varg,**kwarg):
         """Temperature as a function of enthalpy
+** Depreciated - use T() **
+
     T = T_h(h)
         or
-    T = T_h(h,p)
+    T = T_h(h,...)
 
 Returns the temperature as a function of enthalpy and pressure.  Ideal 
 gas enthalpy is not a function of pressure, so the p term is merely a
@@ -1763,24 +1765,16 @@ Accepts unit_energy / unit_matter / unit_temperature
 Returns unit_temperature
 """
         # Convert the 
-        h = pm.units.energy(h, to_units='kJ')
-        h = pm.units.matter(h, self.data['mw'], to_units='kmol', exponent=-1)
-        if h.ndim==0:
-            h = np.reshape(h, (1,))
-        
-        Ids = np.ones_like(h, dtype=bool)
-        T = np.full_like(h, 0.5*(self.data['Tlim'][0] + self.data['Tlim'][-1]))
-        
-        self._iter1(self._h, 'T', h, T, Ids, self.data['Tlim'][0], self.data['Tlim'][-1])
-        pm.units.temperature_scale(T, from_units='K', inplace=True)
-        return T
+        return self.T(*varg, h=h, **kwarg)
 
 
-    def p_s(self,s,T=None):
+    def p_s(self,s,*varg, **kwarg):
         """Pressure as a function of entropy
+** Depreciated - use p() **
+        
     p = ig_instance.p_s(s)
         or
-    p = ig_instance.p_s(s,T)
+    p = ig_instance.p_s(s,...)
 
 Returns the pressure as a function of entropy and temperature.
 
@@ -1788,21 +1782,4 @@ Accepts unit_energy / unit_matter / unit_temperature
         unit_temperature
 Returns unit_pressure
 """
-        s = pm.units.energy(np.asarray(s,dtype=float), to_units='kJ')
-        s = pm.units.matter(s, to_units='kmol', exponent=-1)
-        s = pm.units.temperature(s, to_units='K', exponent=-1)
-        
-        if s.ndim==0:
-            s = np.reshape(s, (1,))
-        
-        if T is None:
-            T = pm.config['def_T']
-        T = pm.units.temperature_scale(np.asarray(T, dtype=float), to_units='K')
-        if T.ndim == 0:
-            T = np.reshape(T, (1,))
-        
-        s,T = np.broadcast_arrays(s,T)
-        
-        p = self._pref_pa * np.exp((self._s(T)[0] - s)/pm.units.const_Ru)
-        pm.units.pressure(p, from_units = 'Pa', inplace=True)
-        return p
+        return self.p(*varg, s=s, **kwarg)
