@@ -2336,9 +2336,13 @@ other conditions, x<0 and d1 == d2.
             # Convert and replace with d at the same time
             value = pm.units.volume(kwarg['v'], to_units='m3')
             kwarg['d'] = 1./pm.units.matter(value, self.data['mw'], to_units='kg', exponent=-1)
+            # Update the keywords and argument sets to reflect the
+            # substitution.
             args.add('d')
+            basic_args.add('d')
             del kwarg['v']
             args.remove('v')
+            basic_args.remove('v')
             _bounds(kwarg['d'], self.data['dlim'], 'd')
         if 'h' in kwarg:
             value = kwarg['h']
