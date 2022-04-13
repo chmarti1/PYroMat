@@ -426,11 +426,11 @@ param       A dicitonary of keyword arguments are passed directly to the
                 return
                 
     def _sditer(self, T, d, diff=1):
-        s,sT = self_s(T, diff)
+        s,sT = self._s(T, diff)
         R = 1000 * pm.units.const_Ru
         s -= pm.units.const_Ru * np.log(d * R * T / self._pref_pa)
         if diff:
-            sT -= R/T
+            sT -= pm.units.const_Ru/T
         else:
             sT = None
         return s,sT

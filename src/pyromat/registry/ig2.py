@@ -734,7 +734,15 @@ param       A dicitonary of keyword arguments are passed directly to the
                     Ids.sum(), Nmax))
                 return
 
-
+    def _sditer(self, T, d, diff=1):
+        s,sT = self._s(T, diff)
+        R = 1000 * pm.units.const_Ru
+        s -= pm.units.const_Ru * np.log(d * R * T / self.data['pref'])
+        if diff:
+            sT -= pm.units.const_Ru/T
+        else:
+            sT = None
+        return s,sT
 
     def _cp(self, T):
         """Constant pressure specific heat
