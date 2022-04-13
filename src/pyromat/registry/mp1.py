@@ -3273,6 +3273,7 @@ that determine their units.
     p   pressure            unit_pressure
     d   density             unit_matter / unit_volume
     v   specific volume     unit_volume / unit_matter
+    x   quality             dimensionless
     e   internal energy     unit_energy / unit_matter
     h   enthalpy            unit_energy / unit_matter
     s   entropy             unit_energy / unit_matter / unit_temperature
@@ -3308,6 +3309,7 @@ that determine their units.
     p   pressure            unit_pressure
     d   density             unit_matter / unit_volume
     v   specific volume     unit_volume / unit_matter
+    x   quality             dimensionless
     e   internal energy     unit_energy / unit_matter
     h   enthalpy            unit_energy / unit_matter
     s   entropy             unit_energy / unit_matter / unit_temperature
@@ -3340,6 +3342,7 @@ that determine their units.
     p   pressure            unit_pressure
     d   density             unit_matter / unit_volume
     v   specific volume     unit_volume / unit_matter
+    x   quality             dimensionless
     e   internal energy     unit_energy / unit_matter
     h   enthalpy            unit_energy / unit_matter
     s   entropy             unit_energy / unit_matter / unit_temperature
@@ -3363,6 +3366,7 @@ that determine their units.
     p   pressure            unit_pressure
     d   density             unit_matter / unit_volume
     v   specific volume     unit_volume / unit_matter
+    x   quality             dimensionless
     e   internal energy     unit_energy / unit_matter
     h   enthalpy            unit_energy / unit_matter
     s   entropy             unit_energy / unit_matter / unit_temperature
@@ -3382,7 +3386,25 @@ Returns temperature in unit_temperature
     #                    #
     
     def state(self, *varg, **kwarg):
-        """Placeholder for future function"""
+        """The state method calculates all available properties at once.
+        
+    sd = state(...)
+    
+The properties are returned in a dictionary with keys:
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    x   quality             dimensionless
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+    cp  const. p sp. ht.    unit_energy / unit_matter / unit_temperature
+    cv  const. v sp. ht.    unit_energy / unit_matter / unit_temperature
+    
+Like all of the other property functions, arguments may be any two of
+T, p, d, v, e, h, s, and x.  
+"""
         
         # Parse the arguments
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
@@ -3511,6 +3533,7 @@ that determine their units.
     p   pressure            unit_pressure
     d   density             unit_matter / unit_volume
     v   specific volume     unit_volume / unit_matter
+    x   quality             dimensionless
     e   internal energy     unit_energy / unit_matter
     h   enthalpy            unit_energy / unit_matter
     s   entropy             unit_energy / unit_matter / unit_temperature
@@ -3551,6 +3574,7 @@ that determine their units.
     p   pressure            unit_pressure
     d   density             unit_matter / unit_volume
     v   specific volume     unit_volume / unit_matter
+    x   quality             dimensionless
     e   internal energy     unit_energy / unit_matter
     h   enthalpy            unit_energy / unit_matter
     s   entropy             unit_energy / unit_matter / unit_temperature
@@ -3590,6 +3614,7 @@ that determine their units.
     p   pressure            unit_pressure
     d   density             unit_matter / unit_volume
     v   specific volume     unit_volume / unit_matter
+    x   quality             dimensionless
     e   internal energy     unit_energy / unit_matter
     h   enthalpy            unit_energy / unit_matter
     s   entropy             unit_energy / unit_matter / unit_temperature
@@ -3634,6 +3659,7 @@ that determine their units.
     p   pressure            unit_pressure
     d   density             unit_matter / unit_volume
     v   specific volume     unit_volume / unit_matter
+    x   quality             dimensionless
     e   internal energy     unit_energy / unit_matter
     h   enthalpy            unit_energy / unit_matter
     s   entropy             unit_energy / unit_matter / unit_temperature
@@ -3730,6 +3756,7 @@ that determine their units.
     p   pressure            unit_pressure
     d   density             unit_matter / unit_volume
     v   specific volume     unit_volume / unit_matter
+    x   quality             dimensionless
     e   internal energy     unit_energy / unit_matter
     h   enthalpy            unit_energy / unit_matter
     s   entropy             unit_energy / unit_matter / unit_temperature
@@ -3772,6 +3799,7 @@ that determine their units.
     p   pressure            unit_pressure
     d   density             unit_matter / unit_volume
     v   specific volume     unit_volume / unit_matter
+    x   quality             dimensionless
     e   internal energy     unit_energy / unit_matter
     h   enthalpy            unit_energy / unit_matter
     s   entropy             unit_energy / unit_matter / unit_temperature
@@ -3810,6 +3838,7 @@ that determine their units.
     p   pressure            unit_pressure
     d   density             unit_matter / unit_volume
     v   specific volume     unit_volume / unit_matter
+    x   quality             dimensionless
     e   internal energy     unit_energy / unit_matter
     h   enthalpy            unit_energy / unit_matter
     s   entropy             unit_energy / unit_matter / unit_temperature
