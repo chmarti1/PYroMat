@@ -3627,6 +3627,8 @@ Returns entropy in unit_energy / unit_matter / unit_temperature
 
     def hsd(self, *varg, quality = False, **kwarg):
         """Enthalpy, Entropy, Density
+** Depreciated - Use state() **
+        
     h,s,d = hsd(...)
         OR
     h,s,d,x = hsd(..., quality=True)
@@ -3697,8 +3699,8 @@ quality of the liquid/vapor mixture is also returned
             # The residual part
             Tscale = self.data['ARgroup']['Tscale']
             dscale = self.data['ARgroup']['dscale']
-            tt = Tscale / T
-            dd = d2 / dscale
+            tt = Tscale / T[I]
+            dd = d2[I] / dscale
             a,at,ad,_,_,_ = self._ar(tt,dd,1)
             h[I] += (dd*ad + tt*at)*x[I]
             s[I] += (tt*at - a)*x[I]
