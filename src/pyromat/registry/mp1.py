@@ -1205,19 +1205,32 @@ param       A dicitonary of keyword arguments are passed directly to the
         xb[Ids] = xmax[Ids] + (y[Ids] - yy)/yyx
         
         # Verify that the limits bracket a solution
-        if not np.logical_xor(Iswap[Ids], yy >= y[Ids]).all():
-            if verbose:
-                print(" xmin  xmax  xa  xb  xc ")
-                print(xmin, xmax, xa, xb, xc)
-                print(" y")
-                print(y)
-                print("Iswap")
-                print(Iswap)
-                print("yb")
-                print(yy)
-            pm.utility.print_error('_HYBRID1: Failure to bracket a solution. Check function arguments to be sure they reference a valid state. This error usually occurs in inversion routines very close to the saturation line or if the properties are out-of-range.')
-            raise pm.utility.PMParamError('_HYBRID1: At least one max/min value does not bracket a solution!')
-        
+        # Borrow the a out-of-bounds array to hold the result
+        # This is adapted from jranalli's graceful NaN failure edit
+        Iaoob[Ids] = np.logical_not(np.logical_xor(Iswap[Ids], yy >= y[Ids]))  # Figure out which meet the condition
+        if Ids.any() and Iaoob[Ids].all():  # All points failed to bracket. Fail and raise Error.
+            pm.utility.print_warning(
+                '_HYBRID1: Failure to bracket a solution. Check function '
+                'arguments to be sure they reference a valid state. This error '
+                'usually occurs if the properties are out-of-range.')
+            raise pm.utility.PMParamError(
+                '_HYBRID1: All of the target values appear to be out-of-bounds!')
+        elif Iaoob[Ids].any():  # Only some have failed to bracket
+            # Force the result to the out-of-bounds value
+            x[Iaoob] = pm.config['def_oob']
+            # Clear the corresponding downselect bits
+            Ids[Iaoob] = False
+            pm.utility.print_warning(
+                '_HYBRID1: Failure to bracket a solution for input '
+                'element(s): {}. Values set to np.nan. Check function '
+                'arguments to be sure they reference a valid state. This error'
+                ' usually occurs if the properties are out-of-range.'
+                .format(np.flatnonzero(fails)))
+            # Clear the out-of-bounds index we just used.
+            Iaoob[:] = False
+        # If none of the Iaoob values were True, there's no need to
+        # clear them
+                
         # Calculate the thrid candidate solution
         xc[Ids] = 0.5*(xmin[Ids] + xmax[Ids])
         
@@ -1436,49 +1449,8 @@ Optional parameters (and their defaults) are:
     derivatives.
 """
         
-        d = np.empty_like(p, dtype=float)
-        I = np.zeros_like(p, dtype=bool)
-        da = np.empty_like(p, dtype=float)
-        db = np.empty_like(p, dtype=float)
-        
-        # We need to establish boundaries for the isothermal density iterations
-        # Start with super-critical points
-        Isat = T >= self.data['Tc']
-        # use 10% of the IG density for the lower boundary
-        da[Isat] = 0.1 * p[Isat] / (self.data['R'] * T[Isat])
-        db[Isat] = self.data['dlim'][1]
-        
-        # Now, move on to the sub-critical points
-        Isat = np.logical_not(Isat)
-        if Isat.any():
-            # Use da and db as temporaries for the saturation densities
-            ps = self._ps(T[Isat])[0]
-            db[Isat] = self._dsv(T[Isat])[0]    # vapor 
-            da[Isat] = self._dsl(T[Isat])[0]    # liquid
-            
-            # Start with the vapor points
-            # Use densities slightly inside the dome
-            # It is important to use specific volumes at low temperatures
-            # The vapor densities are so low, that even a small liquid percent
-            # dominates the value.
-            I[Isat] = p[Isat] < ps
-            db[I] = 1./(0.98 / db[I] + 0.02 / da[I])
-            da[I] = 0.1 * p[I] / (self.data['R'] * T[I])
-            
-            # Now, the liquid points
-            I[Isat] = np.logical_not(I[Isat])
-            da[I] = 0.98 * da[I] + 0.02 * db[I]
-            db[I] = self.data['dlim'][1]
-        
-        # Re-initialize the down-select vector to True
-        I[:] = True
-        
-        self._hybrid1(self._p, 'd', p, d, I, da, db,
-                ep=1e-6, Nmax=30, fx_index=2, 
-                verbose=debug, param={'T':T})
-        
         # Assume a standard inner property routine call signature
-        y,yt,yd = fn(T,d,diff=diff)
+        y,yt,yd = fn(T,self._d(T,p),diff=diff)
         # If the derivative is requested, we need to shift from constant
         # density to constant pressure.
         if diff>0:
@@ -2324,14 +2296,31 @@ other conditions, x<0 and d1 == d2.
         # 6) Replace v with d if it appears
         if 'T' in kwarg:
             kwarg['T'] = pm.units.temperature_scale(kwarg['T'], to_units='K')
-            _bounds(kwarg['T'], self.data['Tlim'], 'T')
+            # Test for out-of-bounds
+            Ioob = np.logical_or(kwarg['T'] < self.data['Tlim'][0], 
+                    kwarg['T'] > self.data['Tlim'][1])
+            if Ioob.all():
+                pm.utility.print_warning('All of the temperature values are out-of-bounds for this substance.'
+                        'Legal values are between {:f} and {:f} Kelvin.'.format(*self.data['Tlim']))
+                raise pm.utility.PMParamError('_ARGPARSE: Temperature values were all out of range.')
+            elif Ioob.any():
+                kwarg['T'][Ioob] = pm.config['def_oob']
+                pm.utility.print_warning('Some temperature values were out-of-bounds for this substance.')
         if 'p' in kwarg:
-            _bounds(kwarg['p'], self.data['plim'], 'p')
             kwarg['p'] = pm.units.pressure(kwarg['p'], to_units='Pa')
+            # Test for out-of-bounds
+            Ioob = np.logical_or(kwarg['p'] < self.data['plim'][0], 
+                    kwarg['p'] > self.data['plim'][1])
+            if Ioob.all():
+                pm.utility.print_warning('All of the pressure values are out-of-bounds for this substance.'
+                        'Legal values are between {:f} and {:f} Pascals.'.format(*self.data['plim']))
+                raise pm.utility.PMParamError('_ARGPARSE: Pressure values were all out of range.')
+            elif Ioob.any():
+                kwarg['p'][Ioob] = pm.config['def_oob']
+                pm.utility.print_warning('Some pressure values were out-of-bounds for this substance.')
         if 'd' in kwarg:
             value = pm.units.volume(kwarg['d'], to_units='m3', exponent=-1)
             kwarg['d'] = pm.units.matter(value, self.data['mw'], to_units='kg')
-            _bounds(kwarg['d'], self.data['dlim'], 'd')
         if 'v' in kwarg:
             # Convert and replace with d at the same time
             value = pm.units.volume(kwarg['v'], to_units='m3')
@@ -2343,7 +2332,6 @@ other conditions, x<0 and d1 == d2.
             del kwarg['v']
             args.remove('v')
             basic_args.remove('v')
-            _bounds(kwarg['d'], self.data['dlim'], 'd')
         if 'h' in kwarg:
             value = kwarg['h']
             value = pm.units.energy(value, to_units='J')
@@ -2362,7 +2350,8 @@ other conditions, x<0 and d1 == d2.
             kwarg['s'] = value
         # x is dimensionless - no need to convert anything
         if 'x' in kwarg:
-            _bounds(kwarg['x'], [0,1], 'x')
+            if (kwarg['x'] > 1).any() or (kwarg['x'] < -1).any():
+                raise pm.utility.PMParamError('Quality was found to be outside of the range -1,1.')
 
 
         # 6) Case out the different combinations
@@ -2461,6 +2450,8 @@ other conditions, x<0 and d1 == d2.
                     x[I] = (h[I] - hsL[I])/(hsV[I]-hsL[I])
                     # d1 and d2 already contain the liquid and vapor
                     # densities at the saturated points
+                    # The remaining points still need to be calculated
+                    # use _d() to perform the iterative calculation
                     Iwork = np.logical_not(I)
                     d1[Iwork] = self._d(T=T[Iwork], p=p[Iwork])
                     d2[Iwork] = d1[Iwork]

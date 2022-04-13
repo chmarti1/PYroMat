@@ -18,7 +18,7 @@ import os
 import traceback as tb
 import time
 # point back to the root package
-import pyromat as pyro
+import pyromat as pm
 
 
 
@@ -180,12 +180,12 @@ if config['version'].split('.')[0] < 2:
 """
     def __init__(self, load=True):
         # detect the package installation directory
-        install_dir = os.path.dirname( pyro.__file__ )
+        install_dir = os.path.dirname( pm.__file__ )
         install_dir = os.path.abspath(install_dir)
         # Below was the installation directory deteciton method for version 1.2
         # The path attribute is controlled by the import system, but the master
         # __init__ file location is under the pyromat package's control.
-        # install_dir = os.path.abspath(pyro.__path__[0])
+        # install_dir = os.path.abspath(pm.__path__[0])
 
         # Point to the default configuration file
         default_config = os.path.join( install_dir, 'config.py')
@@ -195,9 +195,11 @@ if config['version'].split('.')[0] < 2:
 
         self.entries = {
             'install_dir': PMConfigEntry(default=install_dir, write=False, etype=str),
-            'version' : PMConfigEntry(default=pyro.__version__, write=False, etype=str),
+            'version' : PMConfigEntry(default=pm.__version__, write=False, etype=str),
             'config_file' : PMConfigEntry(default=default_config, append=True, etype=str),
             'config_verbose' : PMConfigEntry(default=False, etype=bool),
+            'warning_verbose' : PMConfigEntry(default=True, etype=bool),
+            'error_verbose' : PMConfigEntry(default=True, etype=bool),
             'dat_dir' : PMConfigEntry(default=data_dir, append=True, etype=str),
             'dat_verbose' : PMConfigEntry(default=True, etype=bool),
             'dat_overwrite' : PMConfigEntry(default=True, etype=bool),
@@ -209,6 +211,7 @@ if config['version'].split('.')[0] < 2:
             'reg_exist_fatal' : PMConfigEntry(default=False, etype=bool),
             'def_T' : PMConfigEntry(default=298.15, etype=float),
             'def_p' : PMConfigEntry(default=1.01325, etype=float),
+            'def_oob' : PMConfigEntry(default=np.nan, etype=float),
             'unit_force' : PMConfigEntry(default='N', etype=str),
             'unit_energy' : PMConfigEntry(default='kJ', etype=str),
             'unit_temperature' : PMConfigEntry(default='K', etype=str),
@@ -382,11 +385,11 @@ This is only left for reverse compatibility.  The present implementation
 permits direct access to pyro.config.
 
 Equivalent to 
-pyro.config[param]
+pm.config[param]
 
 dtype and verbose keywords are now ignored.
 """
-    return pyro.config[param]
+    return pm.config[param]
 
 
 
@@ -461,10 +464,12 @@ then 'print_lines' returns -1.
 
 
 def print_error(text):
-    sys.stdout.write(split_lines(text,lead='PYroMat ERR:: '))
+    if pm.config['error_verbose']:
+        sys.stdout.write(split_lines(text,lead='PYroMat ERR:: '))
 
 def print_warning(text):
-    sys.stdout.write(split_lines(text,lead='PYroMat WARN:: '))
+    if pm.config['warning_verbose']:
+        sys.stdout.write(split_lines(text,lead='PYroMat WARN:: '))
 
 def print_line(text, lead):
     sys.stdout.write(split_lines(text,lead))
@@ -624,7 +629,7 @@ file in the list will be left alone.
 
     # If RED is unspecified, call load()
     if RED == None:
-        status = pyro.dat.load(check=True,verbose=False)
+        status = pm.dat.load(check=True,verbose=False)
         RED = status['redundant']
 
     # Choose an input function based on the Python version
