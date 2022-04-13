@@ -1222,10 +1222,10 @@ param       A dicitonary of keyword arguments are passed directly to the
             Ids[Iaoob] = False
             pm.utility.print_warning(
                 '_HYBRID1: Failure to bracket a solution for input '
-                'element(s): {}. Values set to np.nan. Check function '
+                'element(s): {}. Values set to config[\'def_oob\']. Check function '
                 'arguments to be sure they reference a valid state. This error'
                 ' usually occurs if the properties are out-of-range.'
-                .format(np.flatnonzero(fails)))
+                .format(np.flatnonzero(Iaoob)))
             # Clear the out-of-bounds index we just used.
             Iaoob[:] = False
         # If none of the Iaoob values were True, there's no need to
@@ -1450,7 +1450,8 @@ Optional parameters (and their defaults) are:
 """
         
         # Assume a standard inner property routine call signature
-        y,yt,yd = fn(T,self._d(T,p),diff=diff)
+        d = self._d(T,p)
+        y,yt,yd = fn(T,d,diff=diff)
         # If the derivative is requested, we need to shift from constant
         # density to constant pressure.
         if diff>0:
