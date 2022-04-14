@@ -465,11 +465,11 @@ then 'print_lines' returns -1.
 
 def print_error(text):
     if pm.config['error_verbose']:
-        sys.stdout.write(split_lines(text,lead='PYroMat ERR:: '))
+        sys.stdout.write(split_lines(text,lead='PM ERR: '))
 
 def print_warning(text):
     if pm.config['warning_verbose']:
-        sys.stdout.write(split_lines(text,lead='PYroMat WARN:: '))
+        sys.stdout.write(split_lines(text,lead='PM WARN: '))
 
 def print_line(text, lead):
     sys.stdout.write(split_lines(text,lead))

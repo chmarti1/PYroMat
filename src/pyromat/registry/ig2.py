@@ -71,7 +71,7 @@ _argparse decides which to populate based on what is most efficient.
         #   2.4: d and v may not be specified together 
         # 3) Convert the arguments to arrays with dim 1 or greater
         # 4) Convert to standard units
-        # 5) Check for out-of-bounds on basic arguments
+        # 5) Check for out-of-bounds on basic arguments (This was shifted to last)
         # 6) Replace specific volume with density if it appears
         # 7) Case out the possible combinations
         # 8) Broadcast the arrays appropriately
@@ -169,21 +169,9 @@ _argparse decides which to populate based on what is most efficient.
         #   to be converted.  Otherwise, the array is passed through verbatim
         #   As a result, the input array will ONLY be copied if it needs to
         #   be reshaped, converted, or retyped.
-        # 5) Check for out-of-bounds on the converted values
-        #   Checking before arrays are broadcast minimizes the number of
-        #   elements that need to be inspected
         # 6) Replace v with d if it appears
         if 'T' in kwarg:
             kwarg['T'] = pm.units.temperature_scale(kwarg['T'], to_units='K')
-            I = np.logical_or(kwarg['T'] < self.data['Tlim'][0], kwarg['T'] > self.data['Tlim'][-1])
-            if I.any():
-                message = 'Temeprature is out of range.  Problematic values are:\n'
-                prefix = '  '
-                for value in kwarg['T'][I][:8]:
-                    message += prefix + str(value)
-                if np.sum(I) > 8:
-                    message += ', ...'
-                raise pm.utility.PMParamError(message)
         if 'p' in kwarg:
             kwarg['p'] = pm.units.pressure(kwarg['p'], to_units='Pa')
         if 'd' in kwarg:
@@ -216,7 +204,6 @@ _argparse decides which to populate based on what is most efficient.
         # Convert R into J/kmol/K - use this for p = dRT
         # Do NOT use this for s, e, and h relationships
         R = 1000 * pm.units.const_Ru
-
 
 
         T = p = d = None
@@ -267,7 +254,7 @@ _argparse decides which to populate based on what is most efficient.
             elif 'd' in args:
                 T,d = np.broadcast_arrays(kwarg['T'],kwarg['d'])
             else:
-                message = 'Please report a bug: Unhandled event [T] in ig._argparse with args:'
+                message = 'Please report a bug: Unhandled event [T] in ig2._argparse with args:'
                 prefix = ' '
                 for name in args:
                     message += prefix + name
@@ -279,20 +266,29 @@ _argparse decides which to populate based on what is most efficient.
                 p,d = np.broadcast_arrays(kwarg['p'], kwarg['d'])
                 T = p / (R * d)
             else:
-                message = 'Please report a bug: Unhandled event [p] in ig._argparse with args:'
+                message = 'Please report a bug: Unhandled event [p] in ig2._argparse with args:'
                 prefix = ' '
                 for name in args:
                     message += prefix + name
                     prefix = ', '
                 raise pm.utility.PMParamError(message)
         else:
-            message = 'Please report a bug: Unhandled event [MASTER] in ig._argparse with args:'
+            message = 'Please report a bug: Unhandled event [MASTER] in ig2._argparse with args:'
             prefix = ' '
             for name in args:
                 message += prefix + name
                 prefix = ', '
             raise pm.utility.PMParamError(message)
             
+        # Test the temperatures for out-of-bounds
+        I = np.logical_or(T < self.data['Tlim'][0], T > self.data['Tlim'][-1])
+        if I.all():
+            raise pm.utility.PMParamError('All of the specified states were out-of-bounds.  '  
+                    'Legal temperatures for {} are between {} and {} Kelvin.'.format(self.data['id'], self.data['Tlim'][0], self.data['Tlim'][-1]))
+        elif I.any():
+            T[I] = pm.config['def_oob']
+            pm.utility.print_warning('Some of the states were out of bounds - setting to config[\'def_oob\'].  '
+                    'Legal temperatures for {} are between {} and {} Kelvin.'.format(self.data['id'], self.data['Tlim'][0], self.data['Tlim'][-1]))
         return T,p,d
             
 
@@ -750,11 +746,12 @@ param       A dicitonary of keyword arguments are passed directly to the
 
 Expects temperature in Kelvin and returns cp in kJ/kmol/K
 """
-        out = np.zeros_like(T,dtype=float)
+        out = np.full_like(T,pm.config['def_oob'],dtype=float)
         # Loop through the piece-wise temperature ranges
         for index in range(len(self.data['Tlim'])-1):
             # Which elements are in-range?
             I = self._crange(T,index)
+            out[I] = 0.
             for c in self.data['C'][index][4::-1]:
                 out[I] = c + out[I]*T[I]
         return pm.units.const_Ru * out
@@ -770,14 +767,17 @@ If the optional keyword, diff, is True, then the first derivative of
 enthalpy is also returned; otherwise it is None.  This is more 
 efficient than calculating specific heat separately.
 """
-        out = np.zeros_like(T,dtype=float)
+        out = np.full_like(T,pm.config['def_oob'],dtype=float)
         dh = None
         if diff:
-            dh = np.zeros_like(T,dtype=float)
+            dh = np.full_like(T,pm.config['def_oob'],dtype=float)
         # Loop through the piece-wise temperature ranges
         for index in range(len(self.data['Tlim'])-1):
             # Which elements are in-range?
             I = self._crange(T,index)
+            out[I] = 0.
+            if diff:
+                dh[I] = 0.
             term = 5.
             for c in self.data['C'][index][4::-1]:
                 temp = (c/term + out[I])
@@ -818,18 +818,21 @@ If the optional keyword, diff, is True, then the derivative of entropy
 with respect to temperature is also returned.  Otherwise, it is returned
 as None.
 """
-        out = np.zeros_like(T,dtype=float)
+        out = np.full_like(T,pm.config['def_oob'],dtype=float)
         sT = None
         if diff:
-            sT = np.zeros_like(T,dtype=float)
+            sT = np.full_like(T,pm.config['def_oob'],dtype=float)
         # Loop through the piece-wise temperature ranges
         for index in range(len(self.data['Tlim'])-1):
             # Which elements are in-range?
             I = self._crange(T,index)
+            out[I] = 0.
+            if diff:
+                sT[I] = 0.
             term = 4.
             for c in self.data['C'][index][4:0:-1]:
                 if diff:
-                    sT[I] = sT[I] + T[I]*sT[I]
+                    sT[I] = out[I] + T[I]*sT[I]
                 out[I] = c/term + T[I]*out[I]
                 term -= 1.
             if diff:
@@ -840,7 +843,7 @@ as None.
                     + self.data['C'][index][0] * np.log(T[I])
         
         # Rescale the outputs
-        out[...] = pm.units.const_Ru * out
+        out *= pm.units.const_Ru
         if diff:
             sT *= pm.units.const_Ru
         return out, sT
@@ -1154,6 +1157,7 @@ Returns entropy in unit_energy / unit_matter / unit_temperature
         T,p,d = self._argparse(*varg, **kwarg)
         if p is None:
             p = d * (1000*pm.units.const_Ru * T)
+            
         # Apply the model
         out = self._s(T)[0] - pm.units.const_Ru * np.log(p/self.data['pref'])
         # calculate a conversion factor
@@ -1193,6 +1197,60 @@ Returns internal energy in unit_energy / unit_matter
         scale = pm.units.matter(scale, self.data['mw'], from_units='mol', exponent=-1)
         # Apply the conversion factor in-place and return
         np.multiply(out, scale, out=out)
+        return out
+
+    def state(self, *varg, **kwarg):
+        """Calculate all properties at a state
+    sd = state(...)
+
+The properties are returned in a dictionary with keys:
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+    cp  const. p sp. ht.    unit_energy / unit_matter / unit_temperature
+    cv  const. v sp. ht.    unit_energy / unit_matter / unit_temperature
+    
+Like all of the other property functions, arguments may be any two of
+T, p, d, v, e, h, and s.  
+"""
+        Ru = pm.units.const_Ru
+        T,p,d = self._argparse(*varg, **kwarg)
+        # Make sure we have both pressure and density
+        if d is None:
+            d = p / (1000 * Ru * T)
+        elif p is None:
+            p = 1000 * d * Ru * T
+
+        # Now entropy
+        s = self._s(T,False)[0] - Ru * np.log(p / self.data['pref'])
+
+        # Enthalpy and specific heat at once
+        h,cp = self._h(T,True)
+        cv = cp - Ru
+        gam = cp/cv
+        e = h - Ru/T
+        
+        # Finally build the output
+        out = {}
+        out['T'] = pm.units.temperature_scale(T, from_units='K')
+        out['p'] = pm.units.pressure(p, from_units='Pa')
+        scale = pm.units.matter(1., self.data['mw'], from_units='kmol')
+        scale = pm.units.volume(scale, from_units='m3', exponent=-1)
+        out['d'] = scale * d
+        out['v'] = 1./out['d']
+        scale = pm.units.energy(1., from_units='kJ')
+        scale = pm.units.matter(scale, self.data['mw'], from_units='kmol', exponent=-1)
+        out['h'] = h * scale
+        out['e'] = e * scale
+        out['gam'] = gam
+        scale = pm.units.temperature(scale, from_units='K', exponent=-1)
+        out['s'] = s * scale
+        out['cp'] = cp * scale
+        out['cv'] = cv * scale
         return out
 
 
