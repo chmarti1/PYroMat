@@ -192,15 +192,6 @@ _argparse decides which to populate based on what is most efficient.
         # 6) Replace v with d if it appears
         if 'T' in kwarg:
             kwarg['T'] = pm.units.temperature_scale(kwarg['T'], to_units='K')
-            I = np.logical_or(kwarg['T'] < self.data['Tlim'][0], kwarg['T'] > self.data['Tlim'][-1])
-            if I.any():
-                message = 'Temeprature is out of range.  Problematic values are:\n'
-                prefix = '  '
-                for value in kwarg['T'][I][:8]:
-                    message += prefix + str(value)
-                if np.sum(I) > 8:
-                    message += ', ...'
-                raise pm.utility.PMParamError(message)
         if 'p' in kwarg:
             kwarg['p'] = pm.units.pressure(kwarg['p'], to_units='Pa')
         if 'd' in kwarg:
@@ -309,6 +300,16 @@ _argparse decides which to populate based on what is most efficient.
                 message += prefix + name
                 prefix = ', '
             raise pm.utility.PMParamError(message)
+            
+        # Test the temperatures for out-of-bounds
+        I = np.logical_or(T < self.data['Tlim'][0], T > self.data['Tlim'][-1])
+        if I.all():
+            raise pm.utility.PMParamError('All of the specified states were out-of-bounds.  '  
+                    'Legal temperatures for {} are between {} and {} Kelvin.'.format(self.data['id'], self.data['Tlim'][0], self.data['Tlim'][-1]))
+        elif I.any():
+            T[I] = pm.config['def_oob']
+            pm.utility.print_warning('Some of the states were out of bounds - setting to config[\'def_oob\'].  '
+                    'Legal temperatures for {} are between {} and {} Kelvin.'.format(self.data['id'], self.data['Tlim'][0], self.data['Tlim'][-1]))
             
         return T,p,d
 
@@ -445,7 +446,7 @@ param       A dicitonary of keyword arguments are passed directly to the
 
 Expects temperature in Kelvin and returns cp in kJ/kmol/K"""
 
-        out = np.zeros_like(T, dtype=float)
+        out = np.full_like(T,pm.config['def_oob'],dtype=float)
         # Loop through the available piece-wise temperature ranges
         # Use the _crange() method to identify the elements appropriate
         # for each.
@@ -466,10 +467,10 @@ Expects T in Kelvin and returns enthalpy in kJ/kmol
 When diff=True, the partial derivative of enthalpy with respect to 
 temperature with constant pressure is also returned.
 """
-        out = np.zeros_like(T, dtype=float)
+        out = np.full_like(T,pm.config['def_oob'],dtype=float)
         hT = None
         if diff:
-            hT = np.zeros_like(T, dtype=float)
+            hT = np.full_like(T,pm.config['def_oob'],dtype=float)
         # Loop through the available piece-wise temperature ranges
         # Use the _crange() method to identify the elements appropriate
         # for each.
@@ -506,10 +507,10 @@ Expects T in Kelvin, and returns entropy in kJ/kmol.
 When diff=True, the partial derivatives of entropy with respect to 
 temperature is also returned.  Otherwise it is returned as None.
 """
-        out = np.zeros_like(T, dtype=float)
+        out = np.full_like(T,pm.config['def_oob'],dtype=float)
         sT = None
         if diff:
-            sT = np.zeros_like(T, dtype=float)
+            sT = np.full_like(T,pm.config['def_oob'],dtype=float)
         # Loop through the available piece-wise temperature ranges
         # Use the _crange() method to identify the elements appropriate
         # for each.
@@ -1730,6 +1731,61 @@ Returns internal energy in unit_energy / unit_matter
         # Apply the conversion factor in-place and return
         np.multiply(out, scale, out=out)
         return out
+
+    def state(self, *varg, **kwarg):
+        """Calculate all properties at a state
+    sd = state(...)
+
+The properties are returned in a dictionary with keys:
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+    cp  const. p sp. ht.    unit_energy / unit_matter / unit_temperature
+    cv  const. v sp. ht.    unit_energy / unit_matter / unit_temperature
+    
+Like all of the other property functions, arguments may be any two of
+T, p, d, v, e, h, and s.  
+"""
+        Ru = pm.units.const_Ru
+        T,p,d = self._argparse(*varg, **kwarg)
+        # Make sure we have both pressure and density
+        if d is None:
+            d = p / (1000 * Ru * T)
+        elif p is None:
+            p = 1000 * d * Ru * T
+
+        # Now entropy
+        s = self._s(T,False)[0] - Ru * np.log(p / self._pref_pa)
+
+        # Enthalpy and specific heat at once
+        h,cp = self._h(T,True)
+        cv = cp - Ru
+        gam = cp/cv
+        e = h - Ru/T
+        
+        # Finally build the output
+        out = {}
+        out['T'] = pm.units.temperature_scale(T, from_units='K')
+        out['p'] = pm.units.pressure(p, from_units='Pa')
+        scale = pm.units.matter(1., self.data['mw'], from_units='kmol')
+        scale = pm.units.volume(scale, from_units='m3', exponent=-1)
+        out['d'] = scale * d
+        out['v'] = 1./out['d']
+        scale = pm.units.energy(1., from_units='kJ')
+        scale = pm.units.matter(scale, self.data['mw'], from_units='kmol', exponent=-1)
+        out['h'] = h * scale
+        out['e'] = e * scale
+        out['gam'] = gam
+        scale = pm.units.temperature(scale, from_units='K', exponent=-1)
+        out['s'] = s * scale
+        out['cp'] = cp * scale
+        out['cv'] = cv * scale
+        return out
+
 
 
     def T_s(self,s,*varg, **kwarg):
