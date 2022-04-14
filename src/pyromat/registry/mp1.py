@@ -47,38 +47,54 @@ arg         a string name of the property
 class mp1(pm.reg.__basedata__):
     """The PYroMat multi-phase generalist class 1
 
-Provides property methods:
+** Available Property Methods **
+MP1 provides property methods:
     cp()    Isobaric specific heat
     cv()    Isochoric specific heat
     gam()   Specific heat ratio
     e()     Internal energy
     h()     Enthalpy
     s()     Entropy
-    hsd()   Enthalpy, entropy, and density
-
-Provides equation-of-state methods:
     T()     Temperature
     p()     Pressure
     d()     Density
+    v()     Specific volume
+    x()     Quality
+    state() Calculates all properties
     
 All of the above methods accept a standardized call signature, which 
-accepts any of the following arguments:
-    T       Temperature
-    p       Pressure
-    d       Density
-    x       Quality
+accepts any of the following arguments: T, p, d, v, e, h, s, x
+
 For example, enthalpy might be called
-    h(T,p)
-    h(T,d)
-    h(T,x)
-or any other combination of two.  See the method documentation for more
-details.
+    h(T=300., p=1.01325)
+    h(T=300., d=990.)
+    h(T=300., x=0.5)
+    h(s=6., p=2.5)
+
+In the back end, all properties are calculated from temperature and density,
+so providing this interface flexibility has a numerical cost.  Once T and d
+are known, additional property evaluations should always be made in terms
+of them.
+
+Most property pairs are supported, but several are not.  For example, e,
+s, and h must be specified with a "basic" property; T, d, p, v, or x.  
+This limitation is to prevent the costly numerical iteration that occurs
+when two "higher" properties need to be simultaneously inverted.  
+
+Furthermore, since it is impossible to specify a saturated mixture with
+temperature and pressure alone, there is a special case, which permits 
+three properties: T, p, x.  When x is negative, it is ignored, but for all
+points where it is between 0 and 1, pressure is ignored, and presumed to
+be the saturation pressure at the specified temperature.  For performance
+reasons, this condition is not tested, so if it is violated, an error will
+not be raised.
 
 Most property methods also accept the "quality" as an optional keyword.  When
 it is set to True, the property will also return the vapor/liquid mixture
 quality in a tuple with the property value.  For example,
     h,x = h(T,d,quality=True)
 
+** Saturation Properties **
 There are also saturation property methods:
     es()    Saturation internal energy
     hs()    Saturation enthalpy
@@ -86,19 +102,36 @@ There are also saturation property methods:
     
 And saturation equations of state methods:
     Ts()    Saturaiton temperature
-    ds()    Saturation density
+    ds()    Saturation densities
+    vs()    Saturation specific volumes
     ps()    Saturation pressure
 
 Saturation methods accept either temperature or pressure as an argument.  
 The density saturation method returns both liquid and vapor densities in a 
 tuple pair.  See their in-line documentaiton for more details.
 
-What is the chemical formula and charge of the substance?
+** Other Properties **
+There are other methods that return useful information, but that does 
+not depend on the state.
     atoms() Returns a dictionary specifying the chemical composition.
+    mw()    Returns the molecular weight/mass
+    R()     Returns the ideal gas constant
+    Tlim()  Returns [Tmin, Tmax] valid temperature range
+    plim()  Returns [pmin, pmax] valid pressure range
+    critical()  Returns the state at the critical point
+    triple()    Returns the state at the triple point
+    
+** Depreciated Properties **
+As of version 2.2.0, inverse routines like T_s(), T_h(), d_s(), and the 
+hsd() have been labeled as "depreciated" in favor of the standard property
+methods, which are now sufficiently flexible to handle s and h as 
+arguments.  These methods are still included for reverse compatibility,
+but they will be removed when the major version bumps to 3.  Future
+software should not use them.
 
 *** MORE DOCUMENTATION ***
 MP1 models thermo-physical properties of a liquid-gas system using a 
-general fit for helmholtz free energy.  These "Spand & Wagner" fits are 
+general fit for helmholtz free energy.  These "Span & Wagner" fits are 
 evaluated in a polynomial form with exponential post factors.
 
 The MP1 class is divided into three layers of methods (routines).  
@@ -3175,6 +3208,21 @@ Returns the liquid (dsL) and vapor (dsV) saturation density in units
         dL *= conv
         dV *= conv
         return dL, dV
+        
+    def vs(self, *varg, **kwarg):
+        """Saturation specific volume
+    vsL, vsV = vs(T)
+    
+If no keyword is specified, saturation properties interpret the argument
+as temperature.  However, pressure can be specified as well
+
+    vsL, vsV = vs(p=pvalue)
+    
+Returns the liquid (vsL) and vapor (vsV) saturation density in units
+[unit_volume / unit_matter]
+"""
+        dL,dV = self.ds(*varg, **kwarg)
+        return 1./dL, 1./dV
 
 
     def es(self, *varg, **kwarg):
@@ -3258,7 +3306,7 @@ units [unit_energy / unit_matter / unit_temperature]
     # EOS properties T,p,d  #
     #                       #
     
-    def p(self, quality=False, *varg, **kwarg):
+    def p(self, *varg, quality=False, **kwarg):
         """Pressure
     p(...)
 
@@ -3278,6 +3326,10 @@ If no keywords are specified, the positional arguments are interpreted
 as (T,p).  To configure their defaults, use the def_T and def_p config
 entries.
 
+Additionally, if the optional keyword, "quality" is set to True, the 
+quality of the liquid/vapor mixture is also returned
+    e,x = e(..., quality=True)
+
 Returns pressure in unit_pressure
 """
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
@@ -3287,14 +3339,14 @@ Returns pressure in unit_pressure
         # In all other conditions d1=d2
         p = self._p(T,d2,0)[0]
         
-        pm.units.pressure(p, from_units='Pa', inplace=True)
+        p = pm.units.pressure(p, from_units='Pa')
         
         if quality:
             return p,x
         return p
         
         
-    def d(self, *varg, **kwarg):
+    def d(self, *varg, quality=False, **kwarg):
         """Density
     d(...)
 
@@ -3314,6 +3366,10 @@ If no keywords are specified, the positional arguments are interpreted
 as (T,p).  To configure their defaults, use the def_T and def_p config
 entries.
 
+Additionally, if the optional keyword, "quality" is set to True, the 
+quality of the liquid/vapor mixture is also returned
+    e,x = e(..., quality=True)
+
 Returns density in unit_matter / unit_volume
 """
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
@@ -3322,12 +3378,14 @@ Returns density in unit_matter / unit_volume
             d1[I] += x[I]/d2[I]
             d1[I] = 1. / d1[I]
             
-        pm.units.matter(d1, self.data['mw'], from_units='kg', inplace=True)
-        pm.units.volume(d1, from_units='m3', inplace=True, exponent=-1)
+        d1 = pm.units.matter(d1, self.data['mw'], from_units='kg')
+        d1 = pm.units.volume(d1, from_units='m3', exponent=-1)
+        if quality:
+            return d1,x
         return d1
         
         
-    def v(self, *varg, **kwarg):
+    def v(self, *varg, quality=False, **kwarg):
         """specific volume
     v(...)
 
@@ -3347,11 +3405,18 @@ If no keywords are specified, the positional arguments are interpreted
 as (T,p).  To configure their defaults, use the def_T and def_p config
 entries.
 
+Additionally, if the optional keyword, "quality" is set to True, the 
+quality of the liquid/vapor mixture is also returned
+    v,x = v(..., quality=True)
+
 Returns volume in unit_volume / unit_matter
 """
-        return 1./self.d(*varg, **kwarg)
+        d,x = self.d(*varg, quality=True, **kwarg)
+        if quality:
+            return 1./d, x
+        return 1./d
         
-    def T(self, *varg, **kwarg):
+    def T(self, *varg, quality=False, **kwarg):
         """Temperature
     T(...)
 
@@ -3372,10 +3437,50 @@ as (T,p).  To configure their defaults, use the def_T and def_p config
 entries.
 
 Returns temperature in unit_temperature
+
+In many applications, it is also necessary to calculate quality to 
+completely specify the state, and since it is an intermediate for any
+property calculation, it can be returned as well.  If the optional 
+"quality" keyword argument is set to True, x is appended in a tuple to 
+save an unnecessary redundant call to x().
+
+    T,x = T(..., quality=True)
 """
-        T,_,_,_,_ = self._argparse(*varg, **kwarg)
-        pm.units.temperature_scale(T, from_units='K', inplace=True)
+        T,_,_,x,_ = self._argparse(*varg, **kwarg)
+        T = pm.units.temperature_scale(T, from_units='K')
+        if quality:
+            return T,x
         return T
+        
+    def x(self, *varg, **kwarg):
+        """Quality
+    x(...)
+
+All properties accept two other properties as flexible inputs.
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    x   quality             dimensionless
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Returns quality, which is a dimensionless number between 0 and 1 for 
+saturated mixtures and -1 for all other states.
+
+In many applications quality is one of a few important properties.  To
+avoid redundant function calls, consider using the "quality" keyword in
+another property method or the state() method.
+"""
+        _,_,_,x,_ = self._argparse(*varg, **kwarg)
+        return x
         
     #                    #
     # Property functions #
