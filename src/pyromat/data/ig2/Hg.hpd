@@ -1,39 +1,42 @@
 {
-    "C": [
-        [
-            2.5,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            6636.90008,
-            6.80020154
-        ],
-        [
-            2.50953611,
-            -1.98827279e-05,
-            1.38910849e-08,
-            -3.9354292e-12,
-            3.90959219e-16,
-            6633.58064,
-            6.74847966
-        ]
+  "C": [
+    [
+      2.5,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      6636.90008,
+      6.80020154
     ],
-    "Tlim": [
-        200.0,
-        1000.0,
-        6000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "Hg": 1
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/Hg.hpd",
-    "ho": 7382.27508,
-    "id": "ig.Hg",
-    "mw": 200.59,
-    "names": [],
-    "pref": 100000.0
+    [
+      2.50953611,
+      -1.98827279e-05,
+      1.38910849e-08,
+      -3.9354292e-12,
+      3.90959219e-16,
+      6633.58064,
+      6.74847966
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Hg": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 7382.27508,
+  "id": "ig.Hg",
+  "mw": 200.59,
+  "names": [
+    "mercury"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/Hg",
+  "cas": "7439-97-6"
 }

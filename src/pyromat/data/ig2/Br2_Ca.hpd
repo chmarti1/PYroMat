@@ -1,0 +1,42 @@
+{
+  "C": [
+    [
+      6.6057157,
+      0.0036058892,
+      -5.831465e-06,
+      4.2634801e-09,
+      -1.1667278e-12,
+      -48382.963,
+      -0.631052281
+    ],
+    [
+      7.4151639,
+      9.6549013e-05,
+      -4.2463816e-08,
+      8.2286865e-12,
+      -5.8617057e-16,
+      -48536.824,
+      -4.48080162
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Br": 2,
+    "Ca": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -46296.8444,
+  "id": "ig.Br2Ca",
+  "mw": 199.886,
+  "names": [
+    "calcium bromide"
+  ],
+  "pref": 100000.0,
+  "cas": "7789-41-5"
+}

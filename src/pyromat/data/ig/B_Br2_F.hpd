@@ -6,7 +6,11 @@
   },
   "id": "ig.BBr2F",
   "mw": 189.617,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:36:45 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14720-25-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Dibromofluoroborane(3)"
+  ],
+  "cas": "14720-25-3",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:13:08 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14720-25-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1100.0,

@@ -14,36 +14,6 @@ import pyromat as pm
 import os,sys
 
 
-def _bounds(x,limits,this_arg):
-    """This is a helper function that checks the bounds on an array in _argparse
-or _sat_argparse.  It raises a meaningful error if there are values out 
-of bounds.
-
-    _bounds(x,limits,arg)
-    
-x           the numpy array of values
-limits      a two-element list or tuple with (min, max) limits
-arg         a string name of the property
-"""
-    # using not-and causes nan to fail as out-of-bounds
-    ii = np.logical_not(np.logical_and(
-            x >= limits[0], x <= limits[1]))
-    # If any points fail the check, generate an error message
-    if ii.any():
-        noob = np.sum(ii)
-        message = 'Property {:s} had {:d} value(s) out of range [{:f},{:f}].\n bad values:'.format(
-            this_arg, noob, limits[0], limits[1])
-        # Display the first 8 bad values
-        prefix = ' '
-        x = x[ii][:8]
-        for value in x:
-            message += prefix + str(value) 
-            prefix = ', '
-        if noob > 8:
-            message += '...'
-        raise pm.utility.PMParamError(message)
-
-
 class mp1(pm.reg.__basedata__):
     """The PYroMat multi-phase generalist class 1
 

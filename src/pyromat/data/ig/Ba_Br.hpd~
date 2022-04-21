@@ -5,7 +5,11 @@
   },
   "id": "ig.BaBr",
   "mw": 217.231,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:36:55 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14832-97-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Barium monobromide"
+  ],
+  "cas": "14832-97-4",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:15:52 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14832-97-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1400.0,

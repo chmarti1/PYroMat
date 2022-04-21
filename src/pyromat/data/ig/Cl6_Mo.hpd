@@ -5,7 +5,11 @@
   },
   "id": "ig.Cl6Mo",
   "mw": 308.68,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:34:48 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13706-19-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Molybdenum chloride"
+  ],
+  "cas": "13706-19-9",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:11:39 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13706-19-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      2.5598039,
+      0.017969319,
+      -2.0265255e-05,
+      1.1699183e-08,
+      -2.7863372e-12,
+      98.79068,
+      13.5899582
+    ],
+    [
+      7.1202601,
+      0.0031869557,
+      -1.3779897e-06,
+      2.6653163e-10,
+      -1.9043796e-14,
+      -1061.5347,
+      -9.4547656
+    ]
+  ],
+  "Tlim": [
+    298.15,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 1,
+    "N": 1,
+    "O": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 1503.4144,
+  "id": "ig.ClNO2",
+  "mw": 81.45824,
+  "names": [
+    "Nitryl chloride"
+  ],
+  "pref": 100000.0,
+  "cas": "13444-90-1"
+}

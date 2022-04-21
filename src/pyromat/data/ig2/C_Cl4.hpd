@@ -1,40 +1,84 @@
 {
-    "C": [
-        [
-            5.7966299,
-            0.017977439,
-            -1.0956546e-05,
-            -6.6681807e-09,
-            6.4554898e-12,
-            -13940.965,
-            -0.556959635
-        ],
-        [
-            11.739096,
-            0.0012837553,
-            -4.9650259e-07,
-            8.352502e-11,
-            -5.1107224e-15,
-            -15419.09,
-            -30.7778187
-        ]
+  "C": [
+    [
+      5.7966299,
+      0.017977439,
+      -1.0956546e-05,
+      -6.6681807e-09,
+      6.4554898e-12,
+      -13940.965,
+      -0.556959635
     ],
-    "Tlim": [
-        298.15,
-        1000.0,
-        5000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "C": 1,
-        "Cl": 4
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/C_Cl4.hpd",
-    "ho": -11523.798,
-    "id": "ig.CCl4",
-    "mw": 153.8218,
-    "names": [],
-    "pref": 100000.0
+    [
+      11.739096,
+      0.0012837553,
+      -4.9650259e-07,
+      8.352502e-11,
+      -5.1107224e-15,
+      -15419.09,
+      -30.7778187
+    ]
+  ],
+  "Tlim": [
+    298.15,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "C": 1,
+    "Cl": 4
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -11523.798,
+  "id": "ig.CCl4",
+  "mw": 153.8218,
+  "names": [
+    "Carbon Tetrachloride",
+    "Methane, tetrachloro-",
+    "Benzinoform",
+    "Carbon chloride (CCl4)",
+    "Carbona",
+    "Fasciolin",
+    "Flukoids",
+    "Freon 10",
+    "Necatorina",
+    "Perchloromethane",
+    "Tetrachlorocarbon",
+    "Tetrachloromethane",
+    "Tetrafinol",
+    "Tetraform",
+    "Tetrasol",
+    "Univerm",
+    "Vermoestricid",
+    "CCl4",
+    "Benzenoform",
+    "Carbon tet",
+    "Methane tetrachloride",
+    "Czterochlorek wegla",
+    "ENT 4,705",
+    "Halon 1040",
+    "Necatorine",
+    "R 10",
+    "Tetrachloorkoolstof",
+    "Tetrachloormetaan",
+    "Tetrachlorkohlenstoff, tetra",
+    "Tetrachlormethan",
+    "Tetrachlorure de carbone",
+    "Tetraclorometano",
+    "Tetracloruro di carbonio",
+    "Chlorid uhlicity",
+    "ENT 27164",
+    "Rcra waste number U211",
+    "UN 1846",
+    "Katharin",
+    "Seretin",
+    "Thawpit",
+    "NSC 97063",
+    "R 10 (Refrigerant)"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/CCl4/c2-1(3,4)5",
+  "cas": "56-23-5"
 }

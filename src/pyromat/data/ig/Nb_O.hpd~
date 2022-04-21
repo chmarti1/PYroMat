@@ -5,7 +5,13 @@
   },
   "id": "ig.NbO",
   "mw": 108.9058,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:31:36 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12034-57-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "niobium oxide",
+    "Niobium monoxide"
+  ],
+  "inchi": "InChI=1S/Nb.O",
+  "cas": "12034-57-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:07:46 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12034-57-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     3000.0,
     6000.0

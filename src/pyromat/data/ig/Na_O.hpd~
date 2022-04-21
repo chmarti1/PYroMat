@@ -5,7 +5,13 @@
   },
   "id": "ig.NaO",
   "mw": 38.9892,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:32:48 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12401-86-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "sodium oxide",
+    "Monosodium monoxide"
+  ],
+  "inchi": "InChI=1S/Na.O",
+  "cas": "12401-86-4",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:04:55 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12401-86-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

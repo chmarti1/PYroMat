@@ -4,7 +4,12 @@
   },
   "id": "ig.Ta",
   "mw": 180.94788,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:41:42 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7440-25-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "tantalum"
+  ],
+  "inchi": "InChI=1S/Ta",
+  "cas": "7440-25-7",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:16:22 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7440-25-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     5778.07,
     6000.0

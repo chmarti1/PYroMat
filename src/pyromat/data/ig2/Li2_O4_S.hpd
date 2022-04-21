@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      0.71145725,
+      0.059451179,
+      -8.636349e-05,
+      6.1171087e-08,
+      -1.7098923e-11,
+      -127508.42,
+      20.3803279
+    ],
+    [
+      14.929595,
+      0.0046097474,
+      -2.0379556e-06,
+      3.9862579e-10,
+      -2.870303e-14,
+      -130635.28,
+      -49.1664911
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Li": 2,
+    "O": 4,
+    "S": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -125304.083,
+  "id": "ig.Li2O4S",
+  "mw": 109.9456,
+  "names": [
+    "lithium sulphate"
+  ],
+  "pref": 100000.0,
+  "cas": "10377-48-7"
+}

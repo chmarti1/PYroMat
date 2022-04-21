@@ -1,0 +1,65 @@
+{
+  "C": [
+    [
+      1.7078791,
+      0.0289369464,
+      -4.93289116e-05,
+      4.16910139e-08,
+      -1.37057391e-11,
+      -27835.0932,
+      17.6202114
+    ],
+    [
+      7.86018378,
+      0.002132715,
+      -8.22077158e-07,
+      1.38951133e-10,
+      -8.58406653e-15,
+      -29105.6423,
+      -11.9011907
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "C": 1,
+    "Cl": 2,
+    "O": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -26399.6315,
+  "id": "ig.CCl2O",
+  "mw": 98.9158,
+  "names": [
+    "Phosgene",
+    "Carbonyl dichloride",
+    "Carbonic dichloride",
+    "Carbon dichloride oxide",
+    "Carbon oxychloride",
+    "Carbonyl chloride",
+    "Chloroformyl chloride",
+    "CG",
+    "COCl2",
+    "Carbone (oxychlorure de)",
+    "Carbonic chloride",
+    "Carbonio (ossicloruro di)",
+    "Carbonylchlorid",
+    "Fosgeen",
+    "Fosgen",
+    "Fosgene",
+    "Koolstofoxychloride",
+    "NCI-C60219",
+    "Phosgen",
+    "Rcra waste number P095",
+    "UN 1076",
+    "Dichloroformaldehyde"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/CCl2O/c2-1(3)4",
+  "cas": "75-44-5"
+}

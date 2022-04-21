@@ -4,7 +4,24 @@
   },
   "id": "ig.S8",
   "mw": 256.52,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:30:56 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10544-50-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Cyclic octaatomic sulfur",
+    "Sulfur (S8)",
+    "Sulfur octamer",
+    "Sulfur, mol. (S8)",
+    "Cyclooctasulfur",
+    "Octathiocane",
+    "Orthorhombic sulfur",
+    "Sulfur molecule (S8)",
+    "S8",
+    "Cyclooctasulphur",
+    "Octasulfur",
+    "115725-44-5",
+    "Sulfur"
+  ],
+  "inchi": "InChI=1S/S8/c1-2-4-6-8-7-5-3-1",
+  "cas": "10544-50-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:24:57 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10544-50-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

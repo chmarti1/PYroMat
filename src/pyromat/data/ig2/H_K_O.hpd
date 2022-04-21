@@ -1,0 +1,44 @@
+{
+  "C": [
+    [
+      4.0733441,
+      0.0097217945,
+      -1.5988804e-05,
+      1.2148353e-08,
+      -3.3709342e-12,
+      -29506.558,
+      2.93540136
+    ],
+    [
+      5.6400949,
+      0.0012510226,
+      -3.4984547e-07,
+      4.4566993e-11,
+      -2.0870279e-15,
+      -29698.732,
+      -4.04365464
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "H": 1,
+    "K": 1,
+    "O": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -27978.8313,
+  "id": "ig.HKO",
+  "mw": 56.10564,
+  "names": [
+    "Potassium hydroxide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/K.H2O/h;1H2/q+1;/p-1",
+  "cas": "1310-58-3"
+}

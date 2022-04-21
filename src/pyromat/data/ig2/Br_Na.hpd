@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      3.901089,
+      0.0025025401,
+      -3.8851088e-06,
+      2.8318497e-09,
+      -7.7220528e-13,
+      -18556.161,
+      6.18879323
+    ],
+    [
+      4.4433135,
+      0.00015783657,
+      -2.7989619e-08,
+      5.3849038e-12,
+      -3.8094054e-16,
+      -18659.489,
+      3.60858213
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Br": 1,
+    "Na": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -17310.9142,
+  "id": "ig.BrNa",
+  "mw": 102.89377,
+  "names": [
+    "sodium bromide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/BrH.Na/h1H;/q;+1/p-1",
+  "cas": "7647-15-6"
+}

@@ -1,0 +1,50 @@
+{
+  "C": [
+    [
+      0.98781294,
+      0.050029524,
+      -7.3676708e-05,
+      5.2523455e-08,
+      -1.4712961e-11,
+      -4610.1086,
+      20.4857192
+    ],
+    [
+      12.915066,
+      0.0035081362,
+      -1.554689e-06,
+      3.0456218e-10,
+      -2.1952354e-14,
+      -7200.8189,
+      -37.7108998
+    ]
+  ],
+  "Tlim": [
+    298.15,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 4,
+    "N": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -2646.0082,
+  "id": "ig.F4N2",
+  "mw": 104.00709,
+  "names": [
+    "Tetrafluorohydrazine",
+    "Nitrogen fluoride (N2F4)",
+    "Dinitrogen tetrafluoride",
+    "Hydrazine, tetrafluoro-",
+    "Perfluorohydrazine",
+    "N2F4",
+    "Nitrogen fluoride",
+    "1,1,2,2-Tetrafluorohydrazine"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/F4N2/c1-5(2)6(3)4",
+  "cas": "10036-47-2"
+}

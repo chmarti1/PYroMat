@@ -4,7 +4,12 @@
   },
   "id": "ig.Zr",
   "mw": 91.224,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:41:56 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7440-67-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "zirconium"
+  ],
+  "inchi": "InChI=1S/Zr",
+  "cas": "7440-67-7",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:18:37 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7440-67-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     4702.633,
     6000.0

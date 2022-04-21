@@ -5,7 +5,11 @@
   },
   "id": "ig.I2Li2",
   "mw": 267.691,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:39:52 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=37279-36-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Dilithium diiodide"
+  ],
+  "cas": "37279-36-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:07:01 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=37279-36-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

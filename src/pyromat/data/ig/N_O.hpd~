@@ -5,7 +5,19 @@
   },
   "id": "ig.NO",
   "mw": 30.0061,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:30:40 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10102-43-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Nitric oxide",
+    "Nitrogen oxide",
+    "Nitrogen monoxide",
+    "Nitrosyl radical",
+    "NO",
+    "Amidogen, oxo-",
+    "Nitrogen oxide (NO)",
+    "UN 1660"
+  ],
+  "inchi": "InChI=1S/NO/c1-2",
+  "cas": "10102-43-9",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:15:38 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10102-43-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1200.0,

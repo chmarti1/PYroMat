@@ -1,0 +1,68 @@
+{
+  "C": [
+    [
+      1.072568,
+      0.043769226,
+      -5.5333243e-05,
+      3.5518253e-08,
+      -9.0677358e-12,
+      -90259.758,
+      18.939582
+    ],
+    [
+      10.889532,
+      0.0075004178,
+      -2.9210478e-06,
+      5.2595513e-10,
+      -3.5789415e-14,
+      -92471.364,
+      -29.404782
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "H": 2,
+    "O": 4,
+    "S": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -88417.5226,
+  "id": "ig.H2O4S",
+  "mw": 98.07948,
+  "names": [
+    "Sulfuric Acid",
+    "H2SO4",
+    "Dipping acid",
+    "Hydrogen sulfate",
+    "Oil of vitriol",
+    "Sulphuric acid",
+    "Acide sulfurique",
+    "Acido solforico",
+    "BOV",
+    "Matting acid",
+    "Nordhausen acid",
+    "Schwefelsaeureloesungen",
+    "Vitriol brown oil",
+    "Vitriol, oil of",
+    "Zwavelzuuroplossingen",
+    "O2S(OH)2",
+    "Battery acid",
+    "Electrolyte acid",
+    "Spirit of alum",
+    "Spirit of vitriol",
+    "Dihydrogen sulfate",
+    "Mattling acid",
+    "UN 1830 (Salt/Mix)",
+    "UN 1832 (Salt/Mix)",
+    "UN 2796 (Salt/Mix)"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/H2O4S/c1-5(2,3)4/h(H2,1,2,3,4)",
+  "cas": "7664-93-9"
+}

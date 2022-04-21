@@ -6,7 +6,19 @@
   },
   "id": "ig.C2HCl",
   "mw": 60.482,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:40:48 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=593-63-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Ethyne, chloro-",
+    "Acetylene, chloro-",
+    "Chloroacetylene",
+    "Chloroethyne",
+    "Ethynyl chloride",
+    "Monochloroacetylene",
+    "C2HCl",
+    "1-Chloroacetylene"
+  ],
+  "inchi": "InChI=1S/C2HCl/c1-2-3/h1H",
+  "cas": "593-63-5",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:19:00 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=593-63-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1400.0,

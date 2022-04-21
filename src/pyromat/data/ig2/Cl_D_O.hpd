@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      2.4790418,
+      0.010845896,
+      -1.5228305e-05,
+      1.1437314e-08,
+      -3.4204925e-12,
+      -10518.092,
+      12.1267107
+    ],
+    [
+      4.4350761,
+      0.0025322387,
+      -1.0312331e-06,
+      1.9005454e-10,
+      -1.2682384e-14,
+      -10919.402,
+      2.72715969
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 1,
+    "D": 1,
+    "O": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -9410.45332,
+  "id": "ig.ClDO",
+  "mw": 53.4662,
+  "names": [
+    "Hypochlorous acid-d"
+  ],
+  "pref": 100000.0,
+  "cas": "13770-22-4"
+}

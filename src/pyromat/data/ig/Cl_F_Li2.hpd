@@ -6,7 +6,11 @@
   },
   "id": "ig.ClFLi2",
   "mw": 68.333,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:40:56 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=60195-12-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Lithium chloride fluoride"
+  ],
+  "cas": "60195-12-2",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:24:31 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=60195-12-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1000.0,

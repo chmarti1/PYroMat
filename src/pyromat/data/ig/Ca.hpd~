@@ -4,7 +4,12 @@
   },
   "id": "ig.Ca",
   "mw": 40.078,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:41:57 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7440-70-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "calcium"
+  ],
+  "inchi": "InChI=1S/Ca",
+  "cas": "7440-70-2",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:20:12 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7440-70-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     1774.0,
     6000.0

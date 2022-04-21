@@ -5,7 +5,12 @@
   },
   "id": "ig.OW",
   "mw": 199.84,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:31:41 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12035-99-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Tungsten oxide"
+  ],
+  "inchi": "InChI=1S/O.W",
+  "cas": "12035-99-3",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:11:19 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12035-99-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1200.0,

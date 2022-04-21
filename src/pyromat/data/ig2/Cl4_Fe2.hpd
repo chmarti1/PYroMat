@@ -1,0 +1,42 @@
+{
+  "C": [
+    [
+      12.738242,
+      0.013235558,
+      -2.1641873e-05,
+      1.5993667e-08,
+      -4.3507097e-12,
+      -56106.579,
+      -19.8247491
+    ],
+    [
+      15.3575,
+      0.00064207861,
+      2.081773e-08,
+      -5.1580559e-11,
+      6.0673495e-15,
+      -56510.037,
+      -31.8965871
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 4,
+    "Fe": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -51882.0452,
+  "id": "ig.Cl4Fe2",
+  "mw": 253.5048,
+  "names": [
+    "Iron chloride"
+  ],
+  "pref": 100000.0,
+  "cas": "23444-30-6"
+}

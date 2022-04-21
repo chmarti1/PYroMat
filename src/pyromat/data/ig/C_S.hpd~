@@ -5,7 +5,12 @@
   },
   "id": "ig.CS",
   "mw": 44.076,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:39:27 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=2944-05-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Carbon monosulfide"
+  ],
+  "inchi": "InChI=1S/CS/c1-2",
+  "cas": "2944-05-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:27:20 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=2944-05-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     600.0,

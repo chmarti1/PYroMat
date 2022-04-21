@@ -1,0 +1,49 @@
+{
+  "C": [
+    [
+      6.606546,
+      0.075042129,
+      -0.00012201275,
+      1.0055378e-07,
+      -3.2260973e-11,
+      -91951.438,
+      -2.57600621
+    ],
+    [
+      21.164021,
+      0.010333103,
+      -4.3310936e-06,
+      8.2047497e-10,
+      -5.7773874e-14,
+      -94888.934,
+      -72.073652
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "C": 5,
+    "Fe": 1,
+    "O": 5
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -87540.8014,
+  "id": "ig.C5FeO5",
+  "mw": 195.899,
+  "names": [
+    "Iron pentacarbonyl",
+    "Iron carbonyl (Fe(CO)5), (TB-5-11)-",
+    "Iron carbonyl (Fe(CO)5)",
+    "Pentacarbonyl iron",
+    "Fe(CO)5",
+    "Iron carbonyl"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/5CO.Fe/c5*1-2;",
+  "cas": "13463-40-6"
+}

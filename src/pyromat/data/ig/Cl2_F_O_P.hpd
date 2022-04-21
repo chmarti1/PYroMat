@@ -7,7 +7,12 @@
   },
   "id": "ig.Cl2FOP",
   "mw": 136.878,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:35:03 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13769-76-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Phosphoryl chloride fluoride"
+  ],
+  "inchi": "InChI=1S/Cl2FOP/c1-5(2,3)4",
+  "cas": "13769-76-1",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:23:02 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13769-76-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1100.0,

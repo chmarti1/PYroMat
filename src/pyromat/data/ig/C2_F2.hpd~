@@ -5,7 +5,19 @@
   },
   "id": "ig.C2F2",
   "mw": 62.0182,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:41:21 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=689-99-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Ethyne, difluoro-",
+    "Acetylene, difluoro-",
+    "Difluoroacetylene",
+    "FC&laquo",
+    "equiv&raquo",
+    "CF",
+    "Difluoroethyne",
+    "C2F2"
+  ],
+  "inchi": "InChI=1S/C2F2/c3-1-2-4",
+  "cas": "689-99-6",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:24:40 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=689-99-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1200.0,

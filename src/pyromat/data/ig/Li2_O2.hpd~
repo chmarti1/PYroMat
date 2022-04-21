@@ -5,7 +5,11 @@
   },
   "id": "ig.Li2O2",
   "mw": 45.881,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:31:27 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12031-80-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "dilithium peroxide"
+  ],
+  "cas": "12031-80-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:18:03 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12031-80-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

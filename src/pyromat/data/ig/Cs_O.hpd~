@@ -5,7 +5,12 @@
   },
   "id": "ig.CsO",
   "mw": 148.9049,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:39:08 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=24774-39-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Monocesium monoxide"
+  ],
+  "inchi": "InChI=1S/Cs.O/q+1;-2",
+  "cas": "24774-39-8",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:13:30 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=24774-39-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

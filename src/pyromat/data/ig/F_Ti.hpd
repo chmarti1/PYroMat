@@ -5,7 +5,11 @@
   },
   "id": "ig.FTi",
   "mw": 66.865,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:37:56 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=18025-22-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Titanium fluoride"
+  ],
+  "cas": "18025-22-4",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:06:03 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=18025-22-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     800.0,

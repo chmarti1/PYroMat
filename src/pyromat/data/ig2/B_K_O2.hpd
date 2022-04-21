@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      4.3967801,
+      0.012169202,
+      -1.1804218e-05,
+      5.1316551e-09,
+      -6.593272e-13,
+      -82827.012,
+      7.5732431
+    ],
+    [
+      7.5502508,
+      0.0025661823,
+      -1.0671566e-06,
+      1.9851885e-10,
+      -1.3704168e-14,
+      -83653.834,
+      -8.4927
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "B": 1,
+    "K": 1,
+    "O": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -81069.6887,
+  "id": "ig.BKO2",
+  "mw": 81.9081,
+  "names": [
+    "potassium metaborate"
+  ],
+  "pref": 100000.0,
+  "cas": "13709-94-9"
+}

@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      4.6719729,
+      0.010292897,
+      -1.8714019e-05,
+      1.56379e-08,
+      -4.9456521e-12,
+      -8003.9163,
+      7.72665519
+    ],
+    [
+      6.722477,
+      0.00038057929,
+      -2.0138589e-07,
+      4.4351172e-11,
+      -2.9239651e-15,
+      -8359.298,
+      -1.81955711
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Br": 2,
+    "Si": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -6290.24918,
+  "id": "ig.Br2Si",
+  "mw": 187.8935,
+  "names": [
+    "Dibromosilylene"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/Br2Si/c1-3-2",
+  "cas": "14877-32-8"
+}

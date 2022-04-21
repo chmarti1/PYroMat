@@ -4,7 +4,12 @@
   },
   "id": "ig.Na2",
   "mw": 45.97953856,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:39:14 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=25681-79-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Disodium"
+  ],
+  "inchi": "InChI=1S/2Na",
+  "cas": "25681-79-2",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:25:13 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=25681-79-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1400.0,

@@ -5,7 +5,11 @@
   },
   "id": "ig.Br2Sr",
   "mw": 247.43,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:30:53 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10476-81-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "strontium bromide"
+  ],
+  "cas": "10476-81-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:19:55 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10476-81-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     3000.0,
     6000.0

@@ -4,7 +4,20 @@
   },
   "id": "ig.O2",
   "mw": 31.9988,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:43:14 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7782-44-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Oxygen",
+    "Molecular oxygen",
+    "Oxygen molecule",
+    "Pure oxygen",
+    "O2",
+    "Liquid oxygen",
+    "UN 1072",
+    "UN 1073",
+    "Dioxygen"
+  ],
+  "inchi": "InChI=1S/O2/c1-2",
+  "cas": "7782-44-7",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:05:56 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7782-44-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     100.0,
     700.0,

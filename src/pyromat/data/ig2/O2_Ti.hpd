@@ -1,0 +1,45 @@
+{
+  "C": [
+    [
+      3.0142717,
+      0.010942101,
+      -1.2878588e-05,
+      7.1189529e-09,
+      -1.492751e-12,
+      -38020.501,
+      11.3643975
+    ],
+    [
+      5.8455061,
+      0.0013938213,
+      -6.6403062e-07,
+      1.385738e-10,
+      -9.8842184e-15,
+      -38700.593,
+      -2.79599903
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "O": 2,
+    "Ti": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -36735.8715,
+  "id": "ig.O2Ti",
+  "mw": 79.8788,
+  "names": [
+    "Titanium dioxide (anatase)",
+    "Titanium dioxide (rutile)",
+    "titanium dioxide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/2O.Ti",
+  "cas": "13463-67-7"
+}

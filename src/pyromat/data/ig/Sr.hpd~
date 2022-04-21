@@ -4,7 +4,12 @@
   },
   "id": "ig.Sr",
   "mw": 87.62,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:41:41 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7440-24-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "strontium"
+  ],
+  "inchi": "InChI=1S/Sr",
+  "cas": "7440-24-6",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:14:45 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7440-24-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     1685.492,
     2700.0,

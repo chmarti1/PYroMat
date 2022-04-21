@@ -1,0 +1,52 @@
+{
+  "C": [
+    [
+      3.83472149,
+      -0.000649129555,
+      3.76848463e-05,
+      -5.00709182e-08,
+      2.03362064e-11,
+      10089.3925,
+      5.7527203
+    ],
+    [
+      4.93957357,
+      0.00875017187,
+      -2.99399058e-06,
+      4.67278418e-10,
+      -2.73068599e-14,
+      9282.65548,
+      -2.69439772
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "H": 4,
+    "N": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 11447.4575,
+  "id": "ig.H4N2",
+  "mw": 32.04524,
+  "names": [
+    "Hydrazine",
+    "Levoxine",
+    "N2H4",
+    "Diamine",
+    "Hydrazyna",
+    "Rcra waste number U133",
+    "Hydrazine, anhydrous",
+    "Hydrazine base",
+    "Nitrogen hydride, (N2H4)",
+    "Oxytreat 35"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/H4N2/c1-2/h1-2H2",
+  "cas": "302-01-2"
+}

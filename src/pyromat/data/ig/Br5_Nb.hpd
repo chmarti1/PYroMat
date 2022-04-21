@@ -5,7 +5,13 @@
   },
   "id": "ig.Br5Nb",
   "mw": 492.426,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:34:17 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13478-45-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "niobium pentabromide",
+    "Niobium(V) pentabromide"
+  ],
+  "inchi": "InChI=1S/5BrH.Nb/h5*1H;/p-1",
+  "cas": "13478-45-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:14:15 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13478-45-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     900.0,
     6000.0

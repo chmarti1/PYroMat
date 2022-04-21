@@ -5,7 +5,21 @@
   },
   "id": "ig.F2O",
   "mw": 53.9962,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:43:21 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7783-41-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Oxygen difluoride",
+    "Difluorine monoxide",
+    "Oxygen fluoride (OF2)",
+    "Difluorine monooxide",
+    "Fluorine monoxide",
+    "Fluorine oxide",
+    "Oxydifluoride",
+    "OF2",
+    "Oxygen fluoride",
+    "UN 2190"
+  ],
+  "inchi": "InChI=1S/F2O/c1-3-2",
+  "cas": "7783-41-7",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:22:31 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7783-41-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     600.0,

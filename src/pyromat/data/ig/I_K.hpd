@@ -5,7 +5,12 @@
   },
   "id": "ig.IK",
   "mw": 166.0028,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:42:45 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7681-11-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "potassium iodide"
+  ],
+  "inchi": "InChI=1S/HI.K/h1H;/q;+1/p-1",
+  "cas": "7681-11-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:27:35 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7681-11-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     2500.0,
     6000.0

@@ -4,7 +4,12 @@
   },
   "id": "ig.Si2",
   "mw": 56.171,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:33:02 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12597-35-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Silicon dimer"
+  ],
+  "inchi": "InChI=1S/Si2/c1-2",
+  "cas": "12597-35-2",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:07:05 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12597-35-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1100.0,

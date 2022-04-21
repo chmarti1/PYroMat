@@ -5,7 +5,12 @@
   },
   "id": "ig.CaF",
   "mw": 59.076,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:35:29 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13827-26-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Calcium monofluoride"
+  ],
+  "inchi": "InChI=1S/Ca.FH/h;1H/q+1;/p-1",
+  "cas": "13827-26-4",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:15:16 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13827-26-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1600.0,

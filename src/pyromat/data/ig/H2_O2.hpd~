@@ -5,7 +5,12 @@
   },
   "id": "ig.H2O2",
   "mw": 34.0147,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:42:58 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7722-84-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Hydrogen peroxide"
+  ],
+  "inchi": "InChI=1S/H2O2/c1-2/h1-2H",
+  "cas": "7722-84-1",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:05:03 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7722-84-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1500.0

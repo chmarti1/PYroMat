@@ -1,41 +1,43 @@
 {
-    "C": [
-        [
-            2.3087234,
-            0.018890539,
-            -2.0633348e-05,
-            1.0251324e-08,
-            -1.6941283e-12,
-            -66482.167,
-            14.4770185
-        ],
-        [
-            7.1722995,
-            0.0029780741,
-            -1.2431107e-06,
-            2.3188779e-10,
-            -1.6041208e-14,
-            -67683.682,
-            -9.98173976
-        ]
+  "C": [
+    [
+      2.3087234,
+      0.018890539,
+      -2.0633348e-05,
+      1.0251324e-08,
+      -1.6941283e-12,
+      -66482.167,
+      14.4770185
     ],
-    "Tlim": [
-        300.0,
-        1000.0,
-        5000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "Al": 1,
-        "B": 1,
-        "O": 2
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/Al_B_O2.hpd",
-    "ho": -65117.0313,
-    "id": "ig.AlBO2",
-    "mw": 69.79134,
-    "names": [],
-    "pref": 100000.0
+    [
+      7.1722995,
+      0.0029780741,
+      -1.2431107e-06,
+      2.3188779e-10,
+      -1.6041208e-14,
+      -67683.682,
+      -9.98173976
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Al": 1,
+    "B": 1,
+    "O": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -65117.0313,
+  "id": "ig.AlBO2",
+  "mw": 69.79134,
+  "names": [
+    "Aluminum borate"
+  ],
+  "pref": 100000.0,
+  "cas": "61279-70-7"
 }

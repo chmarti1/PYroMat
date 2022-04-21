@@ -5,7 +5,12 @@
   },
   "id": "ig.CH3",
   "mw": 15.0345,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:38:38 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=2229-07-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Methyl radical"
+  ],
+  "inchi": "InChI=1S/CH3/h1H3",
+  "cas": "2229-07-4",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:07:49 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=2229-07-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1400.0,

@@ -6,7 +6,14 @@
   },
   "id": "ig.DHO",
   "mw": 19.0214,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:37:01 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14940-63-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Water-d",
+    "Water-D1",
+    "HDO"
+  ],
+  "inchi": "InChI=1S/H2O/h1H2/i/hD",
+  "cas": "14940-63-7",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:05:50 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14940-63-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1500.0,

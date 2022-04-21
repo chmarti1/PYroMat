@@ -6,7 +6,12 @@
   },
   "id": "ig.Cl2H2Si",
   "mw": 101.007,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:40:06 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=4109-96-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Dichlorosilane"
+  ],
+  "inchi": "InChI=1S/Cl2H2Si/c1-3-2/h3H2",
+  "cas": "4109-96-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:26:44 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=4109-96-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1500.0,

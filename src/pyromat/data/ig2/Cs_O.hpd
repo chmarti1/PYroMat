@@ -1,40 +1,43 @@
 {
-    "C": [
-        [
-            3.9857419,
-            0.0021279251,
-            -3.2170255e-06,
-            2.2764295e-09,
-            -5.9721976e-13,
-            6289.894,
-            7.51602259
-        ],
-        [
-            4.4660282,
-            0.00011563232,
-            -5.9989187e-09,
-            1.3176699e-13,
-            5.7639745e-17,
-            6195.0309,
-            5.21454869
-        ]
+  "C": [
+    [
+      3.9857419,
+      0.0021279251,
+      -3.2170255e-06,
+      2.2764295e-09,
+      -5.9721976e-13,
+      6289.894,
+      7.51602259
     ],
-    "Tlim": [
-        300.0,
-        1000.0,
-        5000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "Cs": 1,
-        "O": 1
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/Cs_O.hpd",
-    "ho": 7548.61703,
-    "id": "ig.CsO",
-    "mw": 148.90483,
-    "names": [],
-    "pref": 100000.0
+    [
+      4.4660282,
+      0.00011563232,
+      -5.9989187e-09,
+      1.3176699e-13,
+      5.7639745e-17,
+      6195.0309,
+      5.21454869
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cs": 1,
+    "O": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 7548.61703,
+  "id": "ig.CsO",
+  "mw": 148.90483,
+  "names": [
+    "Monocesium monoxide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/Cs.O/q+1;-2",
+  "cas": "24774-39-8"
 }

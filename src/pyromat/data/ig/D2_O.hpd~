@@ -5,7 +5,12 @@
   },
   "id": "ig.D2O",
   "mw": 20.0276,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:43:43 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7789-20-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Deuterium oxide"
+  ],
+  "inchi": "InChI=1S/H2O/h1H2/i/hD2",
+  "cas": "7789-20-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:08:35 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7789-20-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1400.0,

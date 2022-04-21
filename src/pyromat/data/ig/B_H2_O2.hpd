@@ -6,7 +6,12 @@
   },
   "id": "ig.BH2O2",
   "mw": 44.826,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:42:07 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=74930-82-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Dihydroxyborane"
+  ],
+  "inchi": "InChI=1S/BH3O2/c2-1-3/h1-3H",
+  "cas": "74930-82-8",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:15:24 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=74930-82-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1200.0,

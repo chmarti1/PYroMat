@@ -5,7 +5,13 @@
   },
   "id": "ig.BaCl2",
   "mw": 208.233,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:30:50 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10361-37-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Barium dichloride",
+    "barium chloride"
+  ],
+  "inchi": "InChI=1S/Ba.2ClH/h;2*1H/q+2;;/p-2",
+  "cas": "10361-37-2",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:10:22 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10361-37-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     3000.0,
     6000.0

@@ -5,7 +5,22 @@
   },
   "id": "ig.Cl2O",
   "mw": 86.905,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:44:04 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7791-21-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Dichlorine monoxide",
+    "Chlorine oxide (Cl2O)",
+    "Chlorine monooxide",
+    "Dichloromonoxide",
+    "Chlorine monoxide",
+    "Chlorine monoxide (Cl2O)",
+    "Dichloroxide",
+    "Hypochlorous anhydride",
+    "Cl2O",
+    "Chlorine oxide",
+    "Dichlorine oxide"
+  ],
+  "inchi": "InChI=1S/Cl2O/c1-3-2",
+  "cas": "7791-21-1",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:20:56 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7791-21-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

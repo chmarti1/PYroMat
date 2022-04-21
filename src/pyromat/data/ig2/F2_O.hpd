@@ -1,40 +1,52 @@
 {
-    "C": [
-        [
-            2.6109219,
-            0.01223128,
-            -1.3441415e-05,
-            5.8909412e-09,
-            -5.7487175e-13,
-            1734.7196,
-            11.7878818
-        ],
-        [
-            6.0051871,
-            0.0011028402,
-            -4.7547937e-07,
-            9.0683145e-11,
-            -6.3757098e-15,
-            919.06065,
-            -5.22210581
-        ]
+  "C": [
+    [
+      2.6109219,
+      0.01223128,
+      -1.3441415e-05,
+      5.8909412e-09,
+      -5.7487175e-13,
+      1734.7196,
+      11.7878818
     ],
-    "Tlim": [
-        300.0,
-        1000.0,
-        5000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "F": 2,
-        "O": 1
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/F2_O.hpd",
-    "ho": 2949.42436,
-    "id": "ig.F2O",
-    "mw": 53.99621,
-    "names": [],
-    "pref": 100000.0
+    [
+      6.0051871,
+      0.0011028402,
+      -4.7547937e-07,
+      9.0683145e-11,
+      -6.3757098e-15,
+      919.06065,
+      -5.22210581
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 2,
+    "O": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 2949.42436,
+  "id": "ig.F2O",
+  "mw": 53.99621,
+  "names": [
+    "Oxygen difluoride",
+    "Difluorine monoxide",
+    "Oxygen fluoride (OF2)",
+    "Difluorine monooxide",
+    "Fluorine monoxide",
+    "Fluorine oxide",
+    "Oxydifluoride",
+    "OF2",
+    "Oxygen fluoride",
+    "UN 2190"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/F2O/c1-3-2",
+  "cas": "7783-41-7"
 }

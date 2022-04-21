@@ -1,40 +1,43 @@
 {
-    "C": [
-        [
-            3.702914,
-            -0.0029402633,
-            1.25263783e-05,
-            -1.45948287e-08,
-            5.6195532e-12,
-            61502.9332,
-            5.34971467
-        ],
-        [
-            4.16986061,
-            -0.000333893154,
-            6.30510095e-07,
-            -1.65248916e-10,
-            1.25248542e-14,
-            61212.1016,
-            2.05762288
-        ]
+  "C": [
+    [
+      3.702914,
+      -0.0029402633,
+      1.25263783e-05,
+      -1.45948287e-08,
+      5.6195532e-12,
+      61502.9332,
+      5.34971467
     ],
-    "Tlim": [
-        200.0,
-        1000.0,
-        6000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "C": 1,
-        "P": 1
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/C_P.hpd",
-    "ho": 62560.7522,
-    "id": "ig.CP",
-    "mw": 42.98476,
-    "names": [],
-    "pref": 100000.0
+    [
+      4.16986061,
+      -0.000333893154,
+      6.30510095e-07,
+      -1.65248916e-10,
+      1.25248542e-14,
+      61212.1016,
+      2.05762288
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "C": 1,
+    "P": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 62560.7522,
+  "id": "ig.CP",
+  "mw": 42.98476,
+  "names": [
+    "Carbon monophosphide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/CP/c1-2",
+  "cas": "12326-85-1"
 }

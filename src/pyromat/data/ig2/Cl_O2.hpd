@@ -1,40 +1,53 @@
 {
-    "C": [
-        [
-            3.29338614,
-            0.00619311337,
-            1.05685372e-06,
-            -8.16191254e-09,
-            4.346946e-12,
-            11376.0776,
-            10.3017024
-        ],
-        [
-            5.76647681,
-            0.00141132506,
-            -5.43714031e-07,
-            1.00734295e-10,
-            -6.43543762e-15,
-            10632.4182,
-            -2.86560082
-        ]
+  "C": [
+    [
+      3.29338614,
+      0.00619311337,
+      1.05685372e-06,
+      -8.16191254e-09,
+      4.346946e-12,
+      11376.0776,
+      10.3017024
     ],
-    "Tlim": [
-        200.0,
-        1000.0,
-        6000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "Cl": 1,
-        "O": 2
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/Cl_O2.hpd",
-    "ho": 12628.5253,
-    "id": "ig.ClO2",
-    "mw": 67.4515,
-    "names": [],
-    "pref": 100000.0
+    [
+      5.76647681,
+      0.00141132506,
+      -5.43714031e-07,
+      1.00734295e-10,
+      -6.43543762e-15,
+      10632.4182,
+      -2.86560082
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 1,
+    "O": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 12628.5253,
+  "id": "ig.ClO2",
+  "mw": 67.4515,
+  "names": [
+    "Chlorine dioxide",
+    "Chlorine oxide (ClO2)",
+    "Chlorine(IV) oxide",
+    "Chloryl radical",
+    "Doxcide 50",
+    "Chlorine oxide",
+    "ClO2",
+    "Alcide",
+    "Anthium dioxcide",
+    "Chlorine peroxide",
+    "Chloroperoxyl"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/ClO2/c2-1-3",
+  "cas": "10049-04-4"
 }

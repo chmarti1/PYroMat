@@ -1,39 +1,42 @@
 {
-    "C": [
-        [
-            3.8155393,
-            -0.00019096542,
-            5.9233416e-06,
-            -5.7649603e-09,
-            1.4775004e-12,
-            69784.655,
-            5.74071859
-        ],
-        [
-            5.0474139,
-            0.00053990034,
-            -4.3078376e-07,
-            1.1355206e-10,
-            -9.6262871e-15,
-            69133.185,
-            -1.91029481
-        ]
+  "C": [
+    [
+      3.8155393,
+      -0.00019096542,
+      5.9233416e-06,
+      -5.7649603e-09,
+      1.4775004e-12,
+      69784.655,
+      5.74071859
     ],
-    "Tlim": [
-        300.0,
-        1000.0,
-        5000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "Si": 2
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/Si2.hpd",
-    "ho": 70955.4076,
-    "id": "ig.Si2",
-    "mw": 56.171,
-    "names": [],
-    "pref": 100000.0
+    [
+      5.0474139,
+      0.00053990034,
+      -4.3078376e-07,
+      1.1355206e-10,
+      -9.6262871e-15,
+      69133.185,
+      -1.91029481
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Si": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 70955.4076,
+  "id": "ig.Si2",
+  "mw": 56.171,
+  "names": [
+    "Silicon dimer"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/Si2/c1-2",
+  "cas": "12597-35-2"
 }

@@ -6,7 +6,19 @@
   },
   "id": "ig.CF3I",
   "mw": 195.9104,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:38:51 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=2314-97-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Methane, trifluoroiodo-",
+    "Iodotrifluoromethane",
+    "Perfluoromethyl iodide",
+    "Trifluoroiodomethane",
+    "Trifluoromethyl iodide",
+    "CF3I",
+    "Trifluoriodomethane",
+    "CIF3"
+  ],
+  "inchi": "InChI=1S/CF3I/c2-1(3,4)5",
+  "cas": "2314-97-8",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:05:58 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=2314-97-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1200.0,

@@ -4,7 +4,12 @@
   },
   "id": "ig.Hf",
   "mw": 178.49,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:41:52 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7440-58-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "hafnium"
+  ],
+  "inchi": "InChI=1S/Hf",
+  "cas": "7440-58-6",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:14:12 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7440-58-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     4963.793,
     6000.0

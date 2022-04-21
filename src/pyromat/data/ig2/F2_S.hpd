@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      2.4103056,
+      0.015590121,
+      -2.3178018e-05,
+      1.6583497e-08,
+      -4.6465761e-12,
+      -36916.373,
+      13.5066803
+    ],
+    [
+      6.1194196,
+      0.0010051424,
+      -4.4653313e-07,
+      8.762401e-11,
+      -6.3236512e-15,
+      -37714.241,
+      -4.55717411
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 2,
+    "S": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -35679.0061,
+  "id": "ig.F2S",
+  "mw": 70.06281,
+  "names": [
+    "Sulfur difluoride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/F2S/c1-3-2",
+  "cas": "13814-25-0"
+}

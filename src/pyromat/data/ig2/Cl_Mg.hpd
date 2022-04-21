@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      3.3800534,
+      0.0042813389,
+      -6.4457333e-06,
+      4.4472291e-09,
+      -1.1421727e-12,
+      -6382.656,
+      7.78898816
+    ],
+    [
+      4.3775833,
+      0.00018834178,
+      -5.4488592e-08,
+      9.9481031e-12,
+      -6.6949611e-16,
+      -6583.0826,
+      2.98938866
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 1,
+    "Mg": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -5233.29928,
+  "id": "ig.ClMg",
+  "mw": 59.7577,
+  "names": [
+    "Magnesium chloride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/ClH.Mg/h1H;/q;+1/p-1",
+  "cas": "14989-29-8"
+}

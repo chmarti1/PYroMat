@@ -7,7 +7,13 @@
   },
   "id": "ig.FHO3S",
   "mw": 100.07,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:43:44 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7789-21-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "fluorosulphuric acid",
+    "Fluorosulfonic acid"
+  ],
+  "inchi": "InChI=1S/FHO3S/c1-5(2,3)4/h(H,2,3,4)",
+  "cas": "7789-21-1",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:10:05 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7789-21-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1100.0,

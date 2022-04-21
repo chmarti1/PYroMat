@@ -6,7 +6,13 @@
   },
   "id": "ig.BaH2O2",
   "mw": 171.342,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:37:46 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=17194-00-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "barium hydroxide",
+    "Barium dihydroxide"
+  ],
+  "inchi": "InChI=1S/Ba.2H2O/h;2*1H2/q+2;;/p-2",
+  "cas": "17194-00-2",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:14:28 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=17194-00-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     2000.0,
     6000.0

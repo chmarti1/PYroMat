@@ -5,7 +5,11 @@
   },
   "id": "ig.ClHg",
   "mw": 236.04,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:42:27 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7546-30-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "mercury chloride"
+  ],
+  "cas": "7546-30-7",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:07:41 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7546-30-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

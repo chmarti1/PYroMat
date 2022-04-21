@@ -1,0 +1,44 @@
+{
+  "C": [
+    [
+      4.22118584,
+      -0.00324392532,
+      1.37799446e-05,
+      -1.33144093e-08,
+      4.33768865e-12,
+      3839.56496,
+      3.39437243
+    ],
+    [
+      3.64896209,
+      0.00308090819,
+      -1.12429876e-06,
+      1.86308085e-10,
+      -1.13951828e-14,
+      3712.09048,
+      5.06147406
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "C": 1,
+    "H": 1,
+    "O": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 5051.41013,
+  "id": "ig.CHO",
+  "mw": 29.01834,
+  "names": [
+    "Formyl radical"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/CHO/c1-2/h1H",
+  "cas": "2597-44-6"
+}

@@ -1,0 +1,44 @@
+{
+  "C": [
+    [
+      4.0050388,
+      0.0099922043,
+      -1.6434213e-05,
+      1.2476585e-08,
+      -3.463761e-12,
+      -25300.471,
+      2.30643604
+    ],
+    [
+      5.6469377,
+      0.0012227385,
+      -3.3271036e-07,
+      4.0666298e-11,
+      -1.7790688e-15,
+      -25508.222,
+      -5.03687466
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "H": 1,
+    "Na": 1,
+    "O": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -23784.421,
+  "id": "ig.HNaO",
+  "mw": 39.99711,
+  "names": [
+    "Sodium hydroxide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/Na.H2O/h;1H2/q+1;/p-1",
+  "cas": "1310-73-2"
+}

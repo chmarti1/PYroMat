@@ -6,7 +6,13 @@
   },
   "id": "ig.Cl3PS",
   "mw": 169.398,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:40:05 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=3982-91-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Thiophosphoryl chloride",
+    "thiophosphoryl trichloride"
+  ],
+  "inchi": "InChI=1S/Cl3PS/c1-4(2,3)5",
+  "cas": "3982-91-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:26:24 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=3982-91-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

@@ -1,0 +1,44 @@
+{
+  "C": [
+    [
+      3.2453535,
+      0.0029702331,
+      -2.485799e-06,
+      5.6304836e-10,
+      1.4416034e-13,
+      -3494.4272,
+      7.88443469
+    ],
+    [
+      4.1227835,
+      0.00046804891,
+      -1.8677675e-07,
+      3.5242093e-11,
+      -2.3015046e-15,
+      -3725.8619,
+      3.38858669
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 1,
+    "Si": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -2415.58858,
+  "id": "ig.FSi",
+  "mw": 47.0839,
+  "names": [
+    "silicon fluoride",
+    "Silylidyne, fluoro-"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/FSi/c1-2",
+  "cas": "11128-24-8"
+}

@@ -5,7 +5,11 @@
   },
   "id": "ig.AlF2",
   "mw": 64.978345,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:34:27 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13569-23-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Aluminum difluoride"
+  ],
+  "cas": "13569-23-8",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:12:53 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13569-23-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     2000.0,

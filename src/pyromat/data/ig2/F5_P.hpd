@@ -1,0 +1,48 @@
+{
+  "C": [
+    [
+      1.0523249,
+      0.044454004,
+      -5.3901429e-05,
+      2.8416686e-08,
+      -4.9143268e-12,
+      -193632.313,
+      19.08901
+    ],
+    [
+      12.846184,
+      0.0035104485,
+      -1.5198604e-06,
+      2.9101904e-10,
+      -2.0534708e-14,
+      -196362.263,
+      -39.475542
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 5,
+    "P": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -191765.1,
+  "id": "ig.F5P",
+  "mw": 125.96578,
+  "names": [
+    "Phosphorus pentafluoride",
+    "Phosphorus(V) fluoride",
+    "PF5",
+    "Phosphorane, pentafluoro-",
+    "UN 2198",
+    "Phosphorus fluoride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/F5P/c1-6(2,3,4)5",
+  "cas": "7647-19-0"
+}

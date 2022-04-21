@@ -5,7 +5,13 @@
   },
   "id": "ig.MoO",
   "mw": 111.96,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:31:49 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12058-07-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "molybdenum oxide",
+    "Molybdenum monoxide"
+  ],
+  "inchi": "InChI=1S/Mo.O/q+2;-2",
+  "cas": "12058-07-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:09:22 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12058-07-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

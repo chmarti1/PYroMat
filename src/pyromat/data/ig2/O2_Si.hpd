@@ -1,0 +1,49 @@
+{
+  "C": [
+    [
+      3.2628058,
+      0.0085016584,
+      -5.7388144e-06,
+      1.2896573e-11,
+      9.7544976e-13,
+      -38035.971,
+      6.66807529
+    ],
+    [
+      5.8620395,
+      0.0017719784,
+      -7.5194194e-07,
+      1.4180584e-10,
+      -9.8856417e-15,
+      -38767.816,
+      -6.84718711
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "O": 2,
+    "Si": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -36735.5093,
+  "id": "ig.O2Si",
+  "mw": 60.0843,
+  "names": [
+    "Dioxosilane",
+    "Amorphous silica",
+    "Hydrolyzed silica (cab-o-sil)",
+    "Crystalline silica",
+    "Silicon dioxide",
+    "Silica",
+    "Silicon(iv) oxide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/O2Si/c1-3-2",
+  "cas": "7631-86-9"
+}

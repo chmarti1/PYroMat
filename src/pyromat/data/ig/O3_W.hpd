@@ -5,7 +5,12 @@
   },
   "id": "ig.O3W",
   "mw": 231.84,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:33:33 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=1314-35-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "tungsten trioxide"
+  ],
+  "inchi": "InChI=1S/3O.W/q3*-2;+6",
+  "cas": "1314-35-8",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:21:14 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=1314-35-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     3000.0,
     6000.0

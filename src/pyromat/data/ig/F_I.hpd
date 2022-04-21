@@ -5,7 +5,12 @@
   },
   "id": "ig.FI",
   "mw": 145.90287,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:35:44 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13873-84-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Iodine monofluoride"
+  ],
+  "inchi": "InChI=1S/FI/c1-2",
+  "cas": "13873-84-2",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:09:04 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13873-84-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

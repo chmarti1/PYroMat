@@ -6,7 +6,13 @@
   },
   "id": "ig.ClF5S",
   "mw": 162.51,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:35:14 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13780-57-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "sulphur chloride pentafluoride",
+    "Sulfur chloride pentafluoride"
+  ],
+  "inchi": "InChI=1S/ClF5S/c1-7(2,3,4,5)6",
+  "cas": "13780-57-9",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:14:58 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13780-57-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1400.0,

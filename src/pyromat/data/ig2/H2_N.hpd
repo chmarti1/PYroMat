@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      4.20556857,
+      -0.00213561363,
+      7.26851301e-06,
+      -5.93069876e-09,
+      1.80690978e-12,
+      21535.2231,
+      -0.14666277
+    ],
+    [
+      2.84768992,
+      0.00314280035,
+      -8.98641458e-07,
+      1.30318284e-10,
+      -7.48812926e-15,
+      21823.9049,
+      6.47165433
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "H": 2,
+    "N": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 22747.5415,
+  "id": "ig.H2N",
+  "mw": 16.02262,
+  "names": [
+    "Amino radical"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/H2N/h1H2",
+  "cas": "13770-40-6"
+}

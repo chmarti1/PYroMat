@@ -5,7 +5,12 @@
   },
   "id": "ig.CuF",
   "mw": 82.544,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:34:16 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13478-41-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Copper monofluoride"
+  ],
+  "inchi": "InChI=1S/Cu.FH/h;1H/q+1;/p-1",
+  "cas": "13478-41-6",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:20:35 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13478-41-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1500.0,

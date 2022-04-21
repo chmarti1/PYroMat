@@ -1,40 +1,39 @@
 {
-    "C": [
-        [
-            2.5,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            -28883.4132,
-            4.20062927
-        ],
-        [
-            2.5,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            -28883.4132,
-            4.20062927
-        ]
+  "C": [
+    [
+      2.5,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -28883.4132,
+      4.20062927
     ],
-    "Tlim": [
-        298.15,
-        1000.0,
-        6000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "Cl": 1,
-        "e": 1
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/Cl-.hpd",
-    "ho": -28138.0382,
-    "id": "ig.Cl-",
-    "mw": 35.45325,
-    "names": [],
-    "pref": 100000.0
+    [
+      2.5,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -28883.4132,
+      4.20062927
+    ]
+  ],
+  "Tlim": [
+    298.15,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 1,
+    "e": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -28138.0382,
+  "id": "ig.Cl-",
+  "mw": 35.45325,
+  "names": [],
+  "pref": 100000.0
 }

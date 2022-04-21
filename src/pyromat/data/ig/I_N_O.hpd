@@ -6,7 +6,12 @@
   },
   "id": "ig.INO",
   "mw": 156.9106,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:40:44 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=58585-94-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Nitrosyl iodide"
+  ],
+  "inchi": "InChI=1S/INO/c1-2-3",
+  "cas": "58585-94-7",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:18:14 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=58585-94-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     600.0,

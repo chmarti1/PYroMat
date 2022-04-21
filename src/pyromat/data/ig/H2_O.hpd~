@@ -5,7 +5,19 @@
   },
   "id": "ig.H2O",
   "mw": 18.0153,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:43:02 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7732-18-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Water",
+    "Water vapor",
+    "Distilled water",
+    "Ice",
+    "H2O",
+    "Dihydrogen oxide",
+    "steam",
+    "Tritiotope"
+  ],
+  "inchi": "InChI=1S/H2O/h1H2",
+  "cas": "7732-18-5",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:14:55 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7732-18-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     500.0,
     1700.0,

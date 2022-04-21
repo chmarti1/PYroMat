@@ -4,7 +4,13 @@
   },
   "id": "ig.Al",
   "mw": 26.9815386,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:41:28 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7429-90-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Aluminum",
+    "Aluminium"
+  ],
+  "inchi": "InChI=1S/Al",
+  "cas": "7429-90-5",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:09:57 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7429-90-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     2790.812,
     6000.0

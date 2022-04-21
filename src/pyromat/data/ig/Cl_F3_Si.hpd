@@ -6,7 +6,12 @@
   },
   "id": "ig.ClF3Si",
   "mw": 120.534,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:36:02 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14049-36-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Chlorotrifluorosilane"
+  ],
+  "inchi": "InChI=1S/ClF3Si/c1-5(2,3)4",
+  "cas": "14049-36-6",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:25:28 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14049-36-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1100.0,

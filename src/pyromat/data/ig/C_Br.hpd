@@ -5,7 +5,12 @@
   },
   "id": "ig.CBr",
   "mw": 91.915,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:40:02 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=3889-77-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Bromomethylidyne"
+  ],
+  "inchi": "InChI=1S/CHBr/c1-2/h1H",
+  "cas": "3889-77-8",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:20:15 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=3889-77-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

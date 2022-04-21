@@ -1,0 +1,44 @@
+{
+  "C": [
+    [
+      1.365932,
+      0.024592575,
+      -2.9991795e-05,
+      2.1215143e-08,
+      -6.3482971e-12,
+      -1525.8355,
+      18.6403979
+    ],
+    [
+      6.2686663,
+      0.0069652305,
+      -2.910274e-06,
+      5.4841467e-10,
+      -3.8480088e-14,
+      -2737.3527,
+      -5.82845156
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "H": 3,
+    "I": 1,
+    "Si": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -251.567625,
+  "id": "ig.H3ISi",
+  "mw": 158.01379,
+  "names": [
+    "Iodosilane"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/H3ISi/c1-2/h2H3",
+  "cas": "13598-42-0"
+}

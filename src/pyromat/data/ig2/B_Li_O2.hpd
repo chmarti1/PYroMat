@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      3.7435474,
+      0.014475257,
+      -1.5209688e-05,
+      7.4136541e-09,
+      -1.2242191e-12,
+      -79437.756,
+      8.01202564
+    ],
+    [
+      7.4266096,
+      0.0027043757,
+      -1.1284741e-06,
+      2.1062398e-10,
+      -1.4584909e-14,
+      -80370.285,
+      -10.6007918
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "B": 1,
+    "Li": 1,
+    "O": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -77798.5412,
+  "id": "ig.BLiO2",
+  "mw": 49.7508,
+  "names": [
+    "lithium metaborate"
+  ],
+  "pref": 100000.0,
+  "cas": "13453-69-5"
+}

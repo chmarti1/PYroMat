@@ -1,0 +1,42 @@
+{
+  "C": [
+    [
+      3.2454482,
+      0.0046936166,
+      -6.9780028e-06,
+      4.7459304e-09,
+      -1.1983928e-12,
+      -10777.073,
+      10.443732
+    ],
+    [
+      4.6052196,
+      -0.00032622217,
+      2.8298253e-07,
+      -5.7120594e-11,
+      3.7397813e-15,
+      -11086.917,
+      3.74059423
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 1,
+    "Pb": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -9653.66318,
+  "id": "ig.FPb",
+  "mw": 226.1984,
+  "names": [
+    "Lead monofluoride"
+  ],
+  "pref": 100000.0,
+  "cas": "14986-72-2"
+}

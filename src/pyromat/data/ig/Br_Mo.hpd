@@ -5,7 +5,11 @@
   },
   "id": "ig.BrMo",
   "mw": 175.86,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:31:03 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=110682-15-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Molybdenum bromide"
+  ],
+  "cas": "110682-15-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:18:12 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=110682-15-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     3000.0,

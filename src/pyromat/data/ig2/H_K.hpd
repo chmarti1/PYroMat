@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      2.8157756,
+      0.003987106,
+      -3.3410548e-06,
+      8.8602942e-10,
+      1.1402847e-13,
+      13805.838,
+      6.72517899
+    ],
+    [
+      3.9603386,
+      0.00072190323,
+      -2.6918715e-07,
+      5.26173e-11,
+      -3.7872683e-15,
+      13501.837,
+      0.855345083
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "H": 1,
+    "K": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 14794.8627,
+  "id": "ig.HK",
+  "mw": 40.10624,
+  "names": [
+    "potassium hydride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/K.H",
+  "cas": "7693-26-7"
+}

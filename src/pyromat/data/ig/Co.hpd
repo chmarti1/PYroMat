@@ -4,7 +4,12 @@
   },
   "id": "ig.Co",
   "mw": 58.933195,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:41:49 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7440-48-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "cobalt"
+  ],
+  "inchi": "InChI=1S/Co",
+  "cas": "7440-48-4",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:19:16 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7440-48-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     3184.943,
     6000.0

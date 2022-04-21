@@ -5,7 +5,11 @@
   },
   "id": "ig.CaI2",
   "mw": 293.887,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:30:42 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10102-68-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "calcium iodide"
+  ],
+  "cas": "10102-68-8",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:10:15 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10102-68-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     2500.0,
     6000.0

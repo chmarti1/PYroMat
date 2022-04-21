@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      4.0654749,
+      0.013454926,
+      -1.3866693e-05,
+      6.6395042e-09,
+      -1.0728671e-12,
+      -79700.157,
+      7.93481629
+    ],
+    [
+      7.496525,
+      0.0026309862,
+      -1.0979136e-06,
+      2.0493998e-10,
+      -1.4193146e-14,
+      -80578.591,
+      -9.44630181
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "B": 1,
+    "Na": 1,
+    "O": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -77999.9032,
+  "id": "ig.BNaO2",
+  "mw": 65.79957,
+  "names": [
+    "sodium metaborate, anhydrous"
+  ],
+  "pref": 100000.0,
+  "cas": "7775-19-1"
+}

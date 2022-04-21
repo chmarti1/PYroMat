@@ -5,7 +5,13 @@
   },
   "id": "ig.N2O4",
   "mw": 92.011,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:30:57 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10544-72-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Dinitrogen tetroxide",
+    "dinitrogen tetraoxide"
+  ],
+  "inchi": "InChI=1S/N2O4/c3-1(4)2(5)6",
+  "cas": "10544-72-6",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:23:47 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10544-72-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     500.0,
     1000.0,

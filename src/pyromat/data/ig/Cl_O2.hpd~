@@ -5,7 +5,22 @@
   },
   "id": "ig.ClO2",
   "mw": 67.452,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:30:33 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10049-04-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Chlorine dioxide",
+    "Chlorine oxide (ClO2)",
+    "Chlorine(IV) oxide",
+    "Chloryl radical",
+    "Doxcide 50",
+    "Chlorine oxide",
+    "ClO2",
+    "Alcide",
+    "Anthium dioxcide",
+    "Chlorine peroxide",
+    "Chloroperoxyl"
+  ],
+  "inchi": "InChI=1S/ClO2/c2-1-3",
+  "cas": "10049-04-4",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:26:50 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10049-04-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1000.0,

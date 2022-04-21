@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      2.23703738,
+      0.0133495496,
+      -1.81530614e-05,
+      1.36093676e-08,
+      -4.24382397e-12,
+      -73528.3735,
+      11.0069411
+    ],
+    [
+      5.39296603,
+      0.002074445,
+      -7.93600586e-07,
+      1.33476571e-10,
+      -8.21779331e-15,
+      -74311.3852,
+      -4.76500535
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "B": 1,
+    "F": 1,
+    "O": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -72403.5451,
+  "id": "ig.BFO",
+  "mw": 45.8088,
+  "names": [
+    "Boron monofluoride monoxide"
+  ],
+  "pref": 100000.0,
+  "cas": "23361-56-0"
+}

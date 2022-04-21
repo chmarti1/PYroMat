@@ -5,7 +5,11 @@
   },
   "id": "ig.Cl10W2",
   "mw": 722.21,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:37:50 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=17499-30-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Tungsten chloride"
+  ],
+  "cas": "17499-30-8",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:18:58 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=17499-30-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

@@ -5,7 +5,11 @@
   },
   "id": "ig.Cl4Mg2",
   "mw": 190.422,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:40:08 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=42565-93-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Dimagnesium tetrachloride"
+  ],
+  "cas": "42565-93-5",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:25:27 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=42565-93-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

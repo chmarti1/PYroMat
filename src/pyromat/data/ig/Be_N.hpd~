@@ -5,7 +5,12 @@
   },
   "id": "ig.BeN",
   "mw": 23.0189,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:39:51 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=37279-11-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Beryllium nitride"
+  ],
+  "inchi": "InChI=1S/Be.N",
+  "cas": "37279-11-1",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:09:50 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=37279-11-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1100.0,

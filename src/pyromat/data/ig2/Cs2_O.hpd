@@ -1,40 +1,42 @@
 {
-    "C": [
-        [
-            5.7553639,
-            0.0049116073,
-            -7.7072518e-06,
-            5.4156957e-09,
-            -1.4080898e-12,
-            -12946.829,
-            4.30015461
-        ],
-        [
-            6.8979467,
-            0.00010165098,
-            -3.8062062e-08,
-            6.1466393e-12,
-            -3.5758216e-16,
-            -13169.989,
-            -1.16591689
-        ]
+  "C": [
+    [
+      5.7553639,
+      0.0049116073,
+      -7.7072518e-06,
+      5.4156957e-09,
+      -1.4080898e-12,
+      -12946.829,
+      4.30015461
     ],
-    "Tlim": [
-        300.0,
-        1000.0,
-        5000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "Cs": 2,
-        "O": 1
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/Cs2_O.hpd",
-    "ho": -11070.6171,
-    "id": "ig.Cs2O",
-    "mw": 281.81026,
-    "names": [],
-    "pref": 100000.0
+    [
+      6.8979467,
+      0.00010165098,
+      -3.8062062e-08,
+      6.1466393e-12,
+      -3.5758216e-16,
+      -13169.989,
+      -1.16591689
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cs": 2,
+    "O": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -11070.6171,
+  "id": "ig.Cs2O",
+  "mw": 281.81026,
+  "names": [
+    "dicesium oxide"
+  ],
+  "pref": 100000.0,
+  "cas": "20281-00-9"
 }

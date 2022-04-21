@@ -5,7 +5,11 @@
   },
   "id": "ig.Fe2I4",
   "mw": 619.308,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:44:09 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=92785-63-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Diiron tetraiodide"
+  ],
+  "cas": "92785-63-2",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:12:02 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=92785-63-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

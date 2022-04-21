@@ -6,7 +6,12 @@
   },
   "id": "ig.H2MoO4",
   "mw": 161.97,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:43:16 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7782-91-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "molybdic acid"
+  ],
+  "inchi": "InChI=1S/Mo.2H2O.2O/h;2*1H2;;/q+2;;;;/p-2",
+  "cas": "7782-91-4",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:25:45 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7782-91-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1200.0,

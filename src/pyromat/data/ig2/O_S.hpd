@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      3.1490233,
+      0.0011839347,
+      2.5740686e-06,
+      -4.4443419e-09,
+      1.8735159e-12,
+      -404.07571,
+      8.31987915
+    ],
+    [
+      4.0142873,
+      0.00027022817,
+      8.2896667e-08,
+      -3.4323741e-11,
+      3.1121444e-15,
+      -710.51956,
+      3.49973505
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "O": 1,
+    "S": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 602.271219,
+  "id": "ig.OS",
+  "mw": 48.0654,
+  "names": [
+    "Sulfur monoxide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/OS/c1-2",
+  "cas": "13827-32-2"
+}

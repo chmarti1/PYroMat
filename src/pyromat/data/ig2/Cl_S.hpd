@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      3.705588,
+      0.0052718623,
+      -1.137182e-05,
+      1.0497827e-08,
+      -3.5318408e-12,
+      17561.159,
+      6.27945123
+    ],
+    [
+      4.594726,
+      -5.9771786e-05,
+      4.5226495e-08,
+      -9.3718435e-12,
+      8.0735727e-16,
+      17452.426,
+      2.37985153
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 1,
+    "S": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 18818.9067,
+  "id": "ig.ClS",
+  "mw": 67.5187,
+  "names": [
+    "Sulfur chloride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/ClS/c1-2",
+  "cas": "14989-32-3"
+}

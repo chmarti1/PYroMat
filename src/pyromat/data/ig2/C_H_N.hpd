@@ -1,0 +1,72 @@
+{
+  "C": [
+    [
+      2.25901123,
+      0.0100510591,
+      -1.33514911e-05,
+      1.00920882e-08,
+      -3.00882048e-12,
+      15215.8495,
+      8.9163459
+    ],
+    [
+      3.80231733,
+      0.00314630009,
+      -1.06315698e-06,
+      1.66185395e-10,
+      -9.79891789e-15,
+      14910.4829,
+      1.57503584
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "C": 1,
+    "H": 1,
+    "N": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 16236.6754,
+  "id": "ig.CHN",
+  "mw": 27.02568,
+  "names": [
+    "Hydrogen cyanide",
+    "Hydrocyanic acid",
+    "AC",
+    "Blausaeure (German)",
+    "Carbon hydride nitride (CHN)",
+    "Formic anammonide",
+    "Formonitrile",
+    "HCN",
+    "Prussic Acid",
+    "Cyclon",
+    "Acide cyanhydrique",
+    "Acido cianidrico",
+    "Aero Liquid HCN",
+    "Blausaeure",
+    "Blauwzuur",
+    "Cyaanwaterstof",
+    "Cyanwasserstoff",
+    "Cyclone B",
+    "Cyjanowodor",
+    "Evercyn",
+    "NA 1051",
+    "Prussic acid, unstabilized",
+    "Rcra waste number P063",
+    "UN 1051",
+    "Zaclondiscoids",
+    "Carbon hydride nitride",
+    "Zootic acid",
+    "Agent AC",
+    "Nitrilomethane"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/CHN/c1-2/h1H",
+  "cas": "74-90-8"
+}

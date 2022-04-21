@@ -1,0 +1,42 @@
+{
+  "C": [
+    [
+      7.5614873,
+      0.0097338249,
+      -1.5543305e-05,
+      1.1186368e-08,
+      -3.0022998e-12,
+      -33013.624,
+      -3.98583203
+    ],
+    [
+      9.7771106,
+      0.00024421362,
+      -1.0313994e-07,
+      1.9207426e-11,
+      -1.3179299e-15,
+      -33439.57,
+      -14.5491463
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 3,
+    "Fe": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -30443.1637,
+  "id": "ig.Cl3Fe",
+  "mw": 162.2051,
+  "names": [
+    "iron trichloride"
+  ],
+  "pref": 100000.0,
+  "cas": "7705-08-0"
+}

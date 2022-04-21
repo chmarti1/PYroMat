@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      2.514824,
+      0.014504157,
+      -2.0594779e-05,
+      1.4130176e-08,
+      -3.8132326e-12,
+      -71942.433,
+      13.0046348
+    ],
+    [
+      6.0562104,
+      0.0010721952,
+      -4.7129758e-07,
+      9.0174764e-11,
+      -6.1370905e-15,
+      -72727.083,
+      -4.35994757
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 2,
+    "Si": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -70703.8037,
+  "id": "ig.F2Si",
+  "mw": 66.08231,
+  "names": [
+    "Difluorosilylene"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/F2Si/c1-3-2",
+  "cas": "13966-66-0"
+}

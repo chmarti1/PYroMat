@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      3.2528276,
+      0.00041823126,
+      3.7806202e-06,
+      -5.1024483e-09,
+      1.9471317e-12,
+      -13090.34,
+      6.66174329
+    ],
+    [
+      3.7478835,
+      0.00081991943,
+      -3.2525396e-07,
+      5.7324962e-11,
+      -3.5108944e-15,
+      -13317.43,
+      3.66100339
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "O": 1,
+    "Si": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -12077.6829,
+  "id": "ig.OSi",
+  "mw": 44.0849,
+  "names": [
+    "silicon monoxide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/OSi/c1-2",
+  "cas": "10097-28-6"
+}

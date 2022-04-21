@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      3.7206488,
+      -0.0015341848,
+      3.1877426e-06,
+      -1.5091401e-09,
+      9.7126114e-14,
+      44072.756,
+      1.64955672
+    ],
+    [
+      2.8297034,
+      0.0016584175,
+      -6.3287333e-07,
+      1.1477685e-10,
+      -7.8318584e-15,
+      44255.951,
+      6.00662882
+    ]
+  ],
+  "Tlim": [
+    298.15,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "D": 1,
+    "N": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 45139.071,
+  "id": "ig.DN",
+  "mw": 16.02084,
+  "names": [
+    "Imidogen-d"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/HN/h1H/i1D",
+  "cas": "15123-00-9"
+}

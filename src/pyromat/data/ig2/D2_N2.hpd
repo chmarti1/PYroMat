@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      3.87335899,
+      -0.00262328791,
+      2.63075819e-05,
+      -3.13008744e-08,
+      1.18109999e-11,
+      23694.8344,
+      4.7494916
+    ],
+    [
+      4.51455308,
+      0.00518901318,
+      -1.93684288e-06,
+      3.20575967e-10,
+      -1.95208624e-14,
+      23023.0396,
+      -0.952662254
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "D": 2,
+    "N": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 24909.225,
+  "id": "ig.D2N2",
+  "mw": 32.04168,
+  "names": [
+    "Diazene-d2, cis"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/H2N2/c1-2/h1-2H/b2-1-/i/hD2",
+  "cas": "66511-78-2"
+}

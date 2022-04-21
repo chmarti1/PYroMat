@@ -7,7 +7,12 @@
   },
   "id": "ig.B3F2HO3",
   "mw": 119.436,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:40:42 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=57328-69-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Difluoroboroxin"
+  ],
+  "inchi": "InChI=1S/B3F2HO3/c4-2-6-1-7-3(5)8-2/h1H",
+  "cas": "57328-69-5",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:17:39 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=57328-69-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1100.0,

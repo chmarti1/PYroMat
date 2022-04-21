@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      2.6570752,
+      0.0066826135,
+      -1.0331156e-05,
+      7.6871766e-09,
+      -2.2245057e-12,
+      -29494.89,
+      9.85508041
+    ],
+    [
+      4.1922119,
+      0.00040362644,
+      -1.5097631e-07,
+      2.8169221e-11,
+      -1.8275892e-15,
+      -29813.71,
+      2.43696211
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 1,
+    "Mg": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -28482.7958,
+  "id": "ig.FMg",
+  "mw": 43.3034,
+  "names": [
+    "Magnesium monofluoride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/FH.Mg/h1H;/q;+1/p-1",
+  "cas": "14953-28-7"
+}

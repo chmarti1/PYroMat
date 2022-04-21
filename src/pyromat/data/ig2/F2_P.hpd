@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      2.4428526,
+      0.015186331,
+      -2.2196924e-05,
+      1.5648932e-08,
+      -4.3298372e-12,
+      -59960.9804,
+      14.037117
+    ],
+    [
+      6.0926588,
+      0.0010313324,
+      -4.537102e-07,
+      8.7045583e-11,
+      -5.9714052e-15,
+      -60755.3254,
+      -3.78513007
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 2,
+    "P": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -58724.8863,
+  "id": "ig.F2P",
+  "mw": 68.97057,
+  "names": [
+    "Phosphorus difluoride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/F2P/c1-3-2",
+  "cas": "13873-52-4"
+}

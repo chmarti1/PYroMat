@@ -4,7 +4,12 @@
   },
   "id": "ig.Ti",
   "mw": 47.867,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:41:42 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7440-32-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "titanium"
+  ],
+  "inchi": "InChI=1S/Ti",
+  "cas": "7440-32-6",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:17:54 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7440-32-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     3630.956,
     6000.0

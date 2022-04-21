@@ -1,0 +1,60 @@
+{
+  "C": [
+    [
+      2.12979489,
+      0.0141019723,
+      -5.94381359e-06,
+      -5.3054479e-09,
+      3.97367469e-12,
+      -78174.5339,
+      15.1109092
+    ],
+    [
+      6.8163173,
+      0.00316473282,
+      -1.21776269e-06,
+      2.05582261e-10,
+      -1.26893125e-14,
+      -79548.2716,
+      -9.52864574
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "C": 1,
+    "F": 2,
+    "O": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -76973.8686,
+  "id": "ig.CF2O",
+  "mw": 66.00721,
+  "names": [
+    "Carbonic difluoride",
+    "Carbonyl fluoride",
+    "Carbon difluoride oxide",
+    "Carbon fluoride oxide (COF2)",
+    "Carbon oxyfluoride",
+    "Carbonyl difluoride",
+    "Difluoroformaldehyde",
+    "Fluoroformyl fluoride",
+    "Fluorophosgene",
+    "COF2",
+    "Fluophosgene",
+    "Difluorooxomethane",
+    "Difluorophosgene",
+    "Carbon fluoride oxide",
+    "Rcra waste number U033",
+    "UN 2417",
+    "Carbon oxyfluoride (COF2)"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/CF2O/c2-1(3)4",
+  "cas": "353-50-4"
+}

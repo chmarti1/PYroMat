@@ -5,7 +5,13 @@
   },
   "id": "ig.BeS",
   "mw": 41.077,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:34:38 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13598-22-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "beryllium sulphide",
+    "Beryllium sulfide"
+  ],
+  "inchi": "InChI=1S/Be.S",
+  "cas": "13598-22-6",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:15:04 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13598-22-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1000.0,

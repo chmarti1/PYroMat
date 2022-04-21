@@ -1,0 +1,42 @@
+{
+  "C": [
+    [
+      4.3073395,
+      0.00085668232,
+      -1.3164554e-06,
+      9.7187239e-10,
+      -2.6526744e-13,
+      11645.744,
+      8.94132936
+    ],
+    [
+      4.7186112,
+      -0.00041882236,
+      3.0970847e-07,
+      -5.9203353e-11,
+      3.877397e-15,
+      11534.11,
+      6.83919406
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "I": 1,
+    "Pb": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 12958.2187,
+  "id": "ig.IPb",
+  "mw": 334.10447,
+  "names": [
+    "Lead iodide"
+  ],
+  "pref": 100000.0,
+  "cas": "13779-93-6"
+}

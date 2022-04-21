@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      3.5156066,
+      0.0037868422,
+      -5.5864995e-06,
+      3.7751438e-09,
+      -9.3924218e-13,
+      -40476.079,
+      6.31338545
+    ],
+    [
+      4.40407,
+      0.00017833725,
+      -3.6093797e-08,
+      5.8839587e-12,
+      -3.4694046e-16,
+      -40655.889,
+      2.03109585
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 1,
+    "K": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -39301.927,
+  "id": "ig.FK",
+  "mw": 58.0967,
+  "names": [
+    "Potassium fluoride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/FH.K/h1H;/q;+1/p-1",
+  "cas": "7789-23-3"
+}

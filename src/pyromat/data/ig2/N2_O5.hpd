@@ -1,40 +1,44 @@
 {
-    "C": [
-        [
-            3.68767444,
-            0.0392120798,
-            -5.53770029e-05,
-            4.20097833e-08,
-            -1.3126071e-11,
-            -830.291184,
-            12.1967866
-        ],
-        [
-            13.1108082,
-            0.00487435791,
-            -1.87548389e-06,
-            3.16374121e-10,
-            -1.95926845e-14,
-            -3116.347,
-            -34.6877692
-        ]
+  "C": [
+    [
+      3.68767444,
+      0.0392120798,
+      -5.53770029e-05,
+      4.20097833e-08,
+      -1.3126071e-11,
+      -830.291184,
+      12.1967866
     ],
-    "Tlim": [
-        200.0,
-        1000.0,
-        6000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "N": 2,
-        "O": 5
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/N2_O5.hpd",
-    "ho": 1599.61321,
-    "id": "ig.N2O5",
-    "mw": 108.01048,
-    "names": [],
-    "pref": 100000.0
+    [
+      13.1108082,
+      0.00487435791,
+      -1.87548389e-06,
+      3.16374121e-10,
+      -1.95926845e-14,
+      -3116.347,
+      -34.6877692
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "N": 2,
+    "O": 5
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 1599.61321,
+  "id": "ig.N2O5",
+  "mw": 108.01048,
+  "names": [
+    "Dinitrogen pentoxide",
+    "dinitrogen pentaoxide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/N2O5/c3-1(4)7-2(5)6",
+  "cas": "10102-03-1"
 }

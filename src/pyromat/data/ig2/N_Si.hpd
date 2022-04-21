@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      3.1051955,
+      0.0014852449,
+      1.856106e-06,
+      -3.7734883e-09,
+      1.6835331e-12,
+      43785.709,
+      7.88856052
+    ],
+    [
+      3.9858621,
+      -8.7927056e-06,
+      5.4269539e-07,
+      -1.7951017e-10,
+      1.6337069e-14,
+      43524.809,
+      3.17468002
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "N": 1,
+    "Si": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 44787.2738,
+  "id": "ig.NSi",
+  "mw": 42.09224,
+  "names": [
+    "silicon nitride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/NSi/c1-2",
+  "cas": "12033-60-2"
+}

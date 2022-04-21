@@ -5,7 +5,11 @@
   },
   "id": "ig.Br4Ti",
   "mw": 367.483,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:43:58 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7789-68-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "titanium tetrabromide"
+  ],
+  "cas": "7789-68-6",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:08:08 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7789-68-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     1000.0,
     6000.0

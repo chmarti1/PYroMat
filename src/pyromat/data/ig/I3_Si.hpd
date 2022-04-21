@@ -5,7 +5,12 @@
   },
   "id": "ig.I3Si",
   "mw": 408.7989,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:42:04 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=74912-20-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Triiodosilyl"
+  ],
+  "inchi": "InChI=1S/I3Si/c1-4(2)3",
+  "cas": "74912-20-2",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:21:15 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=74912-20-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

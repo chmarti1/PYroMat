@@ -4,7 +4,14 @@
   },
   "id": "ig.P",
   "mw": 30.973762,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:42:58 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7723-14-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "phosphorus",
+    "red phosphorus",
+    "Phosphorus atom"
+  ],
+  "inchi": "InChI=1S/P",
+  "cas": "7723-14-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:26:18 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7723-14-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     1180.008,
     2200.0,

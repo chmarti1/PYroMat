@@ -6,7 +6,11 @@
   },
   "id": "ig.B3H3O3",
   "mw": 83.455,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:39:26 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=289-56-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Boroxine"
+  ],
+  "cas": "289-56-5",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:14:22 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=289-56-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1200.0,

@@ -4,7 +4,11 @@
   },
   "id": "ig.S4",
   "mw": 128.26,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:38:09 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=19269-85-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Tetrasulfur"
+  ],
+  "cas": "19269-85-3",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:07:42 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=19269-85-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

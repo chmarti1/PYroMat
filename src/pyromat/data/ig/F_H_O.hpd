@@ -6,7 +6,12 @@
   },
   "id": "ig.FHO",
   "mw": 36.0057,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:36:00 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14034-79-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "HypoFluorous acid"
+  ],
+  "inchi": "InChI=1S/FHO/c1-2/h2H",
+  "cas": "14034-79-8",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:24:09 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14034-79-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1300.0,

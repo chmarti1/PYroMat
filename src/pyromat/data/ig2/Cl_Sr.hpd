@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      3.9036185,
+      0.0024634428,
+      -3.8776965e-06,
+      2.8303375e-09,
+      -7.730412e-13,
+      -16139.74,
+      7.51664683
+    ],
+    [
+      4.3344418,
+      0.00038952112,
+      -2.4461312e-07,
+      7.3284365e-11,
+      -5.9733325e-15,
+      -16208.781,
+      5.52525593
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 1,
+    "Sr": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -14895.4147,
+  "id": "ig.ClSr",
+  "mw": 123.0727,
+  "names": [
+    "Strontium monochloride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/ClH.Sr/h1H;/q;+1/p-1",
+  "cas": "14989-33-4"
+}

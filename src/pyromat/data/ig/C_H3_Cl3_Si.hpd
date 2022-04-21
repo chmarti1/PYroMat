@@ -7,7 +7,26 @@
   },
   "id": "ig.CH3Cl3Si",
   "mw": 149.479,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:42:26 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=75-79-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Silane, trichloromethyl-",
+    "Methyltrichlorosilane",
+    "Monomethyltrichlorosilane",
+    "Trichloromethylsilane",
+    "Trichloromethylsilicon",
+    "CH3SiCl3",
+    "Methyl-trichlorsilan",
+    "Methylsilicochloroform",
+    "Silane, methyltrichloro-",
+    "Trichlor-methylsilan",
+    "UN 1250",
+    "SiCH3Cl3",
+    "Methylsilyl trichloride",
+    "NSC 77069",
+    "LS 40"
+  ],
+  "inchi": "InChI=1S/CH3Cl3Si/c1-5(2,3)4/h1H3",
+  "cas": "75-79-6",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:16:55 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=75-79-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1500.0

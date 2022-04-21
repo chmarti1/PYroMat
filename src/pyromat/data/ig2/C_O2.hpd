@@ -1,40 +1,61 @@
 {
-    "C": [
-        [
-            2.35677352,
-            0.00898459677,
-            -7.12356269e-06,
-            2.45919022e-09,
-            -1.43699548e-13,
-            -48371.9697,
-            9.90105222
-        ],
-        [
-            4.63659493,
-            0.00274131991,
-            -9.95828531e-07,
-            1.60373011e-10,
-            -9.16103468e-15,
-            -49024.9341,
-            -1.93534855
-        ]
+  "C": [
+    [
+      2.35677352,
+      0.00898459677,
+      -7.12356269e-06,
+      2.45919022e-09,
+      -1.43699548e-13,
+      -48371.9697,
+      9.90105222
     ],
-    "Tlim": [
-        200.0,
-        1000.0,
-        6000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "C": 1,
-        "O": 2
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/C_O2.hpd",
-    "ho": -47328.1047,
-    "id": "ig.CO2",
-    "mw": 44.0098,
-    "names": [],
-    "pref": 100000.0
+    [
+      4.63659493,
+      0.00274131991,
+      -9.95828531e-07,
+      1.60373011e-10,
+      -9.16103468e-15,
+      -49024.9341,
+      -1.93534855
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "C": 1,
+    "O": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -47328.1047,
+  "id": "ig.CO2",
+  "mw": 44.0098,
+  "names": [
+    "Carbon dioxide",
+    "Carbon oxide (CO2)",
+    "Carbonic acid, gas",
+    "Carbonic anhydride",
+    "Dry ice",
+    "CO2",
+    "Anhydride carbonique",
+    "Carbonica",
+    "Kohlendioxyd",
+    "Kohlensaure",
+    "UN 1013",
+    "UN 1845",
+    "UN 2187",
+    "Cardice",
+    "Dricold",
+    "Drikold",
+    "Carbonic acid anhydride",
+    "Khladon 744",
+    "R 744"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/CO2/c2-1-3",
+  "cas": "124-38-9"
 }

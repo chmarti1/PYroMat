@@ -1,0 +1,40 @@
+{
+  "C": [
+    [
+      -1.67667734,
+      0.0616931464,
+      -0.000120738995,
+      1.09814026e-07,
+      -3.72856831e-11,
+      -41128.9708,
+      29.677171
+    ],
+    [
+      8.96262012,
+      0.00420137342,
+      -1.61017443e-06,
+      2.68347076e-10,
+      -1.63497305e-14,
+      -42799.4358,
+      -18.6912367
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Fe": 1,
+    "H": 2,
+    "O": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -39754.1166,
+  "id": "ig.H2FeO2",
+  "mw": 89.86168,
+  "names": [],
+  "pref": 100000.0
+}

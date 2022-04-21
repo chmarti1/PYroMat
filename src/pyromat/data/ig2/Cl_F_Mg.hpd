@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      3.15704293,
+      0.016453479,
+      -3.01126869e-05,
+      2.57974606e-08,
+      -8.42487547e-12,
+      -69891.004,
+      10.2255402
+    ],
+    [
+      6.57082252,
+      0.000448876208,
+      -1.77994819e-07,
+      3.06318205e-11,
+      -1.91554544e-15,
+      -70523.5977,
+      -5.83555414
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 1,
+    "F": 1,
+    "Mg": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -68437.4665,
+  "id": "ig.ClFMg",
+  "mw": 78.7561,
+  "names": [
+    "Magnesium chloride fluoride"
+  ],
+  "pref": 100000.0,
+  "cas": "60175-01-1"
+}

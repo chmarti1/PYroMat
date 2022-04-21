@@ -1,0 +1,51 @@
+{
+  "C": [
+    [
+      0.15785883,
+      0.041884825,
+      -6.2731005e-05,
+      4.6190483e-08,
+      -1.3412026e-11,
+      -23930.423,
+      22.4234237
+    ],
+    [
+      9.8160298,
+      0.0035462215,
+      -1.5521269e-06,
+      3.0163503e-10,
+      -2.1622909e-14,
+      -26018.12,
+      -24.5950113
+    ]
+  ],
+  "Tlim": [
+    298.15,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 3,
+    "N": 1,
+    "O": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -22491.079,
+  "id": "ig.F3NO",
+  "mw": 87.00135,
+  "names": [
+    "Trifluoroamine oxide",
+    "Nitrogen fluoride oxide (NF3O)",
+    "AMOX",
+    "Nitrogen Fluoride oxide (F3NO)",
+    "Trifluoramine oxide",
+    "NOF3",
+    "NF3O",
+    "Nitrogen trifluoride oxide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/F3NO/c1-4(2,3)5",
+  "cas": "13847-65-9"
+}

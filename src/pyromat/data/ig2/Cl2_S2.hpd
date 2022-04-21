@@ -1,0 +1,55 @@
+{
+  "C": [
+    [
+      3.47905708,
+      0.0325370028,
+      -6.6390462e-05,
+      6.21124845e-08,
+      -2.17112325e-11,
+      -4022.25567,
+      12.2791824
+    ],
+    [
+      9.4684102,
+      0.00112186352,
+      -6.9278428e-07,
+      1.38654463e-10,
+      -9.29397839e-15,
+      -5050.19524,
+      -15.2950441
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 2,
+    "S": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -2012.86666,
+  "id": "ig.Cl2S2",
+  "mw": 135.0374,
+  "names": [
+    "Sulfur monochloride",
+    "Disulfur dichloride",
+    "Sulfur chloride (S2Cl2)",
+    "Chlorosulfane",
+    "Sulfur chloride",
+    "Sulfur subchloride",
+    "Thiosulfurous dichloride",
+    "S2Cl2",
+    "Chloride of sulfur",
+    "Siarki chlorek",
+    "Sulfur chloride(di)",
+    "ClSSCl",
+    "disulphur dichloride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/Cl2S2/c1-3-4-2",
+  "cas": "10025-67-9"
+}

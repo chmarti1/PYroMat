@@ -5,7 +5,12 @@
   },
   "id": "ig.HO2",
   "mw": 33.0067,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:39:37 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=3170-83-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Hydroperoxy radical"
+  ],
+  "inchi": "InChI=1S/HO2/c1-2/h1H",
+  "cas": "3170-83-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:09:05 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=3170-83-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     2000.0,

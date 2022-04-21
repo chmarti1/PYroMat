@@ -5,7 +5,11 @@
   },
   "id": "ig.F2Fe",
   "mw": 93.842,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:43:48 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7789-28-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "iron difluoride"
+  ],
+  "cas": "7789-28-8",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:27:10 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7789-28-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     3000.0,
     6000.0

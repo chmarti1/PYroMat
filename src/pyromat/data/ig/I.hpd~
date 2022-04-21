@@ -4,7 +4,12 @@
   },
   "id": "ig.I",
   "mw": 126.90447,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:36:24 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14362-44-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Iodine atom"
+  ],
+  "inchi": "InChI=1S/I",
+  "cas": "14362-44-8",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:14:33 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14362-44-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1600.0,

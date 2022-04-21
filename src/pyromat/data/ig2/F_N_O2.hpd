@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      1.4466808,
+      0.020884058,
+      -2.3885528e-05,
+      1.3943894e-08,
+      -3.3402501e-12,
+      -14284.297,
+      17.66067
+    ],
+    [
+      6.710382,
+      0.0036240166,
+      -1.5666023e-06,
+      3.0266641e-10,
+      -2.1608866e-14,
+      -15611.041,
+      -8.88169601
+    ]
+  ],
+  "Tlim": [
+    298.15,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 1,
+    "N": 1,
+    "O": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -13109.773,
+  "id": "ig.FNO2",
+  "mw": 65.00394,
+  "names": [
+    "nitryl fluoride"
+  ],
+  "pref": 100000.0,
+  "cas": "10022-50-1"
+}

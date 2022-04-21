@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      2.6760863,
+      0.0055722162,
+      -7.2837796e-06,
+      4.5819439e-09,
+      -1.1188106e-12,
+      -7289.16135,
+      10.4341831
+    ],
+    [
+      4.2844403,
+      4.6513192e-05,
+      1.2923155e-07,
+      -3.5459686e-11,
+      2.9308642e-15,
+      -7675.66495,
+      2.40196381
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 1,
+    "P": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -6299.44377,
+  "id": "ig.FP",
+  "mw": 49.97217,
+  "names": [
+    "Phosphorus monofluoride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/FP/c1-2",
+  "cas": "16027-92-2"
+}

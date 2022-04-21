@@ -5,7 +5,12 @@
   },
   "id": "ig.N2O3",
   "mw": 76.0116,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:30:57 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10544-73-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Dinitrogen trioxide"
+  ],
+  "inchi": "InChI=1S/N2O3/c3-1-2(4)5",
+  "cas": "10544-73-7",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:24:10 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10544-73-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1100.0,

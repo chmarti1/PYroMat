@@ -6,7 +6,12 @@
   },
   "id": "ig.BBrCl",
   "mw": 126.168,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:42:05 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=74930-79-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Bromochloroborane"
+  ],
+  "inchi": "InChI=1S/BBrClH/c2-1-3/h1H",
+  "cas": "74930-79-3",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:24:14 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=74930-79-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

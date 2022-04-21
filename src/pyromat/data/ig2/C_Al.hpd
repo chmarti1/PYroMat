@@ -1,0 +1,42 @@
+{
+  "C": [
+    [
+      2.6422483,
+      0.0064465161,
+      -9.5892376e-06,
+      6.9040805e-09,
+      -1.9430779e-12,
+      81929.874,
+      10.267362
+    ],
+    [
+      4.1564478,
+      0.0004469249,
+      -1.746704e-07,
+      3.4304336e-11,
+      -2.4772706e-15,
+      81606.605,
+      2.90472521
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Al": 1,
+    "C": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 82932.1939,
+  "id": "ig.CAl",
+  "mw": 38.99254,
+  "names": [
+    "Aluminum carbide"
+  ],
+  "pref": 100000.0,
+  "cas": "37265-94-4"
+}

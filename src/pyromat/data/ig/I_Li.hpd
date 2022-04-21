@@ -5,7 +5,12 @@
   },
   "id": "ig.ILi",
   "mw": 133.845,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:30:52 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10377-51-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "lithium iodide"
+  ],
+  "inchi": "InChI=1S/HI.Li/h1H;/q;+1/p-1",
+  "cas": "10377-51-2",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:17:12 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10377-51-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     2500.0,
     6000.0

@@ -6,7 +6,12 @@
   },
   "id": "ig.B3H3O6",
   "mw": 131.453,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:34:01 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13460-51-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Trihydroxy boroxine"
+  ],
+  "inchi": "InChI=1S/B3H3O6/c4-1-7-2(5)9-3(6)8-1/h4-6H",
+  "cas": "13460-51-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:09:35 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13460-51-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1200.0,

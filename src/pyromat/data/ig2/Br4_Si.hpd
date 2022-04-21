@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      7.6108937,
+      0.023239384,
+      -4.1545746e-05,
+      3.4305241e-08,
+      -1.0755076e-11,
+      -52968.209,
+      -3.09903931
+    ],
+    [
+      12.456087,
+      0.00062844384,
+      -2.8128951e-07,
+      5.5474414e-11,
+      -4.0175959e-15,
+      -53850.521,
+      -25.860909
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Br": 4,
+    "Si": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -49970.4412,
+  "id": "ig.Br4Si",
+  "mw": 347.7015,
+  "names": [
+    "silicon tetrabromide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/Br4Si/c1-5(2,3)4",
+  "cas": "7789-66-4"
+}

@@ -1,0 +1,44 @@
+{
+  "C": [
+    [
+      2.723359,
+      0.0041642989,
+      -2.1912812e-06,
+      -1.2351872e-09,
+      1.0791833e-12,
+      61927.893,
+      11.4173579
+    ],
+    [
+      4.185228,
+      0.0006151472,
+      -3.5776335e-07,
+      1.0748862e-10,
+      -9.7275505e-15,
+      61511.54,
+      3.77618661
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "N": 1,
+    "V": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 62903.6613,
+  "id": "ig.NV",
+  "mw": 64.94824,
+  "names": [
+    "vanadium nitride",
+    "Vanadium mononitride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/N.V",
+  "cas": "24646-85-3"
+}

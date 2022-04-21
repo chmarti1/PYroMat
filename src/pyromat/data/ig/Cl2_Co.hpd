@@ -5,7 +5,11 @@
   },
   "id": "ig.Cl2Co",
   "mw": 129.839,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:42:37 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7646-79-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "cobalt dichloride"
+  ],
+  "cas": "7646-79-9",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:20:07 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7646-79-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     2000.0,
     6000.0

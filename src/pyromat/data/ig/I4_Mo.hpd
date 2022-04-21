@@ -5,7 +5,12 @@
   },
   "id": "ig.I4Mo",
   "mw": 603.58,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:36:04 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14055-76-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Molybdenum iodide"
+  ],
+  "inchi": "InChI=1S/4HI.Mo/h4*1H;/p-1",
+  "cas": "14055-76-6",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:08:04 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14055-76-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

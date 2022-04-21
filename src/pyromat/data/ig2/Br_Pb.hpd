@@ -1,0 +1,42 @@
+{
+  "C": [
+    [
+      4.190684,
+      0.0013411178,
+      -2.0978994e-06,
+      1.5510908e-09,
+      -4.2617912e-13,
+      7236.9469,
+      8.57477819
+    ],
+    [
+      4.7268766,
+      -0.0004391839,
+      3.3215582e-07,
+      -6.530724e-11,
+      4.2726112e-15,
+      7098.8959,
+      5.86735159
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Br": 1,
+    "Pb": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 8530.33705,
+  "id": "ig.BrPb",
+  "mw": 287.104,
+  "names": [
+    "Lead bromide"
+  ],
+  "pref": 100000.0,
+  "cas": "15576-47-3"
+}

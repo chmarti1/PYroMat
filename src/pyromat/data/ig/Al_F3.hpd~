@@ -5,7 +5,14 @@
   },
   "id": "ig.AlF3",
   "mw": 83.9767482,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:43:34 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7784-18-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Aluminum fluoride",
+    "aluminium fluoride",
+    "Aluminum trifluoride"
+  ],
+  "inchi": "InChI=1S/Al.3FH/h;3*1H/q+3;;;/p-3",
+  "cas": "7784-18-1",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:23:52 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7784-18-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     4000.0,
     6000.0

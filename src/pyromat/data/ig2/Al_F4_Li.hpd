@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      2.5403421,
+      0.051985881,
+      -8.6188031e-05,
+      6.7496816e-08,
+      -2.0367509e-11,
+      -225357.67,
+      12.571932
+    ],
+    [
+      14.037742,
+      0.0022482642,
+      -1.0010002e-06,
+      1.9670249e-10,
+      -1.4208886e-14,
+      -227627.57,
+      -42.360148
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Al": 1,
+    "F": 4,
+    "Li": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -222927.352,
+  "id": "ig.AlF4Li",
+  "mw": 109.91615,
+  "names": [
+    "lithium tetrafluoroaluminate"
+  ],
+  "pref": 100000.0,
+  "cas": "15138-76-8"
+}

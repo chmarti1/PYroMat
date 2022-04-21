@@ -6,7 +6,11 @@
   },
   "id": "ig.B2BeO4",
   "mw": 94.632,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:36:47 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14720-43-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Beryllium borate"
+  ],
+  "cas": "14720-43-5",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:16:21 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14720-43-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1100.0,

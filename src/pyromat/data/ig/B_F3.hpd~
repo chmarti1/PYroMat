@@ -5,7 +5,21 @@
   },
   "id": "ig.BF3",
   "mw": 67.806,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:42:35 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7637-07-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Boron trifluoride",
+    "Borane, trifluoro-",
+    "Boron fluoride (BF3)",
+    "Boron fluoride",
+    "Trifluoroborane",
+    "Trifluoroboron",
+    "BF3",
+    "Fluorure de bore",
+    "UN 1008",
+    "Anca 1040"
+  ],
+  "inchi": "InChI=1S/BF3/c2-1(3)4",
+  "cas": "7637-07-2",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:19:48 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7637-07-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1000.0,

@@ -1,40 +1,43 @@
 {
-    "C": [
-        [
-            2.78240849,
-            0.012553311,
-            -2.13082026e-05,
-            1.90941637e-08,
-            -6.59244187e-12,
-            74955.1651,
-            9.10634736
-        ],
-        [
-            4.86658084,
-            0.00238499612,
-            -8.52577832e-07,
-            1.38423853e-10,
-            -8.18423116e-15,
-            74558.692,
-            -0.677587146
-        ]
+  "C": [
+    [
+      3.24134033,
+      0.00850091346,
+      -7.6160814e-06,
+      3.64986585e-09,
+      -8.42551872e-13,
+      58947.737,
+      6.7095645
     ],
-    "Tlim": [
-        200.0,
-        1000.0,
-        6000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "C": 1,
-        "N": 2
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/C_N2.hpd",
-    "ho": 76189.0601,
-    "id": "ig.CN2",
-    "mw": 40.02448,
-    "names": [],
-    "pref": 100000.0
+    [
+      5.73815514,
+      0.00177244606,
+      -6.85751131e-07,
+      1.1571198e-10,
+      -7.07567907e-15,
+      58221.489,
+      -6.30533665
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "C": 1,
+    "N": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 60231.5091,
+  "id": "ig.CN2",
+  "mw": 40.02448,
+  "names": [
+    "CNN Radical"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/CN2/c1-3-2",
+  "cas": "2468-81-7"
 }

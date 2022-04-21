@@ -5,7 +5,13 @@
   },
   "id": "ig.N2O5",
   "mw": 108.0104,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:30:39 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10102-03-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Dinitrogen pentoxide",
+    "dinitrogen pentaoxide"
+  ],
+  "inchi": "InChI=1S/N2O5/c3-1(4)7-2(5)6",
+  "cas": "10102-03-1",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:12:05 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10102-03-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     800.0,

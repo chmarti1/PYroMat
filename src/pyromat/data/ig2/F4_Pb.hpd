@@ -1,0 +1,42 @@
+{
+  "C": [
+    [
+      6.2745387,
+      0.024576282,
+      -3.6567537e-05,
+      2.4663266e-08,
+      -6.1876008e-12,
+      -139009.17,
+      -1.52958549
+    ],
+    [
+      12.127774,
+      0.00098421046,
+      -4.3006159e-07,
+      8.2902421e-11,
+      -5.8800202e-15,
+      -140203.45,
+      -29.790944
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 4,
+    "Pb": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -136323.331,
+  "id": "ig.F4Pb",
+  "mw": 283.19361,
+  "names": [
+    "lead(IV) fluoride"
+  ],
+  "pref": 100000.0,
+  "cas": "7783-59-7"
+}

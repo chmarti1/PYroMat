@@ -1,40 +1,39 @@
 {
-    "C": [
-        [
-            2.5,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            130263.788,
-            12.4941209
-        ],
-        [
-            2.49981754,
-            3.57922146e-07,
-            -2.21769848e-10,
-            4.86937918e-14,
-            -2.3901961e-18,
-            130263.854,
-            12.4951186
-        ]
+  "C": [
+    [
+      2.5,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      130263.788,
+      12.4941209
     ],
-    "Tlim": [
-        298.15,
-        1000.0,
-        6000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "Cu": 1,
-        "e": -1
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/Cu+.hpd",
-    "ho": 131009.163,
-    "id": "ig.Cu+",
-    "mw": 63.54545,
-    "names": [],
-    "pref": 100000.0
+    [
+      2.49981754,
+      3.57922146e-07,
+      -2.21769848e-10,
+      4.86937918e-14,
+      -2.3901961e-18,
+      130263.854,
+      12.4951186
+    ]
+  ],
+  "Tlim": [
+    298.15,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cu": 1,
+    "e": -1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 131009.163,
+  "id": "ig.Cu+",
+  "mw": 63.54545,
+  "names": [],
+  "pref": 100000.0
 }

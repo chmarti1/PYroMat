@@ -5,7 +5,12 @@
   },
   "id": "ig.F5I",
   "mw": 221.89649,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:43:30 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7783-66-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "iodine pentafluoride"
+  ],
+  "inchi": "InChI=1S/F5I/c1-6(2,3,4)5",
+  "cas": "7783-66-6",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:15:56 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7783-66-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

@@ -4,7 +4,11 @@
   },
   "id": "ig.S7",
   "mw": 224.455,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:38:34 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=21459-04-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Heptasulfur"
+  ],
+  "cas": "21459-04-1",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:15:41 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=21459-04-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

@@ -5,7 +5,21 @@
   },
   "id": "ig.C4N2",
   "mw": 76.0562,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:31:01 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=1071-98-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "2-Butynedinitrile",
+    "Acetylenedicarbonitrile",
+    "Dicyanoacetylene",
+    "1,2-Dicyanoacetylene",
+    "NCC&laquo",
+    "equiv&raquo",
+    "CCN",
+    "Dicyanoethyne",
+    "Sous-azote de carbone",
+    "C4N2"
+  ],
+  "inchi": "InChI=1S/C4N2/c5-3-1-2-4-6",
+  "cas": "1071-98-3",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:09:28 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=1071-98-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1200.0,

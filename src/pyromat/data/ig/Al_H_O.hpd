@@ -6,7 +6,11 @@
   },
   "id": "ig.AlHO",
   "mw": 43.9889,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:44:09 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=91571-48-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Aluminum hydride oxide"
+  ],
+  "cas": "91571-48-1",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:08:55 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=91571-48-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     2000.0,

@@ -1,0 +1,42 @@
+{
+  "C": [
+    [
+      4.8212191,
+      0.019836396,
+      -3.0617614e-05,
+      2.133704e-08,
+      -5.5344314e-12,
+      -103890.05,
+      2.36625459
+    ],
+    [
+      9.433553,
+      0.00063611588,
+      -2.762472e-07,
+      5.291719e-11,
+      -3.7310353e-15,
+      -104801.14,
+      -19.7529921
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 2,
+    "Na": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -101801.889,
+  "id": "ig.F2Na2",
+  "mw": 83.97634,
+  "names": [
+    "Disodium difluoride"
+  ],
+  "pref": 100000.0,
+  "cas": "12285-64-2"
+}

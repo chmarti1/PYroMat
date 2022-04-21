@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      5.6399407,
+      0.0054622134,
+      -8.8056872e-06,
+      6.419723e-09,
+      -1.7518591e-12,
+      -22792.336,
+      4.72790485
+    ],
+    [
+      6.8401678,
+      0.00020601308,
+      -1.0023434e-07,
+      1.9262772e-11,
+      -8.7941419e-16,
+      -23016.362,
+      -0.963755109
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 2,
+    "Pb": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -20933.9476,
+  "id": "ig.Cl2Pb",
+  "mw": 278.1054,
+  "names": [
+    "Lead dichloride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/2ClH.Pb/h2*1H;/q;;+2/p-2",
+  "cas": "7758-95-4"
+}

@@ -1,0 +1,42 @@
+{
+  "C": [
+    [
+      6.1081426,
+      0.0061462118,
+      -1.1166527e-05,
+      9.3266525e-09,
+      -2.9487166e-12,
+      -21286.323,
+      1.97126687
+    ],
+    [
+      7.3711162,
+      0.00014941954,
+      -6.7067738e-08,
+      1.3257559e-11,
+      -9.6200502e-16,
+      -21511.923,
+      -3.93845663
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "I": 2,
+    "Mg": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -19273.6169,
+  "id": "ig.I2Mg",
+  "mw": 278.11394,
+  "names": [
+    "magnesium iodide"
+  ],
+  "pref": 100000.0,
+  "cas": "10377-58-9"
+}

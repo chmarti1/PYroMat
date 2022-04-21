@@ -1,0 +1,42 @@
+{
+  "C": [
+    [
+      6.3902091,
+      0.002528905,
+      -4.1903743e-06,
+      3.1367523e-09,
+      -8.7976745e-13,
+      -14541.792,
+      3.81752929
+    ],
+    [
+      6.9472906,
+      6.0199001e-05,
+      -2.6556685e-08,
+      5.1596012e-12,
+      -3.683705e-16,
+      -14645.441,
+      1.18015799
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Br": 2,
+    "Pb": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -12555.3875,
+  "id": "ig.Br2Pb",
+  "mw": 367.008,
+  "names": [
+    "lead dibromide"
+  ],
+  "pref": 100000.0,
+  "cas": "10031-22-8"
+}

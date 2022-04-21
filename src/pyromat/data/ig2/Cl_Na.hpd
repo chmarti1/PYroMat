@@ -1,0 +1,44 @@
+{
+  "C": [
+    [
+      3.7032286,
+      0.0031997608,
+      -4.8924502e-06,
+      3.4639218e-09,
+      -9.1357521e-13,
+      -23028.276,
+      5.77347949
+    ],
+    [
+      4.4282931,
+      0.00015627241,
+      -2.8108383e-08,
+      4.7163571e-12,
+      -2.8832557e-16,
+      -23170.9,
+      2.30097459
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 1,
+    "Na": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -21818.7495,
+  "id": "ig.ClNa",
+  "mw": 58.44247,
+  "names": [
+    "sodium chloride",
+    "Salt"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/ClH.Na/h1H;/q;+1/p-1",
+  "cas": "7647-14-5"
+}

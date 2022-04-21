@@ -1,0 +1,54 @@
+{
+  "C": [
+    [
+      3.1581935,
+      0.0024941492,
+      9.0255253e-06,
+      -1.0227904e-08,
+      3.283425e-12,
+      -461.237252,
+      6.23722486
+    ],
+    [
+      3.3448794,
+      0.0065770941,
+      -2.6336755e-06,
+      4.774466e-10,
+      -3.235439e-14,
+      -816.176752,
+      3.95479626
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "H": 3,
+    "P": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 652.312908,
+  "id": "ig.H3P",
+  "mw": 33.99758,
+  "names": [
+    "Phosphine",
+    "Trihydrogen phosphide",
+    "Hydrogen phosphide",
+    "Phosphorus trihydride",
+    "PH3",
+    "Phosphene",
+    "Phosphorus hydride",
+    "Fosforowodor",
+    "Gas-ex-B",
+    "Phosphorwasserstoff",
+    "Rcra waste number P096",
+    "UN 2199"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/H3P/h1H3",
+  "cas": "7803-51-2"
+}

@@ -1,39 +1,44 @@
 {
-    "C": [
-        [
-            3.49546974,
-            0.000258348159,
-            -1.31762502e-06,
-            2.42912018e-09,
-            -1.05982498e-12,
-            -1046.3158,
-            -2.51905385
-        ],
-        [
-            2.73068929,
-            0.00148004781,
-            -4.79314848e-07,
-            7.89496274e-11,
-            -4.88380823e-15,
-            -795.267504,
-            1.64266243
-        ]
+  "C": [
+    [
+      3.49546974,
+      0.000258348159,
+      -1.31762502e-06,
+      2.42912018e-09,
+      -1.05982498e-12,
+      -1046.3158,
+      -2.51905385
     ],
-    "Tlim": [
-        200.0,
-        1000.0,
-        6000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "D": 2
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/D2.hpd",
-    "ho": 0.0,
-    "id": "ig.D2",
-    "mw": 4.0282,
-    "names": [],
-    "pref": 100000.0
+    [
+      2.73068929,
+      0.00148004781,
+      -4.79314848e-07,
+      7.89496274e-11,
+      -4.88380823e-15,
+      -795.267504,
+      1.64266243
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "D": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 0.0,
+  "id": "ig.D2",
+  "mw": 4.0282,
+  "names": [
+    "Deuterium",
+    "D2",
+    "UN 1957"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/H2/h1H/i1+1D",
+  "cas": "7782-39-0"
 }

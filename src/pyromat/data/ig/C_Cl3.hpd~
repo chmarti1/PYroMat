@@ -5,7 +5,12 @@
   },
   "id": "ig.CCl3",
   "mw": 118.37,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:39:36 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=3170-80-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Trichloromethyl radical"
+  ],
+  "inchi": "InChI=1S/CCl3/c2-1(3)4",
+  "cas": "3170-80-7",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:19:18 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=3170-80-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1200.0,

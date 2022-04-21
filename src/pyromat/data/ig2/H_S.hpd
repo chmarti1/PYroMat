@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      4.4420322,
+      -0.0024359197,
+      1.9064576e-06,
+      9.916663e-10,
+      -9.5740762e-13,
+      15523.258,
+      -1.14449035
+    ],
+    [
+      3.0014537,
+      0.0013394957,
+      -4.6789663e-07,
+      7.8804015e-11,
+      -5.0280453e-15,
+      15905.32,
+      6.28462715
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "H": 1,
+    "S": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 16757.7318,
+  "id": "ig.HS",
+  "mw": 33.07394,
+  "names": [
+    "Mercapto radical"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/HS/h1H",
+  "cas": "13940-21-1"
+}

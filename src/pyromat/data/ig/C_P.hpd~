@@ -5,7 +5,12 @@
   },
   "id": "ig.CP",
   "mw": 42.9845,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:32:42 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12326-85-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Carbon monophosphide"
+  ],
+  "inchi": "InChI=1S/CP/c1-2",
+  "cas": "12326-85-1",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:13:44 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12326-85-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     600.0,

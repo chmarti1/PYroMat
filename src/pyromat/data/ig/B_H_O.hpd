@@ -6,7 +6,12 @@
   },
   "id": "ig.BHO",
   "mw": 27.818,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:38:23 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=20611-59-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Boron hydride oxide"
+  ],
+  "inchi": "InChI=1S/BHO/c1-2/h1H",
+  "cas": "20611-59-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:12:15 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=20611-59-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1200.0,

@@ -6,7 +6,11 @@
   },
   "id": "ig.F4OW",
   "mw": 275.83,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:34:22 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13520-79-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Tungsten tetrafluoride oxide"
+  ],
+  "cas": "13520-79-1",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:11:08 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13520-79-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     1000.0,
     6000.0

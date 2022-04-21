@@ -1,40 +1,61 @@
 {
-    "C": [
-        [
-            2.32925325,
-            0.0261537847,
-            -4.90003994e-05,
-            4.61917478e-08,
-            -1.64323855e-11,
-            35668.4424,
-            9.86336227
-        ],
-        [
-            6.70544769,
-            0.00364260339,
-            -1.3093425e-06,
-            2.16411061e-10,
-            -1.3118741e-14,
-            34860.8005,
-            -10.4803695
-        ]
+  "C": [
+    [
+      2.32925325,
+      0.0261537847,
+      -4.90003994e-05,
+      4.61917478e-08,
+      -1.64323855e-11,
+      35668.4424,
+      9.86336227
     ],
-    "Tlim": [
-        200.0,
-        1000.0,
-        6000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "C": 2,
-        "N": 2
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/C2_N2.hpd",
-    "ho": 37175.9731,
-    "id": "ig.C2N2",
-    "mw": 52.03548,
-    "names": [],
-    "pref": 100000.0
+    [
+      6.70544769,
+      0.00364260339,
+      -1.3093425e-06,
+      2.16411061e-10,
+      -1.3118741e-14,
+      34860.8005,
+      -10.4803695
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "C": 2,
+    "N": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 37175.9731,
+  "id": "ig.C2N2",
+  "mw": 52.03548,
+  "names": [
+    "Cyanogen",
+    "Ethanedinitrile",
+    "Cyanogen (C2N2)",
+    "Carbon nitride (C2N2)",
+    "Dicyanogen",
+    "Nitriloacetonitrile",
+    "Oxalic acid dinitrile",
+    "Oxalonitrile",
+    "NCCN",
+    "Dicyan",
+    "Cyanogen gas",
+    "Carbon nitride",
+    "Cyanogene",
+    "Oxalic nitrile",
+    "Prussite",
+    "Rcra waste number P031",
+    "UN 1026",
+    "(CN)2",
+    "Oxalyl cyanide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/C2N2/c3-1-2-4",
+  "cas": "460-19-5"
 }

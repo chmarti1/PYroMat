@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      3.34623,
+      0.011787253,
+      -1.8252657e-05,
+      1.3085614e-08,
+      -3.4328742e-12,
+      -29564.636,
+      3.4612333
+    ],
+    [
+      5.5096957,
+      0.0013685464,
+      -3.9441469e-07,
+      5.2332195e-11,
+      -2.5958676e-15,
+      -29899.231,
+      -6.507016
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "H": 1,
+    "Li": 1,
+    "O": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -28180.0732,
+  "id": "ig.HLiO",
+  "mw": 23.94834,
+  "names": [
+    "lithium hydroxide"
+  ],
+  "pref": 100000.0,
+  "cas": "1310-65-2"
+}

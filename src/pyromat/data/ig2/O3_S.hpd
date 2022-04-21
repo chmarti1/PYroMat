@@ -1,0 +1,44 @@
+{
+  "C": [
+    [
+      2.5780385,
+      0.014556335,
+      -9.1764173e-06,
+      -7.9203022e-10,
+      1.9709473e-12,
+      -48931.753,
+      12.2651384
+    ],
+    [
+      7.0757376,
+      0.0031763387,
+      -1.353576e-06,
+      2.5630912e-10,
+      -1.7936044e-14,
+      -50211.376,
+      -11.1875176
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "O": 3,
+    "S": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -47597.8348,
+  "id": "ig.O3S",
+  "mw": 80.0642,
+  "names": [
+    "sulphur trioxide",
+    "Sulfur trioxide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/O3S/c1-4(2)3",
+  "cas": "7446-11-9"
+}

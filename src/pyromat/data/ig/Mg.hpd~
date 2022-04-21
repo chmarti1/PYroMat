@@ -4,7 +4,12 @@
   },
   "id": "ig.Mg",
   "mw": 24.305,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:41:32 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7439-95-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "magnesium"
+  ],
+  "inchi": "InChI=1S/Mg",
+  "cas": "7439-95-4",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:23:38 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7439-95-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     1366.104,
     2200.0,

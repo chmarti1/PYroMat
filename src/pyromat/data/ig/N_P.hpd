@@ -5,7 +5,12 @@
   },
   "id": "ig.NP",
   "mw": 44.9805,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:37:51 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=17739-47-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Phosphorus mononitride"
+  ],
+  "inchi": "InChI=1S/NP/c1-2",
+  "cas": "17739-47-8",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:07:02 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=17739-47-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1200.0,

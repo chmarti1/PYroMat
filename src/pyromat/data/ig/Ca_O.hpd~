@@ -5,7 +5,13 @@
   },
   "id": "ig.CaO",
   "mw": 56.077,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:33:15 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=1305-78-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "calcium oxide",
+    "Calcium monoxide"
+  ],
+  "inchi": "InChI=1S/Ca.O",
+  "cas": "1305-78-8",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:13:20 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=1305-78-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     4500.0,
     6000.0

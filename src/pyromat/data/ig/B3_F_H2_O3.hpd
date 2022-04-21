@@ -7,7 +7,12 @@
   },
   "id": "ig.B3FH2O3",
   "mw": 101.445,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:40:43 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=57372-62-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Fluoroboroxin"
+  ],
+  "inchi": "InChI=1S/B3FH2O3/c4-3-6-1-5-2-7-3/h1-2H",
+  "cas": "57372-62-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:20:08 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=57372-62-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1200.0,

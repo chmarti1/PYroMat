@@ -1,0 +1,59 @@
+{
+  "C": [
+    [
+      6.104001,
+      0.024933114,
+      -3.6703263e-05,
+      2.4448748e-08,
+      -6.0370155e-12,
+      -82359.273,
+      -0.976400498
+    ],
+    [
+      12.089655,
+      0.0010190735,
+      -4.4167865e-07,
+      8.4481573e-11,
+      -5.949158e-15,
+      -83590.25,
+      -29.9269336
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 4,
+    "Si": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -79709.9719,
+  "id": "ig.Cl4Si",
+  "mw": 169.8963,
+  "names": [
+    "Silicon tetrachloride",
+    "Silane, tetrachloro-",
+    "Silicon chloride (SiCl4)",
+    "Tetrachlorosilane",
+    "Tetrachlorosilicon",
+    "SiCl4",
+    "Silicon chloride",
+    "Silicon(IV) chloride",
+    "Chlorid kremicity",
+    "Extrema",
+    "Silicio(tetracloruro di)",
+    "Siliciumtetrachlorid",
+    "Siliciumtetrachloride",
+    "Silicium(tetrachlorure de)",
+    "Tetrachlorure de silicium",
+    "UN 1818",
+    "SIC-L(TM)"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/Cl4Si/c1-5(2,3)4",
+  "cas": "10026-04-7"
+}

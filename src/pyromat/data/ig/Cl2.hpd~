@@ -4,7 +4,22 @@
   },
   "id": "ig.Cl2",
   "mw": 70.906,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:43:14 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7782-50-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Chlorine",
+    "Cl2",
+    "Bertholite",
+    "Chloor",
+    "Chlor",
+    "Chlore",
+    "Chlorine mol.",
+    "Cloro",
+    "Molecular chlorine",
+    "UN 1017",
+    "Diatomic chlorine"
+  ],
+  "inchi": "InChI=1S/Cl2/c1-2",
+  "cas": "7782-50-5",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:09:39 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7782-50-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1000.0,

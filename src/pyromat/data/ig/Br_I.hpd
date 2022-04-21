@@ -5,7 +5,13 @@
   },
   "id": "ig.BrI",
   "mw": 206.808,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:43:50 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7789-33-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "iodine bromide",
+    "Iodine monobromide"
+  ],
+  "inchi": "InChI=1S/BrI/c1-2",
+  "cas": "7789-33-5",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:13:16 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7789-33-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     2300.0,

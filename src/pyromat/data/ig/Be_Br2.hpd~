@@ -5,7 +5,13 @@
   },
   "id": "ig.BeBr2",
   "mw": 168.82,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:43:38 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7787-46-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "beryllium dibromide",
+    "Beryllium bromide"
+  ],
+  "inchi": "InChI=1S/Be.2BrH/h;2*1H/q+2;;/p-2",
+  "cas": "7787-46-4",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:08:45 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7787-46-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

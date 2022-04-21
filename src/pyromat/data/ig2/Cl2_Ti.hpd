@@ -1,0 +1,42 @@
+{
+  "C": [
+    [
+      4.9723475,
+      0.011277335,
+      -2.0581916e-05,
+      1.718665e-08,
+      -5.404959e-12,
+      -30366.285,
+      2.55909638
+    ],
+    [
+      7.7624852,
+      -0.00093872425,
+      8.0121518e-07,
+      -1.904803e-10,
+      1.4961545e-14,
+      -30915.805,
+      -10.7526011
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 2,
+    "Ti": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -28532.965,
+  "id": "ig.Cl2Ti",
+  "mw": 118.7854,
+  "names": [
+    "titanium dichloride"
+  ],
+  "pref": 100000.0,
+  "cas": "10049-06-6"
+}

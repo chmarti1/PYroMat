@@ -5,7 +5,12 @@
   },
   "id": "ig.FO",
   "mw": 34.9978,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:31:50 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12061-70-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Oxygen monofluoride"
+  ],
+  "inchi": "InChI=1S/FO/c1-2",
+  "cas": "12061-70-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:07:06 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12061-70-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1000.0,

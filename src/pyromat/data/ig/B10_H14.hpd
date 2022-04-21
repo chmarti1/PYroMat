@@ -5,7 +5,19 @@
   },
   "id": "ig.B10H14",
   "mw": 122.221,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:37:51 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=17702-41-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Decaborane(14)",
+    "Boron hydride (B10H14)",
+    "Decaborane",
+    "Boron hydride",
+    "Decaborane (B10H14)",
+    "Tetradecahydrodecaborane",
+    "B10H14",
+    "nido-Decaborane(14)"
+  ],
+  "inchi": "InChI=1S/B10H14/c11-5-1-2-3(1,5)7(2,9(3,5,11)13-7)8(2)4(1,2)6(1,5)10(4,8,12-6)14-8/h1-10H",
+  "cas": "17702-41-9",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:18:23 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=17702-41-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     1500.0,
     6000.0

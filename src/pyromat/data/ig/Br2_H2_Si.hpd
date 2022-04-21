@@ -6,7 +6,12 @@
   },
   "id": "ig.Br2H2Si",
   "mw": 189.909,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:35:01 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13768-94-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Dibromosilane"
+  ],
+  "inchi": "InChI=1S/Br2H2Si/c1-3-2/h3H2",
+  "cas": "13768-94-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:20:50 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13768-94-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1400.0,

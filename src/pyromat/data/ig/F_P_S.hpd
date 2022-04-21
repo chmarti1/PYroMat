@@ -6,7 +6,11 @@
   },
   "id": "ig.FPS",
   "mw": 82.037,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:40:36 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=55753-39-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Phosphenothious fluoride"
+  ],
+  "cas": "55753-39-4",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:23:26 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=55753-39-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     800.0,

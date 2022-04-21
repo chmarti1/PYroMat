@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      5.440814,
+      0.017705049,
+      -2.9525241e-05,
+      2.3247328e-08,
+      -7.0479777e-12,
+      -67806.854,
+      3.45077325
+    ],
+    [
+      9.3368655,
+      0.00075969987,
+      -3.3827378e-07,
+      6.6483863e-11,
+      -4.8033793e-15,
+      -68572.645,
+      -15.1441772
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 2,
+    "O": 1,
+    "Ti": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -65615.9812,
+  "id": "ig.Cl2OTi",
+  "mw": 134.7848,
+  "names": [
+    "dichloride titanium oxide"
+  ],
+  "pref": 100000.0,
+  "cas": "13780-39-7"
+}

@@ -1,0 +1,42 @@
+{
+  "C": [
+    [
+      4.0970071,
+      0.001932106,
+      -3.5068892e-06,
+      2.9966194e-09,
+      -9.6331696e-13,
+      -12000.644,
+      7.93438499
+    ],
+    [
+      4.3436158,
+      0.00039895943,
+      -2.5976126e-07,
+      7.9320747e-11,
+      -6.608383e-15,
+      -12025.073,
+      6.87371079
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Br": 1,
+    "Sr": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -10718.7613,
+  "id": "ig.BrSr",
+  "mw": 167.524,
+  "names": [
+    "Strontium monobromide"
+  ],
+  "pref": 100000.0,
+  "cas": "14519-13-2"
+}

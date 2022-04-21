@@ -5,7 +5,11 @@
   },
   "id": "ig.FFe",
   "mw": 74.843,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:40:07 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=41428-55-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Iron fluoride"
+  ],
+  "cas": "41428-55-1",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:13:42 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=41428-55-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

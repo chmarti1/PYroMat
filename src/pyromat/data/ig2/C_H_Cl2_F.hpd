@@ -1,42 +1,65 @@
 {
-    "C": [
-        [
-            3.1107159,
-            0.016295891,
-            -4.7331187e-06,
-            -9.479816e-09,
-            6.132375e-12,
-            -35862.211,
-            12.9638499
-        ],
-        [
-            8.5083923,
-            0.0040345713,
-            -1.4268226e-06,
-            2.2247303e-10,
-            -1.2630173e-14,
-            -37427.91,
-            -15.4116621
-        ]
+  "C": [
+    [
+      3.1107159,
+      0.016295891,
+      -4.7331187e-06,
+      -9.479816e-09,
+      6.132375e-12,
+      -35862.211,
+      12.9638499
     ],
-    "Tlim": [
-        298.15,
-        1000.0,
-        5000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "C": 1,
-        "Cl": 2,
-        "F": 1,
-        "H": 1
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/C_H_Cl2_F.hpd",
-    "ho": -34269.462,
-    "id": "ig.CHCl2F",
-    "mw": 102.92274,
-    "names": [],
-    "pref": 100000.0
+    [
+      8.5083923,
+      0.0040345713,
+      -1.4268226e-06,
+      2.2247303e-10,
+      -1.2630173e-14,
+      -37427.91,
+      -15.4116621
+    ]
+  ],
+  "Tlim": [
+    298.15,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "C": 1,
+    "Cl": 2,
+    "F": 1,
+    "H": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -34269.462,
+  "id": "ig.CHCl2F",
+  "mw": 102.92274,
+  "names": [
+    "Fluorodichloromethane",
+    "Methane, dichlorofluoro-",
+    "Algofrene Type 5",
+    "Arcton 7",
+    "Dichlorofluoromethane",
+    "Dichloromonofluoromethane",
+    "F 21",
+    "Freon F 21",
+    "Freon 21",
+    "FC 21",
+    "Genetron 21",
+    "Monofluorodichloromethane",
+    "CHFCl2",
+    "R 21",
+    "Dwuchlorofluorometan",
+    "UN 1029",
+    "CHCl2F",
+    "Refrigerant 21",
+    "Halon 112",
+    "Fluorocarbon-21",
+    "R 21 (refrigerant)"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/CHCl2F/c2-1(3)4/h1H",
+  "cas": "75-43-4"
 }

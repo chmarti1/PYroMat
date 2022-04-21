@@ -5,7 +5,12 @@
   },
   "id": "ig.ClO",
   "mw": 51.452,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:37:07 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14989-30-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Monochlorine monoxide"
+  ],
+  "inchi": "InChI=1S/ClO/c1-2",
+  "cas": "14989-30-1",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:22:13 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14989-30-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     600.0,

@@ -1,0 +1,42 @@
+{
+  "C": [
+    [
+      4.5606177,
+      0.013613713,
+      -2.3660133e-05,
+      1.9616264e-08,
+      -6.2417291e-12,
+      -10683.571,
+      6.23619416
+    ],
+    [
+      7.387453,
+      0.00084637595,
+      -4.3149542e-07,
+      9.3590846e-11,
+      -7.1915139e-15,
+      -11235.857,
+      -7.18895104
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 2,
+    "Ni": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -8891.95306,
+  "id": "ig.Cl2Ni",
+  "mw": 129.5988,
+  "names": [
+    "nickel dichloride"
+  ],
+  "pref": 100000.0,
+  "cas": "7718-54-9"
+}

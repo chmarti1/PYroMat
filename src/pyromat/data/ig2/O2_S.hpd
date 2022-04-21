@@ -1,0 +1,58 @@
+{
+  "C": [
+    [
+      3.2665338,
+      0.0053237902,
+      6.8437552e-07,
+      -5.2810047e-09,
+      2.5590454e-12,
+      -36908.148,
+      9.66465108
+    ],
+    [
+      5.2451364,
+      0.0019704204,
+      -8.0375769e-07,
+      1.5149969e-10,
+      -1.0558004e-14,
+      -37558.227,
+      -1.07404892
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "O": 2,
+    "S": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -35700.7867,
+  "id": "ig.O2S",
+  "mw": 64.0648,
+  "names": [
+    "Sulfur dioxide",
+    "Sulfurous acid anhydride",
+    "Fermenicide powder",
+    "Fermenticide liquid",
+    "Sulfur oxide (SO2)",
+    "Sulfurous anhydride",
+    "Sulfurous oxide",
+    "SO2",
+    "Sulphur dioxide",
+    "Fermenicide liquid",
+    "Schwefeldioxyd",
+    "Siarki dwutlenek",
+    "Sulfur oxide",
+    "UN 1079",
+    "Sulfur dioxide (SO2)",
+    "Sulfur superoxide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/O2S/c1-3-2",
+  "cas": "7446-09-5"
+}

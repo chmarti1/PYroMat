@@ -1,40 +1,52 @@
 {
-    "C": [
-        [
-            2.28116845,
-            0.0461273513,
-            -8.53293243e-05,
-            7.93407779e-08,
-            -2.80356399e-11,
-            62040.1013,
-            11.2898174
-        ],
-        [
-            10.48548,
-            0.00569544889,
-            -2.12745547e-06,
-            3.52323196e-10,
-            -2.14631729e-14,
-            60462.063,
-            -27.2266502
-        ]
+  "C": [
+    [
+      2.28116845,
+      0.0461273513,
+      -8.53293243e-05,
+      7.93407779e-08,
+      -2.80356399e-11,
+      62040.1013,
+      11.2898174
     ],
-    "Tlim": [
-        200.0,
-        1000.0,
-        6000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "C": 4,
-        "N": 2
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/C4_N2.hpd",
-    "ho": 64160.1249,
-    "id": "ig.C4N2",
-    "mw": 76.05748,
-    "names": [],
-    "pref": 100000.0
+    [
+      10.48548,
+      0.00569544889,
+      -2.12745547e-06,
+      3.52323196e-10,
+      -2.14631729e-14,
+      60462.063,
+      -27.2266502
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "C": 4,
+    "N": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 64160.1249,
+  "id": "ig.C4N2",
+  "mw": 76.05748,
+  "names": [
+    "2-Butynedinitrile",
+    "Acetylenedicarbonitrile",
+    "Dicyanoacetylene",
+    "1,2-Dicyanoacetylene",
+    "NCC&laquo",
+    "equiv&raquo",
+    "CCN",
+    "Dicyanoethyne",
+    "Sous-azote de carbone",
+    "C4N2"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/C4N2/c5-3-1-2-4-6",
+  "cas": "1071-98-3"
 }

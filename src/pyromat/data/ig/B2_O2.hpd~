@@ -5,7 +5,11 @@
   },
   "id": "ig.B2O2",
   "mw": 53.621,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:35:00 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13766-28-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Diboron dioxide"
+  ],
+  "cas": "13766-28-4",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:11:12 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13766-28-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1200.0,

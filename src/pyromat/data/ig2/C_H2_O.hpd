@@ -1,0 +1,82 @@
+{
+  "C": [
+    [
+      4.79372315,
+      -0.00990833369,
+      3.73220008e-05,
+      -3.79285261e-08,
+      1.31772652e-11,
+      -14308.9567,
+      0.6028129
+    ],
+    [
+      3.16952654,
+      0.00619320583,
+      -2.25056377e-06,
+      3.6597568e-10,
+      -2.2014947e-14,
+      -14478.4444,
+      6.04209449
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "C": 1,
+    "H": 2,
+    "O": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -13059.0979,
+  "id": "ig.CH2O",
+  "mw": 30.02628,
+  "names": [
+    "Formaldehyde",
+    "Methanal",
+    "BFV",
+    "Fannoform",
+    "Formaldehyde, gas",
+    "Formalin",
+    "Formalith",
+    "Formic aldehyde",
+    "Formol",
+    "Fyde",
+    "Lysoform",
+    "Methyl aldehyde",
+    "Methylene oxide",
+    "Morbicid",
+    "Oxomethane",
+    "Oxymethylene",
+    "Paraform",
+    "Superlysoform",
+    "Karsan",
+    "Methaldehyde",
+    "Aldehyde formique",
+    "Aldeide formica",
+    "Formaldehyd",
+    "Formalin-loesungen",
+    "Formalina",
+    "Formaline",
+    "NCI-C02799",
+    "Oplossingen",
+    "Aldehyd mravenci",
+    "Formalin 40",
+    "Rcra waste number U122",
+    "UN 1198",
+    "UN 2209",
+    "H2CO",
+    "Durine",
+    "Hercules 37M6-8",
+    "CH2O",
+    "NSC 298885",
+    "Fordor"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/CH2O/c1-2/h1H2",
+  "cas": "50-00-0"
+}

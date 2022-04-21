@@ -6,7 +6,18 @@
   },
   "id": "ig.F3OP",
   "mw": 103.9684,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:34:15 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13478-20-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Phosphoryl fluoride",
+    "Phosphorus oxyfluoride",
+    "Phosphoryl trifluoride",
+    "Trifluorophosphine oxide",
+    "Trifluorophosphorus oxide",
+    "POF3",
+    "Phosphoric trifluoride"
+  ],
+  "inchi": "InChI=1S/F3OP/c1-5(2,3)4",
+  "cas": "13478-20-1",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:17:43 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13478-20-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1100.0,

@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      2.3345273,
+      0.0125021,
+      -1.4336195e-05,
+      7.6762166e-09,
+      -1.5401694e-12,
+      -38968.8654,
+      14.054435
+    ],
+    [
+      5.6913278,
+      0.0014806866,
+      -6.5425692e-07,
+      1.2793231e-10,
+      -9.2099277e-15,
+      -39794.7254,
+      -2.81972201
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "O": 2,
+    "P": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -37829.3636,
+  "id": "ig.O2P",
+  "mw": 62.97256,
+  "names": [
+    "Phosphorus dioxide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/O2P/c1-3-2",
+  "cas": "12164-97-5"
+}

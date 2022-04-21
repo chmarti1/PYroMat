@@ -5,7 +5,11 @@
   },
   "id": "ig.Cl5Mo",
   "mw": 273.23,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:30:46 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10241-05-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "molybdenum pentachloride"
+  ],
+  "cas": "10241-05-1",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:08:36 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10241-05-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     1200.0,
     6000.0

@@ -5,7 +5,14 @@
   },
   "id": "ig.B2F4",
   "mw": 97.616,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:35:49 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13965-73-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Diboron tetrafluoride",
+    "Difluoroborane",
+    "(BF2)2"
+  ],
+  "inchi": "InChI=1S/B2F4/c3-1(4)2(5)6",
+  "cas": "13965-73-6",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:20:19 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13965-73-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1100.0,

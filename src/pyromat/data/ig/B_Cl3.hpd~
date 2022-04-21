@@ -5,7 +5,21 @@
   },
   "id": "ig.BCl3",
   "mw": 117.17,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:30:47 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10294-34-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Boron trichloride",
+    "Borane, trichloro-",
+    "Boron chloride (BCl3)",
+    "Trichloroborane",
+    "Trichloroboron",
+    "BCl3",
+    "Boron chloride",
+    "Chlorure de bore",
+    "UN 1741",
+    "Trona boron trichloride"
+  ],
+  "inchi": "InChI=1S/BCl3/c2-1(3)4",
+  "cas": "10294-34-5",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:10:01 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10294-34-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     700.0,

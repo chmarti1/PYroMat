@@ -5,7 +5,13 @@
   },
   "id": "ig.MgS",
   "mw": 56.37,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:31:30 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12032-36-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "magnesium sulphide",
+    "Magnesium sulfide"
+  ],
+  "inchi": "InChI=1S/Mg.S",
+  "cas": "12032-36-9",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:13:51 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12032-36-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     800.0,

@@ -1,0 +1,44 @@
+{
+  "C": [
+    [
+      10.368029,
+      0.013348547,
+      -1.9910334e-05,
+      1.6156475e-08,
+      -5.126455e-12,
+      -4593.7527,
+      -20.5494429
+    ],
+    [
+      12.572786,
+      0.0033947318,
+      -1.3616934e-06,
+      2.4720959e-10,
+      -1.6773254e-14,
+      -5049.1021,
+      -31.0741979
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "C": 2,
+    "N": 2,
+    "Na": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -1055.62247,
+  "id": "ig.C2N2Na2",
+  "mw": 98.01502,
+  "names": [
+    "Sodium cyanide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/CN.Na/c1-2;/q-1;+1",
+  "cas": "55186-09-9"
+}

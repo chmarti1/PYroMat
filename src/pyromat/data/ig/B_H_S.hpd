@@ -6,7 +6,11 @@
   },
   "id": "ig.BHS",
   "mw": 43.884,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:36:31 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14457-85-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Boron hydride sulfide"
+  ],
+  "cas": "14457-85-3",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:08:43 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14457-85-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1200.0,

@@ -1,0 +1,42 @@
+{
+  "C": [
+    [
+      7.8329504,
+      0.0089240831,
+      -1.4719852e-05,
+      1.0982469e-08,
+      -3.072172e-12,
+      -106387.52,
+      -8.24238281
+    ],
+    [
+      9.8148096,
+      0.00020453081,
+      -8.7071665e-08,
+      1.6337227e-11,
+      -1.1287256e-15,
+      -106759.87,
+      -17.641803
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 2,
+    "K": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -103765.274,
+  "id": "ig.F2K2",
+  "mw": 116.19341,
+  "names": [
+    "Dipotassium difluoride"
+  ],
+  "pref": 100000.0,
+  "cas": "12285-62-0"
+}

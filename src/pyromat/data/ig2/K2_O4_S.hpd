@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      3.475852,
+      0.048773237,
+      -6.842008e-05,
+      4.6886316e-08,
+      -1.2721082e-11,
+      -134280.85,
+      12.3448286
+    ],
+    [
+      15.374108,
+      0.0041056139,
+      -1.8148935e-06,
+      3.5497243e-10,
+      -2.5558754e-14,
+      -136953.29,
+      -46.1438154
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "K": 2,
+    "O": 4,
+    "S": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -131594.543,
+  "id": "ig.K2O4S",
+  "mw": 174.2602,
+  "names": [
+    "potassium sulfate"
+  ],
+  "pref": 100000.0,
+  "cas": "7778-80-5"
+}

@@ -6,7 +6,20 @@
   },
   "id": "ig.C2HF",
   "mw": 44.0277,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:39:24 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=2713-09-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Ethyne, fluoro-",
+    "Fluoroacetylene",
+    "Acetylene, fluoro-",
+    "Monofluoroacetylene",
+    "HC&laquo",
+    "equiv&raquo",
+    "CF",
+    "Fluoroethyne",
+    "C2HF"
+  ],
+  "inchi": "InChI=1S/C2HF/c1-2-3/h1H",
+  "cas": "2713-09-9",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:10:26 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=2713-09-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1400.0,

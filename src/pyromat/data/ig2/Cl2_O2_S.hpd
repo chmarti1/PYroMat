@@ -1,0 +1,45 @@
+{
+  "C": [
+    [
+      4.3851677,
+      0.023212157,
+      -2.6532112e-05,
+      1.3499923e-08,
+      -2.2819281e-12,
+      -44802.974,
+      6.5786788
+    ],
+    [
+      10.550937,
+      0.0026734301,
+      -1.142823e-06,
+      2.16862e-10,
+      -1.5199151e-14,
+      -46295.056,
+      -24.307857
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 2,
+    "O": 2,
+    "S": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -42672.6368,
+  "id": "ig.Cl2O2S",
+  "mw": 134.9702,
+  "names": [
+    "sulphuryl dichloride",
+    "Sulfuryl chloride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/Cl2O2S/c1-5(2,3)4",
+  "cas": "7791-25-5"
+}

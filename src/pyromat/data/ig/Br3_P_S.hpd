@@ -6,7 +6,13 @@
   },
   "id": "ig.Br3PS",
   "mw": 302.751,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:40:03 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=3931-89-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "thiophosphoryl tribromide",
+    "Thiophosphoryl bromide"
+  ],
+  "inchi": "InChI=1S/BrH2O2PS/c1-4(2,3)5/h(H2,2,3,5)",
+  "cas": "3931-89-3",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:26:36 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=3931-89-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

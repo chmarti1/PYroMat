@@ -5,7 +5,11 @@
   },
   "id": "ig.HPb",
   "mw": 208.2,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:36:29 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14452-81-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Lead hydride"
+  ],
+  "cas": "14452-81-4",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:23:34 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14452-81-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1000.0,

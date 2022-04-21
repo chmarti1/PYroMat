@@ -1,0 +1,40 @@
+{
+  "C": [
+    [
+      4.0793762,
+      0.037839503,
+      -6.6904657e-05,
+      5.4822434e-08,
+      -1.7092844e-11,
+      -109146.42,
+      5.64178775
+    ],
+    [
+      12.003326,
+      0.0012007713,
+      -5.7398274e-07,
+      1.2299385e-10,
+      -9.2952734e-15,
+      -110603.08,
+      -31.6592651
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 4,
+    "S": 1,
+    "e": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -106739.135,
+  "id": "ig.F4S-",
+  "mw": 108.06016,
+  "names": [],
+  "pref": 100000.0
+}

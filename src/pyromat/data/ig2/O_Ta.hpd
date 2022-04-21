@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      2.9340108,
+      0.0030592038,
+      -1.9396364e-06,
+      1.628883e-10,
+      3.0152535e-13,
+      22154.472,
+      11.454646
+    ],
+    [
+      3.4996603,
+      0.0015112535,
+      -6.5384578e-07,
+      1.7784314e-10,
+      -1.6919405e-14,
+      21994.151,
+      8.52695899
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "O": 1,
+    "Ta": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 23148.547,
+  "id": "ig.OTa",
+  "mw": 196.9473,
+  "names": [
+    "Tantalum monoxide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/O.Ta/q-2;+2",
+  "cas": "12035-90-4"
+}

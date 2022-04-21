@@ -5,7 +5,19 @@
   },
   "id": "ig.C2Cl2",
   "mw": 94.927,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:42:30 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7572-29-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Ethyne, dichloro-",
+    "Acetylene, dichloro-",
+    "Dichloroacetylene",
+    "Dichloroethyne",
+    "ClC&laquo",
+    "equiv&raquo",
+    "CCl",
+    "C2Cl2"
+  ],
+  "inchi": "InChI=1S/C2Cl2/c3-1-2-4",
+  "cas": "7572-29-4",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:06:19 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7572-29-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1200.0,

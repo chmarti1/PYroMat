@@ -1,40 +1,42 @@
 {
-    "C": [
-        [
-            6.2537206,
-            0.016080217,
-            -2.8659758e-05,
-            2.3616076e-08,
-            -7.3931314e-12,
-            -51735.211,
-            2.68365807
-        ],
-        [
-            9.615059,
-            0.00044468546,
-            -1.9902983e-07,
-            3.9251818e-11,
-            -2.8427975e-15,
-            -52349.544,
-            -13.119109
-        ]
+  "C": [
+    [
+      6.2537206,
+      0.016080217,
+      -2.8659758e-05,
+      2.3616076e-08,
+      -7.3931314e-12,
+      -51735.211,
+      2.68365807
     ],
-    "Tlim": [
-        300.0,
-        1000.0,
-        5000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "Al": 1,
-        "Br": 3
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/Al_Br3.hpd",
-    "ho": -49365.9766,
-    "id": "ig.AlBr3",
-    "mw": 266.69354,
-    "names": [],
-    "pref": 100000.0
+    [
+      9.615059,
+      0.00044468546,
+      -1.9902983e-07,
+      3.9251818e-11,
+      -2.8427975e-15,
+      -52349.544,
+      -13.119109
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Al": 1,
+    "Br": 3
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -49365.9766,
+  "id": "ig.AlBr3",
+  "mw": 266.69354,
+  "names": [
+    "aluminium bromide"
+  ],
+  "pref": 100000.0,
+  "cas": "7727-15-3"
 }

@@ -5,7 +5,12 @@
   },
   "id": "ig.BN",
   "mw": 24.818,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:30:30 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10043-11-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Boron nitride"
+  ],
+  "inchi": "InChI=1S/BN/c1-2",
+  "cas": "10043-11-5",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:17:29 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10043-11-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1100.0,

@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      5.7729602,
+      0.018371787,
+      -3.3019332e-05,
+      2.7367864e-08,
+      -8.6038787e-12,
+      -26554.554,
+      5.18627029
+    ],
+    [
+      9.5854968,
+      0.00047923846,
+      -2.1460595e-07,
+      4.2338269e-11,
+      -3.0670794e-15,
+      -27244.506,
+      -12.701308
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Br": 3,
+    "Si": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -24258.4791,
+  "id": "ig.Br3Si",
+  "mw": 267.7975,
+  "names": [
+    "Tribromosilyl radical"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/Br3Si/c1-4(2)3",
+  "cas": "13842-48-3"
+}

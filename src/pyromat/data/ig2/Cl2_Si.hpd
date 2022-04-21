@@ -1,0 +1,42 @@
+{
+  "C": [
+    [
+      3.7109961,
+      0.013966352,
+      -2.4711054e-05,
+      2.0259219e-08,
+      -6.3193703e-12,
+      -21825.949,
+      9.4615818
+    ],
+    [
+      6.6307889,
+      0.00043853279,
+      -1.9811351e-07,
+      3.7005873e-11,
+      -2.0714394e-15,
+      -22360.719,
+      -4.2748702
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 2,
+    "Si": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -20280.0229,
+  "id": "ig.Cl2Si",
+  "mw": 98.9909,
+  "names": [
+    "Dichlorosilylene"
+  ],
+  "pref": 100000.0,
+  "cas": "13569-32-9"
+}

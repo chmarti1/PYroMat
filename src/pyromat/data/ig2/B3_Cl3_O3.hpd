@@ -1,0 +1,44 @@
+{
+  "C": [
+    [
+      4.0444983,
+      0.054260597,
+      -5.5750761e-05,
+      2.2223128e-08,
+      -1.4181295e-12,
+      -199416.32,
+      9.05672255
+    ],
+    [
+      19.282564,
+      0.0063172581,
+      -2.7242926e-06,
+      5.204791e-10,
+      -3.667779e-14,
+      -203208.83,
+      -67.8851521
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "B": 3,
+    "Cl": 3,
+    "O": 3
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -196248.045,
+  "id": "ig.B3Cl3O3",
+  "mw": 186.7893,
+  "names": [
+    "Trichloroboroxin"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/B3Cl3O3/c4-1-7-2(5)9-3(6)8-1",
+  "cas": "13703-91-8"
+}

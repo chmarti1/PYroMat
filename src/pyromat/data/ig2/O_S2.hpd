@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      2.8414257,
+      0.01218841,
+      -1.6000241e-05,
+      1.0309289e-08,
+      -2.644912e-12,
+      -8060.3015,
+      12.9180736
+    ],
+    [
+      5.9037524,
+      0.0012369975,
+      -5.457079e-07,
+      1.0659842e-10,
+      -7.6688243e-15,
+      -8775.209,
+      -2.26999836
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "O": 1,
+    "S": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -6793.63039,
+  "id": "ig.OS2",
+  "mw": 80.1314,
+  "names": [
+    "Disulfur monoxide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/OS2/c1-3-2",
+  "cas": "20901-21-7"
+}

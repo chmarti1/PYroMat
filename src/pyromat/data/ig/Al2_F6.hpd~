@@ -5,7 +5,11 @@
   },
   "id": "ig.Al2F6",
   "mw": 167.9534964,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:37:55 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=17949-86-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Aluminum fluoride"
+  ],
+  "cas": "17949-86-9",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:24:17 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=17949-86-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1100.0,

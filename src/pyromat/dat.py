@@ -8,9 +8,9 @@ and diagnostics.
 
 
 # load the root of the module
-import pyromat as pyro
-utility = pyro.utility
-reg = pyro.reg
+import pyromat as pm
+utility = pm.utility
+reg = pm.reg
 
 
 
@@ -44,12 +44,12 @@ def load(datasource=None, check=None, verbose=None):
         or
     info = load(check=True)
 
-By default, load() will use the values in pyro.config['dat_dir'] to 
+By default, load() will use the values in pm.config['dat_dir'] to 
 find the files to load.  Alternatively, if the first argument can be 
 an explicit path to a file or a directory in which to find files.  
 All *.hpd files will be opened.
 
-The pyro.config parameters that affect load() are:
+The pm.config parameters that affect load() are:
 'dat_verbose'
     Print messages to stdout? Override by setting
     the 'verbose' keyword argument.
@@ -96,10 +96,10 @@ data
 
     # fetch the configuration parameters
     if verbose == None:
-        verbose = pyro.config['dat_verbose']
-    exist_fatal = pyro.config['dat_exist_fatal']
-    exist_overwrite = pyro.config['dat_overwrite']
-    recursive = pyro.config['dat_recursive']
+        verbose = pm.config['dat_verbose']
+    exist_fatal = pm.config['dat_exist_fatal']
+    exist_overwrite = pm.config['dat_overwrite']
+    recursive = pm.config['dat_recursive']
 
     # If the load function is called with check=True, then it's time to 
     # make a few changes to the typical operation.  All recursive calls
@@ -107,7 +107,7 @@ data
     # check results. 
     if check:
         if not isinstance(check, dict):
-            check = {'changed':[], 'added':list(pyro.dat.data.keys()), 'removed':[], 'redundant':{}, 'suppressed':[], 'bad':[], 'data':{}}
+            check = {'changed':[], 'added':list(pm.dat.data.keys()), 'removed':[], 'redundant':{}, 'suppressed':[], 'bad':[], 'data':{}}
             root = True
         loadto = check['data']
         CH = check['changed']
@@ -117,7 +117,7 @@ data
         SUP = check['suppressed']
         BAD = check['bad']
     else:
-        # if this is real, load the data into the hotpy data dictionary
+        # if this is real, load the data into the data dictionary
         loadto = data
 
 
@@ -129,8 +129,8 @@ data
     if datasource:
         # Expand references to the users' home directories
         # and environment variables
-        datasource = pyro.utility.os.path.expanduser(datasource)
-        datasource = pyro.utility.os.path.expandvars(datasource)
+        datasource = pm.utility.os.path.expanduser(datasource)
+        datasource = pm.utility.os.path.expandvars(datasource)
         datasource=utility.os.path.abspath(datasource)
         # if the data source is a directory
         if utility.os.path.isdir(datasource):
@@ -207,7 +207,7 @@ data
                 if exist_fatal:
                     # panic!
                     utility.print_error('Found an existing entry for ' + repr(temp['id']))
-                    raise utility.HotPyDataError()
+                    raise utility.PMDataError()
 
                 elif not exist_overwrite:
                     # stop this recursion branch instead of overwriting the data
@@ -226,8 +226,8 @@ data
                 # if the identifier is in the add list, remove it
                 if temp['id'] in ADD:
                     ADD.remove(temp['id'])
-                # next, check to see if this identifier is in the hotpy data
-                if not (temp['id'] in pyro.dat.data):
+                # next, check to see if this identifier is in the data
+                if not (temp['id'] in pm.dat.data):
                     # this identifier seems to have been removed
                     REM.append(temp['id'])
                 # finally check the data for identity
@@ -251,7 +251,7 @@ data
     # if called without an argument, use the config directories
     else:        
 
-        for dd in pyro.config['dat_dir']:
+        for dd in pm.config['dat_dir']:
             load(dd, check=check, verbose=verbose)
 
 
@@ -313,7 +313,7 @@ data
 
 def clear():
     """Empty the data dictionary."""
-    pyro.dat.data = {}
+    pm.dat.data = {}
 
 
 
@@ -405,61 +405,61 @@ for a decision.
     lead = 'updatefiles-> '
     
     if dest==None:
-        dest = pyro.config['dat_dir'][0]
+        dest = pm.config['dat_dir'][0]
     
     status = load(check=True,verbose=False)
 
     # check for redundancy problems
     if verbose and status['redundant']:
-        pyro.utility.print_line('Resolving redundancy issues in the files.',lead)
-        pyro.utility.print_line(' ',lead)
+        pm.utility.print_line('Resolving redundancy issues in the files.',lead)
+        pm.utility.print_line(' ',lead)
     if status['redundant']:
         # First, repair redundancies
-        pyro.utility.red_repair(status['redundant'], verbose=verbose)
+        pm.utility.red_repair(status['redundant'], verbose=verbose)
 
 
 
     # check for bad files
     if verbose and status['bad']:
-        pyro.utility.print_line(
+        pm.utility.print_line(
 'Resolving issues with files that failed to load.  You will be prompted to delete, suppress, or ignore each of them.  Ignoring a file is safest, but will not correct the problem.  Selecting "delete" will permanently remove the file.  Suppression adds a "~" to the file name so load() will ignore it.',lead)
-        pyro.utility.print_line(' ',lead)
+        pm.utility.print_line(' ',lead)
         for ss in status['bad']:
             # print the file name under consideration
             # and prompt the user for a choice of what to do
-            pyro.utility.sys.stdout.write(ss)
+            pm.utility.sys.stdout.write(ss)
             charin = 'z'
             while not charin in 'dsi':
                 charin = raw_input('(D)elete/(S)uppress/(I)gnore:').lower()
             if charin == 'd':
                 try:
-                    pyro.utility.os.remove(ss)
-                    pyro.utility.print_line('Removed.',lead)
+                    pm.utility.os.remove(ss)
+                    pm.utility.print_line('Removed.',lead)
                 except:
-                    pyro.utility.print_warning(
+                    pm.utility.print_warning(
 'Deletion failed. Ignoring. Check permissions.')
 
             elif charin == 's':
                 try:
-                    pyro.utility.suppress_file(ss)
+                    pm.utility.suppress_file(ss)
                 except:
                     pass
 
             elif charin == 'i':
-                pyro.utility.print_line(
+                pm.utility.print_line(
 'Ignoring.  This problem will persist until corrected.',lead)
 
     elif status['bad']:
         for ss in status['bad']:
             if deletefiles:
                 try:
-                    pyro.utility.os.remove(ss)
+                    pm.utility.os.remove(ss)
                 except:
-                    pyro.utility.print_warning(
+                    pm.utility.print_warning(
 'Failed to remove file ' + ss + '.  Ignoring.  Check permissions.')
             else:
                 try:
-                    pyro.utility.suppress_files(ss)
+                    pm.utility.suppress_files(ss)
                 except:
                     pass
 
@@ -471,42 +471,42 @@ for a decision.
 
     # next, save any new data
     if verbose and status['added']:
-        pyro.utility.print_line('Saving data that were added since load.',lead)
-        pyro.utility.print_line(' ',lead)
+        pm.utility.print_line('Saving data that were added since load.',lead)
+        pm.utility.print_line(' ',lead)
     for ss in status['added']:
-        this = pyro.dat.data[ss]
+        this = pm.dat.data[ss]
         if ('fromfile' in this.data) and this.data['fromfile']:
             fil = this.data['fromfile']
         else:
             fil = dest
-            if dest[-1]!=pyro.utility.os.path.sep:
-                fil += pyro.utility.os.path.sep
+            if dest[-1]!=pm.utility.os.path.sep:
+                fil += pm.utility.os.path.sep
             fil +=  this.data['id'] + '.hpd'
-        fil = pyro.utility.os.path.abspath(fil)
+        fil = pm.utility.os.path.abspath(fil)
 
         FIL = None
         try:
             FIL = open(fil,'w')
-            pyro.utility.json.dump(this.data,FIL,sort_keys=True,indent=4)
+            pm.utility.json.dump(this.data,FIL,sort_keys=True,indent=4)
             FIL.close()
         except:
-            pyro.utility.print_warning(
+            pm.utility.print_warning(
 'Failed to create file: ' + fil + '.  Ignoring.  Check permissions and re-run to correct.')
             if FIL:
                 FIL.close()
         if verbose:
-            pyro.utility.print_line('Wrote new file: ' + fil, lead)
-            pyro.utility.print_line('',lead)
+            pm.utility.print_line('Wrote new file: ' + fil, lead)
+            pm.utility.print_line('',lead)
 
 
 
             
     # now save changes
     if verbose and status['changed']:
-        pyro.utility.print_line('Updating files that were changed since load.',lead)
-        pyro.utility.print_line(' ',lead)
+        pm.utility.print_line('Updating files that were changed since load.',lead)
+        pm.utility.print_line(' ',lead)
     for ss in status['changed']:
-        this = pyro.dat.data[ss]
+        this = pm.dat.data[ss]
         # get the file target from the loaded file
         fil = status['data'][ss].data['fromfile']
         # get the fromfile field from the data in memory
@@ -516,11 +516,11 @@ for a decision.
         # If the fromfile fields don't agree, it could be a sign that these
         # aren't really from the same file.  Prompt the user for an option.
         if (fil != dfil) and verbose:
-            pyro.utility.print_line(
+            pm.utility.print_line(
 'The data loaded for ' + ss + 
 ' seems to have originated from a source other than the file found by load().',lead)
-            pyro.utility.print_line('Load() found: ' + fil, lead)
-            pyro.utility.print_line('In memory:    ' + dfil, lead)
+            pm.utility.print_line('Load() found: ' + fil, lead)
+            pm.utility.print_line('In memory:    ' + dfil, lead)
             
             charin = 'z'
             while not charin in 'yn':
@@ -528,13 +528,13 @@ for a decision.
 
         try:
             FIL = open(fil,'w')
-            pyro.utility.json.dump(this.data,FIL,sort_keys=True,indent=4)
+            pm.utility.json.dump(this.data,FIL,sort_keys=True,indent=4)
             FIL.close()
             if verbose:
-                pyro.utility.print_line('Updated file: ' + fil, lead)
-                pyro.utility.print_line('',lead)
+                pm.utility.print_line('Updated file: ' + fil, lead)
+                pm.utility.print_line('',lead)
         except:
-            pyro.utility.print_warning(
+            pm.utility.print_warning(
 'Failed to update file: ' + fil + 
 '.  Ignoring.  Check permissions and re-run to correct.')
 
@@ -542,24 +542,24 @@ for a decision.
     
     # remove files
     if verbose and status['removed']:
-        pyro.utility.print_line(
+        pm.utility.print_line(
 'Correcting files that were not represented in the data.',lead)
-        pyro.utility.print_line('',lead)
+        pm.utility.print_line('',lead)
     # deletion or suppression?
     if deletefiles:
         for ss in status['removed']:
             fil = status['data'][ss].data['fromfile']
             charin='y'
             if verbose:
-                pyro.utility.sys.stdout.write(fil + '\n')
+                pm.utility.sys.stdout.write(fil + '\n')
                 charin = 'z'
                 while not charin in 'yn':
                     charin = raw_input('Delete? (y/n):').lower()
             if charin=='y':
                 try:
-                    pyro.utility.os.remove(fil)
+                    pm.utility.os.remove(fil)
                 except:
-                    pyro.utility.print_warning(
+                    pm.utility.print_warning(
 'Failed to delete file: ' + fil + '.  Ignoring.  Check permissions and re-run to correct.')
     else:
         for ss in status['removed']:
@@ -567,7 +567,7 @@ for a decision.
             try:
                 utility.suppress_file(fil,verbose=verbose)
             except:
-                pyro.utility.print_warning(
+                pm.utility.print_warning(
 'Failed to suppress file: ' + fil + '.  Ignoring.  Check permissions and re-run to correct.')
 
 

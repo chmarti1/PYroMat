@@ -6,7 +6,12 @@
   },
   "id": "ig.F3PS",
   "mw": 120.034,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:38:58 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=2404-52-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Thiophosphoryl fluoride"
+  ],
+  "inchi": "InChI=1S/FH2O2PS/c1-4(2,3)5/h(H2,2,3,5)",
+  "cas": "2404-52-6",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:12:50 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=2404-52-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1400.0,

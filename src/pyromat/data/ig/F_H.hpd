@@ -5,7 +5,12 @@
   },
   "id": "ig.FH",
   "mw": 20.00634,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:42:42 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7664-39-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "hydrogen fluoride"
+  ],
+  "inchi": "InChI=1S/FH/h1H",
+  "cas": "7664-39-3",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:11:59 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7664-39-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1000.0,

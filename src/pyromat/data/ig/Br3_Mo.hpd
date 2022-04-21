@@ -5,7 +5,11 @@
   },
   "id": "ig.Br3Mo",
   "mw": 335.67,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:33:57 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13446-57-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "molybdenum tribromide"
+  ],
+  "cas": "13446-57-6",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:25:10 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13446-57-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

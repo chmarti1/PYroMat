@@ -6,7 +6,11 @@
   },
   "id": "ig.Cl4OW",
   "mw": 341.65,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:34:21 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13520-78-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "tungsten tetrachloride oxide"
+  ],
+  "cas": "13520-78-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:04:53 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13520-78-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     1000.0,
     6000.0

@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      -1.7147662,
+      0.068716008,
+      -0.00011407933,
+      8.9336379e-08,
+      -2.6940429e-11,
+      -110961.78,
+      30.2724678
+    ],
+    [
+      13.610563,
+      0.002652313,
+      -1.1691463e-06,
+      2.4245132e-10,
+      -1.8314718e-14,
+      -114002.93,
+      -43.0151012
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 5,
+    "S": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -109262.883,
+  "id": "ig.F5S",
+  "mw": 127.05802,
+  "names": [
+    "Sulfur pentafluoride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/F5S/c1-6(2,3,4)5",
+  "cas": "10546-01-7"
+}

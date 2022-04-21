@@ -1,0 +1,44 @@
+{
+  "C": [
+    [
+      2.6562813,
+      0.028626176,
+      -4.30037e-05,
+      3.3708031e-08,
+      -1.0475547e-11,
+      -6325.2612,
+      17.2709251
+    ],
+    [
+      8.3573099,
+      0.0048163586,
+      -2.0161445e-06,
+      3.8043699e-10,
+      -2.6720584e-14,
+      -7541.7667,
+      -10.2973549
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "H": 2,
+    "I": 2,
+    "Si": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -4579.21431,
+  "id": "ig.H2I2Si",
+  "mw": 283.91032,
+  "names": [
+    "Diiodosilane"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/H2I2Si/c1-3-2/h3H2",
+  "cas": "13760-02-6"
+}

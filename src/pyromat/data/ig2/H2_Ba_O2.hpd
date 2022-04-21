@@ -1,0 +1,40 @@
+{
+  "C": [
+    [
+      3.7909356,
+      0.032075449,
+      -5.9350806e-05,
+      5.0776385e-08,
+      -1.6181131e-11,
+      -77483.558,
+      8.94869323
+    ],
+    [
+      9.0824735,
+      0.0027368311,
+      -8.1753678e-07,
+      1.1534884e-10,
+      -6.2833756e-15,
+      -78186.586,
+      -14.6886716
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Ba": 1,
+    "H": 2,
+    "O": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -75359.2938,
+  "id": "ig.H2BaO2",
+  "mw": 171.34168,
+  "names": [],
+  "pref": 100000.0
+}

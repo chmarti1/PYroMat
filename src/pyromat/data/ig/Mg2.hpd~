@@ -4,7 +4,12 @@
   },
   "id": "ig.Mg2",
   "mw": 48.61,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:39:29 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=29904-79-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Magnesium dimer"
+  ],
+  "inchi": "InChI=1S/2Mg",
+  "cas": "29904-79-8",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:18:34 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=29904-79-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     800.0,

@@ -5,7 +5,13 @@
   },
   "id": "ig.Cl3Co",
   "mw": 165.292,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:30:45 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10241-04-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "cobalt trichloride",
+    "Cobalt chloride"
+  ],
+  "inchi": "InChI=1S/3ClH.Co/h3*1H;/q;;;+3/p-3",
+  "cas": "10241-04-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:21:27 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10241-04-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

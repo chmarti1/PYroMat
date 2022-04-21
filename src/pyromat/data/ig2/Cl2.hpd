@@ -1,39 +1,52 @@
 {
-    "C": [
-        [
-            2.73638114,
-            0.007835257,
-            -1.45104963e-05,
-            1.25730834e-08,
-            -4.13247145e-12,
-            -1058.80114,
-            9.44555879
-        ],
-        [
-            4.74727508,
-            -0.00048858171,
-            2.68444871e-07,
-            -2.43476083e-11,
-            -1.03683148e-15,
-            -1511.01862,
-            -0.344551305
-        ]
+  "C": [
+    [
+      2.73638114,
+      0.007835257,
+      -1.45104963e-05,
+      1.25730834e-08,
+      -4.13247145e-12,
+      -1058.80114,
+      9.44555879
     ],
-    "Tlim": [
-        200.0,
-        1000.0,
-        6000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "Cl": 2
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/Cl2.hpd",
-    "ho": 0.0,
-    "id": "ig.Cl2",
-    "mw": 70.9054,
-    "names": [],
-    "pref": 100000.0
+    [
+      4.74727508,
+      -0.00048858171,
+      2.68444871e-07,
+      -2.43476083e-11,
+      -1.03683148e-15,
+      -1511.01862,
+      -0.344551305
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 0.0,
+  "id": "ig.Cl2",
+  "mw": 70.9054,
+  "names": [
+    "Chlorine",
+    "Cl2",
+    "Bertholite",
+    "Chloor",
+    "Chlor",
+    "Chlore",
+    "Chlorine mol.",
+    "Cloro",
+    "Molecular chlorine",
+    "UN 1017",
+    "Diatomic chlorine"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/Cl2/c1-2",
+  "cas": "7782-50-5"
 }

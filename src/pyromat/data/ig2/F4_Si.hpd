@@ -1,0 +1,49 @@
+{
+  "C": [
+    [
+      2.1893068,
+      0.033702007,
+      -4.6723179e-05,
+      3.1584638e-08,
+      -8.4506114e-12,
+      -196032.89,
+      13.300471
+    ],
+    [
+      10.478473,
+      0.0028586756,
+      -1.2646314e-06,
+      2.4746863e-10,
+      -1.7824296e-14,
+      -197905.5,
+      -27.507478
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 4,
+    "Si": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -194236.568,
+  "id": "ig.F4Si",
+  "mw": 104.07911,
+  "names": [
+    "Silicon tetrafluoride",
+    "Silane, tetrafluoro-",
+    "Silicon fluoride (SiF4)",
+    "Tetrafluorosilane",
+    "SiF4",
+    "Silicon fluoride",
+    "UN 1859"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/F4Si/c1-5(2,3)4",
+  "cas": "7783-61-1"
+}

@@ -5,7 +5,11 @@
   },
   "id": "ig.BrZr",
   "mw": 171.128,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:39:36 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=31483-18-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Zirconium bromide"
+  ],
+  "cas": "31483-18-8",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:16:04 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=31483-18-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1600.0,

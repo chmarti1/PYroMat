@@ -5,7 +5,13 @@
   },
   "id": "ig.FeO",
   "mw": 71.844,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:33:58 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=1345-25-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "iron oxide",
+    "Iron monoxide"
+  ],
+  "inchi": "InChI=1S/Fe.O",
+  "cas": "1345-25-1",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:10:47 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=1345-25-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     5000.0,
     6000.0

@@ -4,7 +4,18 @@
   },
   "id": "ig.S6",
   "mw": 192.39,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:35:18 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13798-23-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Hexathiane",
+    "Cyclohexasulfide",
+    "Sulfur",
+    "Cyclic hexaatomic sulfur",
+    "Sulfur, S6",
+    "Sulfur hexamer",
+    "Cyclohexasulfur"
+  ],
+  "inchi": "InChI=1S/S6/c1-2-4-6-5-3-1",
+  "cas": "13798-23-7",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:16:29 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13798-23-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

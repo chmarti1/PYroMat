@@ -94,6 +94,7 @@
     - coefficient of thermal expansion
     - compressibility factor
     - bulk modulus
+    - coefficient of therm. expansion
     - generic differentiation function
 8) Add searchable species meta data (like common names)
 9) Establish a standard test suite
@@ -102,7 +103,3 @@
     - Test unit conversion
     - Test array support
     - Test for reverse compatibility
-10) Create a local GUI package
-    - Runs with matplotlib
-    - Separate package
-    - Import/export data files

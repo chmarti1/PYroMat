@@ -5,7 +5,18 @@
   },
   "id": "ig.F6W",
   "mw": 297.83,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:43:32 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7783-82-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Tungsten hexafluoride",
+    "Tungsten fluoride (WF6), (OC-6-11)-",
+    "Tungsten fluoride (WF6)",
+    "Tungsten(VI) fluoride",
+    "Tungsten fluoride",
+    "UN 2196",
+    "WF6"
+  ],
+  "inchi": "InChI=1S/6FH.W/h6*1H;/q;;;;;;+6/p-6",
+  "cas": "7783-82-6",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:27:11 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7783-82-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     1000.0,
     6000.0

@@ -6,7 +6,11 @@
   },
   "id": "ig.BeF3Li",
   "mw": 72.948,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:37:19 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=15552-34-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Lithium trifluoroberyllate"
+  ],
+  "cas": "15552-34-8",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:07:40 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=15552-34-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     2000.0,
     6000.0

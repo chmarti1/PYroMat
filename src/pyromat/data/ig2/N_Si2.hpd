@@ -1,0 +1,42 @@
+{
+  "C": [
+    [
+      3.6686735,
+      0.01130184,
+      -1.3637119e-05,
+      7.168805e-09,
+      -1.237831e-12,
+      46318.083,
+      7.12270964
+    ],
+    [
+      6.6709912,
+      0.00091917882,
+      -3.951713e-07,
+      7.4397145e-11,
+      -5.0284691e-15,
+      45620.154,
+      -7.79827766
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "N": 1,
+    "Si": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 47807.3289,
+  "id": "ig.NSi2",
+  "mw": 70.17774,
+  "names": [
+    "Disilicon mononitride"
+  ],
+  "pref": 100000.0,
+  "cas": "12293-67-3"
+}

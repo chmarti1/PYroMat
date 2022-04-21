@@ -5,7 +5,11 @@
   },
   "id": "ig.BrF3",
   "mw": 136.899,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:43:42 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7787-71-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "bromine trifluoride"
+  ],
+  "cas": "7787-71-5",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:15:06 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7787-71-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

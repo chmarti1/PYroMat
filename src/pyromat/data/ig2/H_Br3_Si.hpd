@@ -1,0 +1,40 @@
+{
+  "C": [
+    [
+      4.337011,
+      0.02887299,
+      -4.695412e-05,
+      3.7523038e-08,
+      -1.1634919e-11,
+      -38663.834,
+      10.3216712
+    ],
+    [
+      10.274831,
+      0.0028666104,
+      -1.2112581e-06,
+      2.3004916e-10,
+      -1.6233504e-14,
+      -39846.576,
+      -18.0340658
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Br": 3,
+    "H": 1,
+    "Si": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -36433.6173,
+  "id": "ig.HBr3Si",
+  "mw": 268.80544,
+  "names": [],
+  "pref": 100000.0
+}

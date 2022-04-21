@@ -4,7 +4,19 @@
   },
   "id": "ig.Br2",
   "mw": 159.808,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:42:59 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7726-95-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Bromine",
+    "Br2",
+    "Brom",
+    "Brome",
+    "Bromo",
+    "Broom",
+    "UN 1744",
+    "Dibromine"
+  ],
+  "inchi": "InChI=1S/Br2/c1-2",
+  "cas": "7726-95-6",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:25:02 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7726-95-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     332.503,
     3400.0,

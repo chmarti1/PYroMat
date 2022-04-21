@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      4.2627027,
+      0.024050869,
+      -4.2184882e-05,
+      3.437393e-08,
+      -1.0674462e-11,
+      -48981.205,
+      8.40523855
+    ],
+    [
+      9.3594631,
+      0.00073834838,
+      -3.2994049e-07,
+      6.4989973e-11,
+      -4.7023241e-15,
+      -49930.068,
+      -15.648011
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 3,
+    "Si": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -46951.1053,
+  "id": "ig.Cl3Si",
+  "mw": 134.4436,
+  "names": [
+    "Trichlorosilyl"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/Cl3Si/c1-4(2)3",
+  "cas": "19165-34-5"
+}

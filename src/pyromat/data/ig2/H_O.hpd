@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      3.99201543,
+      -0.00240131752,
+      4.61793841e-06,
+      -3.88113333e-09,
+      1.3641147e-12,
+      3615.08056,
+      -0.103925458
+    ],
+    [
+      2.83864607,
+      0.00110725586,
+      -2.93914978e-07,
+      4.20524247e-11,
+      -2.42169092e-15,
+      3943.95852,
+      5.84452662
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "H": 1,
+    "O": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 4732.34213,
+  "id": "ig.HO",
+  "mw": 17.00734,
+  "names": [
+    "Hydroxyl radical"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/HO/h1H",
+  "cas": "3352-57-6"
+}

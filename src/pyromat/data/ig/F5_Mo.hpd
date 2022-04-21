@@ -5,7 +5,11 @@
   },
   "id": "ig.F5Mo",
   "mw": 190.95,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:35:25 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13819-84-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Molybdenum pentafluoride"
+  ],
+  "cas": "13819-84-6",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:18:36 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13819-84-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

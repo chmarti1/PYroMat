@@ -1,0 +1,44 @@
+{
+  "C": [
+    [
+      2.500179,
+      0.012661717,
+      -1.4157589e-05,
+      6.4506374e-09,
+      -7.4261431e-13,
+      -12265.534,
+      12.1440182
+    ],
+    [
+      5.9926109,
+      0.00111392,
+      -4.7888493e-07,
+      9.1068332e-11,
+      -6.3849123e-15,
+      -13100.989,
+      -5.33660329
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 1,
+    "Li": 1,
+    "O": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -11070.0161,
+  "id": "ig.FLiO",
+  "mw": 41.9388,
+  "names": [
+    "Lithium hypofluorite"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/FO.Li/c1-2;/q-1;+1",
+  "cas": "34240-84-1"
+}

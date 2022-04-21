@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      3.6803433,
+      -0.0012756018,
+      2.5932442e-06,
+      -8.4354107e-10,
+      -1.7208609e-13,
+      27333.9656,
+      2.91864125
+    ],
+    [
+      3.0745442,
+      0.0011698947,
+      -3.0381654e-07,
+      4.4436314e-11,
+      -2.7000975e-15,
+      27426.8316,
+      5.76804855
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "H": 1,
+    "P": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 28395.7262,
+  "id": "ig.HP",
+  "mw": 31.9817,
+  "names": [
+    "Phosphinidene"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/HP/h1H",
+  "cas": "13967-14-1"
+}

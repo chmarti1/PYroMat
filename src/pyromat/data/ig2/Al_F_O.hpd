@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      2.0391461,
+      0.018948762,
+      -2.897877e-05,
+      2.1360941e-08,
+      -6.1579873e-12,
+      -71182.333,
+      12.3865982
+    ],
+    [
+      6.4521622,
+      0.0011926595,
+      -5.2893137e-07,
+      1.0367811e-10,
+      -7.4765367e-15,
+      -72116.363,
+      -9.01812781
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Al": 1,
+    "F": 1,
+    "O": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -69948.868,
+  "id": "ig.AlFO",
+  "mw": 61.97934,
+  "names": [
+    "aluminium fluoride oxide"
+  ],
+  "pref": 100000.0,
+  "cas": "13596-12-8"
+}

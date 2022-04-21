@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      1.549475,
+      0.03827048,
+      -6.6509328e-05,
+      5.4536294e-08,
+      -1.6891338e-11,
+      -70516.754,
+      14.4170361
+    ],
+    [
+      8.5178384,
+      0.003379138,
+      -1.1022033e-06,
+      1.7111179e-10,
+      -1.0302286e-14,
+      -71626.731,
+      -17.6294649
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "H": 2,
+    "Mg": 1,
+    "O": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -68841.5815,
+  "id": "ig.H2MgO2",
+  "mw": 58.31968,
+  "names": [
+    "magnesium hydroxide"
+  ],
+  "pref": 100000.0,
+  "cas": "1309-42-8"
+}

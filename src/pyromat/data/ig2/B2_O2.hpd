@@ -1,40 +1,42 @@
 {
-    "C": [
-        [
-            3.6807078,
-            0.015361132,
-            -1.8606097e-05,
-            1.2171451e-08,
-            -3.2411018e-12,
-            -56486.647,
-            4.35612734
-        ],
-        [
-            6.9938574,
-            0.0035940393,
-            -1.4753611e-06,
-            2.7225124e-10,
-            -1.8695996e-14,
-            -57296.178,
-            -12.1677771
-        ]
+  "C": [
+    [
+      3.6807078,
+      0.015361132,
+      -1.8606097e-05,
+      1.2171451e-08,
+      -3.2411018e-12,
+      -56486.647,
+      4.35612734
     ],
-    "Tlim": [
-        300.0,
-        1000.0,
-        5000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "B": 2,
-        "O": 2
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/B2_O2.hpd",
-    "ho": -54848.3506,
-    "id": "ig.B2O2",
-    "mw": 53.6208,
-    "names": [],
-    "pref": 100000.0
+    [
+      6.9938574,
+      0.0035940393,
+      -1.4753611e-06,
+      2.7225124e-10,
+      -1.8695996e-14,
+      -57296.178,
+      -12.1677771
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "B": 2,
+    "O": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -54848.3506,
+  "id": "ig.B2O2",
+  "mw": 53.6208,
+  "names": [
+    "Diboron dioxide"
+  ],
+  "pref": 100000.0,
+  "cas": "13766-28-4"
 }

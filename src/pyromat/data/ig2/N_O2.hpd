@@ -1,40 +1,52 @@
 {
-    "C": [
-        [
-            3.94403907,
-            -0.00158547444,
-            1.66578984e-05,
-            -2.04754478e-08,
-            7.83503265e-12,
-            2896.59865,
-            6.31196225
-        ],
-        [
-            4.88474429,
-            0.00217241639,
-            -8.2807902e-07,
-            1.57477293e-10,
-            -1.05110549e-14,
-            2316.48462,
-            -0.117357075
-        ]
+  "C": [
+    [
+      3.94403907,
+      -0.00158547444,
+      1.66578984e-05,
+      -2.04754478e-08,
+      7.83503265e-12,
+      2896.59865,
+      6.31196225
     ],
-    "Tlim": [
-        200.0,
-        1000.0,
-        6000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "N": 1,
-        "O": 2
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/N_O2.hpd",
-    "ho": 4112.45173,
-    "id": "ig.NO2",
-    "mw": 46.00554,
-    "names": [],
-    "pref": 100000.0
+    [
+      4.88474429,
+      0.00217241639,
+      -8.2807902e-07,
+      1.57477293e-10,
+      -1.05110549e-14,
+      2316.48462,
+      -0.117357075
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "N": 1,
+    "O": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 4112.45173,
+  "id": "ig.NO2",
+  "mw": 46.00554,
+  "names": [
+    "Nitrogen dioxide",
+    "Nitrogen oxide",
+    "Nitrito",
+    "Nitro",
+    "Nitrogen peroxide",
+    "Azote",
+    "Rcra waste number P078",
+    "Stickstoffdioxid",
+    "Stikstofdioxyde",
+    "Nitrogen dioxide (NO2)"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/NO2/c2-1-3",
+  "cas": "10102-44-0"
 }

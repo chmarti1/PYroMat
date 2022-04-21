@@ -1,40 +1,48 @@
 {
-    "C": [
-        [
-            10.509198,
-            0.049077436,
-            -8.7208726e-05,
-            7.1723432e-08,
-            -2.2424328e-11,
-            -160517.84,
-            -14.0840671
-        ],
-        [
-            20.794003,
-            0.0013914247,
-            -6.2213671e-07,
-            1.2259377e-10,
-            -8.8727585e-15,
-            -162404.72,
-            -62.4731881
-        ]
+  "C": [
+    [
+      10.509198,
+      0.049077436,
+      -8.7208726e-05,
+      7.1723432e-08,
+      -2.2424328e-11,
+      -160517.84,
+      -14.0840671
     ],
-    "Tlim": [
-        300.0,
-        1000.0,
-        5000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "Al": 2,
-        "Cl": 6
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/Al2_Cl6.hpd",
-    "ho": -155842.516,
-    "id": "ig.Al2Cl6",
-    "mw": 266.67928,
-    "names": [],
-    "pref": 100000.0
+    [
+      20.794003,
+      0.0013914247,
+      -6.2213671e-07,
+      1.2259377e-10,
+      -8.8727585e-15,
+      -162404.72,
+      -62.4731881
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Al": 2,
+    "Cl": 6
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -155842.516,
+  "id": "ig.Al2Cl6",
+  "mw": 266.67928,
+  "names": [
+    "Aluminum, di-&laquo;mu&raquo;-chlorotetrachlorodi-",
+    "Aluminum chloride Al2Cl6",
+    "Aluminum chloride, dimer",
+    "Aluminum, hexachlorodi-",
+    "(AlCl3)2",
+    "Aluminum chloride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/2Al.4ClH.2Cl/h;;4*1H;;/q2*+2;;;;;;/p-4",
+  "cas": "13845-12-0"
 }

@@ -5,7 +5,11 @@
   },
   "id": "ig.Cs2O",
   "mw": 281.8103,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:38:18 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=20281-00-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "dicesium oxide"
+  ],
+  "cas": "20281-00-9",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:05:16 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=20281-00-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

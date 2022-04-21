@@ -5,7 +5,12 @@
   },
   "id": "ig.C2H",
   "mw": 25.0293,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:38:30 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=2122-48-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Ethynyl radical"
+  ],
+  "inchi": "InChI=1S/C2H/c1-2/h1H",
+  "cas": "2122-48-7",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:14:50 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=2122-48-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1200.0,

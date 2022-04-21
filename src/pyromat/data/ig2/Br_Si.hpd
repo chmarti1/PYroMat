@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      3.9719788,
+      0.0047745279,
+      -1.1130684e-05,
+      1.0681202e-08,
+      -3.6726383e-12,
+      26986.304,
+      6.11195719
+    ],
+    [
+      4.6681692,
+      -0.00010169413,
+      7.0838992e-08,
+      -1.4334856e-11,
+      1.4076739e-15,
+      26933.459,
+      3.22497259
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Br": 1,
+    "Si": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 28303.7975,
+  "id": "ig.BrSi",
+  "mw": 107.9895,
+  "names": [
+    "Bromosilylidyne"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/BrHSi/c1-2/h2H",
+  "cas": "14791-57-2"
+}

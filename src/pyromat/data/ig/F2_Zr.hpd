@@ -5,7 +5,11 @@
   },
   "id": "ig.F2Zr",
   "mw": 129.221,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:35:37 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13842-94-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Zirconium fluoride"
+  ],
+  "cas": "13842-94-9",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:06:53 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13842-94-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     3000.0,
     6000.0

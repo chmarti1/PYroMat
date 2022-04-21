@@ -6,7 +6,11 @@
   },
   "id": "ig.BeClF",
   "mw": 63.464,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:34:38 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13598-12-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Beryllium chloride fluoride"
+  ],
+  "cas": "13598-12-4",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:27:12 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13598-12-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1100.0,

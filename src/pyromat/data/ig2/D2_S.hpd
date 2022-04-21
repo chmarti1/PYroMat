@@ -1,40 +1,42 @@
 {
-    "C": [
-        [
-            3.8070824,
-            0.00037596311,
-            5.7530799e-06,
-            -5.348574e-09,
-            1.4054083e-12,
-            -4066.1219,
-            3.87928749
-        ],
-        [
-            3.6662901,
-            0.0034992264,
-            -1.4207284e-06,
-            2.6685639e-10,
-            -1.8684739e-14,
-            -4214.7308,
-            3.79969969
-        ]
+  "C": [
+    [
+      3.8070824,
+      0.00037596311,
+      5.7530799e-06,
+      -5.348574e-09,
+      1.4054083e-12,
+      -4066.1219,
+      3.87928749
     ],
-    "Tlim": [
-        300.0,
-        1000.0,
-        5000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "D": 2,
-        "S": 1
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/D2_S.hpd",
-    "ho": -2873.40817,
-    "id": "ig.D2S",
-    "mw": 36.0942,
-    "names": [],
-    "pref": 100000.0
+    [
+      3.6662901,
+      0.0034992264,
+      -1.4207284e-06,
+      2.6685639e-10,
+      -1.8684739e-14,
+      -4214.7308,
+      3.79969969
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "D": 2,
+    "S": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -2873.40817,
+  "id": "ig.D2S",
+  "mw": 36.0942,
+  "names": [
+    "Hydrogen sulfide-d2"
+  ],
+  "pref": 100000.0,
+  "cas": "13536-94-2"
 }

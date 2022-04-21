@@ -4,7 +4,20 @@
   },
   "id": "ig.N2",
   "mw": 28.0134,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:43:01 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7727-37-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Nitrogen",
+    "Nitrogen gas",
+    "N2",
+    "UN 1066",
+    "UN 1977",
+    "Dinitrogen",
+    "Molecular nitrogen",
+    "Diatomic nitrogen",
+    "Nitrogen-14"
+  ],
+  "inchi": "InChI=1S/N2/c1-2",
+  "cas": "7727-37-9",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:09:26 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7727-37-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     100.0,
     500.0,

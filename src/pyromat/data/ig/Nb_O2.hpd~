@@ -5,7 +5,13 @@
   },
   "id": "ig.NbO2",
   "mw": 124.9052,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:31:37 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12034-59-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "niobium dioxide",
+    "Niobium(iv) oxide"
+  ],
+  "inchi": "InChI=1S/Nb.2O/q+4;2*-2",
+  "cas": "12034-59-2",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:26:54 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12034-59-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     3000.0,
     6000.0

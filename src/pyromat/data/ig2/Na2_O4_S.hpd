@@ -1,0 +1,47 @@
+{
+  "C": [
+    [
+      2.0727498,
+      0.054582047,
+      -7.8543533e-05,
+      5.5104221e-08,
+      -1.5266676e-11,
+      -126769.55,
+      16.6688263
+    ],
+    [
+      15.206128,
+      0.0042984264,
+      -1.9008409e-06,
+      3.718753e-10,
+      -2.6780457e-14,
+      -129673.57,
+      -47.6569217
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Na": 2,
+    "O": 4,
+    "S": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -124317.797,
+  "id": "ig.Na2O4S",
+  "mw": 142.04314,
+  "names": [
+    "sodium sulphate",
+    "Sulfuric acid, sodium salt",
+    "Sulfuric acid sodium salt (1:2)",
+    "Sodium sulfate"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/2Na.H2O4S/c;;1-5(2,3)4/h;;(H2,1,2,3,4)/q2*+1;/p-2",
+  "cas": "7757-82-6"
+}

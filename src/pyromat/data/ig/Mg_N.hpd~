@@ -5,7 +5,11 @@
   },
   "id": "ig.MgN",
   "mw": 38.3117,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:40:57 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=60195-15-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Magnesium nitride"
+  ],
+  "cas": "60195-15-5",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:17:57 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=60195-15-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

@@ -5,7 +5,11 @@
   },
   "id": "ig.ClZr",
   "mw": 126.677,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:37:09 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14989-34-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Zirconium chloride"
+  ],
+  "cas": "14989-34-5",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:26:14 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=14989-34-5&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1600.0,

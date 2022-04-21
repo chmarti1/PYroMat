@@ -1,0 +1,50 @@
+{
+  "C": [
+    [
+      2.3621878,
+      0.022820045,
+      -2.7656642e-05,
+      1.4490962e-08,
+      -2.460236e-12,
+      -116776.903,
+      13.686432
+    ],
+    [
+      8.4347733,
+      0.001739392,
+      -7.5119808e-07,
+      1.4344247e-10,
+      -1.0093979e-14,
+      -118180.783,
+      -16.463602
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 3,
+    "P": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -115275.206,
+  "id": "ig.F3P",
+  "mw": 87.96897,
+  "names": [
+    "Phosphorus trifluoride",
+    "PF3",
+    "Phosphorus(III) fluoride",
+    "Phosphorous-trifluoride-",
+    "Phosphorus fluoride",
+    "Phosphorous fluoride",
+    "TL 75",
+    "Trifluorophosphine"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/F3P/c1-4(2)3",
+  "cas": "7783-55-3"
+}

@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      2.74871833,
+      0.00803243289,
+      -1.51563523e-05,
+      1.33592246e-08,
+      -4.45165244e-12,
+      -36000.2074,
+      8.68107812
+    ],
+    [
+      4.33376796,
+      0.000256807777,
+      -6.94232621e-08,
+      1.19679617e-11,
+      -7.49308393e-16,
+      -36279.7872,
+      1.30046354
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 1,
+    "Na": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -34933.2673,
+  "id": "ig.FNa",
+  "mw": 41.98817,
+  "names": [
+    "sodium fluoride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/FH.Na/h1H;/q;+1/p-1",
+  "cas": "7681-49-4"
+}

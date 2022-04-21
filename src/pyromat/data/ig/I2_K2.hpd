@@ -5,7 +5,12 @@
   },
   "id": "ig.I2K2",
   "mw": 332.0055,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:32:40 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12285-99-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Dipotassium diiodide"
+  ],
+  "inchi": "InChI=1S/2HI.2K/h2*1H;;/q;;2*+1/p-2",
+  "cas": "12285-99-3",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:14:32 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12285-99-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

@@ -1,0 +1,40 @@
+{
+  "C": [
+    [
+      2.4800456,
+      0.016149264,
+      -1.6033524e-05,
+      6.4466166e-09,
+      -4.0994769e-13,
+      -56682.759,
+      12.307071
+    ],
+    [
+      6.4264346,
+      0.0032230362,
+      -1.2139348e-06,
+      2.10745e-10,
+      -1.3828e-14,
+      -57626.154,
+      -7.45759256
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Al": 1,
+    "H": 1,
+    "O": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -55354.6581,
+  "id": "ig.HAlO2",
+  "mw": 59.98828,
+  "names": [],
+  "pref": 100000.0
+}

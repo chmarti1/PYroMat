@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      4.8600026,
+      0.019438982,
+      -1.881876e-05,
+      7.1009503e-09,
+      -3.7225258e-13,
+      -147039.59,
+      3.24173341
+    ],
+    [
+      10.311343,
+      0.0029258151,
+      -1.2481987e-06,
+      2.3652169e-10,
+      -1.655916e-14,
+      -148446.23,
+      -24.487683
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Be": 2,
+    "F": 2,
+    "O": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -144878.984,
+  "id": "ig.Be2F2O",
+  "mw": 72.02057,
+  "names": [
+    "Beryllium fluoride oxide"
+  ],
+  "pref": 100000.0,
+  "cas": "65887-15-2"
+}

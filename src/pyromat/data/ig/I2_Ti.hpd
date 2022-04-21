@@ -5,7 +5,11 @@
   },
   "id": "ig.I2Ti",
   "mw": 301.676,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:35:17 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13783-07-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Titanium iodide"
+  ],
+  "cas": "13783-07-8",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:10:46 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13783-07-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1300.0,

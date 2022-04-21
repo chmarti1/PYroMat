@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      3.4093856,
+      0.015170554,
+      -2.4428483e-05,
+      1.8734521e-08,
+      -5.5680684e-12,
+      -30887.846,
+      8.69442617
+    ],
+    [
+      6.8319924,
+      0.00076359387,
+      -3.3953089e-07,
+      6.6667069e-11,
+      -4.8132946e-15,
+      -31582.311,
+      -7.75381613
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 1,
+    "O": 1,
+    "Ti": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -29378.4839,
+  "id": "ig.ClOTi",
+  "mw": 99.3321,
+  "names": [
+    "Titanium chloride oxide"
+  ],
+  "pref": 100000.0,
+  "cas": "15605-36-4"
+}

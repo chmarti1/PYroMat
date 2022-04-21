@@ -6,7 +6,11 @@
   },
   "id": "ig.CF4O",
   "mw": 104.0037,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:39:55 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=373-91-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "trifluoromethyl hypofluorite"
+  ],
+  "cas": "373-91-1",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:12:46 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=373-91-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1500.0,

@@ -7,7 +7,16 @@
   },
   "id": "ig.ClF2OP",
   "mw": 120.423,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:35:02 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13769-75-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Phosphoryl chloride difluoride",
+    "Chlorodifluorophosphorus oxide",
+    "Phosphoryl difluorochloride",
+    "Phosphoric chloride difluoride",
+    "Phosphoryl chloride fluoride"
+  ],
+  "inchi": "InChI=1S/ClF2OP/c1-5(2,3)4",
+  "cas": "13769-75-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:13:34 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13769-75-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1100.0,

@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      4.2965385,
+      0.0448543,
+      -6.0987923e-05,
+      4.0516388e-08,
+      -1.0673495e-11,
+      -137825.59,
+      13.4096371
+    ],
+    [
+      15.419045,
+      0.004052765,
+      -1.7910341e-06,
+      3.5024653e-10,
+      -2.5215736e-14,
+      -140367.75,
+      -41.4921849
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cs": 2,
+    "O": 4,
+    "S": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -135014.739,
+  "id": "ig.Cs2O4S",
+  "mw": 361.87446,
+  "names": [
+    "caesium sulphate"
+  ],
+  "pref": 100000.0,
+  "cas": "10294-54-9"
+}

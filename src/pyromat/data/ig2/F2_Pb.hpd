@@ -1,0 +1,42 @@
+{
+  "C": [
+    [
+      4.1295694,
+      0.010561626,
+      -1.5808144e-05,
+      1.0725748e-08,
+      -2.709389e-12,
+      -53916.121,
+      9.14042485
+    ],
+    [
+      6.6354593,
+      0.00041173109,
+      -1.8004609e-07,
+      3.4728984e-11,
+      -2.4645269e-15,
+      -54425.059,
+      -2.94686195
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 2,
+    "Pb": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -52335.2056,
+  "id": "ig.F2Pb",
+  "mw": 245.19681,
+  "names": [
+    "lead difluoride"
+  ],
+  "pref": 100000.0,
+  "cas": "7783-46-2"
+}

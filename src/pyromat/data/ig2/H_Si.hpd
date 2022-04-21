@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      4.3362954,
+      -0.0050512422,
+      1.1423096e-05,
+      -9.3890652e-09,
+      2.7718149e-12,
+      44150.714,
+      0.188214679
+    ],
+    [
+      3.0453194,
+      0.0015587526,
+      -6.2072677e-07,
+      1.151827e-10,
+      -7.6289773e-15,
+      44331.126,
+      6.04465545
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "H": 1,
+    "Si": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 45302.7449,
+  "id": "ig.HSi",
+  "mw": 29.09344,
+  "names": [
+    "Silylidyne"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/HSi/h1H",
+  "cas": "13774-94-2"
+}

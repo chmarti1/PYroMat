@@ -1,0 +1,42 @@
+{
+  "C": [
+    [
+      4.8135516,
+      0.0083821602,
+      -1.2999531e-05,
+      9.1354392e-09,
+      -2.3989877e-12,
+      -93850.543,
+      5.66408021
+    ],
+    [
+      6.7547891,
+      0.00027761964,
+      -1.2158878e-07,
+      2.347878e-11,
+      -1.6675192e-15,
+      -94233.632,
+      -3.64195389
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 2,
+    "Sr": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -92140.7511,
+  "id": "ig.F2Sr",
+  "mw": 125.61681,
+  "names": [
+    "strontium fluoride"
+  ],
+  "pref": 100000.0,
+  "cas": "7783-48-4"
+}

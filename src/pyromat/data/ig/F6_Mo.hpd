@@ -5,7 +5,16 @@
   },
   "id": "ig.F6Mo",
   "mw": 209.95,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:43:31 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7783-77-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Molybdenum hexafluoride",
+    "Molybdenum fluoride (MoF6)",
+    "Molybdenum fluoride (MoF6), (OC-6-11)-",
+    "MoF6",
+    "Molybdenum fluoride"
+  ],
+  "inchi": "InChI=1S/6FH.Mo/h6*1H;/q;;;;;;+6/p-6",
+  "cas": "7783-77-9",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:27:24 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7783-77-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     1000.0,
     6000.0

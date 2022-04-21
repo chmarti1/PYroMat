@@ -5,7 +5,11 @@
   },
   "id": "ig.BrTi",
   "mw": 127.771,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:38:56 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=23664-91-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Titanium bromide"
+  ],
+  "cas": "23664-91-7",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:16:34 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=23664-91-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

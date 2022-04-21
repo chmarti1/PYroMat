@@ -1,0 +1,44 @@
+{
+  "C": [
+    [
+      3.4863318,
+      0.0043841311,
+      -7.5067553e-06,
+      5.8192818e-09,
+      -1.6353204e-12,
+      11834.854,
+      8.35263069
+    ],
+    [
+      8.98347,
+      -0.010995691,
+      8.6588417e-06,
+      -2.2955482e-09,
+      1.9659683e-13,
+      10301.419,
+      -20.0762668
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "S": 1,
+    "Sr": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 13013.5709,
+  "id": "ig.SSr",
+  "mw": 119.686,
+  "names": [
+    "strontium sulphide",
+    "Strontium sulfide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/S.Sr",
+  "cas": "1314-96-1"
+}

@@ -5,7 +5,12 @@
   },
   "id": "ig.BaF",
   "mw": 156.325,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:35:53 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13966-70-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Barium monofluoride"
+  ],
+  "inchi": "InChI=1S/Ba.FH/h;1H/q+1;/p-1",
+  "cas": "13966-70-6",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:16:47 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13966-70-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1300.0,

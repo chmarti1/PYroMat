@@ -1,0 +1,51 @@
+{
+  "C": [
+    [
+      -3.8388088,
+      0.083221721,
+      -0.00013181689,
+      9.9636154e-08,
+      -2.9248767e-11,
+      -148364.77,
+      37.1611426
+    ],
+    [
+      15.16295,
+      0.0043842318,
+      -1.9486337e-06,
+      3.8247196e-10,
+      -2.760505e-14,
+      -152268.01,
+      -54.4157194
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 6,
+    "S": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -146791.868,
+  "id": "ig.F6S",
+  "mw": 146.05642,
+  "names": [
+    "Sulfur hexafluoride",
+    "Sulfur fluoride",
+    "OC-6-11",
+    "Elegas",
+    "SF6",
+    "Hexafluorure de soufre",
+    "UN 1080",
+    "Esaflon",
+    "sulphur hexafluoride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/F6S/c1-7(2,3,4,5)6",
+  "cas": "2551-62-4"
+}

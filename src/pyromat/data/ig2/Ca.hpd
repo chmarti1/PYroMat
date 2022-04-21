@@ -1,39 +1,42 @@
 {
-    "C": [
-        [
-            2.5,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            20638.9279,
-            4.38454833
-        ],
-        [
-            1.92707623,
-            0.00134909167,
-            -1.07515862e-06,
-            3.25457865e-10,
-            -2.64671538e-14,
-            20819.621,
-            7.42878398
-        ]
+  "C": [
+    [
+      2.5,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      20638.9279,
+      4.38454833
     ],
-    "Tlim": [
-        200.0,
-        1000.0,
-        6000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "Ca": 1
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/Ca.hpd",
-    "ho": 21384.3029,
-    "id": "ig.Ca",
-    "mw": 40.078,
-    "names": [],
-    "pref": 100000.0
+    [
+      1.92707623,
+      0.00134909167,
+      -1.07515862e-06,
+      3.25457865e-10,
+      -2.64671538e-14,
+      20819.621,
+      7.42878398
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Ca": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 21384.3029,
+  "id": "ig.Ca",
+  "mw": 40.078,
+  "names": [
+    "calcium"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/Ca",
+  "cas": "7440-70-2"
 }

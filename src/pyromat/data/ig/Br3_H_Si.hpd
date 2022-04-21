@@ -6,7 +6,13 @@
   },
   "id": "ig.Br3HSi",
   "mw": 268.805,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:43:54 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7789-57-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "tribromosilane",
+    "Silane, tribromo-"
+  ],
+  "inchi": "InChI=1S/Br3HSi/c1-4(2)3/h4H",
+  "cas": "7789-57-3",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:23:56 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7789-57-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1200.0,

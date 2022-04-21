@@ -1,0 +1,44 @@
+{
+  "C": [
+    [
+      2.9438441,
+      0.0029059234,
+      -9.9516575e-07,
+      -1.4086592e-09,
+      9.2438508e-13,
+      14352.746,
+      10.186431
+    ],
+    [
+      3.9114702,
+      0.00077547792,
+      -4.2263786e-07,
+      1.1608838e-10,
+      -1.0070724e-14,
+      14065.204,
+      5.07185409
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "O": 1,
+    "V": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 15348.4728,
+  "id": "ig.OV",
+  "mw": 66.9409,
+  "names": [
+    "vanadium oxide",
+    "Vanadium monoxide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/O.V",
+  "cas": "12035-98-2"
+}

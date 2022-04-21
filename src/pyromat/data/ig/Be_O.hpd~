@@ -5,7 +5,13 @@
   },
   "id": "ig.BeO",
   "mw": 25.0116,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:33:13 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=1304-56-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "beryllium oxide",
+    "Beryllium monoxide"
+  ],
+  "inchi": "InChI=1S/Be.O",
+  "cas": "1304-56-9",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:15:51 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=1304-56-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     5000.0,
     6000.0

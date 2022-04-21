@@ -5,7 +5,11 @@
   },
   "id": "ig.Br4Mg2",
   "mw": 368.226,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:40:45 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=58749-16-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Dimagnesium tetrabromide"
+  ],
+  "cas": "58749-16-9",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:26:33 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=58749-16-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

@@ -4,7 +4,13 @@
   },
   "id": "ig.C3",
   "mw": 36.0321,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:31:59 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12075-35-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Tricarbon",
+    "Carbon trimer"
+  ],
+  "inchi": "InChI=1S/C3/c1-3-2",
+  "cas": "12075-35-3",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:05:35 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12075-35-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1000.0,

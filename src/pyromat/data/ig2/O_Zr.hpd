@@ -1,0 +1,44 @@
+{
+  "C": [
+    [
+      4.12291576,
+      -0.0131886153,
+      6.9292242e-05,
+      -9.58719313e-08,
+      4.10306085e-11,
+      9007.49212,
+      5.5694593
+    ],
+    [
+      7.29696029,
+      -0.00290119328,
+      1.15957574e-06,
+      -1.80299021e-10,
+      1.01758876e-14,
+      7681.80377,
+      -14.2192551
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "O": 1,
+    "Zr": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 10092.6504,
+  "id": "ig.OZr",
+  "mw": 107.2234,
+  "names": [
+    "zirconium oxide",
+    "Zirconium monoxide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/O.Zr",
+  "cas": "12036-01-0"
+}

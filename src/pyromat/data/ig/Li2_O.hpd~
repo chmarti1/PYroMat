@@ -5,7 +5,13 @@
   },
   "id": "ig.Li2O",
   "mw": 29.881,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:31:48 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12057-24-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "dilithium oxide",
+    "Dilithium monoxide"
+  ],
+  "inchi": "InChI=1S/2Li.O",
+  "cas": "12057-24-8",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:13:58 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12057-24-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     4000.0,
     6000.0

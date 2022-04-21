@@ -1,40 +1,39 @@
 {
-    "C": [
-        [
-            4.24419073,
-            -0.00751160863,
-            1.33368333e-05,
-            -1.09406149e-08,
-            3.41357223e-12,
-            148408.792,
-            -2.78917334
-        ],
-        [
-            2.64794579,
-            -0.000160109008,
-            6.54024155e-08,
-            -1.16224655e-11,
-            7.55961272e-16,
-            148703.413,
-            4.73171848
-        ]
+  "C": [
+    [
+      4.24419073,
+      -0.00751160863,
+      1.33368333e-05,
+      -1.09406149e-08,
+      3.41357223e-12,
+      148408.792,
+      -2.78917334
     ],
-    "Tlim": [
-        298.15,
-        1000.0,
-        6000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "Si": 1,
-        "e": -1
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/Si+.hpd",
-    "ho": 149438.151,
-    "id": "ig.Si+",
-    "mw": 28.08495,
-    "names": [],
-    "pref": 100000.0
+    [
+      2.64794579,
+      -0.000160109008,
+      6.54024155e-08,
+      -1.16224655e-11,
+      7.55961272e-16,
+      148703.413,
+      4.73171848
+    ]
+  ],
+  "Tlim": [
+    298.15,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Si": 1,
+    "e": -1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 149438.151,
+  "id": "ig.Si+",
+  "mw": 28.08495,
+  "names": [],
+  "pref": 100000.0
 }

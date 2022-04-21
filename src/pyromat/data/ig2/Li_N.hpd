@@ -1,40 +1,43 @@
 {
-    "C": [
-        [
-            2.88943,
-            0.0052212534,
-            -6.5969021e-06,
-            3.7288997e-09,
-            -7.2355143e-13,
-            39216.323,
-            7.28887145
-        ],
-        [
-            4.2258077,
-            0.00039667187,
-            -1.2493993e-07,
-            2.3174759e-11,
-            -1.5851917e-15,
-            38916.952,
-            0.700851481
-        ]
+  "C": [
+    [
+      2.88943,
+      0.0052212534,
+      -6.5969021e-06,
+      3.7288997e-09,
+      -7.2355143e-13,
+      39216.323,
+      7.28887145
     ],
-    "Tlim": [
-        300.0,
-        1000.0,
-        5000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "Li": 1,
-        "N": 1
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/Li_N.hpd",
-    "ho": 40258.6191,
-    "id": "ig.LiN",
-    "mw": 20.94774,
-    "names": [],
-    "pref": 100000.0
+    [
+      4.2258077,
+      0.00039667187,
+      -1.2493993e-07,
+      2.3174759e-11,
+      -1.5851917e-15,
+      38916.952,
+      0.700851481
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Li": 1,
+    "N": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 40258.6191,
+  "id": "ig.LiN",
+  "mw": 20.94774,
+  "names": [
+    "Lithium nitride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/Li.N",
+  "cas": "32746-31-9"
 }

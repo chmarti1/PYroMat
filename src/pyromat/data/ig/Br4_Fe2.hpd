@@ -5,7 +5,11 @@
   },
   "id": "ig.Br4Fe2",
   "mw": 431.306,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:41:12 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=66468-24-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Diiron tetrabromide"
+  ],
+  "cas": "66468-24-4",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:18:16 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=66468-24-4&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

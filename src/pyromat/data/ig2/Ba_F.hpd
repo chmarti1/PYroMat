@@ -1,40 +1,43 @@
 {
-    "C": [
-        [
-            3.3537506,
-            0.004381958,
-            -6.6405929e-06,
-            4.6143229e-09,
-            -1.1971518e-12,
-            -39892.956,
-            9.45758926
-        ],
-        [
-            4.3587125,
-            0.00030110738,
-            -2.2863315e-07,
-            8.9865554e-11,
-            -8.7657595e-15,
-            -40101.376,
-            4.60148546
-        ]
+  "C": [
+    [
+      3.3537506,
+      0.004381958,
+      -6.6405929e-06,
+      4.6143229e-09,
+      -1.1971518e-12,
+      -39892.956,
+      9.45758926
     ],
-    "Tlim": [
-        300.0,
-        1000.0,
-        5000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "Ba": 1,
-        "F": 1
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/Ba_F.hpd",
-    "ho": -38748.3866,
-    "id": "ig.BaF",
-    "mw": 156.3254,
-    "names": [],
-    "pref": 100000.0
+    [
+      4.3587125,
+      0.00030110738,
+      -2.2863315e-07,
+      8.9865554e-11,
+      -8.7657595e-15,
+      -40101.376,
+      4.60148546
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Ba": 1,
+    "F": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -38748.3866,
+  "id": "ig.BaF",
+  "mw": 156.3254,
+  "names": [
+    "Barium monofluoride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/Ba.FH/h;1H/q+1;/p-1",
+  "cas": "13966-70-6"
 }

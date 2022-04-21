@@ -6,7 +6,13 @@
   },
   "id": "ig.H2O4W",
   "mw": 249.85,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:43:17 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7783-03-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "dihydrogen wolframate",
+    "Tungstic acid"
+  ],
+  "inchi": "InChI=1S/2H2O.2O.W/h2*1H2;;;/q;;;;+2/p-2",
+  "cas": "7783-03-1",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:05:04 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7783-03-1&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1200.0,

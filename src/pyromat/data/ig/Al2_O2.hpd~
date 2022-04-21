@@ -5,7 +5,11 @@
   },
   "id": "ig.Al2O2",
   "mw": 85.9619,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:32:30 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12252-63-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Dialuminum dioxide"
+  ],
+  "cas": "12252-63-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:14:56 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12252-63-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

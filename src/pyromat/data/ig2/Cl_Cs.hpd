@@ -1,0 +1,44 @@
+{
+  "C": [
+    [
+      4.182303,
+      0.0013759553,
+      -2.0586933e-06,
+      1.4836474e-09,
+      -3.9764546e-13,
+      -30177.927,
+      6.63848788
+    ],
+    [
+      4.4798455,
+      0.00010949164,
+      -3.9989914e-09,
+      2.0641995e-13,
+      2.218464e-17,
+      -30235.809,
+      5.21731708
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 1,
+    "Cs": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -28885.2607,
+  "id": "ig.ClCs",
+  "mw": 168.35813,
+  "names": [
+    "caesium chloride",
+    "Cesium chloride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/ClH.Cs/h1H;/q;+1/p-1",
+  "cas": "7647-17-8"
+}

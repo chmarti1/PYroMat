@@ -1,39 +1,42 @@
 {
-    "C": [
-        [
-            4.74588225,
-            -0.00263862819,
-            1.14139305e-05,
-            -1.604305e-08,
-            6.56112294e-12,
-            11544.4856,
-            7.60679272
-        ],
-        [
-            6.86645178,
-            -0.00399014326,
-            1.31948084e-06,
-            -1.63413186e-10,
-            6.88125908e-15,
-            10805.4293,
-            -4.29749465
-        ]
+  "C": [
+    [
+      4.74588225,
+      -0.00263862819,
+      1.14139305e-05,
+      -1.604305e-08,
+      6.56112294e-12,
+      11544.4856,
+      7.60679272
     ],
-    "Tlim": [
-        200.0,
-        1000.0,
-        6000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "Cs": 2
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/Cs2.hpd",
-    "ho": 12914.4271,
-    "id": "ig.Cs2",
-    "mw": 265.81086,
-    "names": [],
-    "pref": 100000.0
+    [
+      6.86645178,
+      -0.00399014326,
+      1.31948084e-06,
+      -1.63413186e-10,
+      6.88125908e-15,
+      10805.4293,
+      -4.29749465
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cs": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 12914.4271,
+  "id": "ig.Cs2",
+  "mw": 265.81086,
+  "names": [
+    "Cesium dimer"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/2Cs",
+  "cas": "12184-83-7"
 }

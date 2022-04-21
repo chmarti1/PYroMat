@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      2.348022,
+      0.024665033,
+      -3.510935e-05,
+      2.423269e-08,
+      -6.5909416e-12,
+      -132068.72,
+      14.590183
+    ],
+    [
+      8.3488191,
+      0.0018772369,
+      -8.3177125e-07,
+      1.6290718e-10,
+      -1.1738533e-14,
+      -133399.87,
+      -14.834389
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 3,
+    "Si": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -130537.786,
+  "id": "ig.F3Si",
+  "mw": 85.08071,
+  "names": [
+    "Trifluorosilyl radical"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/F3Si/c1-4(2)3",
+  "cas": "14835-14-4"
+}

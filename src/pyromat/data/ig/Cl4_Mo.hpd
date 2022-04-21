@@ -5,7 +5,11 @@
   },
   "id": "ig.Cl4Mo",
   "mw": 237.77,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:33:49 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13320-71-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "molybdenum tetrachloride"
+  ],
+  "cas": "13320-71-3",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:09:27 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13320-71-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     1500.0,
     6000.0

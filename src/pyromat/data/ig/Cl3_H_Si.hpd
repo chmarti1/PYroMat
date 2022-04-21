@@ -6,7 +6,13 @@
   },
   "id": "ig.Cl3HSi",
   "mw": 135.452,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:30:17 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10025-78-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Trichlorosilane",
+    "Silane, trichloro"
+  ],
+  "inchi": "InChI=1S/Cl3HSi/c1-4(2)3/h4H",
+  "cas": "10025-78-2",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:06:42 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10025-78-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1000.0,

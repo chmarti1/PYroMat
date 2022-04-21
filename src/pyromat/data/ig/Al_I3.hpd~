@@ -5,7 +5,11 @@
   },
   "id": "ig.AlI3",
   "mw": 407.69495,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:43:35 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7784-23-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "aluminium iodide"
+  ],
+  "cas": "7784-23-8",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:19:32 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7784-23-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     2000.0,
     6000.0

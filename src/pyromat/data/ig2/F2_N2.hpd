@@ -1,0 +1,53 @@
+{
+  "C": [
+    [
+      2.8058926,
+      0.019251967,
+      -2.3697744e-05,
+      1.4616861e-08,
+      -3.6451603e-12,
+      5994.4419,
+      11.4841507
+    ],
+    [
+      7.6671923,
+      0.0025946627,
+      -1.1346023e-06,
+      2.2035268e-10,
+      -1.5788658e-14,
+      4813.9999,
+      -12.8292913
+    ]
+  ],
+  "Tlim": [
+    298.15,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 2,
+    "N": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 7504.5095,
+  "id": "ig.F2N2",
+  "mw": 66.01029,
+  "names": [
+    "Nitrogen fluoride, (E)-",
+    "(E)-Difluorodiazene",
+    "trans-Difluorodiazene",
+    "trans-1,2-Difluorodiazene",
+    "trans-1,2-Difluorodiimide",
+    "(E)-N2F2",
+    "Nitrogen fluoride, trans",
+    "FNNF",
+    "Nitrogen fluoride (N2F2), (E)-",
+    "Difluorodiazene, (E)-",
+    "Dinitrogen difluoride, (E)-"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/F2N2/c1-3-4-2/b4-3+",
+  "cas": "13776-62-0"
+}

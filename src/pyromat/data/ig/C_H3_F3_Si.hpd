@@ -7,7 +7,17 @@
   },
   "id": "ig.CH3F3Si",
   "mw": 100.1152,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:39:53 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=373-74-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Silane, trifluoromethyl-",
+    "Methyltrifluorosilane",
+    "Silicon carbide fluoride hydride (sicf3H3)",
+    "Trifluoromethylsilane",
+    "CH3SiF3",
+    "SiCH3F3"
+  ],
+  "inchi": "InChI=1S/CH3F3Si/c1-5(2,3)4/h1H3",
+  "cas": "373-74-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:18:49 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=373-74-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1500.0

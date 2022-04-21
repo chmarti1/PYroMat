@@ -6,7 +6,12 @@
   },
   "id": "ig.B2F4O",
   "mw": 113.615,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:32:53 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12523-60-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Bis(difluoroboryl) oxide"
+  ],
+  "inchi": "InChI=1S/B2F4O/c3-1(4)7-2(5)6",
+  "cas": "12523-60-3",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:16:40 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12523-60-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1100.0,

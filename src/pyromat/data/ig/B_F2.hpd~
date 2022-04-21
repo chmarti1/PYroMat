@@ -5,7 +5,12 @@
   },
   "id": "ig.BF2",
   "mw": 48.808,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:35:36 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13842-55-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Difluoroboryl radical"
+  ],
+  "inchi": "InChI=1S/BF2/c2-1-3",
+  "cas": "13842-55-2",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:23:13 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13842-55-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     800.0,

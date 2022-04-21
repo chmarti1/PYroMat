@@ -1,0 +1,44 @@
+{
+  "C": [
+    [
+      3.365885,
+      0.03370994,
+      -6.2028171e-05,
+      5.2843269e-08,
+      -1.6796046e-11,
+      -73709.368,
+      9.78559688
+    ],
+    [
+      9.0232674,
+      0.0028049102,
+      -8.4791007e-07,
+      1.2132493e-10,
+      -6.7154183e-15,
+      -74485.035,
+      -15.602668
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "H": 2,
+    "O": 2,
+    "Sr": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -71659.0447,
+  "id": "ig.H2O2Sr",
+  "mw": 121.63468,
+  "names": [
+    "strontium hydroxide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/2H2O.Sr/h2*1H2;/q;;+2/p-2",
+  "cas": "18480-07-4"
+}

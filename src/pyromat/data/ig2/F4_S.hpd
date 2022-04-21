@@ -1,0 +1,50 @@
+{
+  "C": [
+    [
+      1.2819645,
+      0.043569899,
+      -7.0125168e-05,
+      5.3677244e-08,
+      -1.5914356e-11,
+      -93586.701,
+      18.4198703
+    ],
+    [
+      11.124383,
+      0.0021457994,
+      -9.5452444e-07,
+      1.8746111e-10,
+      -1.3535953e-14,
+      -95581.669,
+      -28.8756477
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 4,
+    "S": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -91788.926,
+  "id": "ig.F4S",
+  "mw": 108.05961,
+  "names": [
+    "Sulfur tetrafluoride",
+    "Sulfur fluoride (SF4), (T-4)-",
+    "Sulfur fluoride (SF4)",
+    "Tetrafluorosulfurane",
+    "SF4",
+    "UN 2418",
+    "Sulfur fluoride",
+    "sulphur tetrafluoride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/F4S/c1-5(2,3)4",
+  "cas": "7783-60-0"
+}

@@ -5,7 +5,13 @@
   },
   "id": "ig.CaS",
   "mw": 72.143,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:38:20 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=20548-54-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "calcium sulphide",
+    "Calcium sulfide"
+  ],
+  "inchi": "InChI=1S/Ca.S",
+  "cas": "20548-54-3",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:14:01 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=20548-54-3&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1400.0,

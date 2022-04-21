@@ -1,0 +1,42 @@
+{
+  "C": [
+    [
+      4.5745959,
+      0.039749239,
+      -5.6508213e-05,
+      3.6294145e-08,
+      -8.57847e-12,
+      -123533.51,
+      4.68059658
+    ],
+    [
+      14.31944,
+      0.0018854007,
+      -8.197833e-07,
+      1.5735494e-10,
+      -1.1119472e-14,
+      -125588.51,
+      -42.7110226
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 3,
+    "Li": 3
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -120834.437,
+  "id": "ig.Cl3Li3",
+  "mw": 127.1811,
+  "names": [
+    "Lithium chloride"
+  ],
+  "pref": 100000.0,
+  "cas": "59217-69-5"
+}

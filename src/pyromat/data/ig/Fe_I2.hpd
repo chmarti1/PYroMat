@@ -5,7 +5,11 @@
   },
   "id": "ig.FeI2",
   "mw": 309.654,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:43:33 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7783-86-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "iron diiodide"
+  ],
+  "cas": "7783-86-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:17:44 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7783-86-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     2000.0,
     6000.0

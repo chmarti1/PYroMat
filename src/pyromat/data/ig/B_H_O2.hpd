@@ -6,7 +6,11 @@
   },
   "id": "ig.BHO2",
   "mw": 43.818,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:34:00 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13460-50-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "metaboric acid"
+  ],
+  "cas": "13460-50-9",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:13:54 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13460-50-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1200.0,

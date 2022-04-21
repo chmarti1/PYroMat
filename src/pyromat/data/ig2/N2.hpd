@@ -1,39 +1,50 @@
 {
-    "C": [
-        [
-            3.53100528,
-            -0.000123660987,
-            -5.02999437e-07,
-            2.43530612e-09,
-            -1.40881235e-12,
-            -1046.97628,
-            2.96747468
-        ],
-        [
-            2.95257626,
-            0.00139690057,
-            -4.92631691e-07,
-            7.86010367e-11,
-            -4.60755321e-15,
-            -923.948645,
-            5.87189252
-        ]
+  "C": [
+    [
+      3.53100528,
+      -0.000123660987,
+      -5.02999437e-07,
+      2.43530612e-09,
+      -1.40881235e-12,
+      -1046.97628,
+      2.96747468
     ],
-    "Tlim": [
-        200.0,
-        1000.0,
-        6000.0
-    ],
-    "Tref": 298.15,
-    "atoms": {
-        "N": 2
-    },
-    "class": "ig2",
-    "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/ig2/N2.hpd",
-    "ho": 0.0,
-    "id": "ig.N2",
-    "mw": 28.01348,
-    "names": [],
-    "pref": 100000.0
+    [
+      2.95257626,
+      0.00139690057,
+      -4.92631691e-07,
+      7.86010367e-11,
+      -4.60755321e-15,
+      -923.948645,
+      5.87189252
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "N": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 0.0,
+  "id": "ig.N2",
+  "mw": 28.01348,
+  "names": [
+    "Nitrogen",
+    "Nitrogen gas",
+    "N2",
+    "UN 1066",
+    "UN 1977",
+    "Dinitrogen",
+    "Molecular nitrogen",
+    "Diatomic nitrogen",
+    "Nitrogen-14"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/N2/c1-2",
+  "cas": "7727-37-9"
 }

@@ -1,0 +1,44 @@
+{
+  "C": [
+    [
+      3.8269213,
+      -0.0025013326,
+      6.0466124e-06,
+      -4.4837519e-09,
+      1.1367641e-12,
+      -12301.921,
+      1.89177784
+    ],
+    [
+      2.9572034,
+      0.001591816,
+      -6.3320272e-07,
+      1.1755658e-10,
+      -8.1599911e-15,
+      -12173.515,
+      5.89879674
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Cl": 1,
+    "D": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -11227.0035,
+  "id": "ig.ClD",
+  "mw": 37.4668,
+  "names": [
+    "Hydrochloric acid-d",
+    "[2H]hydrogen chloride"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/ClH/h1H/i/hD",
+  "cas": "7698-05-7"
+}

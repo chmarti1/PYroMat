@@ -1,0 +1,44 @@
+{
+  "C": [
+    [
+      3.1198881,
+      0.0031202487,
+      -1.3297073e-06,
+      -1.3338362e-09,
+      9.6315828e-13,
+      5486.8719,
+      9.44261203
+    ],
+    [
+      4.1360176,
+      0.00073926458,
+      -4.5444464e-07,
+      1.3043658e-10,
+      -1.1522557e-14,
+      5198.3483,
+      4.12237043
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "O": 1,
+    "Ti": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 6541.82283,
+  "id": "ig.OTi",
+  "mw": 63.8794,
+  "names": [
+    "titanium oxide",
+    "Titanium monoxide"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/O.Ti",
+  "cas": "12137-20-1"
+}

@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      3.59927999,
+      -0.00218190788,
+      1.14106853e-05,
+      -1.40068494e-08,
+      5.53332638e-12,
+      26970.2525,
+      5.35573603
+    ],
+    [
+      4.06042292,
+      0.00035065485,
+      -6.95721815e-08,
+      1.45925454e-11,
+      -1.56372401e-15,
+      26671.1982,
+      2.08774805
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "F": 1,
+    "N": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 28022.1438,
+  "id": "ig.FN",
+  "mw": 33.00514,
+  "names": [
+    "Fluoroimidogen"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/FN/c1-2",
+  "cas": "13967-06-1"
+}

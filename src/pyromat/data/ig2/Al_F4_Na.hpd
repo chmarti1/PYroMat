@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      4.3052145,
+      0.044968034,
+      -7.4323787e-05,
+      5.8080861e-08,
+      -1.7499556e-11,
+      -224149.88,
+      6.37184599
+    ],
+    [
+      14.271553,
+      0.0019800191,
+      -8.8151484e-07,
+      1.7322148e-10,
+      -1.2512915e-14,
+      -226123.47,
+      -41.275518
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Al": 1,
+    "F": 4,
+    "Na": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -221417.721,
+  "id": "ig.AlF4Na",
+  "mw": 125.96492,
+  "names": [
+    "Aluminate(1-), tetrafluoro-, sodium (1:1), (T-4)-"
+  ],
+  "pref": 100000.0,
+  "cas": "13821-15-3"
+}

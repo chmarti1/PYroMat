@@ -5,7 +5,12 @@
   },
   "id": "ig.HI",
   "mw": 127.91241,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:30:27 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10034-85-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Hydrogen iodide"
+  ],
+  "inchi": "InChI=1S/HI/h1H",
+  "cas": "10034-85-2",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:12:23 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=10034-85-2&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1400.0,

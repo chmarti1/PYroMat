@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      11.133058,
+      0.011516362,
+      -1.9476533e-05,
+      1.8169859e-08,
+      -6.4647252e-12,
+      -4698.0693,
+      -21.2679591
+    ],
+    [
+      12.625754,
+      0.0034123996,
+      -1.4034888e-06,
+      2.6156396e-10,
+      -1.8206865e-14,
+      -4975.3614,
+      -28.1538911
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "C": 2,
+    "K": 2,
+    "N": 2
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -1006.10098,
+  "id": "ig.C2K2N2",
+  "mw": 130.23208,
+  "names": [
+    "Potassium cyanide dimer"
+  ],
+  "pref": 100000.0,
+  "cas": "55186-08-8"
+}

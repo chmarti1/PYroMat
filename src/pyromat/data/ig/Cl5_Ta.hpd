@@ -5,7 +5,11 @@
   },
   "id": "ig.Cl5Ta",
   "mw": 358.213,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:42:57 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7721-01-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "tantalum pentachloride"
+  ],
+  "cas": "7721-01-9",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:25:41 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7721-01-9&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     800.0,
     6000.0

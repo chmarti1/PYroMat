@@ -4,7 +4,12 @@
   },
   "id": "ig.Rb",
   "mw": 85.4678,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:41:38 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7440-17-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "rubidium"
+  ],
+  "inchi": "InChI=1S/Rb",
+  "cas": "7440-17-7",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:22:46 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7440-17-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     970.385,
     1800.0,

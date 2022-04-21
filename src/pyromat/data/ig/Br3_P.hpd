@@ -5,7 +5,21 @@
   },
   "id": "ig.Br3P",
   "mw": 270.686,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:43:56 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7789-60-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Phosphorus tribromide",
+    "PBr3",
+    "Phosphorus(III) bromide",
+    "Phosphorous tribromide",
+    "Extrema",
+    "Phosphorous bromide",
+    "Phosphorus bromide",
+    "Tribromophosphine",
+    "UN 1808",
+    "Phosphorus bromide (PBr3)"
+  ],
+  "inchi": "InChI=1S/Br3P/c1-4(2)3",
+  "cas": "7789-60-8",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:08:27 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7789-60-8&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     6000.0

@@ -1,0 +1,43 @@
+{
+  "C": [
+    [
+      4.0346751,
+      -0.0024561313,
+      3.9610201e-06,
+      -1.8534996e-09,
+      1.9295341e-13,
+      3277.0507,
+      0.394186141
+    ],
+    [
+      2.7829107,
+      0.0015739567,
+      -5.7020787e-07,
+      9.8864409e-11,
+      -6.5062014e-15,
+      3575.9813,
+      6.67567133
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "D": 1,
+    "O": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": 4402.24516,
+  "id": "ig.DO",
+  "mw": 18.0135,
+  "names": [
+    "Hydroxyl-d"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/HO/h1H/i1D",
+  "cas": "13587-54-7"
+}

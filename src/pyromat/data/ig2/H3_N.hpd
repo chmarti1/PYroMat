@@ -1,0 +1,50 @@
+{
+  "C": [
+    [
+      4.30177808,
+      -0.0047712733,
+      2.19341619e-05,
+      -2.29856489e-08,
+      8.28992268e-12,
+      -6748.06394,
+      -0.690644393
+    ],
+    [
+      2.71709692,
+      0.00556856338,
+      -1.76886396e-06,
+      2.6741726e-10,
+      -1.52731419e-14,
+      -6584.51989,
+      6.09289837
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "H": 3,
+    "N": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -5525.2805,
+  "id": "ig.H3N",
+  "mw": 17.03056,
+  "names": [
+    "Ammonia",
+    "Ammonia gas",
+    "Nitro-Sil",
+    "Spirit of Hartshorn",
+    "NH3",
+    "Ammonia, anhydrous",
+    "Anhydrous ammonia",
+    "Aromatic Ammonia, Vaporole"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/H3N/h1H3",
+  "cas": "7664-41-7"
+}

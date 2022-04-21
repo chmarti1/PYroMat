@@ -4,7 +4,12 @@
   },
   "id": "ig.Cs2",
   "mw": 265.8109038,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:32:20 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12184-83-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Cesium dimer"
+  ],
+  "inchi": "InChI=1S/2Cs",
+  "cas": "12184-83-7",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:08:15 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=12184-83-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1500.0,

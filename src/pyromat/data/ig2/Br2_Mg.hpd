@@ -1,0 +1,42 @@
+{
+  "C": [
+    [
+      5.7139102,
+      0.0077321617,
+      -1.3865793e-05,
+      1.14779e-08,
+      -3.6057884e-12,
+      -38379.483,
+      1.86860229
+    ],
+    [
+      7.32151,
+      0.00020643725,
+      -9.2489208e-08,
+      1.8255838e-11,
+      -1.323117e-15,
+      -38671.304,
+      -5.67846591
+    ]
+  ],
+  "Tlim": [
+    300.0,
+    1000.0,
+    5000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "Br": 2,
+    "Mg": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -36433.7335,
+  "id": "ig.Br2Mg",
+  "mw": 184.113,
+  "names": [
+    "magnesium bromide"
+  ],
+  "pref": 100000.0,
+  "cas": "7789-48-2"
+}

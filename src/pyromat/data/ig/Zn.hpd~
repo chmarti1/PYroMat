@@ -4,7 +4,12 @@
   },
   "id": "ig.Zn",
   "mw": 65.38,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:41:55 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7440-66-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "zinc"
+  ],
+  "inchi": "InChI=1S/Zn",
+  "cas": "7440-66-6",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:08:52 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=7440-66-6&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     1180.173,
     6000.0

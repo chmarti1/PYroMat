@@ -5,7 +5,12 @@
   },
   "id": "ig.H2P",
   "mw": 32.98964,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:34:58 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13765-43-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Phosphino radical"
+  ],
+  "inchi": "InChI=1S/H2P/h1H2",
+  "cas": "13765-43-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:26:28 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=13765-43-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1300.0,

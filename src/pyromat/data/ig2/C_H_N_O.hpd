@@ -1,0 +1,45 @@
+{
+  "C": [
+    [
+      2.24322454,
+      0.014498638,
+      -1.52609054e-05,
+      8.36364453e-09,
+      -1.72191967e-12,
+      -13425.7512,
+      12.1565469
+    ],
+    [
+      5.29404664,
+      0.0040303965,
+      -1.41290348e-06,
+      2.24428234e-10,
+      -1.3285938e-14,
+      -14165.3759,
+      -3.0876313
+    ]
+  ],
+  "Tlim": [
+    200.0,
+    1000.0,
+    6000.0
+  ],
+  "Tref": 298.15,
+  "atoms": {
+    "C": 1,
+    "H": 1,
+    "N": 1,
+    "O": 1
+  },
+  "class": "ig2",
+  "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
+  "ho": -12231.6288,
+  "id": "ig.CHNO",
+  "mw": 43.02508,
+  "names": [
+    "Isocyanic acid"
+  ],
+  "pref": 100000.0,
+  "inchi": "InChI=1S/CHNO/c2-1-3/h2H",
+  "cas": "75-13-8"
+}

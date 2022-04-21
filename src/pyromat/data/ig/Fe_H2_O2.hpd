@@ -6,7 +6,13 @@
   },
   "id": "ig.FeH2O2",
   "mw": 89.86,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:38:00 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=18624-44-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "iron dihydroxide",
+    "Iron hydroxide"
+  ],
+  "inchi": "InChI=1S/Fe.3H2O/h;3*1H2/q+3;;;/p-3",
+  "cas": "18624-44-7",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:08:26 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=18624-44-7&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1400.0,

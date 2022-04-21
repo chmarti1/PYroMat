@@ -4,7 +4,19 @@
   },
   "id": "ig.H2",
   "mw": 2.01588,
-  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Tue Jul 20 21:33:51 2021 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=1333-74-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
+  "names": [
+    "Hydrogen",
+    "Dihydrogen",
+    "o-Hydrogen",
+    "p-Hydrogen",
+    "Molecular hydrogen",
+    "H2",
+    "UN 1049",
+    "UN 1966"
+  ],
+  "inchi": "InChI=1S/H2/h1H",
+  "cas": "1333-74-0",
+  "doc": "Shomate equation data downloaded from webbook.nist.gov *** National Institute for Standards and Technology (NIST) *** Accessed: Mon Apr 18 23:12:31 2022 *** URL: https://webbook.nist.gov/cgi/cbook.cgi?ID=1333-74-0&Units=SI&Mask=1&Type=JANAFG&Table=on#JANAFG",
   "Tlim": [
     298.0,
     1000.0,
