@@ -191,8 +191,8 @@ AOgroup        Helmholtz free energy ideal gas group; a dict containing:
     coef1       a simple Nx2 coefficient list used to build q(tt) below
 If tt = Tscale/T    <=== INVERSE!
 and dd = d/dscale
-    ao = log(d) + LOGT*log(tt) + p0(tt) + q(tt)
-        q1(tt) = sum_k coef1[k,1] * log(1 - exp(-tt*coef[k,0]))
+    ao = log(d) + LOGT*log(tt) + TLOGT*tt*log(tt) + p0(tt) + q(tt)
+        q(tt) = sum_k coef1[k,1] * log(1 - exp(-tt*coef[k,0]))
     Ao = ao * R * T
 where LOGT is the coefficient defined by the 'logt' parameter, and p is
 the polynomial defined by the coef list
@@ -1487,7 +1487,8 @@ Optional parameters (and their defaults) are:
     def _ao(self, tt, dd, diff=2):
         """Dimensionless ideal gas helmholtz free energy (primative routine)
 Evaluates an ideal gas equation of the form
-    a = log(dd) + logt*log(tt) + p(t) + ... c log(1-exp(-theta*tt)) + ...
+    a = log(dd) + logt*log(tt) + tlogt*tt*log(tt) + p(t) + ... 
+            + c log(1-exp(-theta*tt)) + ...
     
 where
     dd = d / dscale
@@ -1495,8 +1496,8 @@ where
 
 In the AOgroup dictionary defined by the mp1 data, the polynomial, p,
 is defined by the 'coef0' list.  This list should should be readable
-by the _poly1() method.  The 'logt' constant defines the coefficient
-of the log(tt) term.  
+by the _poly1() method.  The 'logt' and 'tlogt' constants define the 
+coefficients of the log(tt) and tt*log(tt) terms.  They are optional.
 
 The log/exp expansion is defined by the 'coef1' list.  Each element of
 'coef1' should be a two-element list or tuple containing [theta, c]. 
@@ -1506,6 +1507,7 @@ nondimensionalized, and the returned values are non-dimensionalzied.
 """
         
         # Start with the logarithmic terms
+        # Log of density is easy - no coefficients needed
         A = np.log(dd)
         At = 0.
         Ad = 0.
@@ -1520,15 +1522,32 @@ nondimensionalized, and the returned values are non-dimensionalzied.
                 Add = -Ad/dd
                 Att = 0.
                 Atd = 0.
-        
-        if 'logt' in self.data['AOgroup']:
-            A += self.data['AOgroup']['logt'] * np.log(tt)
+        # The logt term does not appear in all models, but it does in many
+        logt = None
+        coef = self.data['AOgroup'].get('logt')
+        if coef is not None:
+            # We might need logt again - keep it for later
+            logt = np.log(tt)
+            A += coef * logt
             if diff>0:
-                pt = self.data['AOgroup']['logt']/tt
+                pt = coef/tt
                 At += pt
                 if diff>1:
                     Att += -pt/tt
-                    
+        
+        # In rare cases, the ideal gas model also includes a t * ln(t) term
+        coef = self.data['AOgroup'].get('tlogt')
+        if coef is not None:
+            # Don't repeat the logt call if it has already been made
+            if logt is None:
+                logt = np.log(tt)
+            A += coef * tt * logt
+            if diff>0:
+                At += coef * (logt + 1)
+                if diff>1:
+                    Att += coef/tt
+        
+        
         # Move on to the polynomial expansion
         if 'coef0' in self.data['AOgroup']:
             p,pt,ptt = self._poly1(tt,self.data['AOgroup']['coef0'],diff)

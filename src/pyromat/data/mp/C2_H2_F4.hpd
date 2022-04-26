@@ -1,317 +1,327 @@
 {
-    "AOgroup": {
-        "Tscale": 374.18,
-        "coef0": [
-            [
-                0.25,
-                -0.75,
-                [
-                    7,
-                    9.047135
-                ],
-                [
-                    3,
-                    -1.019535
-                ],
-                [
-                    1,
-                    -9.723916
-                ],
-                [
-                    0,
-                    -3.92717
-                ]
-            ]
+  "id": "mp.C2H2F4",
+  "doc": "The PYroMat R134a multiphase data are adapted from [1].  The equation of state used to calculate most properties is their original work, but the saturation conditions are derived from Wagner [2].\n\nThe data are implemented with the MP1 class.  In-line help describes the available funcitons and their proper use.\n\nAdaptation to PYroMat was by Chris Martin in June 2018 thanks, in part, to a grant from Penn State's Open Education Resources Initiative.\n\n[1] R. Tilner-Roth and H. Baehr, An International Standard Formulation for the Thermodynamic Properties of Tetrafluoroethane (HFC-134a) for Temperatures from 170K to 455K and Pressure up to 70MPa, Journal of Physical and Chemical Reference Data, v23, pp 657, 1994.  doi: 10.1063/1.555958\n\n[2] W. Wagner, Eine mathematisch statistische Methode zum Aufstellen thermodynamischer Gleichungen-gezeigt am Beispiel der Dampfdruckkurve reiner fluider Stoffe.  Fortschr.-Ber. VDI-Z, v3, n39. 1974.\n",
+  "atoms": {
+    "C": 2,
+    "H": 2,
+    "F": 4
+  },
+  "names": [
+    "R134a",
+    "1,1,1,2-tetrafluoroethane",
+    "Norfluran",
+    "HFA-134a"
+  ],
+  "class": "mp1",
+  "ARgroup": {
+    "Tscale": 374.18,
+    "dscale": 508.0,
+    "coef0": [
+      [
+        [
+          [
+            0.5,
+            1
+          ],
+          [
+            -0.5,
+            1
+          ],
+          [
+            5,
+            1,
+            -0.04781652
+          ],
+          [
+            5,
+            0,
+            0.2671641
+          ],
+          [
+            4,
+            5,
+            0.0004788584
+          ],
+          [
+            4,
+            0,
+            -1.800808
+          ],
+          [
+            1,
+            5,
+            0.0008570145
+          ],
+          [
+            1,
+            2,
+            0.02458698
+          ],
+          [
+            1,
+            0,
+            0.498223
+          ],
+          [
+            0,
+            1,
+            0.05586817
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            1,
+            1
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            5,
+            2,
+            -0.007485907
+          ],
+          [
+            3,
+            2,
+            0.3324062
+          ],
+          [
+            1,
+            5,
+            0.01423987
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            1,
+            1
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            10,
+            4,
+            0.0004603262
+          ],
+          [
+            10,
+            2,
+            -0.005000457
+          ],
+          [
+            6,
+            1,
+            0.2057144
+          ],
+          [
+            5,
+            4,
+            -0.08692288
+          ],
+          [
+            5,
+            1,
+            -0.5184567
+          ],
+          [
+            1,
+            4,
+            0.0001017263
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            1,
+            1
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            22,
+            3,
+            -0.01452184
+          ],
+          [
+            18,
+            5,
+            0.006995038
+          ],
+          [
+            10,
+            1,
+            -0.003497836
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            1,
+            1
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            50,
+            10,
+            -0.0001285458
+          ]
+        ]
+      ]
+    ]
+  },
+  "AOgroup": {
+    "Tscale": 374.18,
+    "dscale": 508.0,
+    "logt": -1.629789,
+    "coef0": [
+      [
+        0.25,
+        -0.75,
+        [
+          7,
+          9.047135
         ],
-        "dscale": 508.0,
-        "logt": -1.629789
-    },
-    "ARgroup": {
-        "Tscale": 374.18,
-        "coef0": [
-            [
-                [
-                    [
-                        0.5,
-                        1
-                    ],
-                    [
-                        -0.5,
-                        1
-                    ],
-                    [
-                        5,
-                        1,
-                        -0.04781652
-                    ],
-                    [
-                        5,
-                        0,
-                        0.2671641
-                    ],
-                    [
-                        4,
-                        5,
-                        0.0004788584
-                    ],
-                    [
-                        4,
-                        0,
-                        -1.800808
-                    ],
-                    [
-                        1,
-                        5,
-                        0.0008570145
-                    ],
-                    [
-                        1,
-                        2,
-                        0.02458698
-                    ],
-                    [
-                        1,
-                        0,
-                        0.498223
-                    ],
-                    [
-                        0,
-                        1,
-                        0.05586817
-                    ]
-                ]
-            ],
-            [
-                [
-                    [
-                        1,
-                        1
-                    ],
-                    [
-                        0,
-                        0
-                    ],
-                    [
-                        5,
-                        2,
-                        -0.007485907
-                    ],
-                    [
-                        3,
-                        2,
-                        0.3324062
-                    ],
-                    [
-                        1,
-                        5,
-                        0.01423987
-                    ]
-                ]
-            ],
-            [
-                [
-                    [
-                        1,
-                        1
-                    ],
-                    [
-                        0,
-                        0
-                    ],
-                    [
-                        10,
-                        4,
-                        0.0004603262
-                    ],
-                    [
-                        10,
-                        2,
-                        -0.005000457
-                    ],
-                    [
-                        6,
-                        1,
-                        0.2057144
-                    ],
-                    [
-                        5,
-                        4,
-                        -0.08692288
-                    ],
-                    [
-                        5,
-                        1,
-                        -0.5184567
-                    ],
-                    [
-                        1,
-                        4,
-                        0.0001017263
-                    ]
-                ]
-            ],
-            [
-                [
-                    [
-                        1,
-                        1
-                    ],
-                    [
-                        0,
-                        0
-                    ],
-                    [
-                        22,
-                        3,
-                        -0.01452184
-                    ],
-                    [
-                        18,
-                        5,
-                        0.006995038
-                    ],
-                    [
-                        10,
-                        1,
-                        -0.003497836
-                    ]
-                ]
-            ],
-            [
-                [
-                    [
-                        1,
-                        1
-                    ],
-                    [
-                        0,
-                        0
-                    ],
-                    [
-                        50,
-                        10,
-                        -0.0001285458
-                    ]
-                ]
-            ]
+        [
+          3,
+          -1.019535
         ],
-        "dscale": 508.0
-    },
-    "DSLgroup": {
-        "Tscale": 374.18,
-        "coef": [
-            [
-                0.3333333333333333,
-                0.0,
-                [
-                    10,
-                    193.29
-                ],
-                [
-                    2,
-                    485.84
-                ],
-                [
-                    1,
-                    884.13
-                ],
-                [
-                    0,
-                    518.2
-                ]
-            ]
+        [
+          1,
+          -9.723916
         ],
-        "dscale": 1.0,
-        "fn": 1
-    },
-    "DSVgroup": {
-        "Tscale": 374.18,
-        "coef": [
-            [
-                0.25,
-                0.0,
-                [
-                    22,
-                    -52.361297
-                ],
-                [
-                    9,
-                    -14.140125
-                ],
-                [
-                    2,
-                    4.478586
-                ]
-            ],
-            [
-                0.3333333333333333,
-                0.0,
-                [
-                    2,
-                    -7.875988
-                ],
-                [
-                    1,
-                    -2.837294
-                ]
-            ]
+        [
+          0,
+          -3.92717
+        ]
+      ]
+    ]
+  },
+  "PSgroup": {
+    "pscale": 405629.0,
+    "Tscale": 374.18,
+    "fn": 3,
+    "coef": [
+      [
+        0.5,
+        0,
+        [
+          8,
+          -3.583758
         ],
-        "dscale": 516.86,
-        "fn": 2
-    },
-    "PSgroup": {
-        "Tscale": 374.18,
-        "coef": [
-            [
-                0.5,
-                0,
-                [
-                    8,
-                    -3.583758
-                ],
-                [
-                    4,
-                    -2.039554
-                ],
-                [
-                    3,
-                    2.311791
-                ],
-                [
-                    2,
-                    -7.686556
-                ]
-            ]
+        [
+          4,
+          -2.039554
         ],
-        "fn": 3,
-        "pscale": 4059280.0
-    },
-    "R": 81.48874726996021,
-    "Tc": 374.18,
-    "Tlim": [
-        169.85,
-        455.0
-    ],
-    "Tt": 169.85,
-    "atoms": {
-        "C": 2,
-        "F": 4,
-        "H": 2
-    },
-    "class": "mp1",
-    "dc": 511.95,
-    "dlim": [
+        [
+          3,
+          2.311791
+        ],
+        [
+          2,
+          -7.686556
+        ]
+      ]
+    ]
+  },
+  "DSVgroup": {
+    "dscale": 516.86,
+    "Tscale": 374.18,
+    "fn": 2,
+    "coef": [
+      [
+        0.25,
         0.0,
-        1650.0
-    ],
-    "doc": "Reiner Tillner-Roth and Hans Dieter Baehr, \"An International Standard Formulation for the Thermodynamic Properties of 1,1,1,2-Tetrafluoroethane (HFC-134a) for Temperatures from 170 K to 455 K and Pressures up to 70MPa,\" Journal of Physical and Chemical Reference Data, v23, pp657, 1994.  doi:10.1063/1.555958",
-    "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/mp/C2_H2_F4.hpd",
-    "id": "mp.C2H2F4",
-    "mw": 102.032,
-    "pc": 4059280.0,
-    "plim": [
+        [
+          22,
+          -52.361297
+        ],
+        [
+          9,
+          -14.140125
+        ],
+        [
+          2,
+          4.478586
+        ]
+      ],
+      [
+        0.3333333333333333,
         0.0,
-        70000000.0
-    ],
-    "pt": 391.0
+        [
+          2,
+          -7.875988
+        ],
+        [
+          1,
+          -2.837294
+        ]
+      ]
+    ]
+  },
+  "DSLgroup": {
+    "dscale": 508.0,
+    "Tscale": 374.18,
+    "fn": 1,
+    "coef": [
+      [
+        0.3333333333333333,
+        0.0,
+        [
+          10,
+          0.38049212598425197
+        ],
+        [
+          2,
+          0.9563779527559054
+        ],
+        [
+          1,
+          1.7404133858267716
+        ],
+        [
+          0,
+          1.0200787401574805
+        ]
+      ]
+    ]
+  },
+  "Tlim": [
+    169.85,
+    455.0
+  ],
+  "plim": [
+    0.0,
+    70000000.0
+  ],
+  "dlim": [
+    0.0,
+    1650.0
+  ],
+  "contents": {
+    "C": 2,
+    "F": 4,
+    "H": 2
+  },
+  "mw": 102.032,
+  "R": 81.48884663634938,
+  "Tc": 374.18,
+  "dc": 508.0,
+  "pc": 4059280.0,
+  "Tt": 169.85,
+  "pt": 391.0
 }
