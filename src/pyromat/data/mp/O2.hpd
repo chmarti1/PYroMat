@@ -15,7 +15,7 @@
     "O": 2
   },
   "class": "mp1",
-  "doc": "The EOS model is taken from [1].  Note that the authors did NOT use the ITS-90 temperature scale.  It was adapted to PYroMat as-published presuming that the disimilarities in scales are smaller than the model uncertainty.\n\n[1] Richard Stewart, Richard Jacobsen, W. Wagner, \"Thermodynamic Properties of Oxygen from the Triple Point to 300 K with Pressures to 80 MPa,\" Journal for Physical and Chemical Reference Data, v20, pp917, 1991.  doi:10.1063/1.555897'\n",
+  "doc": "The EOS model is taken from [1].  Note that the authors did NOT use the ITS-90 temperature scale.  It was adapted to PYroMat as-published presuming that the disimilarities in scales are smaller than the model uncertainty.\n\nThe paper [1] does not provide a derivation for the ideal gas portion of the Helholtz model from the specific heat model.  That and the inclusion of CODATA #28 reference values for enthalpy and entropy are original work.\n\n[1] Richard Stewart, Richard Jacobsen, W. Wagner, \"Thermodynamic Properties of Oxygen from the Triple Point to 300 K with Pressures to 80 MPa,\" Journal for Physical and Chemical Reference Data, v20, pp917, 1991.  doi:10.1063/1.555897'\n",
   "mw": 31.9988,
   "dc": 436.143644,
   "Tc": 154.581,
@@ -147,11 +147,11 @@
         ],
         [
           4,
-          -0.0290039121683998
+          -0.03729599049501696
         ],
         [
           3,
-          -14.674033265057137
+          -14.669379644424332
         ],
         [
           2,

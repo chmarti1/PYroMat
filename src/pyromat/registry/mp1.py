@@ -3608,6 +3608,7 @@ T, p, d, v, e, h, s, and x.
         out['T'] = pm.units.temperature_scale(out['T'], from_units='K')
         c1 = pm.units.volume(1., from_units='m3', exponent=-1)
         c1 = pm.units.matter(c1, self.data['mw'], from_units='kg')
+        out['d'] *= c1
         out['v'] = 1./out['d']
         return out
         
