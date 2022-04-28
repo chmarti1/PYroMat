@@ -2673,11 +2673,34 @@ other conditions, x<0 and d1 == d2.
                 # Initialize densities
                 d1 = np.zeros_like(T)
                 d2 = np.zeros_like(T)
+                
                 # deal with the non-saturated points
                 d1[I] = self._d(T[I],p[I])
                 d2[I] = d1[I]
                 # Deal with densities under the dome
                 I = np.logical_not(I)
+                
+                # Verify that the temperatures are sub-critical values
+                # that fail this test will be set to nan
+                Iwork = np.zeros_like(T, dtype=bool)
+                Iwork[I] = T[I] > self.data['Tc']
+                if Iwork.any():
+                    # If T or x do not own their memory, copy them so we
+                    # can write to them
+                    if T.base is not None:
+                        T = np.array(T)
+                    if x.base is not None:
+                        x = np.array(x)
+                    if I.base is not None:
+                        I = np.array(I)
+                    T[Iwork] = pm.config['def_oob']
+                    d1[Iwork] = pm.config['def_oob']
+                    d2[Iwork] = pm.config['def_oob']
+                    x[Iwork] = pm.config['def_oob']
+                    I[Iwork] = False
+                    pm.utility.print_warning(
+                        'Quality was specified with temperatures above the critical point.')
+                
                 d1[I] = self._dsl(T[I])[0]
                 d2[I] = self._dsv(T[I])[0]
 
@@ -2723,6 +2746,9 @@ other conditions, x<0 and d1 == d2.
                 if (T>self.data['Tc']).any():
                     raise pm.utility.PMParamError(
                         'Quality cannot be specified above the critical temperature.')
+                elif (x<0).any():
+                    raise pm.utility.PMParamError(
+                        'When specifying T,x together, all values of x must be between 0 and 1.')
                 d1 = self._dsl(T,0)[0]
                 d2 = self._dsv(T,0)[0]
                 return T,d1,d2,x,I
@@ -2775,6 +2801,8 @@ other conditions, x<0 and d1 == d2.
                 # Do this before broadcasting to prevent redundant checks
                 if (kwarg['p']>self.data['pc']).any():
                     raise pm.utility.PMParamError('Quality cannot be specified at pressures above the critical point.')
+                elif (kwarg['x']<0).any():
+                    raise pm.utility.PMParamError('When specifying p,x, x must be between 0 and 1 at all points.')
                     
                 p,x,I = np.broadcast_arrays(kwarg['p'],kwarg['x'],True)
                 # T is just the saturation temperature
@@ -2782,7 +2810,7 @@ other conditions, x<0 and d1 == d2.
                 d1 = self._dsl(T,0)[0]
                 d2 = self._dsv(T,0)[0]
                 return T, d1, d2, x, I
-                                
+                
             # This should never happen
             else:
                 message = 'Please report a bug: Unhandled event [p] in _argparse with args:'
@@ -3503,12 +3531,12 @@ T, p, d, v, e, h, s, and x.
         # Initialize the output
         out = {}
         
-        # Start with the liquid (d1) half of the calculation
+        # Start with the vapor (d2) half of the calculation
         # The IG part        
         Tscale = self.data['AOgroup']['Tscale']
         dscale = self.data['AOgroup']['dscale']
         tt = Tscale / T
-        dd = d1 / dscale
+        dd = d2 / dscale
         a,at,ad,att,atd,add = self._ao(tt,dd,2)
         
         p = 1.
@@ -3522,11 +3550,11 @@ T, p, d, v, e, h, s, and x.
         Tscale = self.data['ARgroup']['Tscale']
         dscale = self.data['ARgroup']['dscale']
         tt = Tscale / T
-        dd = d1 / dscale
+        dd = d2 / dscale
         a,at,ad,att,atd,add = self._ar(tt,dd,2)
 
         p += dd*ad
-        p *= T*d1*R
+        p *= T*d2*R
         e += at
         e *= R*Tscale
         h += dd*ad + tt*at
@@ -3551,12 +3579,12 @@ T, p, d, v, e, h, s, and x.
         out['cp'] = cp
         out['cv'] = cv
         
-        # Finish with the vapor (d2) half of the calculation
+        # Finish with the liquid (d1) half of the calculation
         # The IG part        
         Tscale = self.data['AOgroup']['Tscale']
         dscale = self.data['AOgroup']['dscale']
         tt = Tscale / T[I]
-        dd = d2[I] / dscale
+        dd = d1[I] / dscale
         a,at,ad,att,atd,add = self._ao(tt,dd,2)
         
         e = at
@@ -3569,7 +3597,7 @@ T, p, d, v, e, h, s, and x.
         Tscale = self.data['ARgroup']['Tscale']
         dscale = self.data['ARgroup']['dscale']
         tt = Tscale / T[I]
-        dd = d2[I] / dscale
+        dd = d1[I] / dscale
         a,at,ad,att,atd,add = self._ar(tt,dd,2)
 
         e += at
@@ -3586,11 +3614,11 @@ T, p, d, v, e, h, s, and x.
         
         # Finally, calculate the mixture properties with the appropriate
         # quality.
-        out['cp'][I] = out['cp'][I]*(1-x[I]) + cp*x[I]
-        out['cv'][I] = out['cv'][I]*(1-x[I]) + cv*x[I]
-        out['e'][I] = out['e'][I]*(1-x[I]) + e*x[I]
-        out['h'][I] = out['h'][I]*(1-x[I]) + h*x[I]
-        out['s'][I] = out['s'][I]*(1-x[I]) + s*x[I]
+        out['cp'][I] = out['cp'][I]*(x[I]) + cp*(1-x[I])
+        out['cv'][I] = out['cv'][I]*(x[I]) + cv*(1-x[I])
+        out['e'][I] = out['e'][I]*(x[I]) + e*(1-x[I])
+        out['h'][I] = out['h'][I]*(x[I]) + h*(1-x[I])
+        out['s'][I] = out['s'][I]*(x[I]) + s*(1-x[I])
         # Get specific volume
         out['d'][I] = 1./((1-x[I])/d1[I] + x[I]/d2[I])
         
@@ -3992,7 +4020,7 @@ The optional keyword flag, quality, will cause quality to be returned along
 with pressure.
 """
         _,d1,d2,x,I = self._argparse(*varg, s=s, **kwarg)
-        d1[I] = d2[I]*x[I] + d1[I]*(1-x[I])
+        d1[I] = 1./(x[I]/d2[I] + (1-x[I])/d1[I])
 
         if quality:
             return d1,x

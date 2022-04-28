@@ -79,7 +79,7 @@ documentation using Python's built-in "help()" function.
         # Initialize the mean molecular weight
         self._mw = 0.
         # Initialize the mean reference pressure for entropy
-        self._pref_bar = 0.
+        self._pref_pa = 0.
         # Initialize temperature limits
         self._Tlim = [float('-inf'), float('inf')]
         
@@ -306,8 +306,10 @@ _argparse decides which to populate based on what is most efficient.
             value = pm.units.volume(kwarg['v'], to_units='m3')
             kwarg['d'] = 1./pm.units.matter(value, self.data['mw'], to_units='kmol', exponent=-1)
             args.add('d')
+            basic_args.add('d')
             del kwarg['v']
             args.remove('v')
+            basic_args.remove('v')
         if 'h' in kwarg:
             value = kwarg['h']
             value = pm.units.energy(value, to_units='kJ')
@@ -713,6 +715,63 @@ Returns     Temperature  [unit_temperature]
     #
     # Class property functions
     #
+    
+    def state(self, *varg, **kwarg):
+        """Calculate all properties at a state
+    sd = state(...)
+
+The properties are returned in a dictionary with keys:
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+    cp  const. p sp. ht.    unit_energy / unit_matter / unit_temperature
+    cv  const. v sp. ht.    unit_energy / unit_matter / unit_temperature
+    
+Like all of the other property functions, arguments may be any two of
+T, p, d, v, e, h, and s.  
+"""
+        self._bootstrap()
+        Ru = pm.units.const_Ru
+        T,p,d = self._argparse(*varg, **kwarg)
+        # Make sure we have both pressure and density
+        if d is None:
+            d = p / (1000 * Ru * T)
+        elif p is None:
+            p = 1000 * d * Ru * T
+
+        # Now entropy
+        s = self._s(T,False)[0] - Ru * np.log(p / self._pref_pa)
+
+        # Enthalpy and specific heat at once
+        h,cp = self._h(T,True)
+        cv = cp - Ru
+        gam = cp/cv
+        e = h - Ru*T
+        
+        # Finally build the output
+        out = {}
+        out['T'] = pm.units.temperature_scale(T, from_units='K')
+        out['p'] = pm.units.pressure(p, from_units='Pa')
+        scale = pm.units.matter(1., self._mw, from_units='kmol')
+        scale = pm.units.volume(scale, from_units='m3', exponent=-1)
+        out['d'] = scale * d
+        out['v'] = 1./out['d']
+        scale = pm.units.energy(1., from_units='kJ')
+        scale = pm.units.matter(scale, self._mw, from_units='kmol', exponent=-1)
+        out['h'] = h * scale
+        out['e'] = e * scale
+        out['gam'] = gam
+        scale = pm.units.temperature(scale, from_units='K', exponent=-1)
+        out['s'] = s * scale
+        out['cp'] = cp * scale
+        out['cv'] = cv * scale
+        return out
+
+    
     def cp(self,*varg, **kwarg):
         """Constant-pressure specific heat
     cp(T)

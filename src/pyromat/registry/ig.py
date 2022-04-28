@@ -202,8 +202,10 @@ _argparse decides which to populate based on what is most efficient.
             value = pm.units.volume(kwarg['v'], to_units='m3')
             kwarg['d'] = 1./pm.units.matter(value, self.data['mw'], to_units='kmol', exponent=-1)
             args.add('d')
+            basic_args.add('d')
             del kwarg['v']
             args.remove('v')
+            basic_args.remove('v')
         if 'h' in kwarg:
             value = kwarg['h']
             value = pm.units.energy(value, to_units='kJ')
@@ -246,9 +248,9 @@ _argparse decides which to populate based on what is most efficient.
                 I = np.ones_like(y,dtype=bool)
                 # density and entropy are specified, special iteration is required
                 if invp == 's':
-                    self._iter1(self._sditer, 'T', y, T, I, self.data['Tlim'][0], self.data['Tlim'][1], param={'d':d})
+                    self._iter1(self._sditer, 'T', y, T, I, self.data['Tlim'][0], self.data['Tlim'][-1], param={'d':d})
                 else:
-                    self._iter1(invfn, 'T', y, T, I, self.data['Tlim'][0], self.data['Tlim'][1])
+                    self._iter1(invfn, 'T', y, T, I, self.data['Tlim'][0], self.data['Tlim'][-1])
             # If pressure is specified
             elif basp == 'p':
                 y,p = np.broadcast_arrays(kwarg[invp], kwarg[basp])
@@ -260,6 +262,7 @@ _argparse decides which to populate based on what is most efficient.
                 self._iter1(invfn, 'T', y, T, I, self.data['Tlim'][0], self.data['Tlim'][-1])
             # If temperature is specified
             elif basp == 'T':
+                y,T = np.broadcast_arrays(kwarg[invp], kwarg[basp])
                 # If entropy is specified, pressure can be explicitly calculated.
                 if invp == 's':
                     s0 = self._s(T)[0]
@@ -496,7 +499,7 @@ When diff=True, the partial derivative of energy with respect to
 temperature with constant pressure is also returned.
 """
         h,hT = self._h(T,diff)
-        return h-R*T, hT-R
+        return h-pm.units.const_Ru*T, hT-pm.units.const_Ru
         
     def _s(self, T, diff=False):
         """Entropy at reference pressure
@@ -1765,7 +1768,7 @@ T, p, d, v, e, h, and s.
         h,cp = self._h(T,True)
         cv = cp - Ru
         gam = cp/cv
-        e = h - Ru/T
+        e = h - Ru*T
         
         # Finally build the output
         out = {}
