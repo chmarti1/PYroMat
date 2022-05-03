@@ -580,7 +580,7 @@ If the from_units or the to_units values are not specified, the pyromat
 
 def show():
     """Print a summary of all unit conversions available"""
-    for name,conv in pyro.units.__dict__.iteritems():
+    for name,conv in pyro.units.__dict__.items():
         if isinstance(conv,Conversion):
             sys.stdout.write( '%15s : '%name)
             for item in conv.get():

@@ -7,10 +7,12 @@
     "F": 4
   },
   "names": [
-    "R134a",
+    "R-134a",
     "1,1,1,2-tetrafluoroethane",
     "Norfluran",
-    "HFA-134a"
+    "CF3CH2F",
+    "HFA-134a",
+    "HFC-134a"
   ],
   "class": "mp1",
   "ARgroup": {
@@ -212,7 +214,7 @@
     ]
   },
   "PSgroup": {
-    "pscale": 405629.0,
+    "pscale": 4056290.0,
     "Tscale": 374.18,
     "fn": 3,
     "coef": [

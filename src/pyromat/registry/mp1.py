@@ -1634,7 +1634,7 @@ nondimensionalized, and the returned values are non-dimensionalzied.
             
             A += p
     
-        # Evaluate AR1: c * dd**d * tt**t * exp(-a*(dd-gam)**2 - b*(tt-ep)**2)
+        # Evaluate AR1: c * dd**d * tt**t * exp(-a*(dd-ep)**2 - b*(tt-gam)**2)
         if 'coef1' in ARgroup:
             #This is the original table order
             #for c,d,t,a,b,gam,ep in ARgroup['coef1']:
@@ -1650,8 +1650,8 @@ nondimensionalized, and the returned values are non-dimensionalzied.
                     et = -2*b*ttm1*e
                     ed = -2*a*ddm1*e
                     if diff>1:
-                        ptt = -(t-1)*pt/tt
-                        pdd = -(d-1)*pd/dd
+                        ptt = (t-1)*pt/tt
+                        pdd = (d-1)*pd/dd
                         ptd = d*pt/dd
                         ett = -2*b*(e + ttm1*et)
                         edd = -2*a*(e + ddm1*ed)
