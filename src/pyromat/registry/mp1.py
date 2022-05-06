@@ -1793,6 +1793,8 @@ nondimensionalized, and the returned values are non-dimensionalzied.
         
         return A,At,Ad,Att,Atd,Add
 
+
+
     def _satfit(self, tt, fn, coef, diff=0):
         """Generic saturated property fit (primative routine)
     s, st, stt = _satfit(tt, fn=0, diff=0)
@@ -2851,8 +2853,8 @@ other conditions, x<0 and d1 == d2.
         """Internal energy (inner routine)
     e,eT,ed = _e(T,d,diff=0)
 """
-        eT = 0.
-        ed = 0.
+        eT = None
+        ed = None
 
         # The IG part        
         R = self.data['R']
@@ -2865,7 +2867,7 @@ other conditions, x<0 and d1 == d2.
         e = at
         if diff>0:
             eT = tt*tt*att
-            ed = atd
+            ed = atd/dscale
         
         # The residual part
         Tscale = self.data['ARgroup']['Tscale']
@@ -2878,8 +2880,8 @@ other conditions, x<0 and d1 == d2.
         if diff>0:
             eT += tt*tt*att
             eT *= -R
-            ed += atd
-            ed *= R*Tscale/dscale
+            ed += atd/dscale
+            ed *= R*Tscale
 
         return e,eT,ed
 
@@ -2888,8 +2890,8 @@ other conditions, x<0 and d1 == d2.
         """enthalpy (inner routine)
     h,hT,hd = _h(T,d,diff=0)
 """
-        hT = 0.
-        hd = 0.
+        hT = None
+        hd = None
 
         # The IG part        
         R = self.data['R']
@@ -2902,7 +2904,7 @@ other conditions, x<0 and d1 == d2.
         h = 1. + tt*at
         if diff>0:
             hT = 1. - tt*tt*att
-            hd = tt*atd
+            hd = tt*atd/dscale
         
         # The residual part
         Tscale = self.data['ARgroup']['Tscale']
@@ -2915,18 +2917,17 @@ other conditions, x<0 and d1 == d2.
         if diff>0:
             hT += dd*ad - tt*(tt*att + dd*atd)
             hT *= R
-            hd += ad + dd*add + tt*atd
-            hd *= R*T/dscale
+            hd += (ad + dd*add + tt*atd)/dscale
+            hd *= R*T
 
         return h,hT,hd
-
 
     def _s(self,T,d,diff=0):
         """entropy (inner routine)
     s,sT,sd = _s(T,d,diff=0)
 """
-        sT = 0.
-        sd = 0.
+        sT = None
+        sd = None
 
         # The IG part        
         R = self.data['R']
@@ -2939,7 +2940,7 @@ other conditions, x<0 and d1 == d2.
         s = tt*at - a
         if diff>0:
             sT = tt*tt*att
-            sd = tt*atd - ad
+            sd = (tt*atd - ad)/dscale
         
         # The residual part
         Tscale = self.data['ARgroup']['Tscale']
@@ -2952,11 +2953,86 @@ other conditions, x<0 and d1 == d2.
         if diff>0:
             sT += tt*tt*att
             sT *= -R/T
-            sd += tt*atd - ad
-            sd *= R/dscale
+            sd += (tt*atd - ad)/dscale
+            sd *= R
 
         return s,sT,sd
+
+    def _f(self, T, d, diff=0):
+        """Free energy
+    f,ft,fd = _f(T,d,diff=0)
+    
+"""
+        # The IG part        
+        R = self.data['R']
+        Tscale = self.data['AOgroup']['Tscale']
+        dscale = self.data['AOgroup']['dscale']
+        tt = Tscale / T
+        dd = d / dscale
+        a,at,ad,_,_,_ = self._ao(tt,dd,diff+1)
+
+        f = a
+        ft = None
+        fd = None
+        if diff:
+            ft = a - tt*at
+            fd = ad/dscale
         
+        # The residual part
+        Tscale = self.data['ARgroup']['Tscale']
+        dscale = self.data['ARgroup']['dscale']
+        tt = Tscale / T
+        dd = d / dscale
+        a,at,ad,_,_,_ = self._ar(tt,dd,diff+1)
+
+        f += a
+        f *= R*T
+        if diff:
+            ft += a - tt*at
+            ft *= R
+            fd += ad/dscale
+            fd *= R*T
+            
+        return f,ft,fd
+        
+
+
+    def _g(self, T, d, diff=0):
+        """Gibbs energy
+    g,gt,gd = _g(T,d,diff=0)
+    
+"""
+        # The IG part        
+        R = self.data['R']
+        Tscale = self.data['AOgroup']['Tscale']
+        dscale = self.data['AOgroup']['dscale']
+        tt = Tscale / T
+        dd = d / dscale
+        a,at,ad,_,atd,add = self._ao(tt,dd,diff+1)
+        
+        g = a + 1.
+        gt = None
+        gd = None
+        if diff:
+            gt = a + 1. - tt*at
+            gd = ad/dscale
+        
+        # The residual part
+        Tscale = self.data['ARgroup']['Tscale']
+        dscale = self.data['ARgroup']['dscale']
+        tt = Tscale / T
+        dd = d / dscale
+        a,at,ad,_,atd,add = self._ar(tt,dd,diff+1)
+
+        g += a + dd*ad
+        g *= R*T
+        if diff:
+            gt += a + dd*ad - tt*(at + dd*atd)
+            gt *= R
+            gd += (2*ad + dd*add)/dscale
+            gd *= R*T
+            
+        return g,gt,gd
         
     def _cp(self,T,d):
         """Isobaric specific heat (inner routine)
