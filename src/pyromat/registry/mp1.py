@@ -2026,6 +2026,7 @@ T and p MUST be ndarrays
                 I,
                 da,
                 db,
+                Nmax=50,
                 fx_index = 2,
                 param={'T':T},
                 verbose=debug)
