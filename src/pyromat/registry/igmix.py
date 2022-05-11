@@ -300,11 +300,11 @@ _argparse decides which to populate based on what is most efficient.
             kwarg['p'] = pm.units.pressure(kwarg['p'], to_units='Pa')
         if 'd' in kwarg:
             value = pm.units.volume(kwarg['d'], to_units='m3', exponent=-1)
-            kwarg['d'] = pm.units.matter(value, self.data['mw'], to_units='kmol')
+            kwarg['d'] = pm.units.matter(value, self._mw, to_units='kmol')
         if 'v' in kwarg:
             # Convert and replace with d at the same time
             value = pm.units.volume(kwarg['v'], to_units='m3')
-            kwarg['d'] = 1./pm.units.matter(value, self.data['mw'], to_units='kmol', exponent=-1)
+            kwarg['d'] = 1./pm.units.matter(value, self._mw, to_units='kmol', exponent=-1)
             args.add('d')
             basic_args.add('d')
             del kwarg['v']
@@ -313,17 +313,17 @@ _argparse decides which to populate based on what is most efficient.
         if 'h' in kwarg:
             value = kwarg['h']
             value = pm.units.energy(value, to_units='kJ')
-            value = pm.units.matter(value, self.data['mw'], to_units='kmol', exponent=-1)
+            value = pm.units.matter(value, self._mw, to_units='kmol', exponent=-1)
             kwarg['h'] = value
         if 'e'  in kwarg:
             value = kwarg['e']
             value = pm.units.energy(value, to_units='kJ')
-            value = pm.units.matter(value, self.data['mw'], to_units='kmol', exponent=-1)
+            value = pm.units.matter(value, self._mw, to_units='kmol', exponent=-1)
             kwarg['e'] = value
         if 's' in kwarg:
             value = kwarg['s']
             value = pm.units.energy(value, to_units='kJ')
-            value = pm.units.matter(value, self.data['mw'], to_units='kmol', exponent=-1)
+            value = pm.units.matter(value, self._mw, to_units='kmol', exponent=-1)
             value = pm.units.temperature(value, to_units='K', exponent=-1)
             kwarg['s'] = value
 
@@ -348,28 +348,29 @@ _argparse decides which to populate based on what is most efficient.
             if basp == 'd':
                 y,d = np.broadcast_arrays(kwarg[invp], kwarg[basp])
                 p = None
-                T = np.full_like(y, 0.5*(self.data['Tlim'][0] + self.data['Tlim'][-1]))
+                T = np.full_like(y, 0.5*(self._Tlim[0] + self._Tlim[-1]))
                 I = np.ones_like(y,dtype=bool)
                 # density and entropy are specified, special iteration is required
                 if invp == 's':
-                    self._iter1(self._sditer, 'T', y, T, I, self.data['Tlim'][0], self.data['Tlim'][1], param={'d':d})
+                    self._iter1(self._sditer, 'T', y, T, I, self._Tlim[0], self._Tlim[1], param={'d':d})
                 else:
-                    self._iter1(invfn, 'T', y, T, I, self.data['Tlim'][0], self.data['Tlim'][1])
+                    self._iter1(invfn, 'T', y, T, I, self._Tlim[0], self._Tlim[1])
             # If pressure is specified
             elif basp == 'p':
                 y,p = np.broadcast_arrays(kwarg[invp], kwarg[basp])
                 # If the property is entropy, adjust it for pressure
                 if invp == 's':
-                    y = y + pm.units.const_Ru * np.log(p / self.data['pref'])
-                T = np.full_like(y, 0.5*(self.data['Tlim'][0] + self.data['Tlim'][-1]))
+                    y = y + pm.units.const_Ru * np.log(p / self._pref_pa)
+                T = np.full_like(y, 0.5*(self._Tlim[0] + self._Tlim[-1]))
                 I = np.ones_like(y,dtype=bool)
-                self._iter1(invfn, 'T', y, T, I, self.data['Tlim'][0], self.data['Tlim'][-1])
+                self._iter1(invfn, 'T', y, T, I, self._Tlim[0], self._Tlim[-1])
             # If temperature is specified
             elif basp == 'T':
+                y, T = np.broadcast_arrays(kwarg[invp], kwarg[basp])
                 # If entropy is specified, pressure can be explicitly calculated.
                 if invp == 's':
                     s0 = self._s(T)[0]
-                    p = self.data['pref'] * np.exp((s0-y)/pm.units.const_Ru)
+                    p = self._pref_pa * np.exp((s0-y)/pm.units.const_Ru)
                 # Otherwise, this is an illegal combination!
                 else:
                     raise pm.utility.PMParamError('Cannot simultaneously specify parameters: T, {:s}'.format(invp))
@@ -411,11 +412,11 @@ _argparse decides which to populate based on what is most efficient.
         I = np.logical_or(T < self._Tlim[0], T > self._Tlim[1])
         if I.all():
             raise pm.utility.PMParamError('All of the specified states were out-of-bounds.  '  
-                    'Legal temperatures for {} are between {} and {} Kelvin.'.format(self.data['id'], self.data['Tlim'][0], self.data['Tlim'][-1]))
+                    'Legal temperatures for {} are between {} and {} Kelvin.'.format(self.data['id'], self._Tlim[0], self._Tlim[-1]))
         elif I.any():
             T[I] = pm.config['def_oob']
             pm.utility.print_warning('Some of the states were out of bounds - setting to config[\'def_oob\'].  '
-                    'Legal temperatures for {} are between {} and {} Kelvin.'.format(self.data['id'], self.data['Tlim'][0], self.data['Tlim'][-1]))
+                    'Legal temperatures for {} are between {} and {} Kelvin.'.format(self.data['id'], self._Tlim[0], self._Tlim[-1]))
             
         return T,p,d
 
@@ -604,7 +605,7 @@ e is in kJ/kmol
 hT is in kJ/kmol/K
 """
         h,hT = self._h(T, diff)
-        R = 1000*pm.units.const_Ru
+        R = pm.units.const_Ru
         h -= R*T
         if diff:
             hT -= R
@@ -667,12 +668,39 @@ Accepts     Temperature [unit_temperature]
 Returns     Density     [unit_matter / unit_volume]
 """
         self._bootstrap()
-        _,_,d = self._argparse(*varg, **kwarg)
+        Ru = pm.units.const_Ru
+        T,p,d = self._argparse(*varg, **kwarg)
+        # Make sure we have both pressure and density
+        if d is None:
+            d = p / (1000 * Ru * T)
         pm.units.matter(d, self._mw, from_units='kmol', inplace=True)
         pm.units.volume(d, from_units='m3', inplace=True, exponent=-1)
         return d
-        
-        
+
+    def v(self, *varg, **kwarg):
+        """Specific volume
+    v(...)
+
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Returns volume in unit_volume / unit_matter
+"""
+        return 1. / self.d(*varg, **kwarg)
+
+
     def p(self, *varg, **kwarg):
         """Pressure
     d(T,p)
@@ -688,7 +716,10 @@ Accepts     Temperature [unit_temperature]
 Returns     Pressure     [unit_pressure]
 """
         self._bootstrap()
-        _,p,_ = self._argparse(*varg, **kwarg)
+        Ru = pm.units.const_Ru
+        T,p,d = self._argparse(*varg, **kwarg)
+        if p is None:
+            p = 1000 * d * Ru * T
         pm.units.pressure(p, from_units='Pa', inplace=True)
         return p
         
@@ -903,6 +934,20 @@ Returns:    Molecular mass [unit_mass / unit_molar]
         out = pm.units.mass(self._mw, from_units='kg')
         out = pm.units.molar(out, from_units='kmol')
         return out
+
+    def R(self, *varg, **kwarg):
+        """Ideal gas constant
+    R(...)
+
+Ignores the arguments are returns the gas constant as
+unit_energy / unit_matter / unit_temperature
+"""
+        self._bootstrap()
+        R = pm.units.energy(pm.units.const_Ru, from_units='J')
+        R = pm.units.temperature(R, from_units='K', exponent=-1)
+        R = pm.units.matter(R, self._mw, from_units='mol',
+                                exponent=-1)
+        return R
 
 
     def s(self, *varg, **kwarg):
