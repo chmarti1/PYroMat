@@ -1384,21 +1384,6 @@ The following test criteria are used:
         return result
 
 
-    def atoms(self):
-        """Return a dictionary specifying the chemical composition of the substance.
-    aa = atoms()
-    
-The dictionary keys are the symbols of atoms and their corresponding values 
-are the integer quantities in the chemical formula.  For example
-    aa = {'C':1, 'O':2}
-would represent carbon dioxide.
-"""
-        aa = self.data.get('atoms')
-        if aa is None:
-            raise pm.utility.PMDataError('The substance does not have atomic composition data: ' + self.data['id'])
-        return aa.copy()
-
-
 
     def Tlim(self):
         """Temperature limits

@@ -97,9 +97,7 @@ dioxide and "Co2" represents diatomic cobalt.
         
     def __repr__(self):
         return '<' + self.data['class'] + ', ' + self.data['id'] + '>'
-        
-        
-        
+
         
     def __basetest__(self):
         """Test the data struct for basic Pyro requirements
@@ -134,7 +132,78 @@ documentation for more details.
             pm.utility.print_error(missing)
             raise pm.utility.PMDataError()
 
+    def pmclass(self):
+        """Return the PYroMat class string
+    pmclassstr = subst.pmclass()
+   
+The pmclass string is used to identify which of the PYroMat data classes
+to use for the substance data model.  This is a mandatory field, so this
+is just a wrapper for subst.data['class'].
+"""
+        return self.data['class']
+        
 
+    def collection(self):
+        """Return the name of the collection to which this substance belongs
+    collectionstr = subst.collection()
+   
+The collection is just the portion of the substance identifier string
+preceeding the '.' character.  If a substance is encountered without a
+'.' character, then collection() will return an empty string.
+"""
+        parts = self.data['id'].split('.',1)
+        if len(parts)==1:
+            return ''
+        return parts[0]
+        
+    def names(self):
+        """Return a list of the substance names.
+    namelist = subst.names()
+
+If the "name" key is found in the dataset, a copy will be returned 
+explicitly.  If not, an empty list will be retruned.
+"""
+        if 'names' in self.data:
+            return self.data['names'].copy()
+        return []
+        
+    def inchi(self):
+        """Return the IUPAC InChI identifier string
+    inchistr = subst.inchi()
+
+If the "inchi" key is found in the dataset, it will be returned 
+explicitly.  If not, an empty string will be returned.
+"""
+        if 'inchi' in self.data:
+            return self.data['inchi']
+        return ''
+        
+    def casid(self):
+        """Return the CAS registry ID string
+    casidstr = subst.casid()
+
+If the "cas" key is found in the dataset, it will be returned 
+explicitly.  If not, an empty string will be returned.
+"""
+        if 'cas' in self.data:
+            return self.data['cas']
+        return ''
+
+    def atoms(self):
+        """Return a dictionary specifying the chemical composition of the substance.
+    aa = atoms()
+    
+The dictionary keys are the symbols of atoms and their corresponding values 
+are the integer quantities in the chemical formula.  For example
+    aa = {'C':1, 'O':2}
+would represent carbon dioxide.
+
+If the substance data does not include atomic data, an empty dictionary
+is returned instead.
+"""
+        if 'atoms' in self.data:
+            return self.data['atoms'].copy()
+        return {}
 
 #
 #   Go load the contents of the reg directory

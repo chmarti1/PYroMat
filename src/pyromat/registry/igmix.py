@@ -861,7 +861,7 @@ Returns:    Spec. Heat  [unit_energy / unit_temperature / unit_matter]
         return out
 
 
-    def h(self,*varg, **kwarg):
+    def h(self, *varg, **kwarg):
         """Enthalpy
     h(T)
         OR
@@ -934,6 +934,7 @@ Returns:    Molecular mass [unit_mass / unit_molar]
         out = pm.units.mass(self._mw, from_units='kg')
         out = pm.units.molar(out, from_units='kmol')
         return out
+
 
     def R(self, *varg, **kwarg):
         """Ideal gas constant

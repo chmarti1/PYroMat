@@ -1668,6 +1668,7 @@ nondimensionalized, and the returned values are non-dimensionalzied.
             for a,b,m,AA,BB,CC,DD,c in ARgroup['coef2']:
                 ddm1 = dd-1
                 ttm1 = tt-1
+                # The model uses 1/m.  We will invert it only once.
                 m = 1./m
                 
                 # Construct the distance function terms inside-out.
@@ -1683,47 +1684,49 @@ nondimensionalized, and the returned values are non-dimensionalzied.
                 p = AA*(ddm1*ddm1)**(0.5*m)
                 
                 if diff>0:
-                    # Detect indices where ddm1 is zero.  This will cause 
-                    # singularities in differentiation
-                    Izero = (np.abs(ddm1) < 1e-6)
-                    Inzero = np.logical_not(Izero)
-
-                    # Case out the temperature and density derivatives separately
-                    # The density derivatives are complicated by singularity!
-                    pt = 0
-                    if diff>1:
-                        ptt = 0
-                        ptd = 0
-                    pd = np.zeros_like(p)
-                    pdd = np.zeros_like(p)
+                    # Detect indices where ddm1 is zero.  If any elements
+                    # of ddm1 are small, then we will use a different 
+                    # method for calculating derivatives of this term.
+                    Ismall = (np.abs(ddm1) < 1e-6).any()
+                    
                     # Case out the nearly singular densities
-                    # In virtually all cases, the function can be evaluated near the
-                    # singularity, but it is more expensive.
-                    if Izero.any():
-                        # if 0.5*m < 1, there is an unreconcilable singularity!
-                        if m < 2:
-                            pm.utility.print_warning('_ar():: this model is very nearly singular near critical density.')
-                        # borrow e for a temporary variable
-                        e[Izero] = AA * m * (ddm1[Izero]*ddm1[Izero])**(0.5*m-1)
-                        pd[Izero] = e[Izero] * ddm1[Izero]
+                    # When ddm1 is very small, we can't use the trick of
+                    # dividing by it to prevent repeated calls to **
+                    # c'est la vie
+                    if Ismall:
+                        # if m < 1, there is an irreconcilable singularity!
+                        if m < 1:
+                            pm.utility.print_warning('_ar():: m<1 in the ar2 term. This causes signularities in derivatives near critical density.')
+                        pd = AA * m * (ddm1*ddm1)**(0.5*m-0.5)
                         if diff>1:
-                            pdd[Izero] = e[Izero] * (m-1)
-                    elif Inzero.any():
-                        pd[Inzero] = m * p[Inzero] / ddm1[Inzero]
+                            if m < 2:
+                                pm.utility.print_warning('_ar():: m<2 in the ar2 term. This causes signularities in second derivatives near critical density.')
+                            pdd = AA * m * (m-1) * (ddm1*ddm1)**(0.5*m-1)
+                    else:
+                        pd = m * p / ddm1
                         if diff>1:
-                            pdd[Inzero] = pd[Inzero] * (m-1)/ddm1[Inzero]
+                            pdd = pd * (m-1)/ddm1
                         
                 # p = (1-tt) + A(dd-1)**m
                 p -= ttm1
                 if diff>0:
-                    pt -= 1
-                    
+                    # It's OK to use a scalar here.  We're going to 
+                    # multiply it by p in a moment, and that will broad-
+                    # cast it appropriately.
+                    pt = -1.
+                    # Forcing ptt and ptd to zero is not necessary
+                    # we already know to ignore them in the next term.
+                    #if diff>1:
+                        #ptt = np.zeros_like(p)
+                        #ptd = np.zeros_like(p)
+                
+                # Now, square the whole term
                 # p = [(1-tt) + A(dd-1)**m]**2
                 if diff>0:
                     if diff>1:
                         ptt = 2*pt*pt # + 2*p*ptt (but ptt=0)
                         ptd = 2*pt*pd # + 2*p*ptd (but ptd=0)
-                        xdd = 2*pd*pd + 2*p*pdd
+                        pdd = 2*pd*pd + 2*p*pdd
                     pt = 2*p*pt
                     pd = 2*p*pd
                 p = p*p
@@ -1733,31 +1736,61 @@ nondimensionalized, and the returned values are non-dimensionalzied.
                 e = BB*(ddm1*ddm1)**a
                 p += e
                 if diff>0:
-                    ed = np.zeros_like(e)
-                    edd = np.zeros_like(e)
-                    # This term can have a singularity from ddm1=>0 too
-                    if Izero.any():
-                        ed[Izero] = BB*2*a*(ddm1[Izero]*ddm1[Izero])**(a-1)*ddm1[Izero]
+                    # This term can have a singularity from ddm1 near 0 too
+                    if Ismall:
+                        # If a is small, then this can be singular!
+                        if a < 0.5:
+                            pm.utility.print_warning('_ar():: a<0.5 in the ar2 term. This causes singularities in derivatives near critical density.')
+                        
+                        pd += BB*2*a*(ddm1*ddm1)**(a-0.5)
                         if diff>1:
-                            edd[Izero] = BB*2*a*(2*a-1)*(ddm1[Izero]*ddm1[Izero])**(a-1)
-                    if Inzero.any():
-                        ed[Inzero] = 2*a*e[Inzero]/ddm1[Inzero]
+                            if a < 1.:
+                                pm.utility.print_warning('_ar():: a<1 in the ar2 term. This causes singularities in second derivatives near critical density.')
+                            pdd += BB*2*a*(2*a-1)*(ddm1*ddm1)**(a-1)
+                    else:
+                        ed = 2*a*e/ddm1
+                        pd += ed
                         if diff>1:
-                            edd[Inzero] = (2*a-1)*ed[Inzero]/ddm1[Inzero]
-                    pd += ed
-                    if diff>1:
-                        pdd += edd
-                
+                            edd = (2*a-1)*ed/ddm1
+                            pdd += edd
+
                 # e = {[(1-tt) + A(dd-1)**m]**2 + B(dd-1)**2a}**b
                 # borrow e for the new term
+                # p is now Delta, raise it to the b power.
                 e = p**b
                 if diff>0:
-                    et = b*e*pt/p
-                    ed = b*e*pd/p
+                    # We're done with Ismall, so repurpose it to detect
+                    # small values of delta.
+                    Ismall = (np.abs(p)<1e-6).any()
+                    if Ismall:
+                        if b<1:
+                            pm.utility.print_warning('_ar():: b<1 in the ar2 term. This causes singularities in derivatives very close to the critical point.')
+                        # Use a temporary to hold this expensive intermediate
+                        temp = b*p**(b-1)
+                        et = temp*pt
+                        ed = temp*pd
+                    else:
+                        et = b*e*pt/p
+                        ed = b*e*pd/p
+                        
                     if diff>1:
-                        ett = (b-1)*et*pt/p + et*ptt/pt
-                        etd = (b-1)*et*pd/p + et*ptd/pt
-                        edd = (b-1)*ed*pd/p + ed*pdd/pd
+                        if Ismall:
+                            if b<2:
+                                pm.utility.print_warning('_ar():: b<2 in the ar2 term. This causes singularities in second derivatives very close to the critical point.')
+                            # First, borrow temp, which is currently holding b*p**(b-1)
+                            ett = temp*ptt
+                            etd = temp*ptd 
+                            edd = temp*pdd
+                            
+                            # Now, calculate the second terms
+                            temp = b*(b-1)*p**(b-2)
+                            ett += temp*pt*pt
+                            etd += temp*pt*pd
+                            edd += temp*pd*pd 
+                        else:
+                            ett = ((b-1)*et*pt + b*e*ptt)/p
+                            etd = ((b-1)*et*pd + b*e*ptt)/p
+                            edd = ((b-1)*ed*pd + b*e*pdd)/p
                 
                 # p = c * dd * {[(1-tt) + A(dd-1)**m]**2 + B(dd-1)**2a}**b
                 # This moves the intermediate value in e back into p
@@ -3094,19 +3127,6 @@ other conditions, x<0 and d1 == d2.
     # USER ROUTINES #
     #               #
     
-    def atoms(self):
-        """Return a dictionary specifying the chemical composition of the substance.
-    aa = atoms()
-    
-The dictionary keys are the symbols of atoms and their corresponding values 
-are the integer quantities in the chemical formula.  For example
-    aa = {'C':1, 'O':2}
-would represent carbon dioxide.
-"""
-        aa = self.data.get('atoms')
-        if aa is None:
-            raise pm.utility.PMDataError('The substance does not have atomic composition data: ' + self.data['id'])
-        return aa.copy()
     
     #               #
     # Data limits   #
