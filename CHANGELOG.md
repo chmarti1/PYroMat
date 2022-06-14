@@ -143,3 +143,12 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 ## Version 2.1.10
 - Corrected a bug in `igmix.T()` that caused it to return pressure
 - Corrected a bug: `igmix._argparse()` tried to use `data['mw']` for density conversion.
+
+## Version 2.2.0
+- Corrected small errors in mp1 model properties near the critical point.
+  This bug resulted in strange things like negative cp values, but it was only found VERY close to the critical point.  Otherwise, errors were so small that the properties still passed validation checks against reference data.
+- Added iteration to the pyromat configuration class
+- Added the warning_verbose configuration entry to allow users to mute warning messages
+- Transitioned to a fully flexible property argument format that accepts combinations of h,s,e,T,p,d,x.
+- Obsoleted "inverse" property methods (like T_s) - they are still available for reverse compatibility.
+- Added O2, R1234ze to the multiphase collection

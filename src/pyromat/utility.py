@@ -177,6 +177,13 @@ them
 if config['version'].split('.')[0] < 2:
     raise Exception('PYroMat is old.')
 
+As of version 2.2.0, the PYroMat config instance also supports 
+iteration.  For example, this prints all entry names and their current
+values:
+
+    for key in config:
+        print(key, config[key])
+        
 """
     def __init__(self, load=True):
         # detect the package installation directory
@@ -375,7 +382,9 @@ pmconfig.entries[item].apply_default()
     def __contains__(self,item):
         return self.entries.__contains__(item)
 
-    
+    def __iter__(self):
+        return self.entries.__iter__()
+
 
 
 
