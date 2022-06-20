@@ -2534,6 +2534,9 @@ other conditions, x<0 and d1 == d2.
                 Ta = np.full_like(h, self.data['Tlim'][0], dtype=float)
                 Tb = np.full_like(h, self.data['Tlim'][1], dtype=float)
                 
+                # There is no need to deal with saturation conditions
+                # here - these are handled in the _tditer method since
+                # the saturation densities depend on T.
                 self._hybrid1(
                         self._tditer,
                         'T',
@@ -2607,8 +2610,8 @@ other conditions, x<0 and d1 == d2.
                     # d1=liquid, d2=vapor
                     d1[Iwork] = self._dsl(T[Iwork])[0]
                     d2[Iwork] = self._dsv(T[Iwork])[0]
-                    ssL[Iwork] = self._s(T[Iwork], d1[Iwork])[0]
-                    ssV[Iwork] = self._s(T[Iwork], d2[Iwork])[0]
+                    ssL[Iwork] = invfn(T[Iwork], d1[Iwork])[0]
+                    ssV[Iwork] = invfn(T[Iwork], d2[Iwork])[0]
 
                     # Start with liquid points. 
                     # I will temporarily point to liquid states
@@ -2627,7 +2630,7 @@ other conditions, x<0 and d1 == d2.
                     # Finally, deal with points that are saturated
                     I[Iwork] = np.logical_and(ssL[Iwork] <= s[Iwork], s[Iwork] <= ssV[Iwork])
                     # I now has its final value, pointing to saturated points
-                    
+                    print(ssL, ssV, s)
                 # For most data sets, the minim density is zero, but that is not
                 # actually a legal value.  If necessary, iterate on the lower 
                 # bound until the solution is bracketed
@@ -2816,7 +2819,8 @@ other conditions, x<0 and d1 == d2.
                     # common locations in memory.  If there are 
                     # saturated points, we need to modify d1, so this 
                     # will force d1 to be a fully populated array.
-                    d1 = d1.copy()
+                    if d1.base is not None:
+                        d1 = d1.copy()
                     # Calculate the quality
                     x = -np.ones_like(p, dtype=float)
                     x[Isat] = (dsL[Isat] / d1[Isat] - 1.) / (dsL[Isat] / dsV[Isat] - 1.)
@@ -3252,10 +3256,14 @@ Returns the triple temperature and pressure in a tuple pair in
     
 Returns the saturaiton pressure in [unit_pressure]
 
-Calls to ps() are MUCH faster than calls to Ts(), so when given a choice
-ps() should always be preferred.  The MP1 class exposes ps() as a 
-fundamental empirical relationship, while Ts() has to perform iterative 
-numerical inversion.
+Calls to ps() are MUCH faster than calls to Ts(), so when given a choice,
+specifying saturation states with temperature should always be preferred.
+The MP1 class exposes ps() as an empirical relationship, while Ts() has 
+to perform iterative numerical inversion.
+
+Unlike the other saturation properties, ps() and Ts() only accept one
+argument and only return one value - each calculates the one in terms
+of the other.
 """
         if T is None:
             T = pm.config['def_T']
@@ -3274,11 +3282,15 @@ numerical inversion.
         return pm.units.pressure(self._ps(T)[0], from_units='Pa')
         
         
-    def Ts(self,p=None):
+    def Ts(self, p=None):
         """Saturation temperature
     Tsat = Ts(p)
     
-Uses Newton iteration to calculate Ts from the _ps() inner method
+Calculates the saturation temperature in terms of the pressure.  
+
+Unlike the other saturation properties, ps() and Ts() only accept one
+argument and only return one value - each calculates the one in terms
+of the other.
 """
         if p is None:
             p = pm.config['def_p']
