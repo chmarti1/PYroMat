@@ -2630,7 +2630,7 @@ other conditions, x<0 and d1 == d2.
                     # Finally, deal with points that are saturated
                     I[Iwork] = np.logical_and(ssL[Iwork] <= s[Iwork], s[Iwork] <= ssV[Iwork])
                     # I now has its final value, pointing to saturated points
-                    print(ssL, ssV, s)
+
                 # For most data sets, the minim density is zero, but that is not
                 # actually a legal value.  If necessary, iterate on the lower 
                 # bound until the solution is bracketed
@@ -2641,7 +2641,7 @@ other conditions, x<0 and d1 == d2.
                     da[Iwork] = .9999 * self.data['dlim'][0] + .0001 * self.data['dlim'][1]
                     # calculate the entropy at the minimum and test to ensure inclusion
                     # Recycle the ssL array as a temporary for the lower-bound entropy
-                    ssL[Iwork] = self._s(T=T[Iwork],d=da[Iwork])[0]
+                    ssL[Iwork] = invfn(T=T[Iwork],d=da[Iwork])[0]
                     Iwork[Iwork] = ssL[Iwork] < s[Iwork]
                     count = 0
                     # Keep going as long as the lower bound entropy is less than
@@ -2652,7 +2652,7 @@ other conditions, x<0 and d1 == d2.
                         if count > 20:
                             raise pm.utility.PMAnalysisError('Failed while searching for a lower density value to bracket a solution.')
                         da[Iwork] = 0.5*(self.data['dlim'][0] + da[Iwork])
-                        ssL[Iwork] = self._s(T=T[Iwork], d=da[Iwork])[0]
+                        ssL[Iwork] = invfn(T=T[Iwork], d=da[Iwork])[0]
                         Iwork[Iwork] = ssL[Iwork] < s[Iwork]
                 
                 # Now, values are actually bracketed.  Now, we can iterate.
