@@ -932,7 +932,7 @@ Returns:    Molecular mass [unit_mass / unit_molar]
 """
         self._bootstrap()
         out = pm.units.mass(self._mw, from_units='kg')
-        out = pm.units.molar(out, from_units='kmol')
+        out = pm.units.molar(out, from_units='kmol', exponent=-1)
         return out
 
 

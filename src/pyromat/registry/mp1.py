@@ -3631,6 +3631,13 @@ The properties are returned in a dictionary with keys:
     
 Like all of the other property functions, arguments may be any two of
 T, p, d, v, e, h, s, and x.  
+
+Because calculating cv for saturation conditions is more computationally
+expensive, and because users rarely need this property, state() will
+return NaN for cv at saturated conditions.  This is a deliberate design
+decision to preserve the speed and simplicitly of the state() method.  
+For users who do want true constant-volume specific heat is still 
+available by calling the cv() method directly.
 """
         
         # Parse the arguments
@@ -3641,6 +3648,8 @@ T, p, d, v, e, h, s, and x.
         out = {}
         
         # Start with the vapor (d2) half of the calculation
+        # In saturated cases, d2 should always be used to caluclate 
+        # pressure
         # The IG part        
         Tscale = self.data['AOgroup']['Tscale']
         dscale = self.data['AOgroup']['dscale']
@@ -3676,8 +3685,8 @@ T, p, d, v, e, h, s, and x.
         cv += tt*tt*att
         cv *= -R
         
-        # Before we go back and calculate the vapor properties,
-        # go ahead and store the liquid calculations
+        # Before we go back and calculate the liquid properties,
+        # go ahead and store the vapor calculations
         out['p'] = p
         out['T'] = T
         out['d'] = d1
@@ -3723,12 +3732,12 @@ T, p, d, v, e, h, s, and x.
         
         # Finally, calculate the mixture properties with the appropriate
         # quality.
-        out['cp'][I] = out['cp'][I]*(x[I]) + cp*(1-x[I])
-        out['cv'][I] = out['cv'][I]*(x[I]) + cv*(1-x[I])
+        out['cp'][I] = np.inf
+        out['cv'][I] = np.nan
         out['e'][I] = out['e'][I]*(x[I]) + e*(1-x[I])
         out['h'][I] = out['h'][I]*(x[I]) + h*(1-x[I])
         out['s'][I] = out['s'][I]*(x[I]) + s*(1-x[I])
-        # Get specific volume
+        # d is not weighted by x - v is.
         out['d'][I] = 1./((1-x[I])/d1[I] + x[I]/d2[I])
         
         # Apply unit conversions
@@ -3997,7 +4006,11 @@ entries.
 
 Additionally, if the optional keyword, "quality" is set to True, the 
 quality of the liquid/vapor mixture is also returned
-    e,x = e(..., quality=True)
+    cp,x = cp(..., quality=True)
+
+Note that constant-pressure specific heat is theoretically infinite for
+saturated liquid-vapor mixtures.  cp() returns +Inf for any states that
+are under the dome.
 
 Returns specific heat in unit_energy / unit_matter / unit_temperature
 """
@@ -4005,8 +4018,7 @@ Returns specific heat in unit_energy / unit_matter / unit_temperature
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
         cp = self._cp(T,d1)
         if I.any():
-            cp[I] *= (1.-x[I])
-            cp[I] += self._cp(T[I],d2[I]) * x[I]
+            cp[I] = np.inf
         # Convert the units back to user space
         pm.units.energy(cp, from_units='J', inplace=True)
         pm.units.matter(cp, self.data['mw'], 
@@ -4038,14 +4050,37 @@ If no keywords are specified, the positional arguments are interpreted
 as (T,p).  To configure their defaults, use the def_T and def_p config
 entries.
 
+Additionally, if the optional keyword, "quality" is set to True, the 
+quality of the liquid/vapor mixture is also returned
+    cv,x = cv(..., quality=True)
+    
+The cv() method is unique in that it provides slightly different 
+behaviors from its corresponding value returned by the state() method.
+The state() method does not calculate specific heats of any kind for 
+saturated conditions.  Meanwhile, cv() uses the derivatives saturation
+density and internal energy to calculate the total mixture specific 
+heat.  Applications that require this behavior should use cv() 
+explicitly instead of depending on state().
+
 Returns specific heat in unit_energy / unit_matter / unit_temperature
 """
         
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
         cv = self._cv(T,d1)
         if I.any():
-            cv[I] *= (1.-x[I])
-            cv[I] += self._cv(T[I],d2[I]) * x[I]
+            # How do the saturation densities change with temperature?
+            _,dVT,_ = self._dsv(T[I], diff=1)
+            _,dLT,_ = self._dsl(T[I], diff=1)
+            # How does x change with temperature
+            temp = d1[I]/d2[I]
+            xT = (dLT/d1[I]*(1-x[I]) + temp*dVT/d2[I]*x) / (temp-1)
+            # Grab the saturation sensitivities
+            eL,eLT,eLd = self._e(T[I],d1[I],diff=1)
+            eV,eVT,eVd = self._e(T[I],d2[I],diff=1)
+            # Calculate the true isochoric specific heat for the
+            # two-phase mixture
+            cv[I] = (eLT+eLd*dLT)*(1-x) + (eVT+eVd*dVT)*x + (eV-eL)*xT
+            
         # Convert the units back to user space
         pm.units.energy(cv, from_units='J', inplace=True)
         pm.units.matter(cv, self.data['mw'], 
@@ -4077,6 +4112,10 @@ If no keywords are specified, the positional arguments are interpreted
 as (T,p).  To configure their defaults, use the def_T and def_p config
 entries.
 
+Additionally, if the optional keyword, "quality" is set to True, the 
+quality of the liquid/vapor mixture is also returned
+    gam,x = gam(..., quality=True)
+
 Returns specific heat ratio, which is dimensionless
 """
             
@@ -4084,10 +4123,7 @@ Returns specific heat ratio, which is dimensionless
         cv = self._cv(T,d1)
         cp = self._cp(T,d1)
         if I.any():
-            cv[I] *= (1.-x[I])
-            cp[I] *= (1.-x[I])
-            cv[I] += self._cv(T[I],d2[I]) * x[I]
-            cp[I] += self._cp(T[I],d2[I]) * x[I]
+            cp[I] = np.inf
         
         if quality:
             return cp/cv, x
