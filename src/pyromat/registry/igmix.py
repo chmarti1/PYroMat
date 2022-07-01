@@ -739,6 +739,11 @@ Accepts     Pressure     [unit_pressure]
 Returns     Temperature  [unit_temperature]
 """
         self._bootstrap()
+        # T is a special case.  If there is only one parameter given, 
+        # the default should not be T=def_T, so we need to override 
+        # the behavior of _argparse. 
+        if len(varg) + len(kwarg) == 1: 
+            kwarg['p'] = pm.config['def_p'] 
         T,_,_ = self._argparse(*varg, **kwarg)
         pm.units.temperature_scale(T, from_units='K', inplace=True)
         return T

@@ -5,7 +5,15 @@
     "C": 1,
     "H": 4
   },
-  "doc": "U. Setzmann, W. Wagner, A new equation of state and tables of thermodyanmic properties for methane covering the range from the melting line to 625 K at pressures up to 100 MPa, Journal of Physical and Chemical Reference Data, v20, 1061, 1991.",
+  "doc": "U. Setzmann, W. Wagner, \"A new equation of state and tables of thermodyanmic properties for methane covering the range from the melting line to 625 K at pressures up to 100 MPa,\" Journal of Physical and Chemical Reference Data, v20, 1061, 1991.",
+  "names": [
+    "Methane",
+    "Methyl hydride",
+    "R-50",
+    "CH4"
+  ],
+  "inchi": "InChI=1S/CH4/h1H4",
+  "cas": "74-82-8",
   "mw": 16.0428,
   "dc": 162.66,
   "Tc": 190.564,

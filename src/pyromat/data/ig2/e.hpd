@@ -31,8 +31,8 @@
   "class": "ig2",
   "doc": "The supporting data for this object were adapted from:\nB. McBride, S. Gordon, M. Reno, \"Coefficients for Calculating \nThermodynamic and Transport Properties of Individual Species,\" NASA \nTechnical Memorandum 4513, 1993.\n",
   "ho": 0.0,
-  "id": "ig.-",
+  "id": "ig.e",
   "mw": 0.000548579903,
-  "names": [],
+  "names": ["Electron", "Free Electron"],
   "pref": 100000.0
 }

@@ -570,6 +570,18 @@
     "doc": "",
     "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/mp/H2_O.hpd",
     "id": "mp.H2O",
+    "names": [
+      "Water",
+      "Water vapor",
+      "Distilled water",
+      "Ice",
+      "H2O",
+      "Dihydrogen oxide",
+      "steam",
+      "Tritiotope"
+    ],
+    "inchi": "InChI=1S/H2O/h1H2",
+    "cas": "7732-18-5",
     "mw": 18.015268,
     "pc": 22064000.0,
     "plim": [

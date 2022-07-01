@@ -1954,7 +1954,7 @@ Presumes temperature is in Kelvin, reports pressure in Pa
         # Initialize the result array
         T = np.ones_like(p, dtype=float) * \
                 0.5*(self.data['Tt'] + self.data['Tc'])
-        T,Tmin,Tmax = np.broadcast_arrays(T, self.data['Tt'], self.data['Tc'])
+        T,Tmin,Tmax = np.broadcast_arrays(T, self.data['Tt']*.99, self.data['Tc']*1.01)
         
         # Create a down-select array
         Ids = np.logical_and(
@@ -2049,6 +2049,12 @@ T and p MUST be ndarrays
             # Reduce the lower density by 1%
             da[Istate] *= 0.99
         
+        # Iteratively reduce da until all points are bracketed
+        Itest = self._p(T,da,0)[0] > p
+        while Itest.any():
+            da[Itest]/=2.
+            Itest[Itest] = self._p(T[Itest], da[Itest],0)[0] > p[Itest]
+        
         # perform the iteration
         #self._iter1(
         self._hybrid1(
@@ -2114,7 +2120,6 @@ inverted to calculate T
         Itest = np.asarray(p>=self.data['pc'], dtype=bool)
         Ta[Itest] = self.data['Tlim'][0]
         Tb[Itest] = self.data['Tlim'][1]
-        T[Itest] = 0.5*(self.data['Tlim'][0] + self.data['Tlim'][1])
         
         # For pressures that are sub-critical, detect whether the 
         # state is liquid or gaseous.  Set Itest to sub-critical.  
@@ -2140,8 +2145,8 @@ inverted to calculate T
             Isat[Itest] = d[Itest] < dsV[Itest]
             # Leave Ta as the saturation temperature
             Tb[Isat] = self.data['Tlim'][1]
-            # Grow the boundary by 5%
-            Ta[Isat] *= 0.99
+            # Grow the boundary by 1%
+            Ta[Isat] = np.maximum(0.99*Ta[Isat], self.data['Tlim'][0])
             
             # Now, get the saturated states
             Isat[Itest] = np.logical_and(
@@ -2157,14 +2162,14 @@ inverted to calculate T
             I[Isat] = False
         
         self._hybrid1(
-                self._tditer,
+                self._p,
                 'T',
                 p,
                 T,
                 I,
                 Ta,
                 Tb,
-                param={'fn':self._p, 'd':d})
+                param={'d':d})
         
         if sat:
             return T, dsL, dsV, Isat

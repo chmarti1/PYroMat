@@ -9,11 +9,14 @@
   "names": [
     "R-134a",
     "1,1,1,2-tetrafluoroethane",
-    "Norfluran",
+    "Norfurane",
     "CF3CH2F",
+    "Freon 134",
     "HFA-134a",
     "HFC-134a"
   ],
+  "cas": "359-35-3",
+  "inchi": "InChI=1S/C2H2F4/c3-1(4)2(5)6/h1-2H",
   "class": "mp1",
   "ARgroup": {
     "Tscale": 374.18,
