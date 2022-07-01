@@ -3755,6 +3755,7 @@ available by calling the cv() method directly.
         out['cp'] *= c1
         out['cv'] *= c1
         out['gam'] = out['cp'] / out['cv']
+        out['gam'][I] = np.inf
         out['p'] = pm.units.pressure(out['p'], from_units='Pa')
         out['T'] = pm.units.temperature_scale(out['T'], from_units='K')
         c1 = pm.units.volume(1., from_units='m3', exponent=-1)
