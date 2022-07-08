@@ -2,12 +2,7 @@
 #   PYroMat Multi-phase generalist class
 #   Calculates physical properties from a fit for the helmholtz free 
 #   energy in terms of density and temperature.
-#
-#   VERSION 2 (7/2020)
-#   - fixed bug in _tpiter(): bad partial derivative conversion
-#   - added singularity detection to _ar() for improved performance
-#       near the critical point
-#   
+
 
 import numpy as np
 import pyromat as pm
@@ -81,7 +76,7 @@ The density saturation method returns both liquid and vapor densities in a
 tuple pair.  See their in-line documentaiton for more details.
 
 ** Other Properties **
-There are other methods that return useful information, but that does 
+There are other methods that return useful information, but that do 
 not depend on the state.
     atoms() Returns a dictionary specifying the chemical composition.
     mw()    Returns the molecular weight/mass

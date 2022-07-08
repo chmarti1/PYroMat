@@ -279,7 +279,6 @@ src/pyromat/data/ig/S4.hpd
 src/pyromat/data/ig/S5.hpd
 src/pyromat/data/ig/S6.hpd
 src/pyromat/data/ig/S7.hpd
-src/pyromat/data/ig2/-.hpd
 src/pyromat/data/ig2/Al+.hpd
 src/pyromat/data/ig2/Al-.hpd
 src/pyromat/data/ig2/Al.hpd
@@ -996,6 +995,7 @@ src/pyromat/data/ig2/Xe.hpd
 src/pyromat/data/ig2/Zn-.hpd
 src/pyromat/data/ig2/Zn.hpd
 src/pyromat/data/ig2/Zr.hpd
+src/pyromat/data/ig2/e.hpd
 src/pyromat/data/igmix/air.hpd
 src/pyromat/data/igmix/f5.hpd
 src/pyromat/data/igmix/h35.hpd

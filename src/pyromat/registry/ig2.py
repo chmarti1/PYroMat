@@ -6,37 +6,39 @@ import os
 
 class ig2(pm.reg.__basedata__):
     """Ideal gas class using the NASA polynomial equation of state.
-This class exposes properties through member methods.  All property 
-methods accept any two of temperature, pressure, or density.  By default
-if no keywords are given, the argument order is (temperature,pressure).
-If one or both of the properties is missing, the defaults will be 
-applied instead, starting with temperature (config['def_T']) and then
-pressure, (config['def_p']).
-
-There are basic state methods that allow the calculation of any one
-in terms of the other two:
+    
+** Available Properties **
+IG has property methods:
   T()  temperature      (unit_temperature)
   p()  pressure         (unit_pressure)
   d()  density          (unit_matter / unit_volume)
-
-The following are the member 
-methods and their unit conventions:
+  v()  specific volume  (unit_volume / unit_matter)
   cp() spec. heat       (unit_energy / unit_temperature / unit_matter)
   cv() spec. heat       (unit_energy / unit_temperature / unit_matter)
+  gam()  spec. heat ratio (dless)
   e()  internal energy  (unit_energy / unit_matter)
   h()  enthalpy         (unit_energy / unit_matter)
-  gam()  spec. heat ratio (dless)
-  mw() molecular weight (unit_mass / unit_molar)
-  R()  gas constant     (unit_energy / unit_temperature / unit_matter)
   s()  entropy          (unit_energy / unit_temperature / unit_matter)
+  state()       Calculates all properties!
 
-There are also routines to invert properties; e.g. calculating 
-temperature from enthalpy or from entropy and pressure.
-  T_h()  temperature from enthalpy
-  T_s()  temperature from entropy and pressure
-  p_s()  pressure from entropy and temperature
+These accept any of the following keyword arguments: T, p, d, v, e, h, s
+  h(T=452.)
+  h(d=1.3, p=3.4)
+  h(s=6.2, p=3.4)
 
-Some meta-data on the species can be obtained using methods
+In the back end, most properties require only temperature except entropy,
+which requires temperature and pressure.  When other properties are given,
+temperature is needed, so additional calculations are necessary.  In the 
+worst case, specifying entropy, enthalpy, or internal energy even requires
+iteration.  For performance, once temperature and pressure become available,
+they should always be used.  For enthalpy, pressure is not needed, so it 
+may be omitted with no ill effect.  
+
+** Other Properties **
+There are some properties that do not depend on the state; they only need
+to be converted to the relevant unit system.
+  mw()      molecular weight (unit_mass / unit_molar)
+  R()       gas constant
   Tlim()    a two-element array with the min,max temperatures 
             supported by the data set.
   atoms()   returns a dictionary with a key entry for each atom in
