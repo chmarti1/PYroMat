@@ -148,7 +148,10 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 - Corrected small errors in mp1 model properties near the critical point.
   This bug resulted in strange things like negative cp values, but it was only found VERY close to the critical point.  Otherwise, errors were so small that the properties still passed validation checks against reference data.
 - Added iteration to the pyromat configuration class
+- Added the specific volume property to all classes
 - Added the warning_verbose configuration entry to allow users to mute warning messages
-- Transitioned to a fully flexible property argument format that accepts combinations of h,s,e,T,p,d,x.
-- Obsoleted "inverse" property methods (like T_s) - they are still available for reverse compatibility.
+- Transitioned to a fully flexible property argument format that accepts combinations of h,s,e,T,p,d,v,x.
+- Obsoleted "inverse" property methods (like T_s and T_h) - they are still available for reverse compatibility.
+- Changed the out-of-bounds detection behavior: now returns config["def_oob"] (default np.nan) on those array elements that are out-of-bounds.
 - Added O2, R1234ze to the multiphase collection
+- Corrected a number of minor bugs reported since the last release.  These are documented on the PYroMat github issues page.
