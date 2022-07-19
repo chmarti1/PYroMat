@@ -1949,7 +1949,7 @@ Presumes temperature is in Kelvin, reports pressure in Pa
         # Initialize the result array
         T = np.ones_like(p, dtype=float) * \
                 0.5*(self.data['Tt'] + self.data['Tc'])
-        T,Tmin,Tmax = np.broadcast_arrays(T, self.data['Tt']*.99, self.data['Tc']*1.01)
+        T,Tmin,Tmax = np.broadcast_arrays(T, self.data['Tt']*.99, self.data['Tc'])
         
         # Create a down-select array
         Ids = np.logical_and(
@@ -2156,15 +2156,22 @@ inverted to calculate T
             # Eliminate these from the down-select array - no iteraiton required.
             I[Isat] = False
         
+        # Note from v2.2.0... It is necessary to use _tditer instead of
+        # using _p directly. Even when p is super-critical, when d is 
+        # under the dome, the lower temeprature guess reverts to a sub-
+        # critical state, and the _p() values diverge wildly there.  The
+        # ideal future fix would be to invert the dsL or dsV lines to 
+        # find the actual minimum T at the specified density, but for 
+        # v2.2.1, we will revert to _tditer().
         self._hybrid1(
-                self._p,
+                self._tditer,
                 'T',
                 p,
                 T,
                 I,
                 Ta,
                 Tb,
-                param={'d':d})
+                param={'d':d, 'fn':self._p})
         
         if sat:
             return T, dsL, dsV, Isat
