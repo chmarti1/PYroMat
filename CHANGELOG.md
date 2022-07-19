@@ -155,3 +155,10 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 - Changed the out-of-bounds detection behavior: now returns config["def_oob"] (default np.nan) on those array elements that are out-of-bounds.
 - Added O2, R1234ze to the multiphase collection
 - Corrected a number of minor bugs reported since the last release.  These are documented on the PYroMat github issues page.
+
+# Version 2.2.1
+- Issued bugfixes for github issues 41, 42, 43
+  - Corrected a boneheaded typo in igmix that should have been caught in testing.
+  - Reverted to _tditer() in mp1._T()
+  - Eliminated the upper 1% grace range in Ts() to prevent imaginary values past Tc.
+
