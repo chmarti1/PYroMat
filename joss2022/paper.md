@@ -1,5 +1,3 @@
-https://joss.readthedocs.io/en/latest/submitting.html
-
 ---
 title: 'PYroMat: A Python package for thermodynamic properties'
 tags:
