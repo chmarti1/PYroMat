@@ -4154,7 +4154,14 @@ along with temperature.
 
     T,x = T_s(s, p=p, quality=True)
 """
-        T,_,_,x,_ = self._argparse(*varg, s=s, **kwarg)
+        if len(varg) > 0:
+            if 'p' in kwarg:
+                raise pm.utility.PMParamError('p was specified both positionally and with a keyword.')
+            kwarg['p'] = varg[0]
+        if len(varg) > 1:
+            raise pm.utility.PMParamError('There are only two positional arguments: s, p.')
+
+        T,_,_,x,_ = self._argparse(s=s, **kwarg)
         if quality:
             return T,x
         return T
@@ -4198,7 +4205,14 @@ along with temperature.
 
     T,x = T_s(s, p=p, quality=True)
 """
-        T,_,_,x,_ = self._argparse(*varg, h=h, **kwarg)
+        if len(varg) > 0:
+            if 'p' in kwarg:
+                raise pm.utility.PMParamError('p was specified both positionally and with a keyword.')
+            kwarg['p'] = varg[0]
+        if len(varg) > 1:
+            raise pm.utility.PMParamError('There are only two positional arguments: h, p.')
+
+        T,_,_,x,_ = self._argparse(h=h, **kwarg)
         
         if quality:
             return T,x

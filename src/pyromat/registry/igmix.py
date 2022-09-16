@@ -1038,15 +1038,20 @@ in the mixture."""
     T = T_s(s)
         or
     T = T_s(s,p)
-        or
-    T = T_s(s,d)
 
 Accepts unit_energy / unit_matter / unit_temperature
         unit_pressure
         unit_matter / unit_volume
 Returns unit_temperature
 """
-        return self.T(s=s, *varg, **kwarg)
+        if len(varg) > 0:
+            if 'p' in kwarg:
+                raise pm.utility.PMParamError('p was specified both positionally and with a keyword.')
+            kwarg['p'] = varg[0]
+        if len(varg) > 1:
+            raise pm.utility.PMParamError('There are only two positional arguments: s, p.')
+
+        return self.T(s=s, **kwarg)
 
 
     def T_h(self,h, *varg, **kwarg):
@@ -1062,7 +1067,15 @@ Accepts unit_energy / unit_matter
         unit_pressure
 Returns unit_temperature
 """
-        return self.T(h=h, *varg, **kwarg)
+        if len(varg) > 0:
+            if 'p' in kwarg:
+                raise pm.utility.PMParamError(
+                    'p was specified both positionally and with a keyword.')
+            kwarg['p'] = varg[0]
+        if len(varg) > 1:
+            raise pm.utility.PMParamError('There are only two positional arguments: h, p.')
+
+        return self.T(h=h, **kwarg)
         
         
     def p_s(self, s, *varg, **kwarg):
