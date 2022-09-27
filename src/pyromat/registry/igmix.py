@@ -1032,7 +1032,7 @@ in the mixture."""
         return self._y.copy()
 
 
-    def T_s(self,s,*varg,**kwarg):
+    def T_s(self,s,p=None,**kwarg):
         """Temperature as a function of entropy
 ** Depreciated - use T() **
     T = T_s(s)
@@ -1044,17 +1044,12 @@ Accepts unit_energy / unit_matter / unit_temperature
         unit_matter / unit_volume
 Returns unit_temperature
 """
-        if len(varg) > 0:
-            if 'p' in kwarg:
-                raise pm.utility.PMParamError('p was specified both positionally and with a keyword.')
-            kwarg['p'] = varg[0]
-        if len(varg) > 1:
-            raise pm.utility.PMParamError('There are only two positional arguments: s, p.')
-
+        if p is not None:
+            return self.T(s=s, p=p)
         return self.T(s=s, **kwarg)
 
 
-    def T_h(self,h, *varg, **kwarg):
+    def T_h(self,h, p=None, **kwarg):
         """Temperature as a function of enthalpy
 ** Depreciated - use T() **
     T = T_h(h)
@@ -1067,14 +1062,8 @@ Accepts unit_energy / unit_matter
         unit_pressure
 Returns unit_temperature
 """
-        if len(varg) > 0:
-            if 'p' in kwarg:
-                raise pm.utility.PMParamError(
-                    'p was specified both positionally and with a keyword.')
-            kwarg['p'] = varg[0]
-        if len(varg) > 1:
-            raise pm.utility.PMParamError('There are only two positional arguments: h, p.')
-
+        if p is not None:
+            return self.T(h=h, p=p)
         return self.T(h=h, **kwarg)
         
         

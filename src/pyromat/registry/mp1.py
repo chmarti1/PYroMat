@@ -4138,7 +4138,7 @@ Returns specific heat ratio, which is dimensionless
         return cp/cv
 
 
-    def T_s(self, s, *varg, quality=False, **kwarg):
+    def T_s(self, s, p=None, quality=False, **kwarg):
         """Temperature from entropy
 ** Depreciated - use T() **
 
@@ -4154,14 +4154,10 @@ along with temperature.
 
     T,x = T_s(s, p=p, quality=True)
 """
-        if len(varg) > 0:
-            if 'p' in kwarg:
-                raise pm.utility.PMParamError('p was specified both positionally and with a keyword.')
-            kwarg['p'] = varg[0]
-        if len(varg) > 1:
-            raise pm.utility.PMParamError('There are only two positional arguments: s, p.')
-
-        T,_,_,x,_ = self._argparse(s=s, **kwarg)
+        if p is not None:
+            T,_,_,x,_ = self._argparse(s=s, p=p)
+        else:
+            T,_,_,x,_ = self._argparse(s=s, **kwarg)
         if quality:
             return T,x
         return T
@@ -4189,7 +4185,7 @@ with pressure.
 
 
 
-    def T_h(self, h, *varg, quality=False, **kwarg):
+    def T_h(self, h, p=None, quality=False, **kwarg):
         """Temperature from entropy
 ** Depreciated - use T() **
 
@@ -4205,15 +4201,10 @@ along with temperature.
 
     T,x = T_s(s, p=p, quality=True)
 """
-        if len(varg) > 0:
-            if 'p' in kwarg:
-                raise pm.utility.PMParamError('p was specified both positionally and with a keyword.')
-            kwarg['p'] = varg[0]
-        if len(varg) > 1:
-            raise pm.utility.PMParamError('There are only two positional arguments: h, p.')
-
-        T,_,_,x,_ = self._argparse(h=h, **kwarg)
-        
+        if p is not None:
+            T,_,_,x,_ = self._argparse(h=h, p=p)
+        else:
+            T,_,_,x,_ = self._argparse(h=h, **kwarg)
         if quality:
             return T,x
         return T
