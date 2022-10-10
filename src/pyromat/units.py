@@ -148,7 +148,7 @@ new system of units.
         if exponent:
             conv **= exponent
 
-        if inplace:
+        if inplace and isinstance(value, np.ndarray):
             # Point to the original array if possible
             return np.multiply(value, conv,out=value)
         
@@ -462,7 +462,7 @@ original default scale.
         else:
             return value
 
-    if inplace:
+    if inplace and isinstance(value, np.ndarray):
         # point to the original if possible
         out = value
     else:
@@ -504,7 +504,7 @@ default, the standard pressure is used.  If the atmospheric pressure
 is already known in the same units as the gauge pressure, do not use
 gauge_to_absolute(); simply add it to the old value.
 """
-    if inplace:
+    if inplace and isinstance(value, np.ndarray):
         return np.add(
                 value, 
                 pressure(patm,from_units='bar',to_units=units),
@@ -527,7 +527,7 @@ default, the standard pressure is used.  If the atmospheric pressure
 is already known in the same units as the gauge pressure, do not use
 gauge_to_absolute(); simply add it to the old value.
 """
-    if inplace:
+    if inplace and isinstance(value, np.ndarray):
         return np.subtract(value, 
                 pressure(patm,from_units='bar',to_units=units),
                 out=value)
@@ -573,7 +573,7 @@ If the from_units or the to_units values are not specified, the pyromat
     if exponent:
         conv**=exponent
 
-    if inplace:
+    if inplace and isinstance(value, np.ndarray):
         return np.multiply(value, conv, out=value)
     return np.multiply(value, conv)
 
