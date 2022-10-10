@@ -98,7 +98,7 @@ version: 2.2.1
  mp.N2      :  mp1  : Nitrogen                     : T p d v cp cv gam e h s mw R    
 ```
 
-Using the Numpy library for compiled back-end numerical efficiency, `PYroMat` has been designed to efficiently handle large arrays of input data.  The iterative back-end operations on hundred-thousand-element arrays consistently execute in a few seconds on a single core of an old laptop.  
+Using the Numpy library [@harris:2020] for compiled back-end numerical efficiency, `PYroMat` has been designed to efficiently handle large arrays of input data.  The iterative back-end operations on hundred-thousand-element arrays consistently execute in a few seconds.  
 
 # Limitations and Future Plans
 
