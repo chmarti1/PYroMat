@@ -159,6 +159,10 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 # Version 2.2.1
 - Issued bugfixes for github issues 41, 42, 43
   - Corrected a boneheaded typo in igmix that should have been caught in testing.
-  - Reverted to _tditer() in mp1._T()
-  - Eliminated the upper 1% grace range in Ts() to prevent imaginary values past Tc.
+  - Reverted to `_tditer()` in `mp1._T()`
+  - Eliminated the upper 1% grace range in `Ts()` to prevent imaginary values past Tc.
 
+# Version 2.2.2
+- Changed the call signature for `T_s`, `T_h` functions to address issue 52
+  *NOTE* inverse methods like `T_s` and `T_h` are now depricated.
+- Reassessed all multiphase `dlim` values in the core data. This addresses issues 44, 45, and 46.
