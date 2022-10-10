@@ -197,7 +197,7 @@ def compare_both_ways(conv, pair, inplace=False):
     else:
         assert conv(np.array(val_a, dtype=float), from_units=unit_a, to_units=unit_b, inplace=inplace) == approx(val_b)
         assert conv(np.array(val_b, dtype=float), from_units=unit_b, to_units=unit_a, inplace=inplace) == approx(val_a)
-        # Throws Error!
+        # Could error due to lack of numpy type
         assert conv(val_a, from_units=unit_a, to_units=unit_b, inplace=inplace) == approx(val_b)
 
 
@@ -211,6 +211,10 @@ def test_length(lengthpair):
 
 def test_mass(masspair):
     compare_both_ways(pm.units.mass, masspair)
+
+
+def test_mass_inplace(masspair):
+    compare_both_ways(pm.units.mass, masspair, inplace=True)
 
 
 def test_force(forcepair):
@@ -252,7 +256,7 @@ def test_abs_to_gauge():
     assert pm.units.abs_to_gauge(0, units='kPa', patm=1) == approx(-100)
     assert pm.units.abs_to_gauge(500, units='kPa', patm=1) == approx(400)
     assert pm.units.abs_to_gauge(np.array(100, dtype=float), units='kPa', patm=1, inplace=True) == approx(0)
-    # Error
+    # Could error due to lack of numpy type
     assert pm.units.abs_to_gauge(100, units='kPa', patm=1, inplace=True) == approx(0)
 
 
@@ -261,7 +265,7 @@ def test_gauge_to_abs():
     assert pm.units.gauge_to_abs(-100, units='kPa', patm=1) == approx(0)
     assert pm.units.gauge_to_abs(500, units='kPa', patm=1) == approx(600)
     assert pm.units.gauge_to_abs(np.array(100, dtype=float), units='kPa', patm=1, inplace=True) == approx(200)
-    # Error
+    # Could error due to lack of numpy type
     assert pm.units.gauge_to_abs(100, units='kPa', patm=1, inplace=True) == approx(200)
 
 
@@ -303,7 +307,7 @@ def test_matter_inplace(matterpair_kg):
         [val_a, val_b] = list(matterpair_kg.values())
     assert pm.units.matter(np.array(val_a, dtype=float), mw, from_units=unit_a, to_units=unit_b, inplace=True) == approx(val_b)
     assert pm.units.matter(np.array(val_b, dtype=float), mw, from_units=unit_b, to_units=unit_a, inplace=True) == approx(val_a)
-    # Error
+    # Could error due to lack of numpy type
     assert pm.units.matter(val_a, mw, from_units=unit_a, to_units=unit_b, inplace=True) == approx(val_b)
 
 
