@@ -21,7 +21,7 @@ $ pip install pyromat --upgrade
 >>> import pyromat as pm
 >>> O2 = pm.get('ig.O2')
 >>> h = O2.h(492,1.01)  # enthalpy at 492K, 1.01bar
->>> pm.info('O2')     # where did these data come from?
+>>> pm.info('ig.O2')     # where did these data come from?
 >>> pm.config['unit_pressure'] = 'psi'  # Don't like working in bar?
 ```
 

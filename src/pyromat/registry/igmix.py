@@ -646,7 +646,7 @@ Returns unit_temperature
 """
         self._bootstrap()
         T = np.array(self._Tlim, dtype=float)
-        pm.temperature_scale(T, from_units='K', inplace=True)
+        pm.units.temperature_scale(T, from_units='K', inplace=True)
         return tuple(T)
 
 
