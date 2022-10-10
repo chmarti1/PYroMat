@@ -289,14 +289,14 @@ unit conversion routines will be updated.
 
     # Validated 11/18/2017    
     time = Conversion({
-        'ns':1e9,           # Nanosecond
-        'us':1e6,           # Microsecond
-        'ms':1000.,         # Millisecond
+        'ns':1e-9,           # Nanosecond
+        'us':1e-6,           # Microsecond
+        'ms':1e-3,         # Millisecond
         's':1.,             # Second
         'min':60.,       # Minute
         'hr':3600.,      # Hour
         'day':86400.,    # Day
-        'year':3153600. # Julian year
+        'year':31536000. # Julian year
     }, 'unit_time')
 
     # Validated 11/18/2017
@@ -311,7 +311,7 @@ unit conversion routines will be updated.
     mass['lb'] = mass['lbm']        # pound-mass
     mass['oz'] = mass['lbm']/16.    # ounce-mass
     # The slug is one pound adjusted by gc
-    mass['slug'] = mass['lb'] * length['ft'] / (const_g * length['m'])
+    mass['slug'] = mass['lb'] / (length['ft'] / (const_g * length['m']))
     # Define the atomic unit based on avagadro's number
     mass['u'] = 1./(const_Na * 1000)
     mass['amu'] = mass['u']
@@ -515,7 +515,7 @@ gauge_to_absolute(); simply add it to the old value.
 
 # Validated 11/18/2017
 # Modified 7/4/2018 without validation -- added inplace operation
-def abs_to_gauge(value, units=None, patm=const_pstd):
+def abs_to_gauge(value, units=None, patm=const_pstd, inplace=False):
     """Adjust an absolute pressure to be in gauge units
 new_value = gauge_to_abs(old_value, units=None, patm=const_pstd)
 
