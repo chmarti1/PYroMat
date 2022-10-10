@@ -565,7 +565,7 @@
     "dc": 322.0,
     "dlim": [
         0,
-        1600.0
+        1260.0
     ],
     "doc": "",
     "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/mp/H2_O.hpd",
