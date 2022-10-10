@@ -89,12 +89,12 @@ Conversion objects are initialized with a conversion table in the format
 of a dictionary.  The dictionary keys are the strings that identify the
 various units, and the values are used to perform the conversion.
 
->>> inft = Conversion({'in':12., 'ft':1.})
+>>> inft = Conversion({'in':1., 'ft':12.})
 >>> inft(6., from_units='in', to_units='ft')
 .5
 
 Note that the values in the table are chosen so that
->>> new_value = old_value * table[to_units] / table[from_units]
+>>> new_value = old_value / (table[to_units] / table[from_units])
 
 The __call__ method has two additional optional parameters; exponent
 and inplace.  In the "inft" example above, the "exponent" parameter 
