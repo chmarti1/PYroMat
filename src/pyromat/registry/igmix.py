@@ -1032,24 +1032,24 @@ in the mixture."""
         return self._y.copy()
 
 
-    def T_s(self,s,*varg,**kwarg):
+    def T_s(self,s,p=None,**kwarg):
         """Temperature as a function of entropy
 ** Depreciated - use T() **
     T = T_s(s)
         or
     T = T_s(s,p)
-        or
-    T = T_s(s,d)
 
 Accepts unit_energy / unit_matter / unit_temperature
         unit_pressure
         unit_matter / unit_volume
 Returns unit_temperature
 """
-        return self.T(s=s, *varg, **kwarg)
+        if p is not None:
+            return self.T(s=s, p=p)
+        return self.T(s=s, **kwarg)
 
 
-    def T_h(self,h, *varg, **kwarg):
+    def T_h(self,h, p=None, **kwarg):
         """Temperature as a function of enthalpy
 ** Depreciated - use T() **
     T = T_h(h)
@@ -1062,7 +1062,9 @@ Accepts unit_energy / unit_matter
         unit_pressure
 Returns unit_temperature
 """
-        return self.T(h=h, *varg, **kwarg)
+        if p is not None:
+            return self.T(h=h, p=p)
+        return self.T(h=h, **kwarg)
         
         
     def p_s(self, s, *varg, **kwarg):
