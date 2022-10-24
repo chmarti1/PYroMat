@@ -57,5 +57,6 @@ setuptools.setup(
     package_data={'pyromat':['config.py', 'data/mp/*.hpd', 'data/ig/*.hpd','data/ig2/*.hpd','data/igmix/*.hpd','registry/*.py','aps/*.py']},
     license_files=['LICENSE.txt'],
     install_requires=['numpy>=1.7'],
+    extras_require={'dev': ['pytest']},
     provides=['pyromat']
     )
