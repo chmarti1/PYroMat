@@ -2,7 +2,8 @@
 
 Thermodynamic tools for Python
 
-By Chris Martin [crm28@psu.edu](mailto:crm28@psu.edu)
+Originally authored by [Chris Martin](https://sites.psu.edu/cmartin) [crm28@psu.edu](mailto:crm28@psu.edu)
+Now co-authored by [Joe Ranalli](https://github.com/jranalli)
 
 PYroMat is a flexible platform for conveniently working with thermodynamic data.  The expanding collection of substances includes data for the properties people need most, exposed in an intuitively designed object interface [Come read more.](http://www.pyromat.org)
 
@@ -15,6 +16,10 @@ If you are upgrading, you can always use
 ```
 $ pip install pyromat --upgrade
 ```
+Some of you will want to specify the version of python being used (e.g. on many flavors of Linux)
+```
+$ python3 -m pip install pyromat
+```
 
 ## Getting started
 ```python
@@ -23,12 +28,33 @@ $ pip install pyromat --upgrade
 >>> h = O2.h(492,1.01)  # enthalpy at 492K, 1.01bar
 >>> pm.info('ig.O2')     # where did these data come from?
 >>> pm.config['unit_pressure'] = 'psi'  # Don't like working in bar?
+>>> help(pm.search)		# How do I look for more substances?
 ```
 
-Happy calculating!
+To get up and running quickly, see the [Introductory Tutorial](http://www.pyromat.org/doc_intro.html).  For detailed documentaiton, see the [PYroMat User and Developer Handbook](http://www.pyromat.org/pdf/handbook.pdf).
+
+## Contributing
+
+As an open source project, PYroMat appreciates the participation and engagement of community members.   
+
+**If you think you've found a bug,** please first search in [Issues](https://github.com/chmarti1/PYroMat/issues). If you can't find your bug, feel free to open a new issue where we will discuss how to resolve the problem.
+
+**If you have an idea for a new feature,** we'd love to hear from you!  Many of PYroMat's features came from user requests.  Please feel free to open an new [Discussion](https://github.com/chmarti1/PYroMat/discussions) or open a new [Issue](https://github.com/chmarti1/PYroMat/issues).  You can even [Email Me](mailto:crm28@psu.edu) - I always enjoy hearing from users.
+
+If you wish to contribute by resolving an open issue, please fork the respository as described in the [Github Guide](https://guides.github.com/activities/hello-world/). Please see the full documentation in the [handbook](http://www.pyromat.org/pdf/handbook.pdf) for details of the code structure.  Even if your code isn't pulled verbatim, a number of issues have been resolved from user-inspired solutions.
+
+**To run development tests** found in the `src/test` directory, you can install with the "development" option, which requires the `pytest` package.  
+```bash
+python -m pip install pyromat[dev]
+```
+Please be aware:
+- PYroMat DOES NOT COME WITH A WARRANTY.  Tests help make the code better, and we work hard to make the code as reliable as we can, but users should always skeptically evaluate these models to ensure they are suitable for their application.  I've never met the test suite yet that catches all errors.
+- The behavior and design of the testing suite is not documented.  Unlike the rest of PYroMat, it is subject to change without notice.
+- Users coding their own models will need to construct their own validation data from original sources.
+
 
 ## License
-Copyright (c) 2015-2021 Christopher R. Martin
+Copyright (c) 2015-2022 Christopher R. Martin
 
 PYroMat is released under the GNU [General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0.en.html).
 
