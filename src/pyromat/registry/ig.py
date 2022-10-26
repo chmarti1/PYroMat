@@ -1776,9 +1776,9 @@ T, p, d, v, e, h, and s.
 
 
 
-    def T_s(self,s,p=None, **kwarg):
+    def T_s(self,s,p=None, d=None):
         """Temperature as a function of entropy
-** Depreciated - use T() **
+** Deprecated - use T() **
         
     T = T_s(s)
         or
@@ -1791,12 +1791,14 @@ Returns unit_temperature
 """
         if p is not None:
             return self.T(s=s, p=p)
-        return self.T(s=s, **kwarg)
+        elif d is not None:
+            return self.T(s=s, d=d)
+        return self.T(s=s)
 
 
-    def T_h(self,h,p=None,**kwarg):
+    def T_h(self,h, p=None, d=None):
         """Temperature as a function of enthalpy
-** Depreciated - use T() **
+** Deprecated - use T() **
 
     T = T_h(h)
         or
@@ -1812,12 +1814,14 @@ Returns unit_temperature
 """
         if p is not None:
             return self.T(h=h, p=p)
-        return self.T(h=h, **kwarg)
+        elif d is not None:
+            return self.T(h=h, d=d)
+        return self.T(h=h)
 
 
-    def p_s(self,s,*varg, **kwarg):
+    def p_s(self,s,T=None):
         """Pressure as a function of entropy
-** Depreciated - use p() **
+** Deprecated - use p() **
         
     p = ig_instance.p_s(s)
         or
@@ -1829,4 +1833,6 @@ Accepts unit_energy / unit_matter / unit_temperature
         unit_temperature
 Returns unit_pressure
 """
-        return self.p(*varg, s=s, **kwarg)
+        if T is not None:
+            return self.p(s=s,T=T)
+        return self.p(s=s)

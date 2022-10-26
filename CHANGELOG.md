@@ -156,13 +156,20 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 - Added O2, R1234ze to the multiphase collection
 - Corrected a number of minor bugs reported since the last release.  These are documented on the PYroMat github issues page.
 
-# Version 2.2.1
+## Version 2.2.1
 - Issued bugfixes for github issues 41, 42, 43
   - Corrected a boneheaded typo in igmix that should have been caught in testing.
   - Reverted to `_tditer()` in `mp1._T()`
   - Eliminated the upper 1% grace range in `Ts()` to prevent imaginary values past Tc.
 
-# Version 2.2.2
+## Version 2.2.2
 - Changed the call signature for `T_s`, `T_h` functions to address issue 52
   *NOTE* inverse methods like `T_s` and `T_h` are now depricated.
 - Reassessed all multiphase `dlim` values in the core data. This addresses issues 44, 45, and 46.
+
+## Version 2.2.3
+- Updated the README to adopt recommendations made by the JOSS community - specifically to include recommendations for community involvement.
+- Added the optional `pip install pyromat[dev]` option, which requires the `pytest` package.
+
+## Version 2.2.4
+- Corrected a bug reported in issue 64 where inverse routines were not returning the correct units.

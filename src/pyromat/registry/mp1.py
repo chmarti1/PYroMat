@@ -4138,9 +4138,9 @@ Returns specific heat ratio, which is dimensionless
         return cp/cv
 
 
-    def T_s(self, s, p=None, quality=False, **kwarg):
+    def T_s(self, s, p=None, d=None, quality=False, debug=False):
         """Temperature from entropy
-** Depreciated - use T() **
+** Deprecated - use T() **
 
     T = T_s(s, p=p)
         OR
@@ -4155,17 +4155,16 @@ along with temperature.
     T,x = T_s(s, p=p, quality=True)
 """
         if p is not None:
-            T,_,_,x,_ = self._argparse(s=s, p=p)
-        else:
-            T,_,_,x,_ = self._argparse(s=s, **kwarg)
-        if quality:
-            return T,x
-        return T
+            return self.T(s=s,p=p,quality=quality)
+        elif d is not None:
+            return self.T(s=s,d=d,quality=quality)
+        p = pm.config['def_p']
+        return self.T(s=s, p=p)
 
 
-    def d_s(self, s, *varg, quality=False, **kwarg):
+    def d_s(self, s, T=None, quality=False, debug=False):
         """Density from entropy
-** Depreciated - use d() **
+** Deprecated - use d() **
 
     d = d_s(s,T=T)
     
@@ -4175,19 +4174,16 @@ If temperature is not specified, the default temperature will be used
 The optional keyword flag, quality, will cause quality to be returned along
 with pressure.
 """
-        _,d1,d2,x,I = self._argparse(*varg, s=s, **kwarg)
-        d1[I] = 1./(x[I]/d2[I] + (1-x[I])/d1[I])
-
-        if quality:
-            return d1,x
-        return d1
+        if T is not None:
+            return self.d(s=s, T=T, quality=quality)
+        return self.d(s=s, quality=quality)
             
 
 
 
-    def T_h(self, h, p=None, quality=False, **kwarg):
+    def T_h(self, h, p=None, d=None, quality=False, debug=False):
         """Temperature from entropy
-** Depreciated - use T() **
+** Deprecated - use T() **
 
     T = T_s(s, p=p)
         OR
@@ -4202,9 +4198,8 @@ along with temperature.
     T,x = T_s(s, p=p, quality=True)
 """
         if p is not None:
-            T,_,_,x,_ = self._argparse(h=h, p=p)
-        else:
-            T,_,_,x,_ = self._argparse(h=h, **kwarg)
-        if quality:
-            return T,x
-        return T
+            return self.T(h=h,p=p,quality=quality)
+        elif d is not None:
+            return self.T(h=h,d=d,quality=quality)
+        p = pm.config['def_p']
+        return self.T(h=h, p=p)

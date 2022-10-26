@@ -1031,10 +1031,10 @@ in the mixture."""
         # Return the dictionary
         return self._y.copy()
 
-
-    def T_s(self,s,p=None,**kwarg):
+    def T_s(self,s,p=None, d=None):
         """Temperature as a function of entropy
-** Depreciated - use T() **
+** Deprecated - use T() **
+        
     T = T_s(s)
         or
     T = T_s(s,p)
@@ -1046,33 +1046,41 @@ Returns unit_temperature
 """
         if p is not None:
             return self.T(s=s, p=p)
-        return self.T(s=s, **kwarg)
+        elif d is not None:
+            return self.T(s=s, d=d)
+        return self.T(s=s)
 
 
-    def T_h(self,h, p=None, **kwarg):
+    def T_h(self,h, p=None, d=None):
         """Temperature as a function of enthalpy
-** Depreciated - use T() **
+** Deprecated - use T() **
+
     T = T_h(h)
         or
-    T = T_h(h,p)
+    T = T_h(h,...)
 
-Returns the temperature as a function of enthalpy and pressure
+Returns the temperature as a function of enthalpy and pressure.  Ideal 
+gas enthalpy is not a function of pressure, so the p term is merely a
+placeholder.
 
-Accepts unit_energy / unit_matter
+Accepts unit_energy / unit_matter / unit_temperature
         unit_pressure
 Returns unit_temperature
 """
         if p is not None:
             return self.T(h=h, p=p)
-        return self.T(h=h, **kwarg)
-        
-        
-    def p_s(self, s, *varg, **kwarg):
+        elif d is not None:
+            return self.T(h=h, d=d)
+        return self.T(h=h)
+
+
+    def p_s(self,s,T=None):
         """Pressure as a function of entropy
-** Depreciated - use p() **
-    p = p_s(s)
-        OR
-    p = p_s(s,T)
+** Deprecated - use p() **
+        
+    p = ig_instance.p_s(s)
+        or
+    p = ig_instance.p_s(s,...)
 
 Returns the pressure as a function of entropy and temperature.
 
@@ -1080,4 +1088,6 @@ Accepts unit_energy / unit_matter / unit_temperature
         unit_temperature
 Returns unit_pressure
 """
-        return self.p(s=s, *varg, **kwarg)
+        if T is not None:
+            return self.p(s=s,T=T)
+        return self.p(s=s)
