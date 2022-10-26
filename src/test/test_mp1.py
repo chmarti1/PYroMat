@@ -741,40 +741,6 @@ class TestRefs:
             with raises(pm.utility.PMParamError):
                 fn(d=ref['d'], x=ref['x'])
 
-    # Legacy deprecated items
-    def test_hsd(self, refdat):
-        sub, ref = refdat['sub'], refdat['data']
-        h, s, d = sub.hsd(T=ref['T'], p=ref['p'], x=ref['x'])
-        assert h == approx(ref['h'], rel=1e-5, abs=1e-2)
-        assert s == approx(ref['s'], rel=1e-5, abs=1e-2)
-        assert d == approx(ref['d'], rel=1e-5, abs=1e-2)
-        h, s, d, x = sub.hsd(T=ref['T'], p=ref['p'], x=ref['x'], quality=True)
-        assert h == approx(ref['h'], rel=1e-5, abs=1e-2)
-        assert s == approx(ref['s'], rel=1e-5, abs=1e-2)
-        assert d == approx(ref['d'], rel=1e-5, abs=1e-2)
-        assert x == approx(ref['x'], rel=1e-5, abs=1e-2)
-
-    def test_T_s(self, refdat):
-        sub, ref = refdat['sub'], refdat['data']
-        assert sub.T_s(s=ref['s'], p=ref['p']) == approx(ref['T'], rel=1e-5, abs=1e-2)
-        T, x = sub.T_s(s=ref['s'], p=ref['p'], quality=True)
-        assert T == approx(ref['T'], rel=1e-5, abs=1e-2)
-        assert x == approx(ref['x'], rel=1e-5, abs=1e-2)
-
-    def test_d_s(self, refdat):
-        sub, ref = refdat['sub'], refdat['data']
-        assert sub.d_s(s=ref['s'], p=ref['p']) == approx(ref['d'], rel=1e-5, abs=1e-2)
-        d, x = sub.d_s(s=ref['s'], p=ref['p'], quality=True)
-        assert d == approx(ref['d'], rel=1e-5, abs=1e-2)
-        assert x == approx(ref['x'], rel=1e-5, abs=1e-2)
-
-    def test_T_h(self, refdat):
-        sub, ref = refdat['sub'], refdat['data']
-        assert sub.T_h(h=ref['h'], p=ref['p']) == approx(ref['T'], rel=1e-5, abs=1e-2)
-        T, x = sub.T_h(h=ref['h'], p=ref['p'], quality=True)
-        assert T == approx(ref['T'], rel=1e-5, abs=1e-2)
-        assert x == approx(ref['x'], rel=1e-5, abs=1e-2)
-
 
 class TestState:
 

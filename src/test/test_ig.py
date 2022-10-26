@@ -454,19 +454,6 @@ class TestRefs:
         with raises(pm.utility.PMParamError):
             fn(h=ref['h'], e=ref['e'])
 
-    # Legacy (deprecated) functions
-    def test_T_s(self, refdat):
-        sub, ref = refdat['sub'], refdat['data']
-        assert sub.T_s(s=ref['s'], p=ref['p']) == approx(ref['T'], rel=1e-5, abs=1e-1)
-
-    def test_T_h(self, refdat):
-        sub, ref = refdat['sub'], refdat['data']
-        assert sub.T_h(h=ref['h']) == approx(ref['T'], rel=1e-5, abs=1e-1)
-
-    def test_p_s(self, refdat):
-        sub, ref = refdat['sub'], refdat['data']
-        assert sub.p_s(s=ref['s'], T=ref['T']) == approx(ref['p'], rel=1e-5, abs=1e-1)
-
 
 class TestState:
 
