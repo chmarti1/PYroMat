@@ -89,12 +89,12 @@ Conversion objects are initialized with a conversion table in the format
 of a dictionary.  The dictionary keys are the strings that identify the
 various units, and the values are used to perform the conversion.
 
->>> inft = Conversion({'in':12., 'ft':1.})
+>>> inft = Conversion({'in':1., 'ft':12.})
 >>> inft(6., from_units='in', to_units='ft')
 .5
 
 Note that the values in the table are chosen so that
->>> new_value = old_value * table[to_units] / table[from_units]
+>>> new_value = old_value / (table[to_units] / table[from_units])
 
 The __call__ method has two additional optional parameters; exponent
 and inplace.  In the "inft" example above, the "exponent" parameter 
@@ -148,7 +148,7 @@ new system of units.
         if exponent:
             conv **= exponent
 
-        if inplace:
+        if inplace and isinstance(value, np.ndarray):
             # Point to the original array if possible
             return np.multiply(value, conv,out=value)
         
@@ -289,14 +289,14 @@ unit conversion routines will be updated.
 
     # Validated 11/18/2017    
     time = Conversion({
-        'ns':1e9,           # Nanosecond
-        'us':1e6,           # Microsecond
-        'ms':1000.,         # Millisecond
+        'ns':1e-9,           # Nanosecond
+        'us':1e-6,           # Microsecond
+        'ms':1e-3,         # Millisecond
         's':1.,             # Second
         'min':60.,       # Minute
         'hr':3600.,      # Hour
         'day':86400.,    # Day
-        'year':3153600. # Julian year
+        'year':31536000. # Julian year
     }, 'unit_time')
 
     # Validated 11/18/2017
@@ -311,7 +311,7 @@ unit conversion routines will be updated.
     mass['lb'] = mass['lbm']        # pound-mass
     mass['oz'] = mass['lbm']/16.    # ounce-mass
     # The slug is one pound adjusted by gc
-    mass['slug'] = mass['lb'] * length['ft'] / (const_g * length['m'])
+    mass['slug'] = mass['lb'] / (length['ft'] / (const_g * length['m']))
     # Define the atomic unit based on avagadro's number
     mass['u'] = 1./(const_Na * 1000)
     mass['amu'] = mass['u']
@@ -462,7 +462,7 @@ original default scale.
         else:
             return value
 
-    if inplace:
+    if inplace and isinstance(value, np.ndarray):
         # point to the original if possible
         out = value
     else:
@@ -504,7 +504,7 @@ default, the standard pressure is used.  If the atmospheric pressure
 is already known in the same units as the gauge pressure, do not use
 gauge_to_absolute(); simply add it to the old value.
 """
-    if inplace:
+    if inplace and isinstance(value, np.ndarray):
         return np.add(
                 value, 
                 pressure(patm,from_units='bar',to_units=units),
@@ -515,7 +515,7 @@ gauge_to_absolute(); simply add it to the old value.
 
 # Validated 11/18/2017
 # Modified 7/4/2018 without validation -- added inplace operation
-def abs_to_gauge(value, units=None, patm=const_pstd):
+def abs_to_gauge(value, units=None, patm=const_pstd, inplace=False):
     """Adjust an absolute pressure to be in gauge units
 new_value = gauge_to_abs(old_value, units=None, patm=const_pstd)
 
@@ -527,7 +527,7 @@ default, the standard pressure is used.  If the atmospheric pressure
 is already known in the same units as the gauge pressure, do not use
 gauge_to_absolute(); simply add it to the old value.
 """
-    if inplace:
+    if inplace and isinstance(value, np.ndarray):
         return np.subtract(value, 
                 pressure(patm,from_units='bar',to_units=units),
                 out=value)
@@ -573,7 +573,7 @@ If the from_units or the to_units values are not specified, the pyromat
     if exponent:
         conv**=exponent
 
-    if inplace:
+    if inplace and isinstance(value, np.ndarray):
         return np.multiply(value, conv, out=value)
     return np.multiply(value, conv)
 
