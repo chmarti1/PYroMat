@@ -7,6 +7,9 @@ Now co-authored by [Joe Ranalli](https://github.com/jranalli)
 
 PYroMat is a flexible platform for conveniently working with thermodynamic data.  The expanding collection of substances includes data for the properties people need most, exposed in an intuitively designed object interface [Come read more.](http://www.pyromat.org)
 
+
+[![DOI](https://zenodo.org/badge/70937616.svg)](https://zenodo.org/badge/latestdoi/70937616)
+
 ## Installation from the Python Package Index
 If you have pip installed, you can install PYroMat with a single command.
 ```
