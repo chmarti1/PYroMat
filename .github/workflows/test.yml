@@ -28,3 +28,6 @@ jobs:
     - name: Test Multiphase
       working-directory: ./src/test
       run: pytest test_mp1.py
+    - name: Test Unit Conversion
+      working-directory: ./src/test
+      run: pytest test_units.py
