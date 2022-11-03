@@ -37,7 +37,7 @@ Lookup of thermodynamic properties of substances is a common task in numerous en
 
 As far back as the birth of the industrial revolution, engineers and scientists have needed precise calculations for the thermodynamic properties of fluids to predict the behaviors of systems of global importance.  Today, people working in aerospace propulsion, electrical power generation, plasma physics, refrigeration, building heating and cooling, combusion, and countless other fields still rely on decades of excellent data for these calculations.  It is exceedingly rare to find either the original data or software that performs these important calculations in the public domain.
 
-The current industry standard, NIST's `REFPROP` [@Lemmon:2018], is neither free nor open.  Another excellent alternative is `coolprop`[@Bell:2014], which is an NSF-funded flexible interface for an impressive variety of languages, which focuses heavily on multi-phase substances.  There are also other less widely embraced alternatives, but `PYroMat` distinguishes itself because:
+The current industry standard, NIST's `REFPROP` [@Huber:2022], is neither free nor open.  Another excellent alternative is `coolprop`[@Bell:2014], which is an NSF-funded flexible interface for an impressive variety of languages, which focuses heavily on multi-phase substances.  There are also other less widely embraced alternatives, but `PYroMat` distinguishes itself because:
 a) every aspect of it (and its dependencies) is open source, and 
 b) it provides a standard Pythonic interface simultaneously simple enough for novices and powerful enough for professionals. 
 Several conference publications have already described early versions of the software
