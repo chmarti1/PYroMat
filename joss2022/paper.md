@@ -31,22 +31,22 @@ bibliography: paper.bib
 
 # Summary
 
-Lookup of thermodynamic properties of substances is a common task in numerous engineering disciplines and is also an important skill taught to students in several common engineering disciplines. While properties were traditionally found using tables of thermodynamic data, availability of modern software has essentially eliminated the need for laborious use of tables, and has created opportunities to support quick iteration and revision of calculations. As thermodyanmic data are published in a variety of formats, it is necessary for software to provide a standardized interface to operate on a number of different data source formats. Additionally, thermodynamic software needs to be numerically efficient and robust, to deal with the diverse computational methodologies required to produce property calculations. PYroMat seeks to create a tool that meets these needs and can grow with users at different levels of expertise. It offers a low barrier to entry and is easy enough for students to use, but also powerful and flexible enough to serve the needs of engineering professionals and scientific researchers.
+Lookup of thermodynamic properties of substances is a common task in numerous engineering disciplines and is also an important skill taught to students in several common engineering disciplines. While properties were traditionally found using tables of thermodynamic data, availability of modern software has essentially eliminated the need for laborious use of tables, and has created opportunities to support quick iteration and revision of calculations. As thermodynamic data are published in a variety of formats, it is necessary for software to provide a standardized interface to operate on a number of different data source formats. Additionally, thermodynamic software needs to be numerically efficient and robust, to deal with the diverse computational methodologies required to produce property calculations. PYroMat seeks to create a tool that meets these needs and can grow with users at different levels of expertise. It offers a low barrier to entry and is easy enough for students to use, but also powerful and flexible enough to serve the needs of engineering professionals and scientific researchers.
 
 # Statement of need
 
-As far back as the birth of the industrial revolution, engineers and scientists have needed precise calculations for the thermodynamic properties of fluids to predict the behaviors of systems of global importance.  Today, people working in aerospace propulsion, electrical power generation, plasma physics, refrigeration, building heating and cooling, combusion, and countless other fields still rely on decades of excellent data for these calculations.  It is exceedingly rare to find either the original data or software that performs these important calculations in the public domain.
+As far back as the birth of the industrial revolution, engineers and scientists have needed precise calculations for the thermodynamic properties of fluids to predict the behaviors of systems of global importance.  Today, people working in aerospace propulsion, electrical power generation, plasma physics, refrigeration, building heating and cooling, combustion, and countless other fields still rely on decades of excellent data for these calculations.  It is exceedingly rare to find either the original data or software that performs these important calculations in the public domain.
 
-The current industry standard, NIST's `REFPROP` [@Huber:2022], is neither free nor open.  Another excellent alternative is `coolprop`[@Bell:2014], which is an NSF-funded flexible interface for an impressive variety of languages, which focuses heavily on multi-phase substances.  There are also other less widely embraced alternatives, but `PYroMat` distinguishes itself because:
+The current industry standard, NIST's `REFPROP` [@Huber:2022], is neither free nor open.  Another excellent alternative is `coolprop` [@Bell:2014], which is an NSF-funded flexible interface for an impressive variety of languages, which focuses heavily on multi-phase substances.  There are also other less widely embraced alternatives, but `PYroMat` distinguishes itself because:
 a) every aspect of it (and its dependencies) is open source, and 
 b) it provides a standard Pythonic interface simultaneously simple enough for novices and powerful enough for professionals. 
 Several conference publications have already described early versions of the software
-[@Martin:2016], and its application in the undergraduate thermodyanmics 
+[@Martin:2016], and its application in the undergraduate thermodynamics 
 classroom [@Martin:2017; @Ranalli:2019]. 
 
 # Features
 
-As of version 2.2.1, `PYroMat` provided property models for nearly 1,000 substances, and there are plans to continue expanding.  Each substance (whether pure or mixture) is represented by an instance of a `PYroMat` class.  Its methods are responsible for calculating its properties using a standard interface, so users need not be aware of the nuances of the back-end models.  For example, this segement of code retrieves the diatomic nitrogen model and calculates its enthalpy at 372.15 Kelvin and 1.4 bar.  Then, it returns the critical point (Kelvin, bar) of nitrogen.
+As of version 2.2.1, `PYroMat` provided property models for nearly 1,000 substances, and there are plans to continue expanding.  Each substance (whether pure or mixture) is represented by an instance of a `PYroMat` class.  Its methods are responsible for calculating its properties using a standard interface, so users need not be aware of the nuances of the back-end models.  For example, this segment of code retrieves the diatomic nitrogen model and calculates its enthalpy at 372.15 Kelvin and 1.4 bar.  Then, it returns the critical point (Kelvin, bar) of nitrogen.
 ```python
 >>> import pyromat as pm
 >>> n2 = pm.get('mp.N2')
@@ -106,7 +106,7 @@ Developing a graphical web interface that exposes most (if not all) of `PYroMat`
 
 The collection of multi-phase substances still lags significantly behind the likes of `coolprop` and `REFPROP`.  At present, it includes, methane, carbon dioxide, water/steam, nitrogen, oxygen, R-134a, and R-1234ze.  These models are time consuming to port to the package, so authors are choosing to strategically target substances of common industrial and scientific interest, like argon, hydrogen, ammonia, propane, R-22, R-12, and other refrigerants.
 
-There is not currently support for transport physics (like viscosity or diffusivity), and users who want to calculate tertiary properties like Gibbs energy or Helmholtz energy are required to do so from more fudnamental properties.  These additions are planned for the distant future, but users have not yet asked for these features.
+There is not currently support for transport physics (like viscosity or diffusivity), and users who want to calculate tertiary properties like Gibbs energy or Helmholtz energy are required to do so from more fundamental properties.  These additions are planned for the distant future, but users have not yet asked for these features.
 
 # Acknowledgements
 
