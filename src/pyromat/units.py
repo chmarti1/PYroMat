@@ -19,6 +19,7 @@ class, call the get() method,
 
 There are also special functions defined,
 matter()                Converts between molar and mass
+ismass()                Detects whether a matter unit is mass or molar
 temperature_scale()     Converts between the temperature scales
 gauge_to_abs()          Converts pressures between absolute and gauge
 abs_to_gauge()
@@ -51,7 +52,7 @@ const_dhg   (13595.1)           kg/m3           Mercury column density
 """
 
 import numpy as np
-import pyromat as pyro
+import pyromat as pm
 import sys
 
 
@@ -107,7 +108,7 @@ There is an optional config_default parameter that can be used to specify
 the behavior of the 'to_units' and 'from_units' strings if they are not
 specified when the conversion is evoked.  The config_default does NOT
 define the default unit string; rather it specifies the parameter name
-to query using pyro.utility.get_config() for the default units.  This
+to query using pm.utility.get_config() for the default units.  This
 allows users to completely reconfigure the PYroMat unit system on the
 fly.
 """
@@ -130,16 +131,16 @@ new system of units.
         if from_units is None:
             # If not, retrieve the configured default units
             if self.config_default is None:
-                raise pyro.utility.PMParamError('Missing from_units, and no default specified')
+                raise pm.utility.PMParamError('Missing from_units, and no default specified')
             else:
-                from_units = pyro.config[self.config_default]
+                from_units = pm.config[self.config_default]
         # Repeat for to_units.  Are they specified?
         if to_units is None:
             # If not, retrieve the configured default units
             if self.config_default is None:
-                raise pyro.utility.PMParamError('Missing from_units, and no default specified')
+                raise pm.utility.PMParamError('Missing from_units, and no default specified')
             else:
-                to_units = pyro.config[self.config_default]
+                to_units = pm.config[self.config_default]
         # Do not do the conversion if it is not necessary
         if from_units == to_units:
             return value
@@ -412,6 +413,28 @@ unit conversion routines will be updated.
 setup()
 
 
+def ismass(units=None):
+    """Detect whether matter units are mass or molar
+    ismass()
+        OR
+    ismass(units)
+    
+Expects units to be a string defining a mass or molar unit.  Returns 
+True if the string corresponds to a mass unit, False if it corresponds
+to a molar unit, and raises a PMParamError if the string is not 
+recognized.
+    
+When ismass() is called with no argument, it checks the pyromat 
+config['unit_matter'] unit.
+"""
+    if units is None:
+        units = pm.config['unit_matter']
+    if units in mass:
+        return True
+    elif units in molar:
+        return False
+    raise pm.utility.PMParamError('Unrecognized unit matter: ' + repr(units))
+
 
 # Validated 11/18/2017
 def temperature_scale(value, from_units=None, to_units=None, inplace=False):
@@ -419,7 +442,7 @@ def temperature_scale(value, from_units=None, to_units=None, inplace=False):
 new_value = temperature_scale(old_value, from_units=None, to_units=None)
 
 If the from_units or to_units are neglected, they will be pulled from the
-'unit_temperature' pyro configuration parameter.  The temperature_scale()
+'unit_temperature' pm configuration parameter.  The temperature_scale()
 function is used to convert values between scales.  The temperature() 
 conversion routine converts differential or relative temperatures.  For 
 example, temperature_scale() would be used to assert that 300K is 26.85C,
@@ -440,10 +463,10 @@ original default scale.
 
     # Check to be certain from_units is specified
     if from_units is None:
-        from_units = pyro.config['unit_temperature']
+        from_units = pm.config['unit_temperature']
     # Repeat for to_units.  Are they specified?
     if to_units is None:
-        to_units = pyro.config['unit_temperature']
+        to_units = pm.config['unit_temperature']
 
     if from_units == to_units:
         return value
@@ -551,10 +574,10 @@ If the from_units or the to_units values are not specified, the pyromat
 
     # Check to be certain from_units is specified
     if from_units is None:
-        from_units = pyro.utility.get_config('unit_matter')
+        from_units = pm.utility.get_config('unit_matter')
     # Repeat for to_units.  Are they specified?
     if to_units is None:
-        to_units = pyro.utility.get_config('unit_matter')
+        to_units = pm.utility.get_config('unit_matter')
 
     if from_units == to_units:
         return value
@@ -580,7 +603,7 @@ If the from_units or the to_units values are not specified, the pyromat
 
 def show():
     """Print a summary of all unit conversions available"""
-    for name,conv in pyro.units.__dict__.items():
+    for name,conv in pm.units.__dict__.items():
         if isinstance(conv,Conversion):
             sys.stdout.write( '%15s : '%name)
             for item in conv.get():

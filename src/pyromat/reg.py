@@ -132,6 +132,23 @@ documentation for more details.
             pm.utility.print_error(missing)
             raise pm.utility.PMDataError()
 
+    def sid(self):
+        """Returns the substance identifier string
+    sid = subst.sid()
+
+The substance identifier string uniquely identifies this substance in 
+the PYroMat database.  It is a string in two parts identifying the 
+collection and the substance separated by a period.  For example,
+    ig.H2O      Ideal gas water
+    mp.H2O      Multi-phase model water
+    ig.CN2      CNN radical (CNN)
+    ig.CN2_1    methanetetraylbis-Amidogen (NCN)
+Note that substances with the same composition but dissimilar atomic 
+arrangements are rare in PYroMat, but they do occur.  They are 
+differentiated by a trailing underscore and index.
+"""
+        return self.data['id']
+
     def pmclass(self):
         """Return the PYroMat class string
     pmclassstr = subst.pmclass()
