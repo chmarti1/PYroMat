@@ -135,7 +135,7 @@ _units  is a string identifying the matter units used in the _q array.
                 raise pm.utility.PMParamError('IGTMix: Unrecognized constituent: ' + repr(sid))
 
             # Next, process the quantity as an array
-            qty = np.atleast_1d(np.asarray(qty))
+            qty = np.atleast_1d(qty)
             try:
                 shape = np.broadcast_shapes(qty.shape, shape)
             except:
@@ -149,21 +149,44 @@ _units  is a string identifying the matter units used in the _q array.
         # to the correct shape.
         for index,qty in enumerate(contents.values()):
             self._q[index,:] = np.broadcast_to(qty, shape)
-
+            
+        # Finally, stash the units string
+        if units is None:
+            self._units = pm.config['unit_matter']
+        elif units in pm.units.mass or units in pm.units.molar:
+            self._units = units
+        else:
+            raise pm.utility.PMParamError('IGTMix: Unrecognized unit matter: ' + repr(units))
             
     def __iadd__(self, b):
         """Add mixture b to mixture a
     a += b
 """
-        for sid,(subst, qty) in self.items():
-            if sid in self._contents:
-                # If the substances don't match raise an error
-                if self._contents[sid][0] != subst:
-                    pm.print_error('While adding two mixtures, substances with the same ID strings were found pointing to contradictory data instances. This means there are two contradictory definitions for the same substance ID.')
-                    raise pm.utility.PMDataError('Contradictory data instances for SID: ' + str(sid))
-                self._contents[sid][1] += qty
-            else:
-                self._contents[sid] = [subst,qty]
+        # Detect the number of unique substances and add them 
+        # to the result list
+        N = len(self._c)
+        NN = N
+        for bc in b._c:
+            if bc not in self._c:
+                self._c.append(bc)
+                NN += 1
+                
+        # Grow the q array appropariately
+        # Check for broadcastable quantity shapes
+        ashape = self.shape()
+        cshape = np.broadcast_shapes(ashape,b.shape())
+        # If broadcasting is necessary, do it now
+        if cshape != ashape:
+            self._q = np.broadcast_to(self._q, (N,)+cshape)
+        # If there are new substances, grow the quantity array
+        if NN>N:
+            self._q = np.concatenate((self._q,np.zeros((NN-N,)+cshape)),axis=0)
+        
+        for bi,subst in enumerate(b._c):
+            ai = self._c.index(subst)
+            self._q[ai,:] += pm.units.matter(subst.mw(),b._q[bi,:],b._units,self._units)
+        return self
+                
                 
     def __add__(self, b):
         """Combine two mixtures to form a third unique mixture
@@ -180,6 +203,48 @@ _update() should be called any time there is a change to the mixture
 composition.  It re-calculates the molecular weight, mole, and mass 
 fractions.  The IGMIX class has to use the _bootstrap() method for this
 """
+        
+    def _sindex(self, sid):
+        """SINDEX - retrieve the index corresponding to a substance
+    index = _sindex(sid)
+    
+SID can be a substance ID string or a data instance to be matched.
+
+Returns None if not found.
+"""
+        # If we're looking for an SID string
+        if isinstance(sid, str):
+            if '.' not in sid:
+                sid = 'ig.' + sid
+            for index,this in enumerate(self._c):
+                if isinstance(this,pm.reg.__basedata__) and this.sid()==sid:
+                    return index
+            return None
+        # If we're looking for anything else...
+        else:
+            for index,this in enumerate(self._c):
+                if sid is this:
+                    return index
+            return None
+        
+    #
+    # Length and size operations
+    #
+    def __len__(self):
+        """LEN - detect the number of mixtures represented here
+"""
+        return np.product(self.shape())
+            
+    def shape(self):
+        """SHAPE - return the dimensions of the quantity arrays
+"""
+        return self._q.shape[1:]
+
+
+    def nsubst(self):
+        """NSUBST - return the number of constituent substances
+"""
+        return len(self._c)
         
     def sety(self, y, sid=None):
         pass
