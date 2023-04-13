@@ -178,6 +178,8 @@ _argparse decides which to populate based on what is most efficient.
         # 6) Replace v with d if it appears
         if 'T' in kwarg:
             kwarg['T'] = pm.units.temperature_scale(kwarg['T'], to_units='K')
+            if 'e' in kwarg or 'h' in kwarg:
+                raise pm.utility.PMParamError('Temperature (T) cannot be specified with enthalpy (h) or internal energy (e).')
         if 'p' in kwarg:
             kwarg['p'] = pm.units.pressure(kwarg['p'], to_units='Pa')
         if 'd' in kwarg:
@@ -250,16 +252,12 @@ _argparse decides which to populate based on what is most efficient.
                 T = np.full_like(y, 0.5*(self.data['Tlim'][0] + self.data['Tlim'][-1]))
                 I = np.ones_like(y,dtype=bool)
                 # density and entropy are specified, special iteration is required
-                if invp == 's':
-                    self._iter1(self._sditer, 'T', y, T, I, self.data['Tlim'][0], self.data['Tlim'][-1], param={'d':d})
-                else:
-                    self._iter1(invfn, 'T', y, T, I, self.data['Tlim'][0], self.data['Tlim'][-1])
+                self._iter1(self._sditer, 'T', y, T, I, self.data['Tlim'][0], self.data['Tlim'][-1], param={'d':d})
             # If pressure is specified
             elif basp == 'p':
                 y,p = np.broadcast_arrays(kwarg[invp], kwarg[basp])
                 # If the property is entropy, adjust it for pressure
-                if invp == 's':
-                    y = y + pm.units.const_Ru * np.log(p / self.data['pref'])
+                y = y + pm.units.const_Ru * np.log(p / self.data['pref'])
                 T = np.full_like(y, 0.5*(self.data['Tlim'][0] + self.data['Tlim'][-1]))
                 I = np.ones_like(y,dtype=bool)
                 self._iter1(invfn, 'T', y, T, I, self.data['Tlim'][0], self.data['Tlim'][-1])
@@ -267,12 +265,8 @@ _argparse decides which to populate based on what is most efficient.
             elif basp == 'T':
                 y,T = np.broadcast_arrays(kwarg[invp], kwarg[basp])
                 # If entropy is specified, pressure can be explicitly calculated.
-                if invp == 's':
-                    s0 = self._s(T)[0]
-                    p = self.data['pref'] * np.exp((s0-y)/pm.units.const_Ru)
-                # Otherwise, this is an illegal combination!
-                else:
-                    raise pm.utility.PMParamError('Cannot simultaneously specify parameters: T, {:s}'.format(invp))
+                s0 = self._s(T)[0]
+                p = self.data['pref'] * np.exp((s0-y)/pm.units.const_Ru)
         # If temperature is specified
         elif 'T' in args:
             # There isn't much work to do
