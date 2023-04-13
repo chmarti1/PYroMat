@@ -44,9 +44,7 @@ class TestInputErrors:
 
     def test_invarg_toomany(self, gas):
         with raises(pm.utility.PMParamError):
-            gas.T(h=300, s=5)
-        with raises(pm.utility.PMParamError):
-            gas.T(e=300, s=5)
+            gas.T(h=300, e=300)
 
     def test_d_v_collision(self, gas):
         with raises(pm.utility.PMParamError):
@@ -439,14 +437,12 @@ class TestRefs:
     def test_hs(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        with raises(pm.utility.PMParamError):
-            fn(h=ref['h'], s=ref['s'])
+        assert fn(h=ref['h'], s=ref['s']) == approx(ref[param], rel=1e-5, abs=1e-1)
 
     def test_es(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        with raises(pm.utility.PMParamError):
-            fn(e=ref['e'], s=ref['s'])
+        assert fn(e=ref['e'], s=ref['s']) == approx(ref[param], rel=1e-5, abs=1e-1)
 
     def test_he(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
