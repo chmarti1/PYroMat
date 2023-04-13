@@ -146,12 +146,16 @@ _argparse decides which to populate based on what is most efficient.
         # 2.3: Only one inverse property is allowed
         inverse_args = inverse_args.intersection(args)
         if len(inverse_args) > 1:
-            message = 'Properties may not be specified together:'
-            prefix = ' '
-            for name in inverse_args:
-                message += prefix + name
-                prefix = ', '
-            raise pm.utility.PMParamError(message)
+            if 'h' in inverse_args and 'e' in inverse_args:
+                message = 'Properties may not be specified together:'
+                prefix = ' '
+                for name in inverse_args:
+                    message += prefix + name
+                    prefix = ', '
+                raise pm.utility.PMParamError(message)
+            else:
+                # this is allowed, continue
+                pass
         
         # 2.4: Density and specific volume cannot be specified together
         if 'v' in args and 'd' in args:
@@ -192,12 +196,30 @@ _argparse decides which to populate based on what is most efficient.
             value = kwarg['h']
             value = pm.units.energy(value, to_units='kJ')
             value = pm.units.matter(value, self.data['mw'], to_units='kmol', exponent=-1)
-            kwarg['h'] = value
+            y = value
+            T = np.full_like(y, 0.5 * (self.data['Tlim'][0] + self.data['Tlim'][-1]))
+            I = np.ones_like(y, dtype=bool)
+            self._iter1(self._h, 'T', y, T, I, self.data['Tlim'][0], self.data['Tlim'][-1])
+            kwarg['T'] = T
+            args.add('T')
+            basic_args.add('T')
+            del kwarg['h']
+            args.remove('h')
+            inverse_args.remove('h')
         if 'e'  in kwarg:
             value = kwarg['e']
             value = pm.units.energy(value, to_units='kJ')
             value = pm.units.matter(value, self.data['mw'], to_units='kmol', exponent=-1)
-            kwarg['e'] = value
+            y = value
+            T = np.full_like(y, 0.5 * (self.data['Tlim'][0] + self.data['Tlim'][-1]))
+            I = np.ones_like(y, dtype=bool)
+            self._iter1(self._e, 'T', y, T, I, self.data['Tlim'][0], self.data['Tlim'][-1])
+            kwarg['T'] = T
+            args.add('T')
+            basic_args.add('T')
+            del kwarg['e']
+            args.remove('e')
+            inverse_args.remove('e')
         if 's' in kwarg:
             value = kwarg['s']
             value = pm.units.energy(value, to_units='kJ')
