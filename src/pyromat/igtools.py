@@ -226,7 +226,7 @@ _units  is a string identifying the matter units that were in use when
         # identifiers and quantities. We'll loop over the contents twice.
         # In the first iteration, we'll determine the quatity array 
         # shape and we'll gather the substance instances.
-        shape = ()
+        shape = None
         self._c = []
         for sid,qty in contents.items():
             # First, deal with the substance
@@ -252,18 +252,18 @@ _units  is a string identifying the matter units that were in use when
             # Next, process the quantity as an array
             qty = np.atleast_1d(qty)
             try:
-                shape = np.broadcast_shapes(qty.shape, shape)
+                shape = np.broadcast(qty.shape, shape)
             except:
                 raise pm.utility.PMParamError('IGTMix: Failed to broadcast quantity array for: ' + repr(sid))
             
         # Initialize the quantity array
         N = len(self._c)
-        self._q = np.empty((N,) + shape, dtype=float)
+        self._q = np.empty((N,) + shape.shape, dtype=float)
 
         # In the second loop, we'll broadcast all of the quantity arrays
         # to the correct shape.
         for index,qty in enumerate(contents.values()):
-            self._q[index,:] = np.broadcast_to(qty, shape)
+            self._q[index,:] = np.broadcast_to(qty, shape.shape)
             
         # Finally, stash the units string
         if units is None:
@@ -272,10 +272,10 @@ _units  is a string identifying the matter units that were in use when
             self._units = units
         else:
             raise pm.utility.PMParamError('IGTMix: Unrecognized unit matter: ' + repr(units))
-            
+        
         self._update()    
         
-            
+        
     def __iadd__(self, b):
         """Add mixture b to self
     a += b
@@ -293,17 +293,18 @@ This combines the quantities of gas in mixture b into mixture a.
             if bc not in self._c:
                 self._c.append(bc)
                 NN += 1
-                
         # Grow the q array appropariately
-        # Check for broadcastable quantity shapes
-        ashape = self.shape()
-        cshape = np.broadcast_shapes(ashape,b.shape())
-        # If broadcasting is necessary, do it now
-        if cshape != ashape:
-            self._q = np.broadcast_to(self._q, (N,)+cshape)
+        # First, detect the starting and finishing array shapes
+        sshape = self.shape()
+        bshape = b.shape()
+        bb = np.broadcast(self._q[0,:], b._q[0,:])
+        
+        # If the existing in-place array needs to grow, do that first
+        if bb.shape != sshape:
+            self._q = np.broadcast_to(self._q, (N,)+bb.shape)
         # If there are new substances, grow the quantity array
         if NN>N:
-            self._q = np.concatenate((self._q,np.zeros((NN-N,)+cshape)),axis=0)
+            self._q = np.concatenate((self._q,np.zeros((NN-N,)+bb.shape)),axis=0)
         
         for bi,subst in enumerate(b._c):
             ai = self._c.index(subst)

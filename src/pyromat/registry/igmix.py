@@ -73,9 +73,6 @@ documentation using Python's built-in "help()" function.
         # Initialize the static molar and mass fractions
         self._x = {}
         self._y = {}
-        # Initialize a total mass and molar tally
-        total_x = 0.
-        total_y = 0.
         # Initialize the mean molecular weight
         self._mw = 0.
         # Initialize the mean reference pressure for entropy
@@ -97,7 +94,8 @@ Attribute   Description
 _x          Dictionary of mole fractions
 _y          Dictionary of mass fractions
 _mw         Effective mean molecular mass (weight) in kg/kmol
-_pref_bar   Effective log-mean reference pressure in bar
+_pref_bar   Effective log-mean reference pressure in bar used for entropy
+_smix_R     The enthalpy of mixing divided by the gas constant (dless)
 _Tlim       Lower and upper temperature limits of the most restrictive
             constintuent gas data in Kelvin
 """
@@ -161,10 +159,14 @@ _Tlim       Lower and upper temperature limits of the most restrictive
         self._pref_pa = np.exp(self._pref_pa / total_x)
         
         # Loop through one more time to normalize by the mass and molar
-        # totals.
+        # totals and calculate the entropy of mixing
+        self._smix = 0.
         for ss in self._x:
             self._x[ss] /= total_x
             self._y[ss] /= total_y
+            # Enthalpy of mixing
+            self._smix -= self._x[ss] * np.log(self._x[ss])
+        self._smix *= pm.units.const_Ru
             
         
 
@@ -977,7 +979,7 @@ Returns:    Entropy     [unit_energy / unit_matter / unit_temperature]
         T,p,d = self._argparse(*varg, **kwarg)
         if p is None:
             p = 1000 * pm.units.const_Ru * d * T
-        s = self._s(T)[0] - pm.units.const_Ru * np.log(p/self._pref_pa)
+        s = self._s(T)[0] - pm.units.const_Ru * np.log(p/self._pref_pa) + self._smix
         pm.units.energy(s, from_units='kJ', inplace=True)
         pm.units.matter(s, self._mw, from_units='kmol', inplace=True, exponent=-1)
         pm.units.temperature(s, from_units='K', inplace=True, exponent=-1)
