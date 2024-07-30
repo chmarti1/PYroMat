@@ -94,7 +94,6 @@ dioxide and "Co2" represents diatomic cobalt.
         self.__doc__ = self.data['doc']
         
         
-        
     def __repr__(self):
         return '<' + self.data['class'] + ', ' + self.data['id'] + '>'
 
@@ -215,13 +214,66 @@ are the integer quantities in the chemical formula.  For example
     aa = {'C':1, 'O':2}
 would represent carbon dioxide.
 
+Ionization is represented by an entry for the free electron, 'e'.  For
+example, Ne+ (ionized neon) has an atoms dictionary
+    aa = {'Ne':1, 'e':-1}
+indicating that the neutral neon atom has lost a single electron.
+
 If the substance data does not include atomic data, an empty dictionary
 is returned instead.
 """
         if 'atoms' in self.data:
             return self.data['atoms'].copy()
         return {}
-
+        
+    def hill(self):
+        """Return a string with the Hill notation of the chemical compound
+    hillstr = hill()
+    
+In Hill notation, chemical contents are listed in order [C][H][Others]
+where "others" are listed in alphabetical order.
+    
+If the atoms() method returns a valid composition dictionary, it is used
+to build the string.  Otherwise, hill() uses the substance ID string.
+"""
+        out = ''
+        # If the atoms dictionary is available, use that.  This is 
+        # preferred over atoms() because igmix instances will have 
+        # confusing decimal quantities
+        if 'atoms' in self.data:
+            aa = self.data['atoms']
+            contents = list(aa.keys())
+            # The free electron is a special case
+            if contents == ['e']:
+                return 'e-'
+            contents.sort()
+            # Deal with carbon and hydrogen
+            for this in ['C', 'H']:
+                if this in contents:
+                    out += this
+                    if aa[this] != 1:
+                        out += f'{aa[this]}'
+            # all others in alphabetical order
+            for this in contents:
+                if this != 'C' and this != 'H' and this != 'e':
+                    out += this
+                    if aa[this] != 1:
+                        out += f'{aa[this]}'
+            # Finally, add on any ionization
+            if 'e' in contents:
+                qty = aa[this]
+                if qty < 0:
+                    out += '+'
+                    qty = -qty
+                else:
+                    out += '-'
+                if qty != 1:
+                    out += f'{qty}'
+        else:
+            out = self.data['id'].split('.')[1]
+            out = out.split('_')[0]
+        return out
+        
 #
 #   Go load the contents of the reg directory
 #

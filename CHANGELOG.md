@@ -175,6 +175,8 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 - Corrected a bug reported in issue 64 where inverse routines were not returning the correct units.
 
 ## Version 2.2.5
+- Added entropy of mixing to the `igmix` s() calculation (github issue 92)
 - Added the `igtools` module with dynamic ideal gas mixture support
 - Added the `ismass()` function in the units module
 - Added `sid()` to the `__basedata__` class (all data instances)
+- Added `hill()` to the `__basedata__` class

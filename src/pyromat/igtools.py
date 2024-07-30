@@ -211,7 +211,7 @@ _units  is a string identifying the matter units that were in use when
         # If the contents is a string or data instance, build a dummy dict
         elif isinstance(contents, str):
             return self.__init__(contents=parse_mixstr(contents), units=units)
-        
+        # If contents is a base PYroMat class
         elif isinstance(contents, pm.reg.__basedata__):
             return self.__init__(contents={contents:1}, units=units)
         # if the contents is a list or tuple of constituents
@@ -252,7 +252,7 @@ _units  is a string identifying the matter units that were in use when
             # Next, process the quantity as an array
             qty = np.atleast_1d(qty)
             try:
-                shape = np.broadcast(qty.shape, shape)
+                shape = np.broadcast(qty, shape)
             except:
                 raise pm.utility.PMParamError('IGTMix: Failed to broadcast quantity array for: ' + repr(sid))
             
@@ -324,9 +324,13 @@ Makes a copy of a and calls __iadd__() to execute the operation.
         # Use in-place addition
         # Make a copy of self and return the in-place addition result
         c = IGTMix(self)
-        c += b
+        c.__iadd__(b)
         return c
         
+    def __radd__(self, b):
+        c = IGTMix(self)
+        c.__iadd__(b)
+        return c
       
         
     def __imul__(self, b):
@@ -448,7 +452,21 @@ interface than the core PYroMat classes.  It expects
         """LEN - detect the number of mixtures represented here
 """
         return np.product(self.shape())
-            
+    
+    def __str__(self):
+        """STR - pretty print of the mixture
+"""
+        out = ''
+        if self.__len__() > 1:
+            for sid in self._c[:-1]:
+                out += f'[...] {sid} + '
+            out += f'[...] {self._c[-1]}'
+        else:
+            for sid,qty in zip(self._c[:-1], self._q[:-1]):
+                out += f'{qty} {sid} + '
+            out += f'{self._q[-1]} {self._c[-1]}'
+        return out
+    
     def shape(self):
         """SHAPE - return the dimensions of the quantity arrays
 """

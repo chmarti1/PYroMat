@@ -66,7 +66,7 @@ documentation using Python's built-in "help()" function.
 
 
     def _argparse(self, *varg, **kwarg):
-        """Parse the arguments supplied to an IG2 property method
+        """Parse the arguments supplied to an IG property method
     T,p,d = _argparse(*varg, **kwarg)
 
 _ARGPARSE automatically applies the default temperature and pressure,
@@ -84,12 +84,14 @@ _argparse decides which to populate based on what is most efficient.
         # 2) Apply the argument rules...
         #   2.1: All arguments must be legal
         #   2.2: Only 2 arguments
-        #   2.3: Only 1 inverse property
+        #   2.3: T, e, and h may not be specified together
         #   2.4: d and v may not be specified together 
         # 3) Convert the arguments to arrays with dim 1 or greater
         # 4) Convert to standard units
-        # 5) Check for out-of-bounds on basic arguments
-        # 6) Replace specific volume with density if it appears
+        # 5) Process equivalent arguments
+        #   5.1: replace v with d
+        #   5.2: replace e or h with T
+        # 6) Check for out-of-bounds on basic arguments (This was shifted to last)
         # 7) Case out the possible combinations
         # 8) Broadcast the arrays appropriately
         # 9) Calculate T,p,d
@@ -128,20 +130,8 @@ _argparse decides which to populate based on what is most efficient.
         # the remaining rules
         nargs = len(kwarg)
         args = set(kwarg.keys())
-        # inverse_methods is a map between the property names that require
-        # iteration and the inner method that calculates it.  Inverse 
-        # args is a set of their names that will be used for argument 
-        # parsing
-        inverse_methods = {'e':self._e, 'h':self._h, 's':self._s}
-        inverse_args = set(inverse_methods.keys())
-        # basic_args are the remaining legal arguments that do not need
-        # iteration (OK, p does, but it's special). 
-        # legal_args are all arguments that can be legally accepted.
-        basic_args = set(['T','p','d','v'])
-        legal_args = inverse_args.union(basic_args)
-        # Group the available arguments into basic and inverse sets
-        inverse_args &= args
-        basic_args &= args
+        # A set of the legal arguments
+        legal_args = set(['T','p','d','v','e','h','s'])
         
         # 2.1: There may only be 2 arguments
         if nargs>2:
@@ -158,9 +148,9 @@ _argparse decides which to populate based on what is most efficient.
                 prefix = ', '
             raise pm.utility.PMParamError(message)
         
-        # 2.3: Only one inverse property is allowed
-        inverse_args = inverse_args.intersection(args)
-        if len(inverse_args) > 1:
+        # 2.3: T, e, and h may not be specified together
+        these_args = set(['T', 'e', 'h']).intersection(args)
+        if len(these_args) > 1:
             message = 'Properties may not be specified together:'
             prefix = ' '
             for name in inverse_args:
@@ -186,10 +176,7 @@ _argparse decides which to populate based on what is most efficient.
         #   to be converted.  Otherwise, the array is passed through verbatim
         #   As a result, the input array will ONLY be copied if it needs to
         #   be reshaped, converted, or retyped.
-        # 5) Check for out-of-bounds on the converted values
-        #   Checking before arrays are broadcast minimizes the number of
-        #   elements that need to be inspected
-        # 6) Replace v with d if it appears
+        # 5) Replace v with d and e/h with T
         if 'T' in kwarg:
             kwarg['T'] = pm.units.temperature_scale(kwarg['T'], to_units='K')
         if 'p' in kwarg:
@@ -201,21 +188,26 @@ _argparse decides which to populate based on what is most efficient.
             # Convert and replace with d at the same time
             value = pm.units.volume(kwarg['v'], to_units='m3')
             kwarg['d'] = 1./pm.units.matter(value, self.data['mw'], to_units='kmol', exponent=-1)
-            args.add('d')
-            basic_args.add('d')
-            del kwarg['v']
-            args.remove('v')
-            basic_args.remove('v')
         if 'h' in kwarg:
             value = kwarg['h']
             value = pm.units.energy(value, to_units='kJ')
             value = pm.units.matter(value, self.data['mw'], to_units='kmol', exponent=-1)
-            kwarg['h'] = value
+            Tlow = self.data['Tlim'][0]
+            Thigh = self.data['Tlim'][-1]
+            T = np.full(value.shape, 0.5*(Tlow+Thigh))
+            I = np.ones(value.shape, dtype=bool)
+            self._iter1(self._h, 'T', value, T, I, Tlow, Thigh)
+            kwarg['T'] = T
         if 'e'  in kwarg:
             value = kwarg['e']
             value = pm.units.energy(value, to_units='kJ')
             value = pm.units.matter(value, self.data['mw'], to_units='kmol', exponent=-1)
-            kwarg['e'] = value
+            Tlow = self.data['Tlim'][0]
+            Thigh = self.data['Tlim'][-1]
+            T = np.full(value.shape, 0.5*(Tlow+Thigh))
+            I = np.ones(value.shape, dtype=bool)
+            self._iter1(self._e, 'T', value, T, I, Tlow, Thigh)
+            kwarg['T'] = T
         if 's' in kwarg:
             value = kwarg['s']
             value = pm.units.energy(value, to_units='kJ')
@@ -227,79 +219,67 @@ _argparse decides which to populate based on what is most efficient.
         # Do NOT use this for s, e, and h relationships
         R = 1000 * pm.units.const_Ru
 
-
-
         T = p = d = None
-        # If there was an argument that requires an inverse routine
-        if inverse_args:
-            # There can only be one, see rule 2.3
-            invp = inverse_args.pop()
-            invfn = inverse_methods[invp]
-            
-            # what else do we have?
-            # There can only be one, see rule 2.1
-            basp = basic_args.pop()
-            
+        # Entropy requires special iteration
+        if 's' in kwarg:
             # If density is specified
-            if basp == 'd':
-                y,d = np.broadcast_arrays(kwarg[invp], kwarg[basp])
-                p = None
-                T = np.full_like(y, 0.5*(self.data['Tlim'][0] + self.data['Tlim'][-1]))
-                I = np.ones_like(y,dtype=bool)
-                # density and entropy are specified, special iteration is required
-                if invp == 's':
-                    self._iter1(self._sditer, 'T', y, T, I, self.data['Tlim'][0], self.data['Tlim'][-1], param={'d':d})
-                else:
-                    self._iter1(invfn, 'T', y, T, I, self.data['Tlim'][0], self.data['Tlim'][-1])
+            if 'd' in args:
+                s,d = np.broadcast_arrays(kwarg['s'], kwarg['d'])
+                Tlow = self.data['Tlim'][0]
+                Thigh = self.data['Thigh'][-1]
+                T = np.full_like(s, 0.5*(Tlow+Thigh))
+                I = np.ones_like(s,dtype=bool)
+                self._iter1(self._sditer, 'T', s, T, I, Tlow, Thigh, param={'d':d})
+
             # If pressure is specified
-            elif basp == 'p':
-                y,p = np.broadcast_arrays(kwarg[invp], kwarg[basp])
-                # If the property is entropy, adjust it for pressure
-                if invp == 's':
-                    y = y + pm.units.const_Ru * np.log(p / self._pref_pa)
-                T = np.full_like(y, 0.5*(self.data['Tlim'][0] + self.data['Tlim'][-1]))
-                I = np.ones_like(y,dtype=bool)
-                self._iter1(invfn, 'T', y, T, I, self.data['Tlim'][0], self.data['Tlim'][-1])
+            elif 'p' in kwarg:
+                s,p = np.broadcast_arrays(kwarg['s'], kwarg['p'])
+                # adjust entropy to the reference pressure
+                s += pm.units.const_Ru * np.log(p / self._pref_pa)
+                Tlow = self.data['Tlim'][0]
+                Thigh = self.data['Thigh'][-1]
+                T = np.full_like(s, 0.5*(Tlow+Thigh))
+                I = np.ones_like(s,dtype=bool)
+                self._iter1(self._s, 'T', s, T, I, Tlow, Thigh)
             # If temperature is specified
-            elif basp == 'T':
-                y,T = np.broadcast_arrays(kwarg[invp], kwarg[basp])
-                # If entropy is specified, pressure can be explicitly calculated.
-                if invp == 's':
-                    s0 = self._s(T)[0]
-                    p = self._pref_pa * np.exp((s0-y)/pm.units.const_Ru)
+            elif 'T' in kwarg:
+                s,T = np.broadcast_arrays(kwarg['s'], kwarg['T'])
+                # Calculate the reference entropy at the specified temperature
+                s0 = self._s(T)[0]
+                p = self._pref_pa * np.exp((s0-s)/pm.units.const_Ru)
                 # Otherwise, this is an illegal combination!
-                else:
-                    raise pm.utility.PMParamError('Cannot simultaneously specify parameters: T, {:s}'.format(invp))
+            else:
+                raise pm.utility.PMParamError(f'Cannot simultaneously specify parameters: {args}')
         # If temperature is specified
-        elif 'T' in args:
+        elif 'T' in kwarg:
             # There isn't much work to do
-            if 'p' in args:
+            if 'p' in kwarg:
                 T,p = np.broadcast_arrays(kwarg['T'],kwarg['p'])
-            elif 'd' in args:
+            elif 'd' in kwarg:
                 T,d = np.broadcast_arrays(kwarg['T'],kwarg['d'])
             else:
-                message = 'Please report a bug: Unhandled event [T] in ig._argparse with args:'
+                message = 'Please report a bug: Unhandled event [T] in ig2._argparse with args:'
                 prefix = ' '
-                for name in args:
+                for name in kwarg:
                     message += prefix + name
                     prefix = ', '
                 raise pm.utility.PMParamError(message)
         # If pressure is specified
-        elif 'p' in args:
-            if 'd' in args:
+        elif 'p' in kwarg:
+            if 'd' in kwarg:
                 p,d = np.broadcast_arrays(kwarg['p'], kwarg['d'])
                 T = p / (R * d)
             else:
-                message = 'Please report a bug: Unhandled event [p] in ig._argparse with args:'
+                message = 'Please report a bug: Unhandled event [p] in ig2._argparse with args:'
                 prefix = ' '
-                for name in args:
+                for name in kwarg:
                     message += prefix + name
                     prefix = ', '
                 raise pm.utility.PMParamError(message)
         else:
-            message = 'Please report a bug: Unhandled event [MASTER] in ig._argparse with args:'
+            message = 'Please report a bug: Unhandled event [MASTER] in ig2._argparse with args:'
             prefix = ' '
-            for name in args:
+            for name in kwarg:
                 message += prefix + name
                 prefix = ', '
             raise pm.utility.PMParamError(message)
@@ -313,7 +293,6 @@ _argparse decides which to populate based on what is most efficient.
             T[I] = pm.config['def_oob']
             pm.utility.print_warning('Some of the states were out of bounds - setting to config[\'def_oob\'].  '
                     'Legal temperatures for {} are between {} and {} Kelvin.'.format(self.data['id'], self.data['Tlim'][0], self.data['Tlim'][-1]))
-            
         return T,p,d
 
     def _crange(self, T, index):

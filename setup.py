@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Installation file for PYroMat
-Chris Martin (c) 2016,2018,2021
+Chris Martin (c) 2016,2018,2021,2023,2024
 """
 
 import setuptools
