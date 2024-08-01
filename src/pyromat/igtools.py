@@ -7,6 +7,7 @@
 """
 
 
+
 import pyromat as pm
 import numpy as np
 
@@ -34,7 +35,7 @@ def parse_mixstr(mixstr):
         
         result[subst] = coef
     return result
-            
+
 class IGTMix(object):
     """Ideal Gas Tools dynamic Mixture
     
@@ -84,6 +85,10 @@ units.  See UNITS below for more information.
     air = IGTMix('.76 N2 + .23 O2 + .01 Ar')
     fuel = IGTMix('.23 CH4 + .44 C3H8')
     reactants = air + 0.4*fuel
+
+        OR JUST AS A STRING!
+        
+    reactants = '.76 N2 + .23 O2 + .01 Ar' + 0.4*fuel
 
 (6) From an existing igmix instance, using the fromigmix() function.
     air = fromigmix(pm.get('ig.air'))
@@ -160,11 +165,16 @@ element of the array to access.
 
 ** ITERATING **
 
-The items() method works like the Python built-in dict.items().  It 
-returns an iterator that produces an ordered pair of each substance 
-instance and its quanitty array.
+IGTMix instances act much like an ordered dictionary with PYroMat ideal
+gas class isntances as keys and quantitiy arrays as values.  The items() 
+method allows simultaneous iteration over the substances and quantities.
+
     for subst,qty in mymix.items():
-        ... do some stuff ...
+        # subst is now a PYroMat substance instance
+        # qty is now a Numpy array of the substance's quantity
+        
+    for subst in mymix:
+        # subst is now a PYroMat substance instance
 
 ** ALGEBRA WITH MIXTURES **
 
@@ -178,6 +188,14 @@ of nitrogen and argon.
     mix2 = IGTMix({'N2':1, 'Ar':1})
     mix3 = 0.5*mix1 + 2*mix2
 
+The addition algorithm attempts to convert non-IGTMix instances to 
+IGTMix instances.  That means that strings, lists, dictionaries, and
+ordinary PYroMat instances may be folded into mixtures using plain 
+command-line algebra.
+    mix4 = mix2 + '0.5 CO'
+    mix5 = mix2 + pm.get('ig.H2O')
+    mix6 = mix2 + {'H2O':[0.5,0.12], 'C2H2':0.8}
+
 ** REPRESENTATION **
 
 The mixture is represented in the back-end by attributes that are not 
@@ -189,8 +207,8 @@ _q      is a numpy array of quantities; the first index in the array
         broadcast to eachother.
 _c      is a numpy array of IGMix or ideal gas instances that make up
         the mixture.
-_units  is a string identifying the matter units that were in use when
-        the mixture was defined.
+_units  is a string identifying the matter units in which the quanitity
+        array is currently expressed.
 """
 
     def __init__(self, contents=None, units=None, **kwarg):
@@ -200,13 +218,15 @@ _units  is a string identifying the matter units that were in use when
         # a dictionary assigned to contents.
         # If no contents have been specified...
         if contents is None:
-            return self.__init__(contents=kwarg, units=units)
+            if kwarg:
+                return self.__init__(contents=kwarg, units=units)
+            else:
+                contents = {}
         # If this is a copy operation
         elif isinstance(contents, IGTMix):
-            self._c = contents._c.copy()
-            self._q = contents._q.copy()
-            self._units = contents._units
-            self._update()
+            self._c = list(contents._c)
+            self._q = np.array(contents._q)
+            self._units = str(contents._units)
             return
         # If the contents is a string or data instance, build a dummy dict
         elif isinstance(contents, str):
@@ -226,7 +246,7 @@ _units  is a string identifying the matter units that were in use when
         # identifiers and quantities. We'll loop over the contents twice.
         # In the first iteration, we'll determine the quatity array 
         # shape and we'll gather the substance instances.
-        shape = None
+        shape = (1,)
         self._c = []
         for sid,qty in contents.items():
             # First, deal with the substance
@@ -250,20 +270,17 @@ _units  is a string identifying the matter units that were in use when
                 raise pm.utility.PMParamError('IGTMix: Unrecognized constituent: ' + repr(sid))
 
             # Next, process the quantity as an array
-            qty = np.atleast_1d(qty)
-            try:
-                shape = np.broadcast(qty, shape)
-            except:
-                raise pm.utility.PMParamError('IGTMix: Failed to broadcast quantity array for: ' + repr(sid))
+            qshape = np.shape(qty)
+            shape = self._broadcast_shape(qshape, shape)
             
         # Initialize the quantity array
         N = len(self._c)
-        self._q = np.empty((N,) + shape.shape, dtype=float)
+        self._q = np.empty((N,) + shape, dtype=float)
 
         # In the second loop, we'll broadcast all of the quantity arrays
         # to the correct shape.
         for index,qty in enumerate(contents.values()):
-            self._q[index,:] = np.broadcast_to(qty, shape.shape)
+            self._q[index,:] = np.broadcast_to(qty, shape)
             
         # Finally, stash the units string
         if units is None:
@@ -273,8 +290,10 @@ _units  is a string identifying the matter units that were in use when
         else:
             raise pm.utility.PMParamError('IGTMix: Unrecognized unit matter: ' + repr(units))
         
-        self._update()    
+        self.update()
         
+    def __iter__(self):
+        return self._c.__iter__()
         
     def __iadd__(self, b):
         """Add mixture b to self
@@ -295,22 +314,26 @@ This combines the quantities of gas in mixture b into mixture a.
                 NN += 1
         # Grow the q array appropariately
         # First, detect the starting and finishing array shapes
-        sshape = self.shape()
         bshape = b.shape()
-        bb = np.broadcast(self._q[0,:], b._q[0,:])
+        shape = self._broadcast_shape(b.shape())
         
-        # If the existing in-place array needs to grow, do that first
-        if bb.shape != sshape:
-            self._q = np.broadcast_to(self._q, (N,)+bb.shape)
-        # If there are new substances, grow the quantity array
-        if NN>N:
-            self._q = np.concatenate((self._q,np.zeros((NN-N,)+bb.shape)),axis=0)
-        
-        for bi,subst in enumerate(b._c):
-            ai = self._c.index(subst)
-            self._q[ai,:] += pm.units.matter(b._q[bi,:],subst.mw(),b._units,self._units)
-        
-        self._update()
+        # If the q-array does not change shape, then this can be done
+        # in-place.  Otherwise, we're going to need to declare a new
+        # q-array.
+        if NN!=N or self.shape() != shape:
+            q = np.zeros((NN,) + shape)
+            q[:N] = self._q
+            self._q = q
+                
+        # If units are not equal.
+        if self._units != b._units:
+            for bi,subst in enumerate(b._c):
+                ai = self._c.index(subst)
+                self._q[ai,:] += + pm.units.matter(b._q[bi,:],subst.mw(),b._units,self._units)
+        else:
+            for bi,subst in enumerate(b._c):
+                ai = self._c.index(subst)
+                self._q[ai,:] += b._q[bi,:]
         
         return self
         
@@ -321,11 +344,10 @@ This combines the quantities of gas in mixture b into mixture a.
     
 Makes a copy of a and calls __iadd__() to execute the operation.
 """
-        # Use in-place addition
-        # Make a copy of self and return the in-place addition result
         c = IGTMix(self)
         c.__iadd__(b)
         return c
+        
         
     def __radd__(self, b):
         c = IGTMix(self)
@@ -348,7 +370,6 @@ Makes a copy of a and calls __iadd__() to execute the operation.
         # Otherwise, there will be a new _q array
         else:
             self._q = b * self._q
-        self._update()
         return self
         
     def __mul__(self, b):
@@ -363,36 +384,22 @@ Makes a copy of a and calls __iadd__() to execute the operation.
         return self.__mul__(b)
         
 
-    def _update(self):
-        # Verify that _units agrees with the current matter setting
-        # If not, convert!
-        if self._units != pm.config['unit_matter']:
-            for subst,qty in self.items():
-                pm.units.matter(qty, subst.mw(), from_units=self._units, inplace=True)        
-            self._units = pm.config['unit_matter']
-        
-    def _peval(self, prop, *varg, **kwarg):
-        """PEVAL - evaluate a property for all constituents
-    parray = m._peval(prop, ...)
-
-The property to be evaluated is evaluated by a string, prop. For example 
-a call to evaluate enthalpy might appear:
-    parray = m_peval('h', T=300, p=1.01325)
-    
-All arguments, with or without keywords, are passed verbatim to the 
-property method of each constituent substance.
+    def update(self, units=None):
+        """UPDATE - bring the mixture into agreement with the unit matter config entry
+    Returns nothing.
+If the mixture's contents are currently listed in a unit matter that 
+disagrees with PYroMat's pm.config['unit_matter'] setting, the contents
+are converted to the current unit matter.
 """
-        out = None
-        for ii,subst in enumerate(self._c):
-            v = getattr(subst,prop)(*varg, **kwarg)
-            # If this is the first result, we'll rely on the substance's
-            # broadcasting to determine the dimension of the result
-            if out is None:
-                shape = np.atleast_1d(v).shape
-                out = np.zeros((len(self._c),) + shape, dtype=float)
-            out[ii,:] = v
-        return out
+        if units is None:
+            units = pm.config['unit_matter']
+            
+        if self._units != units:
+            for subst,qty in self.items():
+                pm.units.matter(qty, subst.mw(), from_units=self._units, to_units=units, inplace=True)        
+            self._units = units
         
+
     def _sindex(self, index):
         """SINDEX - convert an item index into an array index
     sindex = m._sindex(index)
@@ -400,12 +407,24 @@ property method of each constituent substance.
 When the index is an integer, string, slice, or a data instance it is 
 interpreted as indexing the constituent substances.  Strings are 
 converted into substance ID strings, and data instances are matched 
-against their 
+against their id hash.
+
+When the index is a tuple, the first element is interpreted as a 
+substance index and the trailing indices are interpreted as quantity
+indices.  The substance index is passed recursively to _sindex() to 
+convert it to an integer.
+
+If the substance does not appear to be in this mixture, _sindex() 
+returns None.
 """
-        # If we're looking for an SID string
+        # If the index also contains a quantity index, only operate on
+        # the first (substance) index.
         if isinstance(index, tuple):
             # Force the first index to be an integer
-            return (self._sindex(index[0]),) + index[1:]
+            si = self._sindex(index[0])
+            if si is None:
+                return None
+            return (si,) + index[1:]
         # Integers and slices pass thru
         elif isinstance(index, (int,slice)):
             return index
@@ -416,34 +435,329 @@ against their
             for ii,this in enumerate(self._c):
                 if isinstance(this,pm.reg.__basedata__) and this.sid()==index:
                     return ii
-            raise pm.utility.PMParamError('Not in this mixture: ' + index)
+            return None
         # If we're looking for anything else...
         else:
             try:
                 return self._c.index(index)
             except ValueError:
-                raise pm.utility.PMParamError('Not in this mixture: ' + repr(index))
+                return None
             except:
                 raise
 
+    def _broadcast_shape(self, qshape, sshape=None):
+        """BROADCAST_SHAPE - determine a new quantity shape
+    shape = _broadcast_shape(qshape)
+        OR
+    shape = _broadcast_shape(qshape, sshape)
+   
+If the mixture is interacting with a new quantity, either due to insertion
+or addition, _broadcast_shape() compares the new quantity's shape tuple
+to the existing mixture quantity array to determine how they should be
+broadcast together.  
+
+Returns the new mixture shape tuple if the operation is to be completed.
+
+Raises an error if the shapes cannot be broadcast.
+
+By default, the current mixture shape is used, but this can be overridden
+by manually passing a second shape tuple to sshape.
+
+Note that this method replicates the behavior of numpy's broadcast_shapes
+function.  Writing our own prevents needing to bump the numpy version 
+requirement.
+"""
+        if sshape is None:
+            sshape = self._q.shape[1:]
+        Ns = len(sshape)
+        Nq = len(qshape)
+        
+        if Ns > Nq:
+            qshape += (Ns - Nq) * (1,)
+        elif Nq > Ns:
+            sshape += (Nq - Ns) * (1,)
+            
+        out = tuple()
+        for s,q in zip(sshape,qshape):
+            if s == q or s == 1:
+                out += (q,)
+            elif q == 1:
+                out += (s,)
+            else:
+                raise pm.utility.PMParamError(f'IGTMix: cannot broadcast shapes: {qshape}, {sshape}')
+        return out
+        
     #
     # The property interface
     #
-    def _argparse(self, T=None, p=None, d=None, v=None):
-        """ARGPARSE - provides the standard property argument interface
-    _argparse(self, T=None, p=None, d=None, v=None)
-The IGTMix class is currently implemented with a much simpler argument
-interface than the core PYroMat classes.  It expects
-"""
+    def _argparse(self, *varg, **kwarg):
+        """Parse the arguments supplied to an IGTMix property method
+    T,p,d,X,mw = _argparse(*varg, **kwarg)
 
+_ARGPARSE automatically applies the default temperature and pressure,
+def_T or def_p, from the pyromat.config system to deal with unspecified
+parameters.  All inputs are re-cast as numpy arrays of at least one 
+dimension and inputs are automatically converted from the configured 
+user units into kJ, kmol, m^3.
+
+The returned variables are arrays of temperature, T, pressure, p, and 
+the density, d.  Temperature will always be returned, and at least one
+of p and d will be populated as well, but one of them may be None.  
+_argparse decides which to populate based on what is most efficient.
+"""
+        # 1) Handle varg and kward and their defaults
+        # 2) Apply the argument rules...
+        #   2.1: All arguments must be legal
+        #   2.2: Only 2 arguments
+        #   2.3: T, e, and h may not be specified together
+        #   2.4: d and v may not be specified together 
+        # 3) Convert the arguments to arrays with dim 1 or greater
+        # 4) Convert to standard units
+        # 5) Process equivalent arguments
+        #   5.1: replace v with d
+        #   5.2: replace e or h with T
+        # 6) Check for out-of-bounds on basic arguments (This was shifted to last)
+        # 7) Case out the possible combinations
+        # 8) Broadcast the arrays appropriately
+        # 9) Calculate T,p,d
+        
+
+        # Fancy tool for tracking iteration issues
+        debug = False
+        
+        # Calculate some preliminaries
+        # We're going to need the temperature limits in Kelvin
+        Tlow, Thigh = self.Tlim()
+        Tlow = pm.units.temperature_scale(Tlow, to_units='K')
+        Thigh = pm.units.temperature_scale(Thigh, to_units='K')
+        # Let's go ahead and get the mole fraction array
+        X = self.X(asarray=True)
+        # Get the molecular weight array
+        mw = self.mw()
+
+        # 1) Handle varg and kwarg and apply defaults
+
+        # If varg is specified, assign its values to T,p
+        if len(varg) > 0:
+            if 'T' in kwarg:
+                raise pm.utility.PMParamError('T was specified both positionally and with a keyword.')
+            kwarg['T'] = varg[0]
+        if len(varg) > 1:
+            if 'p' in kwarg:
+                raise pm.utility.PMParamError('p was specified both positionally and with a keyword.')
+            kwarg['p'] = varg[1]
+        if len(varg) > 2:
+            raise pm.utility.PMParamError('There are only two positional arguments: T, p.')
+
+        # Count the number of arguments
+        nargs = len(kwarg)
+        if nargs == 1:
+            if 'T' not in kwarg:
+                kwarg['T'] = pm.config['def_T']
+            else:
+                kwarg['p'] = pm.config['def_p']
+        elif nargs == 0:
+            kwarg['T'] = pm.config['def_T']
+            kwarg['p'] = pm.config['def_p']
+        
+        # 2) Apply the argument rules
+        # Re-measure the number of arguments and use sets to enforce
+        # the remaining rules
+        nargs = len(kwarg)
+        args = set(kwarg.keys())
+        # A set of the legal arguments
+        legal_args = set(['T','p','d','v','e','h','s'])
+        
+        # 2.1: There may only be 2 arguments
+        if nargs>2:
+            raise pm.utility.PMParamError(
+                    'Specifying more than two simultaneous parameters is illegal.')
+        
+        # 2.2: All arguments must be "legal" recognized arguments
+        these_args = args - legal_args
+        if these_args:
+            message = 'Unrecognized propert(y/ies):'
+            prefix = '  '
+            for name in these_args:
+                message += prefix + name
+                prefix = ', '
+            raise pm.utility.PMParamError(message)
+        
+        # 2.3: T, e, and h may not be specified together
+        these_args = set(['T', 'e', 'h']).intersection(args)
+        if len(these_args) > 1:
+            message = 'Properties may not be specified together:'
+            prefix = ' '
+            for name in inverse_args:
+                message += prefix + name
+                prefix = ', '
+            raise pm.utility.PMParamError(message)
+        
+        # 2.4: Density and specific volume cannot be specified together
+        if 'v' in args and 'd' in args:
+            raise pm.utility.PMParamError('Density (d) and specific volume (v) cannot be specified together.')
+        
+        # 3) Convert all arguments to numpy arrays
+        #    The asarray function does NOT copy the array if it is already
+        #    a numpy array.
+        for name,value in kwarg.items():
+            value = np.asarray(value, dtype=float)
+            if value.ndim == 0:
+                value = np.reshape(value, (1,))
+            kwarg[name] = value
+        
+        # 4) Convert the units appropriately
+        #   This step will only make a copy of the array if the units need
+        #   to be converted.  Otherwise, the array is passed through verbatim
+        #   As a result, the input array will ONLY be copied if it needs to
+        #   be reshaped, converted, or retyped.
+        # 5) Replace v with d and e/h with T
+        if 'T' in kwarg:
+            kwarg['T'] = pm.units.temperature_scale(kwarg['T'], to_units='K')
+        if 'p' in kwarg:
+            kwarg['p'] = pm.units.pressure(kwarg['p'], to_units='Pa')
+        if 'd' in kwarg:
+            value = pm.units.volume(kwarg['d'], to_units='m3', exponent=-1)
+            kwarg['d'] = pm.units.matter(value, mw, to_units='kmol')
+        if 'v' in kwarg:
+            # Convert and replace with d at the same time
+            value = pm.units.volume(kwarg['v'], to_units='m3')
+            kwarg['d'] = 1./pm.units.matter(value, mw, to_units='kmol', exponent=-1)
+        if 'h' in kwarg:
+            value = kwarg['h']
+            value = pm.units.energy(value, to_units='kJ')
+            value = pm.units.matter(value, mw, to_units='kmol', exponent=-1)
+            shape = self._broadcast_shape(value.shape)
+            h = np.broadcast_to(value,shape)
+            T = np.full(shape, 0.5*(Tlow+Thigh))
+            I = np.ones(shape, dtype=bool)
+            self._iter1('_h', h, T, I, Tlow, Thigh, X=X)
+            kwarg['T'] = T
+        if 'e'  in kwarg:
+            value = kwarg['e']
+            value = pm.units.energy(value, to_units='kJ')
+            value = pm.units.matter(value, mw, to_units='kmol', exponent=-1)
+            shape = self._broadcast_shape(value.shape)
+            e = np.broadcast_to(value,shape)
+            T = np.full(shape, 0.5*(Tlow+Thigh))
+            I = np.ones(shape, dtype=bool)
+            self._iter1('_e', e, T, I, Tlow, Thigh, X=X)
+            kwarg['T'] = T
+        if 's' in kwarg:
+            value = kwarg['s']
+            value = pm.units.energy(value, to_units='kJ')
+            value = pm.units.matter(value, mw, to_units='kmol', exponent=-1)
+            value = pm.units.temperature(value, to_units='K', exponent=-1)
+            kwarg['s'] = value
+
+        # Convert R into J/kmol/K - use this for p = dRT
+        # Do NOT use this for s, e, and h relationships
+        R = 1000 * pm.units.const_Ru
+
+        T = p = d = None
+        # Entropy requires special iteration
+        if 's' in kwarg:
+            # If density is specified
+            if 'd' in args:
+                raise pm.utility.PMParamError('(s,d) is not currently supported only for IGTMix classes')
+            # If pressure is specified
+            elif 'p' in kwarg:
+                shape = self._broadcast_shape(kwarg['s'].shape)
+                shape = self._broadcast_shape(kwarg['p'].shape, shape)
+                #s = np.broadcast_to(kwarg['s'], shape)
+                p = np.broadcast_to(kwarg['p'], shape)
+                # adjust entropy to the reference pressure
+                s = kwarg['s'] + pm.units.const_Ru * np.log(p / self._pref()) - self._smix()
+                T = np.full_like(s, 0.5*(Tlow+Thigh))
+                I = np.ones_like(s,dtype=bool)
+                self._iter1('_s', s, T, I, Tlow, Thigh, X=X)
+            # If temperature is specified
+            elif 'T' in kwarg:
+                shape = self._broadcast_shape(kwarg['s'].shape)
+                shape = self._broadcast_shape(kwarg['T'].shape, shape)
+                s = np.broadcast_to(kwarg['s'], shape)
+                T = np.broadcast_to(kwarg['T'], shape)
+                # Calculate the reference entropy at the specified temperature
+                s0 = self._propeval('_s', T)[0] + self._smix()
+                p = self._pref() * np.exp((s0-s)/pm.units.const_Ru)
+                # Otherwise, this is an illegal combination!
+            else:
+                raise pm.utility.PMParamError(f'Cannot simultaneously specify parameters: {args}')
+        # If temperature is specified
+        elif 'T' in kwarg:
+            # There isn't much work to do
+            if 'p' in kwarg:
+                shape = self._broadcast_shape(kwarg['T'].shape)
+                shape = self._broadcast_shape(kwarg['p'].shape, shape)
+                T = np.broadcast_to(kwarg['T'], shape)
+                p = np.broadcast_to(kwarg['p'], shape)
+            elif 'd' in kwarg:
+                shape = self._broadcast_shape(kwarg['T'].shape)
+                shape = self._broadcast_shape(kwarg['d'].shape, shape)
+                T = np.broadcast_to(kwarg['T'], shape)
+                d = np.broadcast_to(kwarg['d'], shape)
+            else:
+                message = 'Please report a bug: Unhandled event [T] in IGTMix._argparse with args:'
+                prefix = ' '
+                for name in kwarg:
+                    message += prefix + name
+                    prefix = ', '
+                raise pm.utility.PMParamError(message)
+        # If pressure is specified
+        elif 'p' in kwarg:
+            if 'd' in kwarg:
+                shape = self._broadcast_shape(kwarg['p'].shape)
+                shape = self._broadcast_shape(kwarg['d'].shape, shape)
+                p = np.broadcast_to(kwarg['p'], shape)
+                d = np.broadcast_to(kwarg['d'], shape)
+                T = p / (R * d)
+            else:
+                message = 'Please report a bug: Unhandled event [p] in IGTMix._argparse with args:'
+                prefix = ' '
+                for name in kwarg:
+                    message += prefix + name
+                    prefix = ', '
+                raise pm.utility.PMParamError(message)
+        else:
+            message = 'Please report a bug: Unhandled event [MASTER] in IGTMix._argparse with args:'
+            prefix = ' '
+            for name in kwarg:
+                message += prefix + name
+                prefix = ', '
+            raise pm.utility.PMParamError(message)
+            
+        # Test the temperatures for out-of-bounds
+        I = np.logical_or(T < Tlow, T > Thigh)
+        if I.all():
+            raise pm.utility.PMParamError('All of the specified states were out-of-bounds.  '  
+                    'Legal temperatures are between {} and {} Kelvin.'.format(Tlow, Thigh))
+        elif I.any():
+            T[I] = pm.config['def_oob']
+            pm.utility.print_warning('Some of the states were out of bounds - setting to config[\'def_oob\'].  '
+                    'Legal temperatures are between {} and {} Kelvin.'.format(Tlow, Thigh))
+        return T,p,d,X,mw
+        
+        
     #
     # Indexing
     #
-    def __getitem__(self, index):
-        return self._q[self._sindex(index)]
+    def __getitem__(self, sid):
+        index = self._sindex(sid)
+        if index is None:
+            raise pm.utility.PMParamError('Substance is not in the mixture: ' + repr(index))
+        return self._q[index]
         
-    def __setitem__(self, index, value):
-        self._q[self._sindex(index)] = value
+    def __setitem__(self, sid, value):
+        index = self._sindex(sid)
+        # Are we inserting a new substance?
+        if index is None:
+            self.insert(sid,value)
+            return
+        # Otherwise, use the numpy broadcasting rules
+        self._q[index] = value
+        
+    def __contains__(self, index):
+        return self._sindex(index) is not None
         
     #
     # Length and size operations
@@ -459,31 +773,108 @@ interface than the core PYroMat classes.  It expects
         out = ''
         if self.__len__() > 1:
             for sid in self._c[:-1]:
-                out += f'[...] {sid} + '
-            out += f'[...] {self._c[-1]}'
+                out += f'[...]{sid.hill()} + '
+            out += f'[...]' + self._c[-1].hill()
         else:
             for sid,qty in zip(self._c[:-1], self._q[:-1]):
-                out += f'{qty} {sid} + '
-            out += f'{self._q[-1]} {self._c[-1]}'
+                out += f'{qty}{sid.hill()} + '
+            out += f'{self._q[-1]}' + self._c[-1].hill()
+        out += f' ({self._units})'
         return out
     
     def shape(self):
         """SHAPE - return the dimensions of the quantity arrays
+    shape = m.shape()
+    
+Returns a tuple indicating the shape of each of the substance quantity 
+arrays.  This also indicates the total number of individual mixtures
+represented in this mixture instance.
 """
         return self._q.shape[1:]
 
+    def reshape(self, newshape):
+        """RESHAPE - change the shape of the mixture quantity arrays
+    m.reshape( shape_tuple )
+    
+Like the Numpy reshape() method, the tuple indicates the dimensions of
+the new mixture array.
+"""
+        newshape = (self._q.shape[0],) + tuple(newshape)
+        self._q = self._q.reshape(newshape)
 
     def nsubst(self):
         """NSUBST - return the number of constituent substances
+    N = m.nsubst()
+    
+The integer number of substances in the mixture (may be zero).
 """
         return len(self._c)
         
+    def insert(self, sid, qty):
+        """INSERT - add a new substance to the mixture
+    m.insert(sid, qty)
+    
+sid     The substance identifier may be a string ('H2' or 'ig.H2') or a
+        PYroMat substance instance.
+        
+qty     The quantity array may be a scalar or array-like that is 
+        broadcastable to the existing mixture's quantity array.
+"""
+        if isinstance(sid,str):
+            if '.' not in sid:
+                sid = 'ig.' + sid
+            # Go find the substance
+            # This will raise a meaningful error if it is not found
+            subst = pm.get(sid)
+            
+        # If this is a PM data class
+        elif isinstance(sid,pm.reg.__basedata__):
+            # Verify that it's an ideal gas first
+            if sid.collection() != 'ig':
+                raise pm.utility.PMParamError('IGTMix constituent was not an ideal gas: ' + sid.sid())
+            subst = sid
+        # IGTMix components cannot be nested.
+        elif isinstance(sid,IGTMix):
+            raise pm.utility.PMParamError('IGTMix instances cannot be nested. Use the + operator instead to combine mixtures.')
+        else:
+            raise pm.utility.PMParamError('IGTMix.insert(): Unrecognized constituent: ' + repr(sid))
+        
+        # Next, test for prior existence
+        for this in self._c:
+            if this is subst:
+                raise pm.utility.PMParamError('IGTMix.insert(): substance is already in the mixture. Use the + operator to modify.')
+        
+        # Broadcast the quantity
+        qty = np.atleast_1d(qty)
+        newshape = self._broadcast_shape(qty.shape)
+        newq = np.empty((self.nsubst() + 1,) + newshape, dtype=float)
+        newq[-1] = qty
+        newq[:-1] = self._q
+        
+        # All is well, so append
+        self._c.append(subst)
+        self._q = newq
+    
+    def remove(self, sid):
+        """REMOVE - remove a substance from the mixture
+    m.remove(sid)
+    
+sid     The substance identifier may be a string ('H2' or 'ig.H2') or a
+        PYroMat substance instance.  If present, this substance will be
+        removed from the mixture.  Otherwise, an error is raised.
+"""
+        index = self._sindex(sid)
+        if index is None:
+            raise pm.utility.PMParamError('IGTMix.remove(): substance is not in the mixture: ' + repr(sid))
+        del self._c[index]
+        self._q = np.delete(self._q, index, axis=0)
+    
     #
     # Type manipulation
     #
     def toigmix(self,sid):
         """TOIGMIX - convert the mixture to a static IGMIX instance
-    [... igmix list ...] = igtm.toigmix(sid)
+    [... igmix list ...] = m.toigmix(sid)
     
 Returns a list of static igmix (low-level PYroMat data instances) built
 from the IGTMix instance quantity arrays. These are less flexible, but
@@ -530,6 +921,26 @@ of mixtures, but it is substantially faster for a number of reasons:
             out.append(pm.reg.registry['igmix'](data))
         return out
         
+    def tolist(self):
+        """TOLIST - generate a list of the mixture contents
+    mixlist = m.tolist()
+
+The list entries are the substance id strings for each of the mixture's
+contents.
+"""
+        return [this.sid() for this in self._c]
+        
+    def todict(self):
+        """TODICT - generate a dictionary representing the mixture
+    mixdict = m.todict()
+    
+The dictionary keys are the substance id strings for each of the mixture's
+contents.  The values are arrays representing the quantities of each 
+substance.  Note that these are exported in the units currently used by
+the mixture - not necessarily the currently configured PYroMat units.
+"""
+        return {subst.sid():qty for subst,qty in self.items()}
+        
     #
     # Measures of quantity
     #
@@ -556,55 +967,47 @@ This will yield confusing results!
                 working += qty * aq
         return out
             
-    def X(self):
+    def X(self, asarray=False):
         """X - calculate the mole fractions of the substances
     x = m.X()
     
 returns a dictionary with the substance id strings as the keys and the
 fraction array as values.  Values are always between zero and one.
 """
-        x = {}
+        # Make a copy of _q
+        x = np.array(self._q)
         # If this is in mass-based units, we'll need to convert to molar
         if pm.units.ismass(self._units):
-            # First, total all the moles
-            total = np.zeros(self.shape())
-            for subst,qty in self.items():
-                temp = qty / subst.mw()
-                total += temp
-                x[subst.sid()] = temp
-            # Finally, normalize by the total
-            for key,qty in x.items():
-                x[key] /= total
-        else:
-            total = np.sum(self._q, axis=0)
-            for subst,qty in self.items():
-                x[subst.sid()] = qty/total
-        return x
+            # Broadcasting rules should work just fine 
+            mw = np.array([subst.mw() for subst in self])
+            x /= mw.reshape((mw.size,) + (x.ndim-1)*(1,))
+        x /= np.sum(x,axis=0)
+        # If we want an array, we're done
+        if asarray:
+            return x
+        # Convert to dict
+        return {subst.sid():xx for subst,xx in zip(self, x)}
         
-    def Y(self):
+    def Y(self, asarray=False):
         """Y - calculate the mass fractions of the substances
     y = m.Y()
     
 returns a dictionary with the substance id strings as the keys and the
 fraction array as values.  Values are always between zero and one.
 """
-        y = {}
-        # If this is in molar-based units, we'll need to convert to mass
-        if pm.units.ismass(self._units):
-            total = np.sum(self._q, axis=0)
-            for subst,qty in self.items():
-                y[subst.sid()] = qty/total
-        else:
-            # First, total all the mass
-            total = np.zeros(self.shape())
-            for subst,qty in self.items():
-                temp = qty * subst.mw()
-                total += temp
-                y[subst.sid()] = temp
-            # Finally, normalize by the total
-            for key,qty in y.items():
-                y[key] /= total
-        return y
+        # Make a copy of _q
+        y = np.array(self._q)
+        # If this is in mass-based units, we'll need to convert to molar
+        if not pm.units.ismass(self._units):
+            # Broadcasting rules should work just fine 
+            mw = np.array([subst.mw() for subst in self])
+            y *= mw.reshape((mw.size,) + (x.ndim-1)*(1,))
+        y /= np.sum(y,axis=0)
+        # If we want an array, we're done
+        if asarray:
+            return y
+        # Convert to dict
+        return {subst.sid():yy for subst,yy in zip(self, y)}
         
         
     def mass(self):
@@ -665,46 +1068,248 @@ each substance.
         return zip(self._c, self._q)
 
     #
+    # Internal Method for Properties
+    #
+    def _propeval(self, prop, T, X=None, diff=False):
+        """_PROPEVAL - generic evaluator for internal properties
+    pval, pvalT = m._propeval(T, diff=False)
+        OR
+    pval, pvalT = m._propeval(T, X=X)
+    
+T       A numpy array of temperatures in units Kelvin.  
+prop    The string name of the property method to call on members
+diff    If True, the property derivative with respect to temperature is
+        also evaluated.
+X       Optional argument allows the mole fraction array (not dict) to
+        be passed to prevent redundant calculations.
+
+Returns pval, the substance property values averaged by mole fraction,
+and pvalT, the substance property's derivative with respect to 
+temperature.
+"""
+        pval = 0
+        pvalT = None;
+        if diff:
+            pvalT=0
+        if X is None:
+            X = self.X(asarray=True)
+            
+        for subst,x in zip(self, X):
+            pmethod = getattr(subst, prop)
+            this, thisT = pmethod(T,diff=diff)
+            pval += x*this
+            if diff:
+                pvalT += x*thisT
+        return pval,pvalT
+
+    def _pref(self, X=None):
+        """_PREF - Calculate the reference pressure in Pa
+    pref = m._pref()
+        OR
+    pref = m._pref(X=X)
+    
+Optional keyword, X, allows the mole fraction array (not dict) to be 
+passed to prevent redundant calculations.
+    
+If all substances in the mixture share the same reference pressure, this
+simply returns a scalar.  Otherwise, _pref() calculates a reference 
+pressure array with the same shape as the mixture array.
+"""
+        # Start a reference pressure array
+        pref_array = []
+        pref = None     # Track a scalar in case they are all the same
+        same = True     # Keep a flag to indicate if the reference pressures
+                        # disagree.
+        for subst in self._c:
+            pmclass = subst.pmclass()
+            if pmclass == 'ig':
+                this = subst._pref_pa
+            elif pmclass == 'ig2':
+                this = subst.data['pref']
+            elif pmclass == 'igmix':
+                subst._bootstrap()
+                this = subst._pref_pa
+            else:
+                raise pm.utility.PMDataError('IGMIX: Cannot determine the reference pressure of PYroMat data class: ' + pmclass)
+            
+            pref_array.append(this)
+            if pref is None:
+                pref = this
+            # If the values disagree, give up on the scalar
+            elif pref != this:
+                same = False
+        
+        # If all the reference pressures were the same, just return a 
+        # scalar.
+        if same:
+            return pref
+        
+        # If at least one reference pressure was different, we'll need
+        # the logarithmic weighted average.  Construct a broadcastable 
+        # pressure reference array
+        pref_array = np.array(pref_array).reshape((self.nsubst(),) + (self._q.ndim-1)*(1,))
+        if X is None:
+            X = self.X(asarray=True)
+        pref = np.exp(np.sum(X * np.log(pref_array), axis=0))
+        return pref
+        
+    def _smix(self, X=None):
+        """_SMIX - calculate the entropy of mixing in kJ/kmol/K
+    smix = m._smix()
+        OR
+    smix = m._smix(X=X)
+    
+Optional keyword, X, allows the mole fraction array (not dict) to be 
+passed to prevent redundant calculations.
+"""
+        if X is None:
+            X = self.X(asarray=True)
+        temp = np.log(X)
+        temp[X==0] = 0.     # Force log(0) to zero to prevent nan problems
+        return -pm.units.const_Ru * np.sum(X * temp, axis=0)
+        
+
+    def _iter1(self, prop, y, T, Ids, Tmin, Tmax,
+                ep=1e-6, Nmax=20, verbose=False,
+                X=None):
+        """Invert the _propeval method (NOT STANDARD ITER1!!!)
+        
+    _iter1(prop, y, T, Ids, xmin, xmax)
+    
+Iteration is performed in-place on the x array.
+
+*** Required Parameters ***
+prop        The string keyword index of the property to be calculated.
+y           An array of N target values for fn().
+T           The result array.  It should be an N-element floating point
+            array that has already been initialized.
+Ids         A down-select boolean index array; only x[Ids],y[Ids] will 
+            be evaluated.  This allows iteration in-place on data sets 
+            where only a portion of the data require iteration.  If y is
+            a floating point array with N elements, Ids must be a bool
+            array with N elements.  It will specify a down-selected 
+            data set with M elements, where M<=N.
+Tmin, Tmax  Upper and lower limit arrays for the T values.  These must
+            broadcastable to match T and y.  Even values outside of the
+            down-select region should have legal values.
+*** Optional Parameters ***
+ep          Epsilon; fractional error permitted in y (default 1e-6)
+Nmax        Maximum number of iterations (default 20)
+X           The mol fraction array, preventing its repeated calculation
+
+"""
+        # As the iteration progresses, the number of True elements in 
+        # Ids will decrease until they are all false
+        # There are some important intermediate values that will also
+        # require indexable arrays
+        dT = np.zeros_like(y, dtype=float)
+        error = np.zeros_like(dT, dtype=float)
+        IooB = np.zeros_like(Ids, dtype=bool)
+
+        count = 0
+
+        if verbose:
+            print('x, yy, yyx, dx, Ids')
+        while Ids.any():
+            # Evaluate the funciton and isolate its derivative
+            yy,yyT = self._propeval(prop, T, diff=True, X=X)
+            # note that x[Ids], yy, yyx, and all the other floating 
+            # intermediates are now in m-space; the sub-set of values
+            # still under iteration.
+            # Calculate the error, the linear change in x, and the new x
+            error[Ids] = y[Ids] - yy
+            dT[Ids] = error[Ids] / yyT
+            if verbose:
+                print(T, yy, yyT, dT, Ids)
+            T[Ids] += dT[Ids]
+            # An out-of-bounds index
+            IooB = np.logical_or( T < Tmin, T > Tmax)
+            count_oob = 0
+            while IooB.any():
+                dT[IooB] /= 2.
+                T[IooB] -= dT[IooB]
+                IooB = np.logical_or( T < Tmin, T > Tmax)
+                # Prevent a while-loop-trap
+                count_oob += 1
+                if count_oob>Nmax:
+                    raise pm.utility.PMAnalysisError(
+                        'iter1_() failed to produce a guess that was in-bounds')
+            
+            # Check the iteration convergence
+            Ids[Ids] = abs(error[Ids]) > abs(ep*y[Ids])
+            # Prevent a while-loop-trap
+            count += 1
+            if count>Nmax:                
+                pm.utility.print_warning(\
+                    'iter1_() failed to converge for %d elements after %d attempts'%(\
+                    Ids.sum(), Nmax))
+                return
+
+    #
     # Properties
     #
     
-    def mw(self):
+    def mw(self, X=None):
         """MW - molecular weight
 
     mw = m.mw()
+        OR
+    mw = m.mw(X=X)
     
 Returns the molecular weight in [unit_mass] / [unit_molar].
+
+The optional keyword, X, allows passing the mole fraction array (not dict)
+to prevent redundant calculations.
 """
-        self._update()
-        mw = self._peval('mw')
-        total = np.sum(self._q, axis=0)
-        out = 0.
-        if pm.units.ismass(self._units):
-            for ii,subst in enumerate(self._c):
-                out += self._q[ii] / mw[ii]
-            out = total / out
-        else:
-            for ii,subst in enumerate(self._c):
-                out += self._q[ii] * mw[ii]
-            out /= total
+        if X is None:
+            X = self.X(asarray=True)
+        mw = np.array([subst.data['mw'] for subst in self._c]).reshape((X.shape[0],) + (X.ndim-1)*(1,))
+        out = np.sum(mw * X, axis=0)
+        pm.units.mass(out, from_units='kg', inplace=True)
+        pm.units.molar(out, from_units='kmol', inplace=True, exponent=-1)
         return out
         
-    def R(self):
+    def R(self, X=None):
         """R - ideal gas constant
-        
+    R = m.R()
+    
 Returns the gas constant in [unit_energy]/[unit_matter][unit_temperature]
 """
-        # No need to call _update() - it will be called by mw()
-        R = np.broadcast_to(pm.units.const_Ru, self.shape())
-        R = pm.units.energy(R, from_units='J')
+        # Convert the universal constant to the configured units
+        R = pm.units.energy(pm.units.const_Ru, from_units='kJ')
         R = pm.units.temperature(R, from_units='K', exponent=-1)
-        R = pm.units.matter(R, self.mw(), from_units='mol', exponent=-1)
+        R = pm.units.molar(R, from_units='kmol', exponent=-1)
+        # If we need to switch into mass units, call mw()
+        if pm.units.ismass(pm.config['unit_matter']):
+            R /= self.mw(X=X)
         return R
 
+    def Tlim(self):
+        """TLIM - Calculate the temperature limits on the model
+    Tlow, Thigh = m.Tlim()
     
+The high and low temperatures are scalar values that apply for all 
+individual mixtures in the quantity arrays.
+"""
+        Tlow = float('inf')
+        Thigh = float('-inf')
+        for subst in self:
+            this_low, this_high = subst.Tlim()
+            if this_low < Tlow:
+                Tlow = this_low
+            if this_high > Thigh:
+                Thigh = this_high
+        return Tlow, Thigh
         
-
-
+    def h(self, *varg, **kwarg):
+        """H - Enthalpy
+        
+"""
+        T,p,d,X,mw = self._argparse(*varg, **kwarg)
+        h = self._propeval('_h', T, X=X)[0]
+        pm.units.energy(h, from_units='kJ', inplace=True)
+        pm.units.matter(h, mw, from_units='kmol', inplace=True, exponent=-1)
+        return h
 
 def fromigmix(source):
     """FROMIGMIX - create an IGTMix instance from and igmix instance

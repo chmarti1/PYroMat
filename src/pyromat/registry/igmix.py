@@ -259,7 +259,7 @@ _argparse decides which to populate based on what is most efficient.
         if len(these_args) > 1:
             message = 'Properties may not be specified together:'
             prefix = ' '
-            for name in inverse_args:
+            for name in these_args:
                 message += prefix + name
                 prefix = ', '
             raise pm.utility.PMParamError(message)
@@ -289,15 +289,15 @@ _argparse decides which to populate based on what is most efficient.
             kwarg['p'] = pm.units.pressure(kwarg['p'], to_units='Pa')
         if 'd' in kwarg:
             value = pm.units.volume(kwarg['d'], to_units='m3', exponent=-1)
-            kwarg['d'] = pm.units.matter(value, self.data['mw'], to_units='kmol')
+            kwarg['d'] = pm.units.matter(value, self._mw, to_units='kmol')
         if 'v' in kwarg:
             # Convert and replace with d at the same time
             value = pm.units.volume(kwarg['v'], to_units='m3')
-            kwarg['d'] = 1./pm.units.matter(value, self.data['mw'], to_units='kmol', exponent=-1)
+            kwarg['d'] = 1./pm.units.matter(value, self._mw, to_units='kmol', exponent=-1)
         if 'h' in kwarg:
             value = kwarg['h']
             value = pm.units.energy(value, to_units='kJ')
-            value = pm.units.matter(value, self.data['mw'], to_units='kmol', exponent=-1)
+            value = pm.units.matter(value, self._mw, to_units='kmol', exponent=-1)
             T = np.full(value.shape, 0.5*(self._Tlim[0] + self._Tlim[-1]))
             I = np.ones(value.shape, dtype=bool)
             self._iter1(self._h, 'T', value, T, I, self._Tlim[0], self._Tlim[-1])
@@ -305,7 +305,7 @@ _argparse decides which to populate based on what is most efficient.
         if 'e'  in kwarg:
             value = kwarg['e']
             value = pm.units.energy(value, to_units='kJ')
-            value = pm.units.matter(value, self.data['mw'], to_units='kmol', exponent=-1)
+            value = pm.units.matter(value, self._mw, to_units='kmol', exponent=-1)
             Tlow = self.data['Tlim'][0]
             Thigh = self.data['Tlim'][-1]
             T = np.full(value.shape, 0.5*(self._Tlim[0] + self._Tlim[-1]))
@@ -315,7 +315,7 @@ _argparse decides which to populate based on what is most efficient.
         if 's' in kwarg:
             value = kwarg['s']
             value = pm.units.energy(value, to_units='kJ')
-            value = pm.units.matter(value, self.data['mw'], to_units='kmol', exponent=-1)
+            value = pm.units.matter(value, self._mw, to_units='kmol', exponent=-1)
             value = pm.units.temperature(value, to_units='K', exponent=-1)
             kwarg['s'] = value
 
