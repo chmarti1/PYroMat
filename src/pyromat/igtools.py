@@ -533,7 +533,7 @@ _argparse decides which to populate based on what is most efficient.
         # Let's go ahead and get the mole fraction array
         X = self.X(asarray=True)
         # Get the molecular weight array
-        mw = self.mw()
+        mw = self.mw(X=X)
 
         # 1) Handle varg and kwarg and apply defaults
 
@@ -1079,7 +1079,8 @@ each substance.
 T       A numpy array of temperatures in units Kelvin.  
 prop    The string name of the property method to call on members
 diff    If True, the property derivative with respect to temperature is
-        also evaluated.
+        also evaluated.  If set to None, then the property has no 
+        option for a differential output.
 X       Optional argument allows the mole fraction array (not dict) to
         be passed to prevent redundant calculations.
 
@@ -1093,13 +1094,18 @@ temperature.
             pvalT=0
         if X is None:
             X = self.X(asarray=True)
-            
-        for subst,x in zip(self, X):
-            pmethod = getattr(subst, prop)
-            this, thisT = pmethod(T,diff=diff)
-            pval += x*this
-            if diff:
-                pvalT += x*thisT
+        if diff is None:
+            for subst,x in zip(self, X):
+                pmethod = getattr(subst, prop)
+                this = pmethod(T)
+                pval += x*this
+        else:
+            for subst,x in zip(self, X):
+                pmethod = getattr(subst, prop)
+                this, thisT = pmethod(T,diff=diff)
+                pval += x*this
+                if diff:
+                    pvalT += x*thisT
         return pval,pvalT
 
     def _pref(self, X=None):
@@ -1249,7 +1255,7 @@ X           The mol fraction array, preventing its repeated calculation
     # Properties
     #
     
-    def mw(self, X=None):
+    def mw(self, *varg, X=None, **kwarg):
         """MW - molecular weight
 
     mw = m.mw()
@@ -1269,7 +1275,7 @@ to prevent redundant calculations.
         pm.units.molar(out, from_units='kmol', inplace=True, exponent=-1)
         return out
         
-    def R(self, X=None):
+    def R(self, *varg, X=None, **kwarg):
         """R - ideal gas constant
     R = m.R()
     
@@ -1300,6 +1306,37 @@ individual mixtures in the quantity arrays.
             if this_high > Thigh:
                 Thigh = this_high
         return Tlow, Thigh
+    
+    def cp(self, *varg, **kwarg):
+        """CP - Constant pressure specific heat
+        
+"""
+        T,p,d,X,mw = self._argparse(*varg, **kwarg)
+        cp = self._propeval('_cp', T, X=X, diff=None)[0]
+        pm.units.energy(cp, from_units='kJ', inplace=True)
+        pm.units.temperature(cp, from_units='K', inplace=True, exponent=-1)
+        pm.units.matter(cp, mw, from_units='kmol', inplace=True, exponent=-1)
+        return cp
+        
+    def cv(self, *varg, **kwarg):
+        """CV - Constant volume specific heat
+        
+"""
+        T,p,d,X,mw = self._argparse(*varg, **kwarg)
+        cv = self._propeval('_cp', T, X=X, diff=None)[0]
+        cv -= pm.units.const_Ru
+        pm.units.energy(cv, from_units='kJ', inplace=True)
+        pm.units.temperature(cv, from_units='K', inplace=True, exponent=-1)
+        pm.units.matter(cv, mw, from_units='kmol', inplace=True, exponent=-1)
+        return cv
+        
+    def gam(self, *varg, **kwarg):
+        """GAM - Specific heat ratio
+        
+"""
+        T,p,d,X,mw = self._argparse(*varg, **kwarg)
+        cp = self._propeval('_cp', T, X=X, diff=None)[0]
+        return cp / (cp - pm.units.const_Ru)
         
     def h(self, *varg, **kwarg):
         """H - Enthalpy
@@ -1310,6 +1347,54 @@ individual mixtures in the quantity arrays.
         pm.units.energy(h, from_units='kJ', inplace=True)
         pm.units.matter(h, mw, from_units='kmol', inplace=True, exponent=-1)
         return h
+        
+    def s(self, *varg, **kwarg):
+        """S - Entropy
+        
+"""
+        T,p,d,X,mw = self._argparse(*varg, **kwarg)
+        # We need pressure
+        if p is None:
+            p = d * (1000*pm.units.const_Ru * T)
+        s = self._propeval('_s', T, X=X)[0]
+        s += self._smix(X=X)
+        s -= pm.units.const_Ru * np.log(p / self._pref(X=X))
+        pm.units.energy(s, from_units='kJ', inplace=True)
+        pm.units.matter(s, mw, from_units='kmol', inplace=True, exponent=-1)
+        pm.units.temperature(s, from_units='K', inplace=True, exponent=-1)
+        return s
+
+    def T(self, *varg, **kwarg):
+        """T - Temperature
+        
+"""
+        T,p,d,X,mw = self._argparse(*varg, **kwarg)            
+        pm.units.temperature_scale(T, from_units='K', inplace=True)
+        return T
+    
+    def p(self, *varg, **kwarg):
+        """P - Pressure
+        
+"""
+        T,p,d,X,mw = self._argparse(*varg, **kwarg)
+        if p is None:
+            p = d * (1000*pm.units.const_Ru * T)
+            
+        pm.units.pressure(p, from_units='bar', inplace=True)
+        return p
+
+    def d(self, *varg, **kwarg):
+        """D - Density
+        
+"""
+        T,p,d,X,mw = self._argparse(*varg, **kwarg)
+        if d is None:
+            d = p / (1000*pm.units.const_Ru * T)
+            
+        pm.units.matter(d, mw, from_units='kmol', inplace=True)
+        pm.units.volume(d, from_units='m3', inplace=True, exponent=-1)
+        return d
+        
 
 def fromigmix(source):
     """FROMIGMIX - create an IGTMix instance from and igmix instance
