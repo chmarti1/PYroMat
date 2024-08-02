@@ -442,7 +442,7 @@ class TestRefs:
     def test_es(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        assert fn(v=ref['e'], e=ref['s']) == approx(ref[param], rel=1e-5, abs=1e-1)
+        assert fn(e=ref['e'], s=ref['s']) == approx(ref[param], rel=1e-5, abs=1e-1)
 
     def test_he(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
