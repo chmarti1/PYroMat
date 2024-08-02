@@ -443,14 +443,12 @@ class TestRefs:
     def test_hs(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        with raises(pm.utility.PMParamError):
-            fn(h=ref['h'], s=ref['s'])
+        assert fn(h=ref['h'], s=ref['s']) == approx(ref[param], rel=1e-5, abs=1e-1)
 
     def test_es(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        with raises(pm.utility.PMParamError):
-            fn(e=ref['e'], s=ref['s'])
+        assert fn(v=ref['e'], e=ref['s']) == approx(ref[param], rel=1e-5, abs=1e-1)
 
     def test_he(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
