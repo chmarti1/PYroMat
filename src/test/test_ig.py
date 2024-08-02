@@ -277,7 +277,8 @@ refs["air_a"] = {
         'T': 300,  # K
         'p': 1,  # bar
         'h': -2.4071345,  # kJ/kg
-        's': 6.7077026,  # kJ/kg K
+        # 's': 6.7077026,  # kJ/kg K  pre smix value
+        's': 6.87040994,  #kJ/kg K
         'cp': 1.00483493  # kJ/kg K
     },
     'sub': 'ig.air',
@@ -291,7 +292,8 @@ refs["air_b"] = {
         'T': 800,  # K
         'p': 1,  # bar
         'h': 519.47733875,  # kJ/kg
-        's': 7.72402011,  # kJ/kg K
+        # 's': 7.72402011,  # kJ/kg K  pre smix value
+        's': 7.88672745,  # kJ/kg K
         'cp': 1.09862262  # kJ/kg K
     },
     'sub': 'ig.air',
@@ -305,7 +307,8 @@ refs["air_c"] = {
         'T': 900,  # K
         'p': 1*(900/800)**(1.34859507/(1.34859507-1)),  # bar, gamma of 850K = 1.34859507
         'h': 630.51678945,  # kJ/kg
-        's': 7.72397993,  # kJ/kg K
+        # 's': 7.72397993,  # kJ/kg K  pre smix value
+        's': 7.88672745,  # kJ/kg K
         'cp': 1.12170972  # kJ/kg K
     },
     'sub': 'ig.air',
@@ -319,7 +322,8 @@ refs["air_d"] = {
         'T': 1800,  # K
         'p': 1000,  # bar
         'h': 1699.26825827,  # kJ/kg
-        's': 6.69042738,  # kJ/kg K
+        # 's': 6.69042738,  # kJ/kg K  pre smix value
+        's': 6.85313473,  # kJ/kg K
         'cp': 1.23698868  # kJ/kg K
     },
     'sub': 'ig.air',
