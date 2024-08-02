@@ -153,7 +153,7 @@ _argparse decides which to populate based on what is most efficient.
         if len(these_args) > 1:
             message = 'Properties may not be specified together:'
             prefix = ' '
-            for name in inverse_args:
+            for name in these_args:
                 message += prefix + name
                 prefix = ', '
             raise pm.utility.PMParamError(message)
