@@ -306,8 +306,8 @@ _argparse decides which to populate based on what is most efficient.
             value = kwarg['e']
             value = pm.units.energy(value, to_units='kJ')
             value = pm.units.matter(value, self._mw, to_units='kmol', exponent=-1)
-            Tlow = self.data['Tlim'][0]
-            Thigh = self.data['Tlim'][-1]
+            Tlow = self._Tlim[0]
+            Thigh = self._Tlim[-1]
             T = np.full(value.shape, 0.5*(self._Tlim[0] + self._Tlim[-1]))
             I = np.ones(value.shape, dtype=bool)
             self._iter1(self._e, 'T', value, T, I, self._Tlim[0], self._Tlim[-1])
@@ -327,7 +327,7 @@ _argparse decides which to populate based on what is most efficient.
         # Entropy requires special iteration
         if 's' in kwarg:
             # If density is specified
-            if 'd' in args:
+            if 'd' in kwarg:
                 s,d = np.broadcast_arrays(kwarg['s'], kwarg['d'])
                 T = np.full_like(s, 0.5*(self._Tlim[0] + self._Tlim[-1]))
                 I = np.ones_like(s,dtype=bool)
@@ -387,11 +387,11 @@ _argparse decides which to populate based on what is most efficient.
         I = np.logical_or(T < self._Tlim[0], T > self._Tlim[-1])
         if I.all():
             raise pm.utility.PMParamError('All of the specified states were out-of-bounds.  '  
-                    'Legal temperatures for {} are between {} and {} Kelvin.'.format(self.data['id'], self.data['Tlim'][0], self.data['Tlim'][-1]))
+                    'Legal temperatures for {} are between {} and {} Kelvin.'.format(self.data['id'], self._Tlim[0], self._Tlim[-1]))
         elif I.any():
             T[I] = pm.config['def_oob']
             pm.utility.print_warning('Some of the states were out of bounds - setting to config[\'def_oob\'].  '
-                    'Legal temperatures for {} are between {} and {} Kelvin.'.format(self.data['id'], self.data['Tlim'][0], self.data['Tlim'][-1]))
+                    'Legal temperatures for {} are between {} and {} Kelvin.'.format(self.data['id'], self._Tlim[0], self._Tlim[-1]))
         return T,p,d
 
     
