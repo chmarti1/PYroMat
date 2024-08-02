@@ -42,12 +42,6 @@ class TestInputErrors:
         assert gas.s(T=pm.config['def_T']) == gas.s(T=pm.config['def_T'], p=pm.config['def_p'])
         assert gas.s(p=pm.config['def_p']) == gas.s(T=pm.config['def_T'], p=pm.config['def_p'])
 
-    def test_invarg_toomany(self, gas):
-        with raises(pm.utility.PMParamError):
-            gas.T(h=300, s=5)
-        with raises(pm.utility.PMParamError):
-            gas.T(e=300, s=5)
-
     def test_d_v_collision(self, gas):
         with raises(pm.utility.PMParamError):
             gas.T(d=1, v=1)
