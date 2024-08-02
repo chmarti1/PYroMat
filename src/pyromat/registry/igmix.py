@@ -331,7 +331,7 @@ _argparse decides which to populate based on what is most efficient.
                 s,d = np.broadcast_arrays(kwarg['s'], kwarg['d'])
                 T = np.full_like(s, 0.5*(self._Tlim[0] + self._Tlim[-1]))
                 I = np.ones_like(s,dtype=bool)
-                self._iter1(self._sditer, 'T', s, T, I, self._Tlim[0], self._Tlim[-1], param={'d':d})
+                self._iter1(self._sditer, 'T', s - self._smix, T, I, self._Tlim[0], self._Tlim[-1], param={'d':d})
             # If pressure is specified
             elif 'p' in kwarg:
                 s,p = np.broadcast_arrays(kwarg['s'], kwarg['p'])
@@ -339,13 +339,13 @@ _argparse decides which to populate based on what is most efficient.
                 s += pm.units.const_Ru * np.log(p / self._pref_pa)
                 T = np.full_like(s, 0.5*(self._Tlim[0] + self._Tlim[-1]))
                 I = np.ones_like(s,dtype=bool)
-                self._iter1(self._s, 'T', s, T, I, self._Tlim[0], self._Tlim[-1])
+                self._iter1(self._s, 'T', s - self._smix, T, I, self._Tlim[0], self._Tlim[-1])
             # If temperature is specified
             elif 'T' in kwarg:
                 s,T = np.broadcast_arrays(kwarg['s'], kwarg['T'])
                 # Calculate the reference entropy at the specified temperature
                 s0 = self._s(T)[0]
-                p = self._pref_pa * np.exp((s0-s)/pm.units.const_Ru)
+                p = self._pref_pa * np.exp((s0-(s-self._smix))/pm.units.const_Ru)
                 # Otherwise, this is an illegal combination!
             else:
                 raise pm.utility.PMParamError(f'Cannot simultaneously specify parameters: {args}')
