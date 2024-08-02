@@ -752,7 +752,7 @@ T, p, d, v, e, h, and s.
             p = 1000 * d * Ru * T
 
         # Now entropy
-        s = self._s(T,False)[0] - Ru * np.log(p / self._pref_pa)
+        s = self._s(T,False)[0] - Ru * np.log(p / self._pref_pa) + self._smix
 
         # Enthalpy and specific heat at once
         h,cp = self._h(T,True)
