@@ -1917,6 +1917,99 @@ fn is an integer indicating which property fit form to use
         
         return d,dt,dtt
         
+    def _ds(self, T, diff=0):
+        """Calculate saturated liquid and vapor density (inner routine)
+    
+Unlike _dsl and _dsv, which use polynomials to estimate the saturation
+lines, _ds is an iterative routine that calculates saturation from the
+equation of state using the Maxwell criteria.
+"""
+        # Create an iteration downselect array
+        # and an out-of-bounds array
+        I = np.ones_like(T, dtype=bool)
+        Ioob = np.zeros_like(T, dtype=bool)
+
+        # First, we need guesses for the high and low densities.
+        # These are dimensionless densities.
+        d2 = np.full_like(T, self.data['dlim'][1], dtype=float)
+        d1 = 0.0001*d2
+        # Obtain the critical density
+        dc = self.data['dc']
+        
+        A = np.empty((I.size, 2,2), dtype=float)
+        R = np.empty((I.size, 2), dtype=float)
+        D = np.empty((I.size, 2), dtype=float)
+        
+        # Iterate a maximum of 100 times
+        for count in range(100):
+            # Evaluate Gibbs energy at d1 and d2
+            g1,g1T,g1d = self._g(T=T[I], d=d1[I], diff=1)
+            g2,g2T,g2d = self._g(T=T[I], d=d2[I], diff=1)
+            # Evaluate pressures at d1 and d2
+            p1,p1T,p1d = self._p(T=T[I], d=d1[I], diff=1)
+            p2,p2T,p2d = self._p(T=T[I], d=d2[I], diff=1)
+            
+            # Formulate a residual array
+            R[I,0] = g1-g2
+            R[I,1] = p1-p2
+            
+            # Formulate a solution matrix
+            A[I,0,0] = -g1d
+            A[I,0,1] = g2d
+            A[I,1,0] = -p1d
+            A[I,1,1] = p2d
+            
+            # Solve and update the densities
+            D[I,:] = np.linalg.solve(A[I],R[I])
+            
+            # Test for range - force the densities to the correct side
+            # of the critical point.  If the test fails, then automatically
+            # fail the convergence check.
+            d1test = d1[I] + D[:,0]
+            d2test = d2[I] + D[:,1]
+            Ioob[I] = np.logical_or(d1test > dc, d2test < dc)
+            while Ioob.any():
+                D[Ioob] /= 2.
+                d1test = d1[Ioob] + D[Ioob,0]
+                d2test = d2[Ioob] + D[Ioob,1]
+                Ioob[Ioob] = np.logical_or(d1test > dc, d2test < dc)
+                
+            
+            d1[I] = d1test
+            d2[I] = d2test
+
+            # Test for convergence
+            I[I] = np.logical_or(np.abs(D[:,0]) > d1[I]*1e-6, 
+                    np.abs(D[:,1]) > d2[I]*1e-6)
+            if not I.any():
+                break
+
+        if I.any():
+            raise pm.utility.PMAnalysisError('mp1._ds(): Iteration failed to converge at T(K) = ' + repr(T[I]))
+        
+        d1T = d2T = None
+        if diff:
+            # Re-evaluate properties everywhere at the solution
+            # Evaluate Gibbs energy at d1 and d2
+            g1,g1T,g1d = self._g(T=T, d=d1, diff=1)
+            g2,g2T,g2d = self._g(T=T, d=d2, diff=1)
+            # Evaluate pressures at d1 and d2
+            p1,p1T,p1d = self._p(T=T, d=d1, diff=1)
+            p2,p2T,p2d = self._p(T=T, d=d2, diff=1)
+            
+            A[:,0,0] = -g1d
+            A[:,0,1] = g2d
+            A[:,1,0] = -p1d
+            A[:,1,1] = p2d
+            
+            R[:,0] = g1T-g2T
+            R[:,1] = p1T-p2T
+            
+            D = np.linalg.solve(A,R)
+            d1T = D[:,0]
+            d2T = D[:,1]
+            
+        return d1,d2,d1T,d2T
         
     def _ps(self,T,diff=0):
         """Saturation pressure (inner routine)
