@@ -1926,19 +1926,26 @@ equation of state using the Maxwell criteria.
 """
         # Create an iteration downselect array
         # and an out-of-bounds array
-        I = np.ones_like(T, dtype=bool)
-        Ioob = np.zeros_like(T, dtype=bool)
+        I = np.logical_and(T < self.data['Tc'], T > self.data['Tt'])
 
         # First, we need guesses for the high and low densities.
-        # These are dimensionless densities.
-        d2 = np.full_like(T, self.data['dlim'][1], dtype=float)
-        d1 = 0.0001*d2
+        # If there are polynomial groups available in the data set, use
+        # them.  If not, we will make some dangerous initial guesses.
+        if 'DSLgroup' in self.data:
+            d1 = self._dsl(T=T)[0]
+        else:
+            d1 = self.data['dlim'][1]
+            
+        if 'DSVgroup' in self.data:
+            d2 = self._dsv(T=T)[0]
+        else:
+            d2 = .001 * d1
+
         # Obtain the critical density
         dc = self.data['dc']
         
-        A = np.empty((I.size, 2,2), dtype=float)
-        R = np.empty((I.size, 2), dtype=float)
-        D = np.empty((I.size, 2), dtype=float)
+        A = np.empty((I.shape + (2,2)), dtype=float)
+        R = np.empty((I.shape + (2,)), dtype=float)        
         
         # Iterate a maximum of 100 times
         for count in range(100):
@@ -1960,20 +1967,13 @@ equation of state using the Maxwell criteria.
             A[I,1,1] = p2d
             
             # Solve and update the densities
-            D[I,:] = np.linalg.solve(A[I],R[I])
+            D = np.linalg.solve(A[I],R[I])
             
             # Test for range - force the densities to the correct side
             # of the critical point.  If the test fails, then automatically
             # fail the convergence check.
             d1test = d1[I] + D[:,0]
             d2test = d2[I] + D[:,1]
-            Ioob[I] = np.logical_or(d1test > dc, d2test < dc)
-            while Ioob.any():
-                D[Ioob] /= 2.
-                d1test = d1[Ioob] + D[Ioob,0]
-                d2test = d2[Ioob] + D[Ioob,1]
-                Ioob[Ioob] = np.logical_or(d1test > dc, d2test < dc)
-                
             
             d1[I] = d1test
             d2[I] = d2test
