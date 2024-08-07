@@ -423,7 +423,7 @@ param       A dicitonary of keyword arguments are passed directly to the
         
 
     def _cp(self,T):
-        """Constant pressure specific heat
+        """Constant pressure specific heat (inner routine)
     _cp(T)
 
 Expects temperature in Kelvin and returns cp in kJ/kmol/K"""
@@ -440,7 +440,7 @@ Expects temperature in Kelvin and returns cp in kJ/kmol/K"""
         return out
         
     def _h(self, T, diff=False):
-        """Enthalpy
+        """Enthalpy (inner routine)
     h = _h(T)
         OR
     h,hT = _h(T, diff=True)
@@ -468,7 +468,7 @@ temperature with constant pressure is also returned.
         return out, hT
         
     def _e(self, T, diff=False):
-        """Internal Energy
+        """Internal Energy (inner routine)
     e = _e(T)
         OR
     e,eT = _e(T, diff=True)
@@ -478,10 +478,12 @@ When diff=True, the partial derivative of energy with respect to
 temperature with constant pressure is also returned.
 """
         h,hT = self._h(T,diff)
-        return h-pm.units.const_Ru*T, hT-pm.units.const_Ru
+        if diff:
+            return h-pm.units.const_Ru*T, hT-pm.units.const_Ru
+        return h-pm.units.const_Ru*T, None
         
     def _s(self, T, diff=False):
-        """Entropy at reference pressure
+        """Entropy at reference pressure (inner routine)
     
     s, sT = _s(T,diff=True)
     
@@ -507,6 +509,48 @@ temperature is also returned.  Otherwise it is returned as None.
                 sT[I] /= 1000
         return out, sT
 
+
+    def _g(self, T, diff=False):
+        """Gibbs energy at reference pressure (inner routine)
+    
+    g, gT = _g(T,diff=True)
+    
+Expects T in Kelvin, and returns Gibbs energy in kJ/kmol.
+When diff=True, the partial derivatives of Gibbs energy with respect to 
+temperature is also returned.  Otherwise it is returned as None.
+"""
+        out = np.full_like(T,pm.config['def_oob'],dtype=float)
+        gT = None
+        if diff:
+            gT = np.full_like(T,pm.config['def_oob'],dtype=float)
+        # Loop through the available piece-wise temperature ranges
+        # Use the _crange() method to identify the elements appropriate
+        # for each.
+        for ii in range(len(self.data['Tlim'])-1):
+            C = self.data['C'][ii]
+            I = self._crange(T, ii)
+            t = T[I] / 1000.
+            logt = np.log(t)
+            out[I] = C[5] - C[0]*t*logt + t*(C[0]-C[6] + t*(-0.5*C[1] + t*(-1./6.*C[2] + t*(-1./12.*C[3])))) - 0.5*C[4]/t
+            if diff:
+                gT[I] = -C[0]*(logt+1) + C[0]-C[6] + t*(-C[1] + t*(-0.5*C[2] + t*(-1./3.*C[3]))) + 0.5*C[4]/t/t
+        out *= 1000.
+        return out, gT
+
+    def _f(self, T, diff=False):
+        """Free (Helmholtz) energy at reference pressure (inner routine)
+    
+    f, fT = _f(T,diff=True)
+    
+Expects T in Kelvin, and returns free energy in kJ/kmol.
+When diff=True, the partial derivatives of free energy with respect to 
+temperature is also returned.  Otherwise it is returned as None.
+"""
+        g,gT = self._g(T, diff=diff)
+        
+        if diff:
+            return g-pm.units.const_Ru*T, gT-pm.units.const_Ru
+        return g-pm.units.const_Ru*T, None
 
     def _test(self, report=None):
         """Test the ig data model against a series of criteria
@@ -1633,6 +1677,74 @@ Returns enthalpy in unit_energy / unit_matter
         # Apply the conversion factor in-place and return
         np.multiply(out, scale, out=out)
         return out
+        
+    def g(self,*varg, **kwarg):
+        """Gibbs energy
+    g(...)
+    
+    g =def= h - T*s
+
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Returns enthalpy in unit_energy / unit_matter
+"""
+        T,p,d = self._argparse(*varg, **kwarg)
+        # Apply the model
+        out = self._g(T)[0] + T*pm.units.const_Ru * np.log(p/self._pref_pa)
+        # calculate a conversion factor
+        scale = pm.units.energy(1, from_units='kJ')
+        scale = pm.units.matter(scale, self.data['mw'], from_units='kmol', exponent=-1)
+        # Apply the conversion factor in-place and return
+        np.multiply(out, scale, out=out)
+        return out
+            
+            
+    def f(self,*varg, **kwarg):
+        """Free (Helmholtz) energy
+    f(...)
+    
+    f =def= e - T*s
+
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Returns enthalpy in unit_energy / unit_matter
+"""
+        T,p,d = self._argparse(*varg, **kwarg)
+        # Apply the model
+        out = self._f(T)[0] + T*pm.units.const_Ru * np.log(p/self._pref_pa)
+        # calculate a conversion factor
+        scale = pm.units.energy(1, from_units='kJ')
+        scale = pm.units.matter(scale, self.data['mw'], from_units='kmol', exponent=-1)
+        # Apply the conversion factor in-place and return
+        np.multiply(out, scale, out=out)
+        return out
+            
 
     def s(self,*varg,**kwarg):
         """Entropy

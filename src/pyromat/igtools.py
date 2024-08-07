@@ -1348,6 +1348,16 @@ individual mixtures in the quantity arrays.
         pm.units.matter(h, mw, from_units='kmol', inplace=True, exponent=-1)
         return h
         
+    def e(self, *varg, **kwarg):
+        """E - Internal energy
+        
+"""
+        T,p,d,X,mw = self._argparse(*varg, **kwarg)
+        e = self._propeval('_e', T, X=X)[0]
+        pm.units.energy(e, from_units='kJ', inplace=True)
+        pm.units.matter(e, mw, from_units='kmol', inplace=True, exponent=-1)
+        return e
+        
     def s(self, *varg, **kwarg):
         """S - Entropy
         
@@ -1363,6 +1373,34 @@ individual mixtures in the quantity arrays.
         pm.units.matter(s, mw, from_units='kmol', inplace=True, exponent=-1)
         pm.units.temperature(s, from_units='K', inplace=True, exponent=-1)
         return s
+        
+    def g(self, *varg, **kwarg):
+        """G - Gibbs energy
+        
+"""
+        T,p,d,X,mw = self._argparse(*varg, **kwarg)
+        # We need pressure
+        if p is None:
+            p = d * (1000*pm.units.const_Ru * T)
+        g = self._propeval('_g', T, X=X)[0]
+        g -= T * (self._smix(X=X) - pm.units.const_Ru * np.log(p / self._pref(X=X)))
+        pm.units.energy(g, from_units='kJ', inplace=True)
+        pm.units.matter(g, mw, from_units='kmol', inplace=True, exponent=-1)
+        return g
+
+    def f(self, *varg, **kwarg):
+        """F - Free (Helmholtz) energy
+        
+"""
+        T,p,d,X,mw = self._argparse(*varg, **kwarg)
+        # We need pressure
+        if p is None:
+            p = d * (1000*pm.units.const_Ru * T)
+        f = self._propeval('_f', T, X=X)[0]
+        f -= T * (self._smix(X=X) - pm.units.const_Ru * np.log(p / self._pref(X=X)))
+        pm.units.energy(f, from_units='kJ', inplace=True)
+        pm.units.matter(f, mw, from_units='kmol', inplace=True, exponent=-1)
+        return f
 
     def T(self, *varg, **kwarg):
         """T - Temperature
@@ -1394,6 +1432,8 @@ individual mixtures in the quantity arrays.
         pm.units.matter(d, mw, from_units='kmol', inplace=True)
         pm.units.volume(d, from_units='m3', inplace=True, exponent=-1)
         return d
+        
+        
         
 
 def fromigmix(source):

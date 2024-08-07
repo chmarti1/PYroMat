@@ -164,7 +164,7 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 
 ## Version 2.2.2
 - Changed the call signature for `T_s`, `T_h` functions to address issue 52
-  *NOTE* inverse methods like `T_s` and `T_h` are now depricated.
+  *NOTE* inverse methods like `T_s` and `T_h` are now deprecated.
 - Reassessed all multiphase `dlim` values in the core data. This addresses issues 44, 45, and 46.
 
 ## Version 2.2.3
@@ -183,3 +183,4 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 - Added `hill()` to the `__basedata__` class
 - Added `def_p_unit` and `def_T_unit` to the configuration system (github issue 68)
 - Corrected the error in the R1234ze saturation line data (github issue 86)
+- Added Helmholtz (`f`) and Gibbs (`g`) energies to all classes

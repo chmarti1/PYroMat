@@ -539,9 +539,65 @@ T must be a numpy array in Kelvin.
             s0 += x * spec_s0
             if diff:
                 sT += x * spec_sT
-            
+        # Add the entropy of mixing
+        s0 += self._smix
         return s0,sT
         
+        
+    def _g(self, T, diff=False):
+        """Calculates Gibbs energy at the reference pressure
+    g0,gT = _g(T, diff=True)
+
+g0 is the Gibbs energy in kJ/kmol at the reference pressure
+gT is the derivative of g0 with respect to temperature.
+T must be a numpy array in Kelvin.
+"""
+        # Initialize a result array
+        g0 = np.zeros_like(T,dtype=float)
+        gT = None
+        if diff:
+            gT = np.zeros_like(T,dtype=float)
+        
+        # Calculate the property directly from the subordinate inner 
+        # routines.  They use molar units by default.
+        for ss,x in self._x.items():
+            # Retrieve the species data
+            spec_g0,spec_gT = pm.dat.data[ss]._g(T, diff=diff)
+            
+            g0 += x * spec_g0
+            if diff:
+                gT += x * spec_gT
+        # Deduct the entropy of mixing
+        g0 -= T * self._smix
+        return g0,gT
+        
+        
+    def _f(self, T, diff=False):
+        """Calculates free energy at the reference pressure
+    f0,fT = _f(T, diff=True)
+
+f0 is the free (Helmholtz) energy in kJ/kmol at the reference pressure
+fT is the derivative of g0 with respect to temperature.
+T must be a numpy array in Kelvin.
+"""
+        # Initialize a result array
+        f0 = np.zeros_like(T,dtype=float)
+        fT = None
+        if diff:
+            fT = np.zeros_like(T,dtype=float)
+        
+        # Calculate the property directly from the subordinate inner 
+        # routines.  They use molar units by default.
+        for ss,x in self._x.items():
+            # Retrieve the species data
+            spec_f0,spec_fT = pm.dat.data[ss]._f(T, diff=diff)
+            
+            f0 += x * spec_f0
+            if diff:
+                fT += x * spec_fT
+        # Deduct the entropy of mixing
+        f0 -= T * self._smix
+        return f0,fT
         
     def _h(self, T, diff=False):
         """Calculates enthalpy and its derivative
@@ -630,14 +686,23 @@ Returns unit_temperature
     def d(self,*varg, **kwarg):
         """Density
     d(...)
-    
-Calculates density from any two of the T,p,d triple.  If any arguments 
-are missing, they are replaced with their default values are replaced
-by the defaults config['def_T'] or config['def_p'].
 
-Accepts     Temperature [unit_temperature]
-            Pressure    [unit_pressure]
-Returns     Density     [unit_matter / unit_volume]
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Returns density in unit_matter / unit_volume
 """
         self._bootstrap()
         Ru = pm.units.const_Ru
@@ -675,17 +740,24 @@ Returns volume in unit_volume / unit_matter
 
     def p(self, *varg, **kwarg):
         """Pressure
-    d(T,p)
-        OR
-    d(p=p,...)
-    
-Calculates pressure from any two of the T,p,d triple.  If any arguments 
-are missing, they are replaced with their default values are replaced
-by the defaults config['def_T'] or config['def_p'].
+    p(...)
 
-Accepts     Temperature [unit_temperature]
-            Density      [unit_matter / unit_volume]
-Returns     Pressure     [unit_pressure]
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Returns pressure in unit_pressure
 """
         self._bootstrap()
         Ru = pm.units.const_Ru
@@ -698,17 +770,24 @@ Returns     Pressure     [unit_pressure]
         
     def T(self, *varg, **kwarg):
         """Temperature
-    T(p=p,d=d)
-        OR
-    T(T=T,...)
-    
-Calculates temperature from any two of the T,p,d triple.  If any 
-arguments are missing, they are replaced with their default values are 
-replaced by the defaults config['def_T'] or config['def_p'].
+    T(...)
 
-Accepts     Pressure     [unit_pressure]
-            Density      [unit_matter / unit_volume]
-Returns     Temperature  [unit_temperature]
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Returns temperature in unit_temperature
 """
         self._bootstrap()
         # T is a special case.  If there is only one parameter given, 
@@ -782,19 +861,24 @@ T, p, d, v, e, h, and s.
     
     def cp(self,*varg, **kwarg):
         """Constant-pressure specific heat
-    cp(T)
-        OR
-    cp(T,p)
-        OR
-    cp(p=p, d=d)
-    
-Calculates the specific heat of the mixture from the specific heats of
-the components.
+    cp(...)
 
-Accepts:    Temperature [unit_temperature]
-            Pressure    [unit_pressure]
-            Density     [unit_matter / unit_volume]
-Returns:    Spec. Heat  [unit_energy / unit_temperature / unit_matter]
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Returns specific heat in unit_energy / unit_matter / unit_temperature
 """
         self._bootstrap()
         # Parse the arguments to isolate temperature in K
@@ -811,19 +895,24 @@ Returns:    Spec. Heat  [unit_energy / unit_temperature / unit_matter]
 
     def cv(self,*varg,**kwarg):
         """Constant-volume specific heat
-    cp(T)
-        OR
-    cp(T,p)
-        OR
-    cp(p=p, d=d)
-    
-Calculates the specific heat of the mixture from the specific heats of
-the components.  
+    cv(...)
 
-Accepts:    Temperature [unit_temperature]
-            Pressure    [unit_pressure]
-            Density     [unit_matter / unit_volume]
-Returns:    Spec. Heat  [unit_energy / unit_temperature / unit_matter]
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Returns specific heat in unit_energy / unit_matter / unit_temperature
 """
         self._bootstrap()
         # Parse the arguments to isolate temperature in K
@@ -840,60 +929,128 @@ Returns:    Spec. Heat  [unit_energy / unit_temperature / unit_matter]
 
     def h(self, *varg, **kwarg):
         """Enthalpy
-    h(T)
-        OR
-    h(T,p)
-        OR
-    h(p=p, d=d)
-    
-Calculates the enthalpy at the specified state from the mixture 
-components' entropies.  Missing state parameters will be assigned their
-defaults from either config['def_T'] or config['def_p'].
+    h(...)
 
-Accepts:    Temperature [unit_temperature]
-            Pressure    [unit_pressure]
-            Density     [unit_matter / unit_volume]
-Returns:    Enthalpy    [unit_energy / unit_matter]
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Returns enthalpy in unit_energy / unit_matter
 """
         self._bootstrap()
         T,_,_ = self._argparse(*varg, **kwarg)
-        out = np.zeros_like(T,dtype=float)
-        for ss,x in self._x.items():
-            out += x*self._h(T)[0]
+        out = self._h(T)[0]
         
         pm.units.energy(out, from_units='kJ', inplace=True)
         pm.units.matter(out, self._mw, from_units='kmol', inplace=True, exponent=-1)
         return out
         
+        
+    def g(self, *varg, **kwarg):
+        """Gibbs energy
+    g(...)
+
+    g =def= h - T*s
+
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Returns Gibbs energy in unit_energy / unit_matter
+"""
+        self._bootstrap()
+        T,p,d = self._argparse(*varg, **kwarg)
+        if p is None:
+            p = 1000 * pm.units.const_Ru * d * T
+        out = self._g(T)[0] + T * pm.units.const_Ru * np.log(p/self._pref_pa)
+        
+        pm.units.energy(out, from_units='kJ', inplace=True)
+        pm.units.matter(out, self._mw, from_units='kmol', inplace=True, exponent=-1)
+        return out
 
     def e(self, *varg, **kwarg):
         """Internal energy
-    e(T)
-        OR
-    e(T,p)
-        OR
-    e(p=p, d=d)
-    
-Calculates the internal energy at the specified state from the mixture 
-components' entropies.  Missing state parameters will be assigned their
-defaults from either config['def_T'] or config['def_p'].
+    e(...)
 
-Accepts:    Temperature [unit_temperature]
-            Pressure    [unit_pressure]
-            Density     [unit_matter / unit_volume]
-Returns:    Int. Energy [unit_energy / unit_matter]
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Returns internal energy in unit_energy / unit_matter
 """
         self._bootstrap()
         T,_,_ = self._argparse(*varg, **kwarg)
-        out = np.zeros_like(T,dtype=float)
-        for ss,x in self._x.items():
-            out += x*self._h(T)[0]
-        out -= T * pm.units.const_Ru
+        out = self._e(T)[0]
         
         pm.units.energy(out, from_units='kJ', inplace=True)
         pm.units.matter(out, self._mw, from_units='kmol', inplace=True, exponent=-1)
         return out
 
+    def f(self, *varg, **kwarg):
+        """Free (Helmholtz) energy
+    f(...)
+
+    f =def= e - T*s
+
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Returns free energy in unit_energy / unit_matter
+"""
+        self._bootstrap()
+        T,p,d = self._argparse(*varg, **kwarg)
+        if p is None:
+            p = 1000 * pm.units.const_Ru * d * T
+        out = self._f(T)[0] + T * pm.units.const_Ru * np.log(p/self._pref_pa)
+        
+        pm.units.energy(out, from_units='kJ', inplace=True)
+        pm.units.matter(out, self._mw, from_units='kmol', inplace=True, exponent=-1)
+        return out
 
     def mw(self,*varg, **kwarg):
         """Molecular weight (more correctly mass)
@@ -930,26 +1087,30 @@ unit_energy / unit_matter / unit_temperature
 
     def s(self, *varg, **kwarg):
         """Entropy
-    s(T)
-        OR
-    s(T,p)
-        OR
-    s(p=p, d=d)
-    
-Calculates the entropy at the specified state from the mixture 
-components' entropies.  Missing state parameters will be assigned their
-defaults from either config['def_T'] or config['def_p'].
+    s(...)
 
-Accepts:    Temperature [unit_temperature]
-            Pressure    [unit_pressure]
-            Density     [unit_matter / unit_volume]
-Returns:    Entropy     [unit_energy / unit_matter / unit_temperature]
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Returns entropy in unit_energy / unit_matter / unit_temperature
 """
         self._bootstrap()
         T,p,d = self._argparse(*varg, **kwarg)
         if p is None:
             p = 1000 * pm.units.const_Ru * d * T
-        s = self._s(T)[0] - pm.units.const_Ru * np.log(p/self._pref_pa) + self._smix
+        s = self._s(T)[0] - pm.units.const_Ru * np.log(p/self._pref_pa)
         pm.units.energy(s, from_units='kJ', inplace=True)
         pm.units.matter(s, self._mw, from_units='kmol', inplace=True, exponent=-1)
         pm.units.temperature(s, from_units='K', inplace=True, exponent=-1)
@@ -957,21 +1118,25 @@ Returns:    Entropy     [unit_energy / unit_matter / unit_temperature]
 
 
     def gam(self,*varg, **kwarg):
-        """Specific heat ratio (gamma)
-    gam(T)
-        OR
-    gam(T,p)
-        OR
-    gam(p=p, d=d)
-    
-Calculates the specific heat ratio (cp / cv) for the mixture.  Missing 
-state parameters will be assigned their defaults from either 
-config['def_T'] or config['def_p'].
+        """Specific heat ratio
+    gam(...)
 
-Accepts:    Temperature [unit_temperature]
-            Pressure    [unit_pressure]
-            Density     [unit_matter / unit_volume]
-Returns:    Gamma       [d-less]
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Returns ideal gas ratio, which is dimensionless.
 """
         self._bootstrap()
         T,_,_ = self._argparse(*varg, **kwarg)

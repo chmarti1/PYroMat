@@ -780,6 +780,35 @@ efficient than calculating specific heat separately.
         return pm.units.const_Ru * out, dh
         
         
+    def _g(self, T, diff=False):
+        """Gibbs energy at the reference pressure
+    g,gT = _g(T)
+
+Expects temperature in Kelvin and returns g in kJ/kmol
+
+If the optional keyword, diff, is True, then the first derivative of 
+Gibbs energy is also returned; otherwise it is None.  This is more 
+efficient than calculating specific heat separately.
+"""
+        out = np.full_like(T,pm.config['def_oob'],dtype=float)
+        dg = None
+        if diff:
+            dg = np.full_like(T,pm.config['def_oob'],dtype=float)
+        # Loop through the piece-wise temperature ranges
+        for index in range(len(self.data['Tlim'])-1):
+            # Which elements are in-range?
+            I = self._crange(T,index)
+            t = T[I]
+            logt = np.log(t)
+            C = self.data['C'][index]
+            out[I] = -C[0]*t*logt + C[5] + t*(C[0]-C[6] + t*(-0.5*C[1] + t*(-1./6.*C[2] + t*(-1./12.*C[3] + t*(-.05*C[4])))))
+            if diff:
+                dg[I] = -C[0]*(1+logt) + C[0]-C[6] + t*(-C[1] + t*(-0.5*C[2] + t*(-1./3.*C[3] + t*(-.25*C[4]))))
+        if diff:
+            dg *= pm.units.const_Ru
+        return pm.units.const_Ru * out, dg
+        
+        
     def _e(self, T, diff=False):
         """Ineternal energy
     e,eT = _e(T)
@@ -795,6 +824,22 @@ efficient than calculating specific heat separately.
         if diff:
             de -= pm.units.const_Ru
         return e,de
+        
+    def _f(self, T, diff=False):
+        """Free (Helmholtz) energy at the reference pressure
+    f,fT = _f(T)
+
+Expects temperature in Kelvin and returns h in kJ/kmol
+
+If the optional keyword, diff, is True, then the first derivative of 
+free energy is also returned; otherwise it is None.  This is more 
+efficient than calculating specific heat separately.
+"""     
+        f,df = self._g(T,diff)
+        f -= pm.units.const_Ru*T
+        if diff:
+            df -= pm.units.const_Ru
+        return f,df
 
     def _s(self, T, diff=False):
         """Entropy at reference pressure
@@ -1047,7 +1092,7 @@ Returns specific heat in unit_energy / unit_matter / unit_temperature
         
     def cv(self,*varg, **kwarg):
         """Constant-volume specific heat
-    p(...)
+    cv(...)
 
 All ideal gas properties accept two other properties as flexible inputs
 Below are the recognized keywords, their meaning, and the config entries
@@ -1170,6 +1215,68 @@ Returns internal energy in unit_energy / unit_matter
         # calculate a conversion factor
         scale = pm.units.energy(1, from_units='J')
         scale = pm.units.matter(scale, self.data['mw'], from_units='mol', exponent=-1)
+        # Apply the conversion factor in-place and return
+        np.multiply(out, scale, out=out)
+        return out
+
+    def g(self,*varg, **kwarg):
+        """Gibbs energy
+    g(...)
+
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Returns Gibbs energy in unit_energy / unit_matter
+"""
+        T,p,d = self._argparse(*varg, **kwarg)
+        # Apply the model
+        out = self._g(T)[0] + T * pm.units.const_Ru * np.log(p/self.data['pref'])
+        # calculate a conversion factor
+        scale = pm.units.energy(1, from_units='kJ')
+        scale = pm.units.matter(scale, self.data['mw'], from_units='kmol', exponent=-1)
+        # Apply the conversion factor in-place and return
+        np.multiply(out, scale, out=out)
+        return out
+        
+    def f(self,*varg, **kwarg):
+        """Free (Helmholtz) energy
+    f(...)
+
+All ideal gas properties accept two other properties as flexible inputs
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Returns free energy in unit_energy / unit_matter
+"""
+        T,p,d = self._argparse(*varg, **kwarg)
+        # Apply the model
+        out = self._f(T)[0] + T * pm.units.const_Ru * np.log(p/self.data['pref'])
+        # calculate a conversion factor
+        scale = pm.units.energy(1, from_units='kJ')
+        scale = pm.units.matter(scale, self.data['mw'], from_units='kmol', exponent=-1)
         # Apply the conversion factor in-place and return
         np.multiply(out, scale, out=out)
         return out

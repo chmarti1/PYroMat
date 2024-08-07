@@ -18,6 +18,8 @@ MP1 provides property methods:
     cv()    Isochoric specific heat
     gam()   Specific heat ratio
     e()     Internal energy
+    f()     Free (Helmholtz) energy
+    g()     Gibbs energy
     h()     Enthalpy
     s()     Entropy
     T()     Temperature
@@ -1919,6 +1921,7 @@ fn is an integer indicating which property fit form to use
         
     def _ds(self, T, diff=0):
         """Calculate saturated liquid and vapor density (inner routine)
+    dL,dV,dLT,dVT = _ds(T, diff=0)
     
 Unlike _dsl and _dsv, which use polynomials to estimate the saturation
 lines, _ds is an iterative routine that calculates saturation from the
@@ -3724,6 +3727,8 @@ The properties are returned in a dictionary with keys:
     v   specific volume     unit_volume / unit_matter
     x   quality             dimensionless
     e   internal energy     unit_energy / unit_matter
+    f   free energy         unit_energy / unit_matter
+    g   gibbs energy        unit_energy / unit_matter
     h   enthalpy            unit_energy / unit_matter
     s   entropy             unit_energy / unit_matter / unit_temperature
     cp  const. p sp. ht.    unit_energy / unit_matter / unit_temperature
@@ -3792,6 +3797,8 @@ available by calling the cv() method directly.
         out['d'] = d1
         out['x'] = x
         out['e'] = e
+        out['f'] = e - T*s
+        out['g'] = h - T*s
         out['h'] = h
         out['s'] = s
         out['cp'] = cp
@@ -3837,6 +3844,9 @@ available by calling the cv() method directly.
         out['e'][I] = out['e'][I]*(x[I]) + e*(1-x[I])
         out['h'][I] = out['h'][I]*(x[I]) + h*(1-x[I])
         out['s'][I] = out['s'][I]*(x[I]) + s*(1-x[I])
+        # Overwrite the helmholtz function with the mixture values
+        out['f'][I] = out['e'][I] - out['T'][I]*out['s'][I]
+        # Gibbs energy is constant across an equilibrium phase transition
         # d is not weighted by x - v is.
         out['d'][I] = 1./((1-x[I])/d1[I] + x[I]/d2[I])
         
@@ -3845,6 +3855,8 @@ available by calling the cv() method directly.
         c1 = pm.units.matter(c1, self.data['mw'], from_units='kg', exponent=-1)
         out['e'] *= c1
         out['h'] *= c1
+        out['f'] *= c1
+        out['g'] *= c1
         c1 = pm.units.temperature(c1, from_units='K',exponent=-1)
         out['s'] *= c1
         out['cp'] *= c1
@@ -3899,7 +3911,83 @@ Returns energy in unit_energy / unit_matter
             return e,x
         return e
         
-        
+    def f(self, *varg, quality=False, **kwarg):
+        """Free (Helmholtz) energy
+    f(...)
+
+All properties accept two other properties as flexible inputs.
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    x   quality             dimensionless
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Additionally, if the optional keyword, "quality" is set to True, the 
+quality of the liquid/vapor mixture is also returned
+    f,x = f(..., quality=True)
+
+Returns free energy in unit_energy / unit_matter
+"""
+        T,d1,d2,x,I = self._argparse(*varg, **kwarg)
+        f = self._f(T,d1,0)[0]
+        if I.any():
+            f[I] *= (1.-x[I])
+            f[I] += self._f(T[I],d2[I],0)[0] * x[I]
+        # Convert the units back to user space
+        pm.units.energy(f, from_units='J', inplace=True)
+        pm.units.matter(f, self.data['mw'], 
+                from_units='kg', exponent=-1, inplace=True)
+        if quality:
+            return f,x
+        return f
+
+    def g(self, *varg, quality=False, **kwarg):
+        """Gibbs energy
+    g(...)
+
+All properties accept two other properties as flexible inputs.
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    x   quality             dimensionless
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Additionally, if the optional keyword, "quality" is set to True, the 
+quality of the liquid/vapor mixture is also returned
+    g,x = g(..., quality=True)
+
+Returns free energy in unit_energy / unit_matter
+"""
+        T,d1,d2,x,I = self._argparse(*varg, **kwarg)
+        g = self._g(T,d1,0)[0]
+        if I.any():
+            g[I] *= (1.-x[I])
+            g[I] += self._g(T[I],d2[I],0)[0] * x[I]
+        # Convert the units back to user space
+        pm.units.energy(g, from_units='J', inplace=True)
+        pm.units.matter(g, self.data['mw'], 
+                from_units='kg', exponent=-1, inplace=True)
+        if quality:
+            return g,x
+        return g    
         
     def h(self, *varg, quality=False, **kwarg):
         """Enthalpy
