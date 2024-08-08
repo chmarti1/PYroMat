@@ -553,12 +553,12 @@ _argparse decides which to populate based on what is most efficient.
         nargs = len(kwarg)
         if nargs == 1:
             if 'T' not in kwarg:
-                kwarg['T'] = pm.config['def_T']
+                kwarg['T'] = pm.config.def_T()
             else:
-                kwarg['p'] = pm.config['def_p']
+                kwarg['p'] = pm.config.def_p()
         elif nargs == 0:
-            kwarg['T'] = pm.config['def_T']
-            kwarg['p'] = pm.config['def_p']
+            kwarg['T'] = pm.config.def_T()
+            kwarg['p'] = pm.config.def_p()
         
         # 2) Apply the argument rules
         # Re-measure the number of arguments and use sets to enforce

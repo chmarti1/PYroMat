@@ -182,5 +182,7 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 - Added `sid()` to the `__basedata__` class (all data instances)
 - Added `hill()` to the `__basedata__` class
 - Added `def_p_unit` and `def_T_unit` to the configuration system (github issue 68)
+- Added `def_p()` and `def_T()` as methods to the `PMConfig` class to automatically handle the default units
 - Corrected the error in the R1234ze saturation line data (github issue 86)
 - Added Helmholtz (`f`) and Gibbs (`g`) energies to all classes
+- Wrote the _ds() precision inner saturation property method; fully functional, but not yet used.

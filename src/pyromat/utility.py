@@ -387,7 +387,25 @@ pmconfig.entries[item].apply_default()
     def __iter__(self):
         return self.entries.__iter__()
 
-
+    def def_T(self):
+        """Return the default temperature in the current units
+    T = def_T()
+    
+Uses the def_T_unit and def_T configuration fields to convert the default
+temperature into the currently configured temperature units.
+"""
+        return pm.units.temperature_scale(self['def_T'], from_units = self['def_T_unit'])
+        
+    def def_p(self):
+        """Return the default pressure in the current units
+    p = def_p()
+    
+Uses the def_p_unit and def_p configuration fields to convert the default
+temperature into the currently configured temperature units.
+"""
+        return pm.units.pressure(self['def_p'], from_units = self['def_p_unit'])
+        
+        
 
 
 def get_config( param, dtype=None, verbose=True ):
