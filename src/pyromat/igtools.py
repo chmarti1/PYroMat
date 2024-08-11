@@ -2,8 +2,7 @@
 
 ::Tools for ideal gas mixtures::
 
-
-
+BETA RELEASE v2.4.5
 """
 
 
@@ -39,10 +38,22 @@ def parse_mixstr(mixstr):
 class IGTMix(object):
     """Ideal Gas Tools dynamic Mixture
     
-    The dynamic mixture object is a wrapper for the various ideal gas
-classes.  It deals in extensive quantities, and quantities can be 
-expressed in mass or molar units.  Once defined, gas mixtures objects 
-can then be mixed with each other at the command line.
+    m = IGTMix( ... )
+    
+The IGTMix class instances allow users to dynamically define mixtures of
+component ideal gases with a flexible interface convenient for the 
+command line and scripts alike.  IGTMix instances have property methods 
+just like the rest of the PYroMat classes.  Even though the extent of 
+IGTMix instances is provided, the properties are still evaluated 
+intensively.  
+
+In this example, we quickly compute the enthalpy of a mixture 35% 
+hydrogen and balance argon by volume.
+    
+    mymix = IGTMix('0.35 H2 + .65 Ar', units='kmol')
+    mymix.h(T=300)
+        array([43.67153007])
+
 
 ** DEFINING A MIXTURE **
 
@@ -50,12 +61,17 @@ There are six ways to define a mixture:
 
 (1) From a string...
 Strings are expected in the format: 'qty0 subst0 + qty1 subst1 + ...'
-All whitespace is ignored.  Omitted quantities are presumed to be unity,
-and substances can be specified with or without their 'ig.' collection
-prefix.
+Quantities specify an amount of each substance in the units configured
+in pm.config['unit_matter'] unless the optional 'units' keyword is set.
+Omitted quantities are presumed to be unity, and substances can be 
+specified with or without their 'ig.' collection prefix.  All whitespace
+is ignored.  
 
     mymix = IGTMix('10 ig.N2')
-    mymix = IGTMix('2.4 N2 + Ar')
+    mymix = igt.IGTMix('2.4 N2 + Ar', units='kmol')
+    print(mymix)
+        [2.4]N2 + [1.]Ar  (kmol)
+
 
 *note* This method cannot be used to specify an ion like 'Ne+'. Instead,
 use the dictionary or list methods below.
@@ -70,27 +86,34 @@ Keyword arguments accept abbreviated substance ID strings as keywords
 use the dictionary or list methods below.
 
 (3) A list of constituents with no quantities...
-All of the constituents will be initialized containing one unit_matter
-in the mixture.
- 
+This assigns zero matter to each mixture.  The intent is that the user
+will assign the contents in a later command.
+
     mymix = IGTMix(['ig.N2', 'ig.O2', 'ig.Ar'])
     
-(4) A dictionary of constituents with their quantities as values
-By default, quantities will be understood in the config['unit_matter']
-units.  See UNITS below for more information.
+(4) A dictionary of constituents with their quantities as values...
+Dictionary keys are interpreted to be substance identifiers, and the 
+corresponding values are interpreted as quantities.
 
     air = IGTMix({'ig.N2':0.76, 'ig.O2':0.23, 'ig.Ar':.01})
 
 (5) Algebraicaly...
+IGTMix instances can be combined with each other using addition and 
+multiplication at the command line.
+
     air = IGTMix('.76 N2 + .23 O2 + .01 Ar')
     fuel = IGTMix('.23 CH4 + .44 C3H8')
     reactants = air + 0.4*fuel
 
-        OR JUST AS A STRING!
-        
-    reactants = '.76 N2 + .23 O2 + .01 Ar' + 0.4*fuel
+Any other data type in addition with an IGTMix is interpreted as a 
+mixture definition as well.  For example,
+
+    reactants = '.76 N2 + .23 O2 + .01 Ar' + 0.4*fuel       
+    reactants = {'N2':.75, 'O2':.23, 'Ar':.01} + 0.4*fuel   
+    mymix = pm.get('ig.H2O') + 0.4 * air                    
 
 (6) From an existing igmix instance, using the fromigmix() function.
+
     air = fromigmix(pm.get('ig.air'))
     
 When the fromigmix() function is used, the igmix instance is split into
@@ -99,6 +122,7 @@ results in a mixture with argon, carbon dioxide, nitrogen, and oxygen.
 If an igmix instance is passed directly to the IGTMix class, it is 
 treated the same as any other constituent gas, so the example below 
 produces a mixture that only has one gas component.
+
     air = IGTMix('ig.air')
 
 ** SPECIFYING SUBSTANCES **
@@ -106,62 +130,126 @@ produces a mixture that only has one gas component.
 In the examples above, constituent gases are specified by their 
 substance ID string, but they may be specified three ways:
 (1) By their full substance ID string
+
     mymix = IGTMix('ig.N2')
     
 (2) By their abbreviated substance ID string (with no leading ig.)
+
     mymix = IGTMix('N2')
     
 (3) Or by their full data instance
+
     n2 = pm.get('ig.N2')
     mymix = IGTMix(n2)
     
 Any of these -- 'N2', 'ig.N2', or pm.get('ig.N2') -- may be used as the
 substance identifier in the mixture list or dictionary methods above.
-    
+
+** ALGEBRA WITH MIXTURES **
+
+Because mixtures work in absolute quantities (as opposed to mass or 
+mole fractions), they can be incrased, decreased, subtracted from, or
+added to using basic math operations at the command line.  In this 
+example, mix3 has 1kmol of water, 2kmol carbon dioxide, and 2kmol each
+of nitrogen and argon.
+
+    pm.config['unit_matter'] = 'kmol'
+    mix1 = IGTMix({'H2O':2, 'CO2':4})
+    mix2 = IGTMix({'N2':1, 'Ar':1})
+    mix3 = 0.5*mix1 + 2*mix2
+
+The addition algorithm attempts to convert non-IGTMix instances to 
+IGTMix instances.  That means that strings, lists, dictionaries, and
+ordinary PYroMat instances may be folded into mixtures using plain 
+command-line algebra.
+
+    mix4 = mix2 + '0.5 CO'
+    mix5 = mix2 + pm.get('ig.H2O')
+    mix6 = mix2 + {'H2O':[0.5,0.12], 'C2H2':0.8}
+
+The last examples shows how mixture arrays can be defined.  Array broad-
+casting is inherently supported, so even though H2O was the only 
+substance with multiple values, all other values are broadcast,
+
+    print(mix6)
+        (kmol)
+        N2   : array([1., 1.])
+        Ar   : array([1., 1.])
+        H2O  : array([0.5 , 0.12])
+        C2H2 : array([0.8, 0.8])
+
 ** QUANTITIES AND UNTIS **
 
-The IGTMix class interprets quantities in the matter units configured in
-config['unit_matter'].  This can be overridden by the 'units' keyword, 
-but the mixture will be immediately converted into configured units.
-For example, this code segment defines a mixture with 5.2kmol of water 
-and 4.7kmol of carbon dioxide, but when queried, the answer is returned
-in kilograms.
+When an IGTMix instance is initialized, the quantities are interpreted
+in PYroMat's currently configured 'unit_matter' unless the behavior is
+overridden by the optional units keyword.
     pm.config['unit_matter'] = 'kg'
     mymix = IGTMix({'H2O':5.2, 'CO2':4.7}, units='kmol')
-    mymix['H2O']
-        array([93.679456])
 
-In cases where no quantity is specifed, IGTMix always assumes one unit 
-of matter.  This lets the algebraic methods above (in method 5) work.
+Changes to the 'unit_matter' configuration parameter do not affect the
+mixture.  To change the mixture's units and automatically convert the
+mixture quantities, use the set_units() method.
 
-If the units are changed after an IGTMix instance has already been 
-defined, they will automatically be converted into the new units the 
-next time one of the instance methods is called.  To ensure this process
-is correctly handled, users should never interact with an IGTMix instance
-through members or methods with a leading underscore -- these are 
-intended for internal use only.
+When math operations are performed between mixtures of dissimilar units,
+the results are automatically calculated in terms of the units of the 
+first (left-hand-side) mixture.
+
+** ARRAYS AND INDEXING **
 
 Quantities are always handled as arrays, so a single IGTMix instance can
 actually manage arrays of mixtures with an arbitrary shape.  In this 
-example the mixture instance is an array of mixtures of neon and its 
-first ion.
-    x = np.linspace(0,0.1,21)
-    mymix = IGTMix{{'Ne':1-x, 'Ne+':x})
+example the mixture instance is an array of mixtures of neon, its 
+first ion, and the free electron.
+
+    x = np.linspace(0,1,11)
+    mymix = IGTMix{{'Ne':1-x, 'Ne+':x, 'e':x}, units='kmol')
+    print(mymix)
+(kmol)
+Ne  : array([1. , 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0. ])
+Ne+ : array([0. , 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1. ])
+e-  : array([0. , 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1. ])
+
+The shape() method returns a tuple like Numpy's shape attribute, but
+it describes only the array of mixtures.  It excludes the axis with the
+constituent substances.  To obtain the number of substances, use the 
+nsubst() method.
+
     mymix.shape()
-        (21,)
+        (11,)
+    mymix.nsubst()
+        3
 
-** INDEXING **
+See also reshape().
 
-Indexing a mixture allows users to access and change the mixture 
-quantities.  The first index can be an integer or a string with the 
-substance ID.  If there are additional indices, they indicate the 
-element of the array to access.
-    mymix = IGTMix({'C3H8':[2,1], 'CH4':[5,10]})
-    mymix['CH4']
-        array([ 5., 10.])
-    mymix['C3H8',1]
-        1.0
-    mymix['CH4', 0] = 4.
+IGTMix instances may be indexed like a normal Numpy array, but with the
+special rule that the first dimension of the array is always indexed by
+a substance ID.  From the example above,
+
+    mymix['Ne']
+        array([1. , 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0. ])
+    mymix['Ne',4]
+        0.6
+
+When the first index is a slice, the value returned is a sub-mixture
+instead of an array
+
+    print(mymix[:,4])
+        0.6Ne + 0.4Ne+ + 0.4e- (kmol)
+    print(mymix[:,3:6])
+        (kmol)
+        Ne  : array([0.7 , 0.65, 0.5 ])
+        Ne+ : array([0.3 , 0.35, 0.5 ])
+        e-  : array([0.3 , 0.35, 0.5 ])
+
+Assignment works as well.  The example below overwrites the fifth mix-
+ture.
+
+    mymix[:,4] = {'Ne':0.65, 'Ne+':0.35, 'e':0.35}
+    print(mymix)
+        (kmol)
+        Ne  : array([1.  , 0.9 , 0.8 , 0.7 , 0.65, 0.5 , 0.4 , 0.3 , ...
+        Ne+ : array([0.  , 0.1 , 0.2 , 0.3 , 0.35, 0.5 , 0.6 , 0.7 , ...
+        e-  : array([0.  , 0.1 , 0.2 , 0.3 , 0.35, 0.5 , 0.6 , 0.7 , ...
 
 ** ITERATING **
 
@@ -176,26 +264,6 @@ method allows simultaneous iteration over the substances and quantities.
     for subst in mymix:
         # subst is now a PYroMat substance instance
 
-** ALGEBRA WITH MIXTURES **
-
-Because mixtures work in absolute quantities (as opposed to mass or 
-mole fractions), they can be incrased, decreased, subtracted from, or
-added to using basic math operations at the command line.  In this 
-example, mix3 has 1kmol of water, 2kmol carbon dioxide, and 2kmol each
-of nitrogen and argon.
-    pm.config['unit_matter'] = 'kmol'
-    mix1 = IGTMix({'H2O':2, 'CO2':4})
-    mix2 = IGTMix({'N2':1, 'Ar':1})
-    mix3 = 0.5*mix1 + 2*mix2
-
-The addition algorithm attempts to convert non-IGTMix instances to 
-IGTMix instances.  That means that strings, lists, dictionaries, and
-ordinary PYroMat instances may be folded into mixtures using plain 
-command-line algebra.
-    mix4 = mix2 + '0.5 CO'
-    mix5 = mix2 + pm.get('ig.H2O')
-    mix6 = mix2 + {'H2O':[0.5,0.12], 'C2H2':0.8}
-
 ** REPRESENTATION **
 
 The mixture is represented in the back-end by attributes that are not 
@@ -205,8 +273,7 @@ be read or modified by the appropriate methods.
 _q      is a numpy array of quantities; the first index in the array
         identifies the substance.  All other dimensions may be freely
         broadcast to eachother.
-_c      is a numpy array of IGMix or ideal gas instances that make up
-        the mixture.
+_c      is a numpy array of ideal gas instances that make up the mixture.
 _units  is a string identifying the matter units in which the quanitity
         array is currently expressed.
 """
@@ -227,6 +294,8 @@ _units  is a string identifying the matter units in which the quanitity
             self._c = list(contents._c)
             self._q = np.array(contents._q)
             self._units = str(contents._units)
+            if units is not None:
+                self.set_units(units)
             return
         # If the contents is a string or data instance, build a dummy dict
         elif isinstance(contents, str):
@@ -236,7 +305,7 @@ _units  is a string identifying the matter units in which the quanitity
             return self.__init__(contents={contents:1}, units=units)
         # if the contents is a list or tuple of constituents
         elif isinstance(contents, (list, tuple)):
-            return self.__init__(dict.fromkeys(contents,1), units=units)
+            return self.__init__(dict.fromkeys(contents,0), units=units)
         # Finally, if the contents is not a dict, raise an error
         elif not isinstance(contents, dict):
             raise Exception(pm.utility.PMParamError('Unexpected data type for IGTMix contents: ' + repr(type(contents))))
@@ -290,7 +359,6 @@ _units  is a string identifying the matter units in which the quanitity
         else:
             raise pm.utility.PMParamError('IGTMix: Unrecognized unit matter: ' + repr(units))
         
-        self.update()
         
     def __iter__(self):
         return self._c.__iter__()
@@ -354,6 +422,36 @@ Makes a copy of a and calls __iadd__() to execute the operation.
         c.__iadd__(b)
         return c
       
+    def __neg__(self):
+        """Create a mixture with negative quantities
+    b = -a
+"""
+        b = IGTMix()
+        b._c = self._c.copy()
+        b._q = -self._q
+        b._units = self._units
+        return b
+
+      
+    def __sub__(self, b):
+        """Deduct the contents of one mixture from another
+    c = a - b
+    
+Negates b and uses __iadd__() to perform the operation.
+"""
+        c = b.__neg__()
+        c.__iadd__(self)
+        return c
+        
+    def __isub__(self, b):
+        self.__iadd(b.__neg__())
+        return self
+        
+    def __rsub__(self, b):
+        c = self.__neg__()
+        c.__iadd__(b)
+        return c
+        
         
     def __imul__(self, b):
         """Scale the quantities of a mixture
@@ -384,9 +482,12 @@ Makes a copy of a and calls __iadd__() to execute the operation.
         return self.__mul__(b)
         
 
-    def update(self, units=None):
-        """UPDATE - bring the mixture into agreement with the unit matter config entry
-    Returns nothing.
+    def set_units(self, units=None):
+        """SET_UNITS - Set the mixture's units
+    m.set_units()
+        OR
+    m.set_units( unit_matter )
+    
 If the mixture's contents are currently listed in a unit matter that 
 disagrees with PYroMat's pm.config['unit_matter'] setting, the contents
 are converted to the current unit matter.
@@ -398,6 +499,12 @@ are converted to the current unit matter.
             for subst,qty in self.items():
                 pm.units.matter(qty, subst.mw(), from_units=self._units, to_units=units, inplace=True)        
             self._units = units
+        
+    def get_units(self, units=None):
+        """SET_UNITS - Get the mixture's unit matter string
+    unit_matter = m.get_units()
+"""
+        return self._units
         
 
     def _sindex(self, index):
@@ -420,7 +527,7 @@ returns None.
         # If the index also contains a quantity index, only operate on
         # the first (substance) index.
         if isinstance(index, tuple):
-            # Force the first index to be an integer
+            # Convert the first index, pass the others through
             si = self._sindex(index[0])
             if si is None:
                 return None
@@ -472,11 +579,18 @@ requirement.
         Ns = len(sshape)
         Nq = len(qshape)
         
+        # In the special case that both are empty, force an empty 1d array
+        if Ns == 0 and Nq == 0:
+            return (0,)
+        
+        # If the shapes have dissimilar numbers of dimension, add the
+        # necessary unity dimensions
         if Ns > Nq:
             qshape += (Ns - Nq) * (1,)
         elif Nq > Ns:
             sshape += (Nq - Ns) * (1,)
-            
+        
+        # Check each dimension for compatibility
         out = tuple()
         for s,q in zip(sshape,qshape):
             if s == q or s == 1:
@@ -485,6 +599,7 @@ requirement.
                 out += (s,)
             else:
                 raise pm.utility.PMParamError(f'IGTMix: cannot broadcast shapes: {qshape}, {sshape}')
+                
         return out
         
     #
@@ -741,20 +856,76 @@ _argparse decides which to populate based on what is most efficient.
     #
     # Indexing
     #
-    def __getitem__(self, sid):
-        index = self._sindex(sid)
-        if index is None:
-            raise pm.utility.PMParamError('Substance is not in the mixture: ' + repr(index))
-        return self._q[index]
+    def __getitem__(self, index):
+        ii = self._sindex(index)
+        if ii is None:
+            raise pm.utility.PMParamError('Could not index mixture with argument: ' + repr(index))
+        if isinstance(ii, slice):
+            out = IGTMix()
+            out._c = self._c[ii]
+            out._q = self._q[ii]
+            out._units = self._units
+            return out
+        elif isinstance(ii, tuple) and isinstance(ii[0],slice):
+            out = IGTMix()
+            out._c = self._c[ii[0]]
+            out._q = self._q[ii]
+            out._units = self._units
+            return out
+
+        return self._q[ii]
+        
         
     def __setitem__(self, sid, value):
         index = self._sindex(sid)
-        # Are we inserting a new substance?
+        # Attempt to insert a new substance?
         if index is None:
-            self.insert(sid,value)
-            return
-        # Otherwise, use the numpy broadcasting rules
-        self._q[index] = value
+            raise pm.utility.PMParamError('Could not index the substance with: ' + repr(sid))
+        # If we're slicing substances
+        elif isinstance(index, slice) or\
+                isinstance(index, tuple) and isinstance(index[0],slice):
+            # Force the value to be a mixture
+            if not isinstance(value, IGTMix):
+                try:
+                    value = IGTMix(value)
+                except:
+                    raise pm.utility.PMParamError('Could not interpret the assigned values to a mixture: ' + repr(value))
+            # If the assignment is different from this mixture's units
+            if value._units != self._units:
+                # Recursively set the items one row at a time
+                for ii,subst in enumerate(value._c):
+                    # Build a subindex
+                    if isinstance(index, tuple):
+                        subindex = (subst,) + index[1:]
+                    else:
+                        subindex = subst
+                    self.__setitem__(subindex, 
+                            pm.units.unit_matter(value._q[ii], subst.mw(), 
+                            from_units=value._units, 
+                            to_units=self._units))
+            else:
+                # Recursively set the items one row at a time
+                for ii,subst in enumerate(value._c):
+                    # Build a subindex
+                    if isinstance(index, tuple):
+                        subindex = (subst,) + index[1:]
+                    else:
+                        subindex = subst
+                    self.__setitem__(subindex, value._q[ii])
+
+        else:
+            # Otherwise, use the numpy broadcasting rules
+            value = np.atleast_1d(value)
+            shape = self._broadcast_shape(value.shape)
+            # If the existing array needs to be reshaped
+            if shape != self.shape():
+                # Create a new array and broadcast the old data into it
+                _q = np.empty((self._q.shape[0],) + shape)
+                _q[:] = self._q
+                self._q = _q
+            # If the assigned array needs to be reshaped, broadcasting will
+            # do it automatically
+            self._q[index] = value
         
     def __contains__(self, index):
         return self._sindex(index) is not None
@@ -770,16 +941,26 @@ _argparse decides which to populate based on what is most efficient.
     def __str__(self):
         """STR - pretty print of the mixture
 """
+        
+
         out = ''
         if self.__len__() > 1:
-            for sid in self._c[:-1]:
-                out += f'[...]{sid.hill()} + '
-            out += f'[...]' + self._c[-1].hill()
+            # Measure the Hill string length
+            hilllen = 0
+            hills = []
+            for sid in self._c:
+                this = sid.hill()
+                hilllen = max(hilllen, len(this))
+                hills.append(this)
+            
+            out += f'({self._units})\n'
+            for ii,this in enumerate(hills):
+                out += this + (hilllen + 1 - len(this))*' '
+                out += ': ' + repr(self._q[ii]) + '\n'
         else:
             for sid,qty in zip(self._c[:-1], self._q[:-1]):
                 out += f'{qty}{sid.hill()} + '
-            out += f'{self._q[-1]}' + self._c[-1].hill()
-        out += f' ({self._units})'
+            out += f'{self._q[-1]}{self._c[-1].hill()}  ({self._units})'
         return out
     
     def shape(self):
@@ -801,6 +982,7 @@ the new mixture array.
 """
         newshape = (self._q.shape[0],) + tuple(newshape)
         self._q = self._q.reshape(newshape)
+
 
     def nsubst(self):
         """NSUBST - return the number of constituent substances
@@ -1170,8 +1352,10 @@ passed to prevent redundant calculations.
 """
         if X is None:
             X = self.X(asarray=True)
-        temp = np.log(X)
-        temp[X==0] = 0.     # Force log(0) to zero to prevent nan problems
+        temp = np.zeros_like(X, dtype=float)
+        # Only operate on values that are not zero
+        I = X!=0
+        temp[I] = np.log(X[I])
         return -pm.units.const_Ru * np.sum(X * temp, axis=0)
         
 
@@ -1448,3 +1632,9 @@ currently configured unit matter).
         return IGTMix(source.Y())
     else:
         return IGTMix(source.X())
+
+def asIGTMix(source):
+    """ASIGTMIX - force a data source to be an IGTMix
+    
+"""
+    pass

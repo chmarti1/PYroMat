@@ -3175,6 +3175,36 @@ other conditions, x<0 and d1 == d2.
             
         return g,gt,gd
         
+    def _a(self,T,d):
+        """Speed of sound (inner routine)
+    a = _a(T,d)
+"""
+        R = self.data['R']
+        Tscale = self.data['AOgroup']['Tscale']
+        dscale = self.data['AOgroup']['dscale']
+        tt = Tscale / T
+        dd = d / dscale
+        _,_,_,att,_,_ = self._ao(tt,dd,2)
+
+        # We'll build this in three terms
+        # b - c*c/d
+        B = 1       # The IG portion of b and c are simple
+        C = 1
+        D = tt * tt * att
+        
+        # The residual part
+        Tscale = self.data['ARgroup']['Tscale']
+        dscale = self.data['ARgroup']['dscale']
+        tt = Tscale / T
+        dd = d / dscale
+        _,_,ad,att,atd,add = self._ar(tt,dd,2)
+        B += dd*(2*ad + dd*add)
+        C += dd*(ad - tt*atd)
+        D += tt * tt * att
+
+        return np.sqrt(R * T * (B - C*C/D))
+
+        
     def _cp(self,T,d):
         """Isobaric specific heat (inner routine)
     cp = _cp(T,d)
@@ -4072,9 +4102,53 @@ Returns entropy in unit_energy / unit_matter / unit_temperature
         return s
 
 
+    def a(self, *varg, quality=False, **kwarg):
+        """Speed of sound
+    a(...)
+
+All properties accept two other properties as flexible inputs.
+Below are the recognized keywords, their meaning, and the config entries
+that determine their units.
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume / unit_matter
+    x   quality             dimensionless
+    e   internal energy     unit_energy / unit_matter
+    h   enthalpy            unit_energy / unit_matter
+    s   entropy             unit_energy / unit_matter / unit_temperature
+
+If no keywords are specified, the positional arguments are interpreted
+as (T,p).  To configure their defaults, use the def_T and def_p config
+entries.
+
+Additionally, if the optional keyword, "quality" is set to True, the 
+quality of the liquid/vapor mixture is also returned
+    s,x = s(..., quality=True)
+
+Returns speed of sound in unit_length / unit_time
+
+The speed of sound in a two-phase mixture is not currently defined.  
+Normally, the saturated state forms two separate regions of vapor and 
+liquid, each with its own speed of sound, which should be calculated at
+the saturation line.
+"""
+        
+        T,d1,d2,x,I = self._argparse(*varg, **kwarg)
+        a = self._a(T,d1)
+        if I.any():
+            a[I] = pm.config['def_oob']
+        # Convert the units back to user space
+        pm.units.length(a, from_units='m', inplace=True)
+        pm.units.time(a, from_units='s', inplace=True, exponent=-1)
+        if quality:
+            return a,x
+        return a
+
+
     def hsd(self, *varg, quality = False, **kwarg):
         """Enthalpy, Entropy, Density
-** Depreciated - Use state() **
+** Deprecated - Use state() **
         
     h,s,d = hsd(...)
         OR

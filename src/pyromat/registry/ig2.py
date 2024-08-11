@@ -8,7 +8,7 @@ class ig2(pm.reg.__basedata__):
     """Ideal gas class using the NASA polynomial equation of state.
     
 ** Available Properties **
-IG has property methods:
+IG2 has property methods:
   T()  temperature      (unit_temperature)
   p()  pressure         (unit_pressure)
   d()  density          (unit_matter / unit_volume)
@@ -17,9 +17,11 @@ IG has property methods:
   cv() spec. heat       (unit_energy / unit_temperature / unit_matter)
   gam()  spec. heat ratio (dless)
   e()  internal energy  (unit_energy / unit_matter)
+  f()  free energy      (unit_energy / unit_matter)
+  g()  Gibbs energy     (unit_energy / unit_matter)
   h()  enthalpy         (unit_energy / unit_matter)
   s()  entropy          (unit_energy / unit_temperature / unit_matter)
-  state()       Calculates all properties!
+  state()       Calculates many properties!
 
 These accept any of the following keyword arguments: T, p, d, v, e, h, s
   h(T=452.)

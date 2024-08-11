@@ -24,9 +24,11 @@ IG has property methods:
   cv() spec. heat       (unit_energy / unit_temperature / unit_matter)
   gam()  spec. heat ratio (dless)
   e()  internal energy  (unit_energy / unit_matter)
+  f()  free energy      (unit_energy / unit_matter)
+  g()  Gibbs energy     (unit_energy / unit_matter)
   h()  enthalpy         (unit_energy / unit_matter)
   s()  entropy          (unit_energy / unit_temperature / unit_matter)
-  state()       Calculates all properties!
+  state()       Calculates many properties!
 
 These accept any of the following keyword arguments: T, p, d, v, e, h, s
   h(T=452.)
