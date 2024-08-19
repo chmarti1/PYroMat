@@ -113,7 +113,7 @@ is ignored.
     mymix = IgtMix('10 ig.N2')
     mymix = igt.IgtMix('2.4 N2 + Ar')
     print(mymix)
-        [2.4]N2 + [1.]Ar  (kmol)
+        [2.4]N2 + [1.]Ar
 
 *note* This method cannot be used to specify an ion like 'Ne+'. Instead,
 use the dictionary or list methods below.
@@ -128,10 +128,13 @@ Keyword arguments accept abbreviated substance ID strings as keywords
 use the dictionary or list methods below.
 
 (3) A list of constituents with no quantities...
-This assigns zero matter to each mixture.  The intent is that the user
-will assign the contents in a later command.
+This assigns zero matter to each mixture.  Then, users are free to 
+modify the mixture contents by indexing.
 
     mymix = IgtMix(['ig.N2', 'ig.O2', 'ig.Ar'])
+    mymix['N2'] = 0.76
+    mymix['O2'] = 0.23
+    mymix['Ar'] = 0.01
     
 (4) A dictionary of constituents with their quantities as values...
 Dictionary keys are interpreted to be substance identifiers, and the 
@@ -146,6 +149,8 @@ multiplication at the command line.
     air = IgtMix('.76 N2 + .23 O2 + .01 Ar')
     fuel = IgtMix('.23 CH4 + .44 C3H8')
     reactants = air + 0.4*fuel
+    print(reactants)
+[0.76]N2 + [0.23]O2 + [0.01]Ar + [0.092]CH4 + [0.176]C3H8
 
 Any other data type in addition with an IgtMix is interpreted as a 
 mixture definition as well.  For example,
@@ -157,15 +162,21 @@ mixture definition as well.  For example,
 (6) From an existing igmix instance, using the fromigmix() function.
 
     air = fromigmix(pm.get('ig.air'))
+    print(air)
+[0.00935019]Ar + [0.00031401]CO2 + [0.78085562]N2 + [0.20948019]O2
     
-When the fromigmix() function is used, the igmix instance is split into
-its constituent gases to form the IgtMix instance, so the example above
-results in a mixture with argon, carbon dioxide, nitrogen, and oxygen.  
-If an igmix instance is passed directly to the IgtMix class, it is 
-treated the same as any other constituent gas, so the example below 
-produces a mixture that only has one gas component.
+This is a useful trick if users want to make quick changes to an 
+existing mixture.  When the fromigmix()function is used, the igmix 
+instance is split into its constituent gases to form the IgtMix 
+instance, so the example above results in a mixture with argon, carbon 
+dioxide, nitrogen, and oxygen.  If an igmix instance is passed directly 
+to the IgtMix class, it is treated the same as any other constituent 
+gas, so the example below produces a mixture that only has one gas 
+component.
 
-    air = IgtMix('ig.air')
+    air = igt.IgtMix(pm.get('ig.air'))
+    print(air)
+[1.]air
 
 ** SPECIFYING SUBSTANCES **
 
@@ -187,7 +198,7 @@ substance ID string, but they may be specified three ways:
 Any of these -- 'N2', 'ig.N2', or pm.get('ig.N2') -- may be used as the
 substance identifier in the mixture list or dictionary methods above.
 
-** ALGEBRA WITH MIXTURES **
+** ARITHMETIC WITH MIXTURES **
 
 Because mixtures work in absolute quantities (as opposed to mass or 
 mole fractions), they can be incrased, decreased, subtracted from, or
@@ -203,13 +214,13 @@ of nitrogen and argon.
 Addition and subtraction attempt to convert non-IgtMix instances to 
 IgtMix instances.  That means that strings, lists, dictionaries, and
 ordinary PYroMat instances may be folded into mixtures using plain 
-command-line algebra.
+command-line arithmetic.
 
     mix4 = mix2 + '0.5 CO'
     mix5 = mix2 + pm.get('ig.H2O')
     mix6 = mix2 + {'H2O':[0.5,0.12], 'C2H2':0.8}
 
-The last examples shows how mixture arrays can be defined.  Array broad-
+The last examples show how mixture arrays can be defined.  Array broad-
 casting is inherently supported, so even though H2O was the only 
 substance with multiple values, all other values are broadcast,
 
@@ -230,12 +241,8 @@ overridden by the optional units keyword.
         [93.679456]H2O + [206.84606]CO2
 
 Changes to the 'unit_matter' configuration parameter do not affect the
-mixture.  To change the mixture's units and automatically convert the
-mixture quantities, use the set_units() method.
-
-When math operations are performed between mixtures of dissimilar units,
-the results are automatically calculated in terms of the units of the 
-first (left-hand-side) mixture.
+mixture's definition.  Instead, it only changes the way the mixture's 
+quantities are represented in a print() operation.
 
 ** ARRAYS AND INDEXING **
 
@@ -799,7 +806,10 @@ _argparse decides which to populate based on what is most efficient.
                 sp = kwarg['s'] - self._propeval('_s', T)[0]
                 # Deduct the entropy of mixing
                 qt = np.sum(self._q, axis=0)
-                sp += pm.units.const_Ru * np.sum(self._q * np.log(self._q / qt))
+                temp = self._q / qt
+                # Force values with nonpositive q to have a log of zero
+                temp[self._q <= 0] = 1.
+                sp += pm.units.const_Ru * np.sum(self._q * np.log(temp), axis=0)
                 # Calculate pressure
                 p = self._pref() * np.exp( -sp / pm.units.const_Ru / qt)
                 
@@ -868,7 +878,7 @@ Accepts pressure in Pa.
 """
         # Calculate the partial pressure for each constituent
         qt = np.sum(self._q, axis=0)
-        sp = 0.
+        sp = np.zeros_like(p, dtype=float)
         spp = None
         if diff:
             spp = 0.
@@ -883,8 +893,14 @@ Accepts pressure in Pa.
                 pref = subst._pref_pa
             else:
                 raise pm.utility.PMDataError('Substance is not a recongized IG class: ' + subst.data['id'] + ', ' + subst.data['class'])
+
+            # Detect elements with negative or zero quantities
+            I = q<=0
             # Partial pressure is p * q / qt
-            sp -= q * np.log(p * q / qt / pref)
+            temp = p * q / qt / pref
+            temp[I] = 1.    # Force to a value that will not cause an error in log
+            # Force q<=0 values to 
+            sp -= q * np.log(temp)
 
         sp *= pm.units.const_Ru
         if diff:
@@ -1228,7 +1244,7 @@ This will yield confusing results!
 """
         out = {}
         for subst,qty in self.items():
-            qty = pm.units.matter(qty, subst.mw(), from_units=self._units, to_units=pm.config['unit_molar'])
+            qty = pm.units.molar(qty, from_units='kmol', to_units=pm.config['unit_molar'])
             for atom,aq in subst.atoms().items():
                 working = out.get(atom)
                 if working is None:
@@ -1266,7 +1282,7 @@ fraction array as values.  Values are always between zero and one.
         # Use broadcasting rules to convert to a mass-based quantity
         # Any will do
         mw = np.array([subst.mw() for subst in self])
-        y *= mw.reshape((mw.size,) + (x.ndim-1)*(1,))
+        y *= mw.reshape((mw.size,) + (y.ndim-1)*(1,))
         y /= np.sum(y,axis=0)
         # If we want an array, we're done
         if asarray:
@@ -1359,9 +1375,10 @@ temperature.
         """_PREF - Calculate the reference pressure for the mixture
     pref = m._pref()
     
-Returns the reference pressure in Pa.  If all substances in the mixture
-use the same reference pressure, then a scalar is returned.  Otherwise,
-an array matching the mixture array shape is returned.
+Returns the reference pressure in Pa.  If all the substances have the 
+same reference pressure (almost always the case) then a scalar is 
+returned.  Otherwise, an array with the same shape as the mixture array
+is returned.
 """
         # Form an array of pressures with singleton dimensions in all
         # but the first.
@@ -1431,8 +1448,8 @@ Nmax        Maximum number of iterations (default 20)
             # intermediates are now in m-space; the sub-set of values
             # still under iteration.
             # Calculate the error, the linear change in x, and the new x
-            error[Ids] = y[Ids] - yy
-            dT[Ids] = error[Ids] / yyT
+            error[Ids] = y[Ids] - yy[Ids]
+            dT[Ids] = error[Ids] / yyT[Ids]
             if verbose:
                 print(T, yy, yyT, dT, Ids)
             T[Ids] += dT[Ids]
@@ -1498,8 +1515,9 @@ Returns the gas constant in [unit_energy]/[unit_matter][unit_temperature]
         """TLIM - Calculate the temperature limits on the model
     Tlow, Thigh = m.Tlim()
     
-The high and low temperatures are scalar values that apply for all 
-individual mixtures in the quantity arrays.
+The upper and lower temperature limits are established from the 
+temperature limits of the constituent substances.  The range reported
+is the widest over which all constituents report valid data.
 """
         Tlow = float('inf')
         Thigh = float('-inf')
