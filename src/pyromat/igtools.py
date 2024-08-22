@@ -1302,7 +1302,7 @@ of setting the 'unit_matter' setting without updating 'unit_molar' or
 """
         total = np.zeros(self.shape())
         for subst,qty in self.items():
-            total += pm.units.matter(qty, subst.mw(), from_units=self._units, to_units=pm.config['unit_mass'])
+            total += pm.units.matter(qty, subst.mw(), from_units='kmol', to_units=pm.config['unit_mass'])
         return total
         
         
