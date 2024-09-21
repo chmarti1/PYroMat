@@ -1,3 +1,30 @@
+Metadata-Version: 2.1
+Name: PYroMat
+Version: 2.2.5
+Summary: Thermodynamic properties in Python.
+Home-page: http://pyromat.org
+Author: Chris Martin
+Author-email: crm28@psu.edu
+License: GNU General Public License v3 (GPLv3)
+Keywords: thermodynamic properties
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Education
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: Intended Audience :: Manufacturing
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering :: Physics
+Classifier: Topic :: Scientific/Engineering :: Chemistry
+Classifier: Topic :: Scientific/Engineering :: Atmospheric Science
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 3
+Provides: pyromat
+Description-Content-Type: text/markdown
+License-File: LICENSE.txt
+Requires-Dist: numpy>=1.7
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+
 # PYroMat
 
 Thermodynamic tools for Python
