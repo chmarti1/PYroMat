@@ -985,7 +985,7 @@ Accepts pressure in Pa.
     def __len__(self):
         """LEN - detect the number of mixtures represented here
 """
-        return np.product(self.shape())
+        return np.prod(self.shape())
     
     def __str__(self):
         """STR - pretty print of the mixture
@@ -1793,8 +1793,3 @@ currently configured unit matter).
     else:
         return IgtMix(source.X())
 
-def asIgtMix(source):
-    """ASIGTMIX - force a data source to be an IgtMix
-    
-"""
-    pass
