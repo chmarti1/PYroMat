@@ -348,6 +348,8 @@ refs["water_a"] = {
         'h': 113.02,  # kJ/kg
         's': 0.39295,  # kJ/kg K
         'x': -1,
+        'f': 112.52 - 300 * 0.39295,
+        'g': 113.02 - 300 * 0.39295,
     },
     'sub': 'mp.H2O',
     'comment': 'compressed liquid'
@@ -373,6 +375,8 @@ refs["water_b"] = {
         'h': 3120.1,  # kJ/kg
         's': 7.5561,  # kJ/kg K
         'x': -1,
+        'f': 2846.0 - 600 * 7.5561,
+        'g': 3120.1 - 600 * 7.5561,
     },
     'sub': 'mp.H2O',
     'comment': 'superheated vapor'
@@ -398,6 +402,8 @@ refs["water_c"] = {
         'h': 1694.095,  # kJ/kg
         's': 4.3406,  # kJ/kg K
         'x': 0.5,
+        'f': 1600.12 - 424.98 * 4.3406,
+        'g': 1694.095 - 424.98 * 4.3406,
     },
     'sub': 'mp.H2O',
     'comment': 'saturated mixture'
@@ -423,10 +429,18 @@ refs["water_d"] = {
         'h': 3262.2,  # kJ/kg
         's': 6.0867,  # kJ/kg K
         'x': -1,
+        'f': 2961.5 - 800 * 6.0867,
+        'g': 3262.2 - 800 * 6.0867,
     },
     'sub': 'mp.H2O',
     'comment': 'supercritical fluid'
 }
+
+for ref in refs:
+    if 'water' in ref:
+        refs[ref]['props']['f'] = refs[ref]['NIST']['f']
+        refs[ref]['props']['g'] = refs[ref]['NIST']['g']
+
 refs['water_array'] = make_props_array(refs, 'mp.H2O')
 
 refs["r134a_a"] = {
@@ -450,6 +464,8 @@ refs["r134a_a"] = {
         'h': 107.60,  # kJ/kg
         's': 0.60674,  # kJ/kg K
         'x': -1,
+        'f': 107.27 - 200 * 0.60674,
+        'g': 107.60 - 200 * 0.60674,
     },
     'sub': 'mp.C2H2F4',
     'comment': 'compressed liquid'
@@ -476,6 +492,8 @@ refs["r134a_b"] = {
         'h': 418.16,  # kJ/kg
         's': 1.7560,  # kJ/kg K
         'x': -1,
+        'f': 396.34 - 300 * 1.7560,
+        'g': 418.16 - 300 * 1.7560,
     },
     'sub': 'mp.C2H2F4',
     'comment': 'superheated vapor'
@@ -502,6 +520,8 @@ refs["r134a_c"] = {
         'h': 314.49,  # kJ/kg
         's': 1.3978,  # kJ/kg K
         'x': 0.5,
+        'f': 304.01 - 288.88 * 1.3978,
+        'g': 314.49 - 288.88 * 1.3978,
     },
     'sub': 'mp.C2H2F4',
     'comment': 'saturated mixture'
@@ -528,10 +548,17 @@ refs["r134a_d"] = {
         'h': 457.16,  # kJ/kg
         's': 1.7310,  # kJ/kg K
         'x': -1,
+        'f': 439.62 - 400 * 1.7310,
+        'g': 457.16 - 400 * 1.7310,
     },
     'sub': 'mp.C2H2F4',
     'comment': 'supercritical'
 }
+
+for ref in refs:
+    if 'r134a' in ref:
+        refs[ref]['props']['f'] = refs[ref]['NIST']['f']
+        refs[ref]['props']['g'] = refs[ref]['NIST']['g']
 
 refs['r134a_array'] = make_props_array(refs, 'mp.C2H2F4')
 
@@ -543,7 +570,7 @@ class TestRefs:
         return {'sub': pm.get(request.param['sub']),
                 'data': request.param['props']}
 
-    @pytest.fixture(params=('p', 'T', 'd', 'v', 'e', 'h', 's', 'x'))
+    @pytest.fixture(params=('p', 'T', 'd', 'v', 'e', 'h', 's', 'x', 'f', 'g'))
     def param(self, request):
         return request.param
 
@@ -749,7 +776,7 @@ class TestState:
         return {'sub': pm.get(request.param['sub']),
                 'data': request.param['props']}
 
-    @pytest.fixture(params=('p', 'T', 'd', 'v', 'e', 'h', 's', 'x'))
+    @pytest.fixture(params=('p', 'T', 'd', 'v', 'e', 'h', 's', 'x', 'f', 'g'))
     def prop(self, request):
         return request.param
 

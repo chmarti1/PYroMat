@@ -112,6 +112,8 @@ def complete_props_theory(propdict, subid):
     newdict['e'] = newdict['h'] - sub.R()*newdict['T']
     newdict['cv'] = newdict['cp'] - sub.R()
     newdict['gam'] = newdict['cp']/newdict['cv']
+    newdict['f'] = newdict['e'] - newdict['T'] * newdict['s']
+    newdict['g'] = newdict['h'] - newdict['T'] * newdict['s']
 
     return newdict
 
@@ -336,7 +338,7 @@ class TestRefs:
         return {'sub': pm.get(request.param['sub']),
                 'data': request.param['props']}
 
-    @pytest.fixture(params=('p', 'T', 'd', 'v', 'e', 'h', 's', 'cp', 'cv', 'gam'))
+    @pytest.fixture(params=('p', 'T', 'd', 'v', 'e', 'h', 's', 'cp', 'cv', 'gam', 'f', 'g'))
     def param(self, request):
         return request.param
 
