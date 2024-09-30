@@ -42,12 +42,6 @@ class TestInputErrors:
         assert gas.s(T=pm.config['def_T']) == gas.s(T=pm.config['def_T'], p=pm.config['def_p'])
         assert gas.s(p=pm.config['def_p']) == gas.s(T=pm.config['def_T'], p=pm.config['def_p'])
 
-    def test_invarg_toomany(self, gas):
-        with raises(pm.utility.PMParamError):
-            gas.T(h=300, s=5)
-        with raises(pm.utility.PMParamError):
-            gas.T(e=300, s=5)
-
     def test_d_v_collision(self, gas):
         with raises(pm.utility.PMParamError):
             gas.T(d=1, v=1)
@@ -118,6 +112,8 @@ def complete_props_theory(propdict, subid):
     newdict['e'] = newdict['h'] - sub.R()*newdict['T']
     newdict['cv'] = newdict['cp'] - sub.R()
     newdict['gam'] = newdict['cp']/newdict['cv']
+    newdict['f'] = newdict['e'] - newdict['T'] * newdict['s']
+    newdict['g'] = newdict['h'] - newdict['T'] * newdict['s']
 
     return newdict
 
@@ -277,7 +273,8 @@ refs["air_a"] = {
         'T': 300,  # K
         'p': 1,  # bar
         'h': -2.4071345,  # kJ/kg
-        's': 6.7077026,  # kJ/kg K
+        # 's': 6.7077026,  # kJ/kg K  pre smix value
+        's': 6.87040994,  #kJ/kg K
         'cp': 1.00483493  # kJ/kg K
     },
     'sub': 'ig.air',
@@ -291,7 +288,8 @@ refs["air_b"] = {
         'T': 800,  # K
         'p': 1,  # bar
         'h': 519.47733875,  # kJ/kg
-        's': 7.72402011,  # kJ/kg K
+        # 's': 7.72402011,  # kJ/kg K  pre smix value
+        's': 7.88672745,  # kJ/kg K
         'cp': 1.09862262  # kJ/kg K
     },
     'sub': 'ig.air',
@@ -305,7 +303,8 @@ refs["air_c"] = {
         'T': 900,  # K
         'p': 1*(900/800)**(1.34859507/(1.34859507-1)),  # bar, gamma of 850K = 1.34859507
         'h': 630.51678945,  # kJ/kg
-        's': 7.72397993,  # kJ/kg K
+        # 's': 7.72397993,  # kJ/kg K  pre smix value
+        's': 7.88672745,  # kJ/kg K
         'cp': 1.12170972  # kJ/kg K
     },
     'sub': 'ig.air',
@@ -319,7 +318,8 @@ refs["air_d"] = {
         'T': 1800,  # K
         'p': 1000,  # bar
         'h': 1699.26825827,  # kJ/kg
-        's': 6.69042738,  # kJ/kg K
+        # 's': 6.69042738,  # kJ/kg K  pre smix value
+        's': 6.85313473,  # kJ/kg K
         'cp': 1.23698868  # kJ/kg K
     },
     'sub': 'ig.air',
@@ -338,7 +338,7 @@ class TestRefs:
         return {'sub': pm.get(request.param['sub']),
                 'data': request.param['props']}
 
-    @pytest.fixture(params=('p', 'T', 'd', 'v', 'e', 'h', 's', 'cp', 'cv', 'gam'))
+    @pytest.fixture(params=('p', 'T', 'd', 'v', 'e', 'h', 's', 'cp', 'cv', 'gam', 'f', 'g'))
     def param(self, request):
         return request.param
 
@@ -439,14 +439,12 @@ class TestRefs:
     def test_hs(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        with raises(pm.utility.PMParamError):
-            fn(h=ref['h'], s=ref['s'])
+        assert fn(h=ref['h'], s=ref['s']) == approx(ref[param], rel=1e-5, abs=1e-1)
 
     def test_es(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        with raises(pm.utility.PMParamError):
-            fn(e=ref['e'], s=ref['s'])
+        assert fn(e=ref['e'], s=ref['s']) == approx(ref[param], rel=1e-5, abs=1e-1)
 
     def test_he(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
