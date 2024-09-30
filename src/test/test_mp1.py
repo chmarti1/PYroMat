@@ -338,6 +338,7 @@ refs["water_a"] = {
         'h': 113.02311262,  # kJ/kg
         's': 0.39295625,  # kJ/kg K
         'x': -1,
+        'a': 1502.20206096,  # m/s
     },
     'NIST': {
         'T': 300,  # K
@@ -348,6 +349,7 @@ refs["water_a"] = {
         'h': 113.02,  # kJ/kg
         's': 0.39295,  # kJ/kg K
         'x': -1,
+        'a': 1502.2,  # m/s
     },
     'sub': 'mp.H2O',
     'comment': 'compressed liquid'
@@ -363,6 +365,7 @@ refs["water_b"] = {
         'h': 3120.12094234,  # kJ/kg
         's': 7.55619253,  # kJ/kg K
         'x': -1,
+        'a': 595.97412567,  # m/s
     },
     'NIST': {
         'T': 600,  # K
@@ -373,6 +376,7 @@ refs["water_b"] = {
         'h': 3120.1,  # kJ/kg
         's': 7.5561,  # kJ/kg K
         'x': -1,
+        'a': 595.97,  # m/s
     },
     'sub': 'mp.H2O',
     'comment': 'superheated vapor'
@@ -388,6 +392,7 @@ refs["water_c"] = {
         'h': 1694.11864084,  # kJ/kg
         's': 4.34058363,  # kJ/kg K
         'x': 0.5,
+        'a': np.nan,  # m/s
     },
     'NIST': {
         'T': 424.98,  # K
@@ -398,6 +403,7 @@ refs["water_c"] = {
         'h': 1694.095,  # kJ/kg
         's': 4.3406,  # kJ/kg K
         'x': 0.5,
+        'a': np.nan,  # m/s
     },
     'sub': 'mp.H2O',
     'comment': 'saturated mixture'
@@ -413,6 +419,7 @@ refs["water_d"] = {
         'h': 3262.21899789,  # kJ/kg
         's': 6.08676043,  # kJ/kg K
         'x': -1,
+        'a': 626.78786445,  # m/s
     },
     'NIST': {
         'T': 800,  # K
@@ -423,6 +430,7 @@ refs["water_d"] = {
         'h': 3262.2,  # kJ/kg
         's': 6.0867,  # kJ/kg K
         'x': -1,
+        'a': 626.78,  # m/s
     },
     'sub': 'mp.H2O',
     'comment': 'supercritical fluid'
@@ -448,6 +456,7 @@ refs["r134a_a"] = {
         'h': 107.60330988,  # kJ/kg
         's': 0.606735,  # kJ/kg K
         'x': -1,
+        'a': 969.8363053,  # m/s
     },
     'NIST': {
         'T': 300,  # K
@@ -458,6 +467,7 @@ refs["r134a_a"] = {
         'h': 107.60,  # kJ/kg
         's': 0.60674,  # kJ/kg K
         'x': -1,
+        'a': 969.84,  # m/s
     },
     'sub': 'mp.C2H2F4',
     'comment': 'compressed liquid'
@@ -474,6 +484,7 @@ refs["r134a_b"] = {
         'h': 418.16170929,  # kJ/kg
         's': 1.75600437,  # kJ/kg K
         'x': -1,
+        'a': 150.76818444,  # m/s
     },
     'NIST': {
         'T': 300,  # K
@@ -484,6 +495,7 @@ refs["r134a_b"] = {
         'h': 418.16,  # kJ/kg
         's': 1.7560,  # kJ/kg K
         'x': -1,
+        'a': 150.77,  # m/s
     },
     'sub': 'mp.C2H2F4',
     'comment': 'superheated vapor'
@@ -500,6 +512,7 @@ refs["r134a_c"] = {
         'h': 314.49195319,  # kJ/kg
         's': 1.3977908,  # kJ/kg K
         'x': 0.5,
+        'a': np.nan,  # m/s
     },
     'NIST': {
         'T': 288.88,  # K
@@ -510,6 +523,7 @@ refs["r134a_c"] = {
         'h': 314.49,  # kJ/kg
         's': 1.3978,  # kJ/kg K
         'x': 0.5,
+        'a': np.nan,  # m/s
     },
     'sub': 'mp.C2H2F4',
     'comment': 'saturated mixture'
@@ -526,6 +540,7 @@ refs["r134a_d"] = {
         'h': 457.15745307,  # kJ/kg
         's': 1.7310427,  # kJ/kg K
         'x': -1,
+        'a': 124.51396721,  # m/s
     },
     'NIST': {
         'T': 400,  # K
@@ -536,6 +551,7 @@ refs["r134a_d"] = {
         'h': 457.16,  # kJ/kg
         's': 1.7310,  # kJ/kg K
         'x': -1,
+        'a': 124.51,  # m/s
     },
     'sub': 'mp.C2H2F4',
     'comment': 'supercritical'
@@ -558,7 +574,7 @@ class TestRefs:
         return {'sub': pm.get(request.param['sub']),
                 'data': request.param['props']}
 
-    @pytest.fixture(params=('p', 'T', 'd', 'v', 'e', 'h', 's', 'x', 'f', 'g'))
+    @pytest.fixture(params=('p', 'T', 'd', 'v', 'e', 'h', 's', 'x', 'f', 'g', 'a'))
     def param(self, request):
         return request.param
 
@@ -568,17 +584,17 @@ class TestRefs:
         if (np.array(ref['x']) > 0).any():
             pass
         else:
-            assert fn(p=ref['p'], T=ref['T']) == approx(ref[param], rel=1e-5, abs=1e-2)
+            assert fn(p=ref['p'], T=ref['T']) == approx(ref[param], rel=1e-5, abs=1e-2, nan_ok=True)
 
     def test_pTx(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        assert fn(p=ref['p'], T=ref['T'], x=ref['x']) == approx(ref[param], rel=1e-5, abs=1e-2)
+        assert fn(p=ref['p'], T=ref['T'], x=ref['x']) == approx(ref[param], rel=1e-5, abs=1e-2, nan_ok=True)
 
     def test_pd(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        assert fn(p=ref['p'], d=ref['d']) == approx(ref[param], rel=1e-5, abs=1e-2)
+        assert fn(p=ref['p'], d=ref['d']) == approx(ref[param], rel=1e-5, abs=1e-2, nan_ok=True)
 
     def test_pd_qualityflag(self, param, refdat):
         if param == 'x':
@@ -587,87 +603,87 @@ class TestRefs:
             sub, ref = refdat['sub'], refdat['data']
             fn = getattr(sub, param)
             parval, x = fn(p=ref['p'], d=ref['d'], quality=True)
-            assert parval == approx(ref[param], rel=1e-5, abs=1e-2)
+            assert parval == approx(ref[param], rel=1e-5, abs=1e-2, nan_ok=True)
             assert x == approx(ref['x'], rel=1e-5, abs=1e-2)
 
     def test_pv(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        assert fn(p=ref['p'], v=ref['v']) == approx(ref[param], rel=1e-5, abs=1e-2)
+        assert fn(p=ref['p'], v=ref['v']) == approx(ref[param], rel=1e-5, abs=1e-2, nan_ok=True)
 
     def test_Td(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        assert fn(T=ref['T'], d=ref['d']) == approx(ref[param], rel=1e-5, abs=1e-2)
+        assert fn(T=ref['T'], d=ref['d']) == approx(ref[param], rel=1e-5, abs=1e-2, nan_ok=True)
 
     def test_Tv(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        assert fn(T=ref['T'], v=ref['v']) == approx(ref[param], rel=1e-5, abs=1e-2)
+        assert fn(T=ref['T'], v=ref['v']) == approx(ref[param], rel=1e-5, abs=1e-2, nan_ok=True)
 
     def test_ps(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        assert fn(p=ref['p'], s=ref['s']) == approx(ref[param], rel=1e-5, abs=1e-2)
+        assert fn(p=ref['p'], s=ref['s']) == approx(ref[param], rel=1e-5, abs=1e-2, nan_ok=True)
 
     def test_Ts(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        assert fn(T=ref['T'], s=ref['s']) == approx(ref[param], rel=1e-5, abs=1e-2)
+        assert fn(T=ref['T'], s=ref['s']) == approx(ref[param], rel=1e-5, abs=1e-2, nan_ok=True)
 
     def test_ds(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        assert fn(d=ref['d'], s=ref['s']) == approx(ref[param], rel=1e-5, abs=1e-2)
+        assert fn(d=ref['d'], s=ref['s']) == approx(ref[param], rel=1e-5, abs=1e-2, nan_ok=True)
 
     def test_vs(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        assert fn(v=ref['v'], s=ref['s']) == approx(ref[param], rel=1e-5, abs=1e-2)
+        assert fn(v=ref['v'], s=ref['s']) == approx(ref[param], rel=1e-5, abs=1e-2, nan_ok=True)
 
     def test_ph(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        assert fn(p=ref['p'], h=ref['h']) == approx(ref[param], rel=1e-5, abs=1e-2)
+        assert fn(p=ref['p'], h=ref['h']) == approx(ref[param], rel=1e-5, abs=1e-2, nan_ok=True)
 
     @pytest.mark.skip(reason="T&h and T&e aren't viable combos for most cases")
     def test_Th(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
         with raises(pm.utility.PMAnalysisError):
-            assert fn(T=ref['T'], h=ref['h']) == approx(ref[param], rel=1e-5, abs=1e-2)
+            assert fn(T=ref['T'], h=ref['h']) == approx(ref[param], rel=1e-5, abs=1e-2, nan_ok=True)
 
     def test_dh(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        assert fn(d=ref['d'], h=ref['h']) == approx(ref[param], rel=1e-5, abs=1e-2)
+        assert fn(d=ref['d'], h=ref['h']) == approx(ref[param], rel=1e-5, abs=1e-2, nan_ok=True)
 
     def test_vh(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        assert fn(v=ref['v'], h=ref['h']) == approx(ref[param], rel=1e-5, abs=1e-2)
+        assert fn(v=ref['v'], h=ref['h']) == approx(ref[param], rel=1e-5, abs=1e-2, nan_ok=True)
 
     def test_pe(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        assert fn(p=ref['p'], e=ref['e']) == approx(ref[param], rel=1e-5, abs=1e-2)
+        assert fn(p=ref['p'], e=ref['e']) == approx(ref[param], rel=1e-5, abs=1e-2, nan_ok=True)
 
     @pytest.mark.skip(reason="T&h and T&e aren't viable combos for most cases")
     def test_Te(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
         with raises(pm.utility.PMAnalysisError):
-            assert fn(T=ref['T'], e=ref['e']) == approx(ref[param], rel=1e-5, abs=1e-2)
+            assert fn(T=ref['T'], e=ref['e']) == approx(ref[param], rel=1e-5, abs=1e-2, nan_ok=True)
 
     def test_de(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        assert fn(d=ref['d'], e=ref['e']) == approx(ref[param], rel=1e-5, abs=1e-2)
+        assert fn(d=ref['d'], e=ref['e']) == approx(ref[param], rel=1e-5, abs=1e-2, nan_ok=True)
 
     def test_ve(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        assert fn(v=ref['v'], e=ref['e']) == approx(ref[param], rel=1e-5, abs=1e-2)
+        assert fn(v=ref['v'], e=ref['e']) == approx(ref[param], rel=1e-5, abs=1e-2, nan_ok=True)
 
     def test_px(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
@@ -677,7 +693,7 @@ class TestRefs:
             with raises(pm.utility.PMParamError):
                 fn(p=ref['p'], x=ref['x'])
         else:
-            assert fn(p=ref['p'], x=ref['x']) == approx(ref[param], rel=1e-5, abs=1e-2)
+            assert fn(p=ref['p'], x=ref['x']) == approx(ref[param], rel=1e-5, abs=1e-2, nan_ok=True)
 
     def test_Tx(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
@@ -687,7 +703,7 @@ class TestRefs:
             with raises(pm.utility.PMParamError):
                 fn(T=ref['T'], x=ref['x'])
         else:
-            assert fn(T=ref['T'], x=ref['x']) == approx(ref[param], rel=1e-5, abs=1e-2)
+            assert fn(T=ref['T'], x=ref['x']) == approx(ref[param], rel=1e-5, abs=1e-2, nan_ok=True)
 
     # Always Unsupported Cases
     def test_dv(self, param, refdat):
