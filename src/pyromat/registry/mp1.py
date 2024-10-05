@@ -390,32 +390,32 @@ Test criteria:
         #0.1 AOgroup must contain positive scalars, Tscale, dscale
         error = False
         for test in ['Tscale', 'dscale']:
-            if test in self.data['AOgroup']:
+            if test in self.data['IGgroup']:
                 pass
-            elif self.data['AOgroup'][test] > 0:
+            elif self.data['IGgroup'][test] > 0:
                 pass
             else:
                 error = True
                 break
         if error:
             report.write('[FAILED]    0.1 AOgroup must contain positive scalars, Tscale, dscale\n')
-            report.write('            ' + test + ' = ' + repr(self.data['AOgroup'][test]) + '\n')
+            report.write('            ' + test + ' = ' + repr(self.data['IGgroup'][test]) + '\n')
             result = False
         else:
             report.write('[passed]    0.1 AOgroup must contain positive scalars, Tscale, dscale\n')
             
         #0.2 AOgroup's logt parameter must be a scalar
-        if 'logt' in self.data['AOgroup'] and not isinstance(self.data['AOgroup']['logt'], (float,int)):
+        if 'logt' in self.data['IGgroup'] and not isinstance(self.data['IGgroup']['logt'], (float,int)):
             report.write('[FAILED]    0.2 AOgroup logt parameter must be a scalar\n')
-            report.write('            logt = ' + repr(self.data['AOgroup']['logt']) + '\n')
+            report.write('            logt = ' + repr(self.data['IGgroup']['logt']) + '\n')
             result = False
         else:
             report.write('[passed]    0.2 AOgroup logt parameter must be a scalar\n')
         
         #0.3 AOgroup's coef0 parameter must be a legal poly1 group
         error = False
-        if 'coef0' in self.data['AOgroup']:
-            error,message = _check_poly1(self.data['AOgroup']['coef0'])
+        if 'coef0' in self.data['IGgroup']:
+            error,message = _check_poly1(self.data['IGgroup']['coef0'])
         if error:
             report.write('[FAILED]    0.3 AOgroup coef0 parameter must be a legal poly1 group\n')
             report.write('            ' + message + '\n')
@@ -425,12 +425,12 @@ Test criteria:
         
         #0.4 AOgroup's coef1 parameter must be a table with two columns
         error = False
-        if 'coef1' in self.data['AOgroup']:
-            if not isinstance(self.data['AOgroup']['coef1'], (list,tuple)):
+        if 'coef1' in self.data['IGgroup']:
+            if not isinstance(self.data['IGgroup']['coef1'], (list,tuple)):
                 error = True
                 message = 'coef1 was not iterable.'
             else:
-                for row in self.data['AOgroup']['coef1']:
+                for row in self.data['IGgroup']['coef1']:
                     if not isinstance(row, (list,tuple)) or len(row) != 2:
                         error = True
                         message = 'coef1 has at least one row without 2 columns'
@@ -444,16 +444,16 @@ Test criteria:
         #0.5 ARgroup must contain Tscale, dscale
         error = False
         for test in ['Tscale', 'dscale']:
-            if test in self.data['ARgroup']:
+            if test in self.data['Rgroup']:
                 pass
-            elif self.data['ARgroup'][test] > 0:
+            elif self.data['Rgroup'][test] > 0:
                 pass
             else:
                 error = True
                 break
         if error:
             report.write('[FAILED]    0.5 ARgroup must contain positive scalars, Tscale, dscale\n')
-            report.write('            ' + test + ' = ' + repr(self.data['ARgroup'][test]) + '\n')
+            report.write('            ' + test + ' = ' + repr(self.data['Rgroup'][test]) + '\n')
             result = False
         else:
             report.write('[passed]    0.5 ARgroup must contain positive scalars, Tscale, dscale\n')
@@ -461,12 +461,12 @@ Test criteria:
         #0.6 ARgroup's coef0 must be a list of legal poly2 groups
         error = False
         message = ''
-        if 'coef0' in self.data['ARgroup']:
-            if not isinstance(self.data['ARgroup']['coef0'], (list,tuple)):
+        if 'coef0' in self.data['Rgroup']:
+            if not isinstance(self.data['Rgroup']['coef0'], (list,tuple)):
                 error = True
                 message = 'coef0 was not iterable.'
             else:
-                for cgi,cg in enumerate(self.data['ARgroup']['coef0']):
+                for cgi,cg in enumerate(self.data['Rgroup']['coef0']):
                     error,message = _check_poly2(cg)
                     if error:
                         message = 'Error in term number ' + str(cgi) + '\n            ' + message
@@ -481,12 +481,12 @@ Test criteria:
         #0.7 ARgroup's coef1 must be a table with seven columns
         error = False
         message = ''
-        if 'coef1' in self.data['ARgroup']:
-            if not isinstance(self.data['ARgroup']['coef1'], (list,tuple)):
+        if 'coef1' in self.data['Rgroup']:
+            if not isinstance(self.data['Rgroup']['coef1'], (list,tuple)):
                 error = True
                 message = 'coef1 was not iterable.'
             else:
-                for row in self.data['ARgroup']['coef1']:
+                for row in self.data['Rgroup']['coef1']:
                     if len(row) != 7:
                         error = True
                         message = 'coef1 has at least one row without 7 columns'
@@ -500,12 +500,12 @@ Test criteria:
         #0.8 ARgroup's coef2 must be a table with eight columns
         error = False
         message = ''
-        if 'coef2' in self.data['ARgroup']:
-            if not isinstance(self.data['ARgroup']['coef2'], (list,tuple)):
+        if 'coef2' in self.data['Rgroup']:
+            if not isinstance(self.data['Rgroup']['coef2'], (list,tuple)):
                 error = True
                 message = 'coef2 was not iterable.'
             else:
-                for row in self.data['ARgroup']['coef2']:
+                for row in self.data['Rgroup']['coef2']:
                     if len(row) != 8:
                         error = True
                         message = 'coef2 has at least one row without 8 columns'
@@ -574,7 +574,7 @@ Test criteria:
         return result
         
 
-    def _poly2(self,x,y,group,diff=2):    
+    def _poly2(self,x,y,pcoef,diff=2):    
         """Polynomial evaluation (primative routine)
 (p, px, py, pxx, pxy, pyy) = _poly(x,y,pcoef,diff=2)
 
@@ -674,7 +674,7 @@ the evaluation algorithm only operates on positive integers.
                 
             return g,gx,gy,gxx,gxy,gyy
 
-        # initialize the final polynomial and its derivatives
+        # initialize the polynomial and its derivatives
         p = 0.  # total polynomial
         px = 0.
         py = 0.
@@ -682,12 +682,14 @@ the evaluation algorithm only operates on positive integers.
         pxy = 0.
         pyy = 0.
         
-        # collect the pre- and post-exponentials
-        prex,prey = pcoef.get('pre')
-        postx,posty = pcoef.get('post')
-        
+        # collect the pre-exponentials
+        if 'pre' in pcoef:
+            prex,prey = pcoef['pre']
+        else:
+            prex = 1
+            prey = 1
         # Apply the pre-exponentials
-        if prex is not None and prex !=1.:
+        if prex != 1:
             x_0 = x**prex
             if diff>0:
                 x_1 = x_0*prex/x
@@ -702,7 +704,7 @@ the evaluation algorithm only operates on positive integers.
             x_1 = 1.
             x_2 = 0.
             
-        if prey!=1.:
+        if prey!=1:
             y_0 = y**prey
             if diff>0:
                 y_1 = y_0*prey/y
@@ -730,12 +732,12 @@ the evaluation algorithm only operates on positive integers.
         # This is a flag that indicates the active index was used in 
         # the last loop, so it needs to be incremented.
         
-        for ii in range(II,-1,-1):
+        for ii in range(imax,-1,-1):
             # If the current x-exponent is the same one represented in
             # the active coefficient row, then calculate q.
             if index<ncoef and coef[index][0] == ii:
                 # For this value of ii, what is the largest jj?
-                JJ = coef[index][1]
+                jmax = coef[index][1]
                 # q is a sub-polynomial on y that represents the 
                 # variation on y of all terms that share the same
                 # power in x.  This inner loop is much like the loop
@@ -744,7 +746,7 @@ the evaluation algorithm only operates on positive integers.
                 q = 0
                 qy = 0
                 qyy = 0
-                for jj in range(JJ,-1,-1):
+                for jj in range(jmax,-1,-1):
                     if diff > 1:
                         qyy = 2*qy + y_0*qyy
                     if diff > 0:
@@ -783,7 +785,7 @@ the evaluation algorithm only operates on positive integers.
                 p = x_0 * p
                 
         # Modify the derivatives for the pre-exponnetials
-        if prex!=1.:
+        if prex!=1 or prey!=1:
             if diff>0:
                 if diff>1:
                     pxx = pxx*x_1*x_1 + px*x_2
@@ -791,7 +793,14 @@ the evaluation algorithm only operates on positive integers.
                     pxy = pxy*x_1*y_1
                 px *= x_1
                 py *= y_1
-            
+        
+        # Collect the post-exponentials
+        if 'post' in pcoef:
+            postx,posty = pcoef['post']
+        else:
+            postx = 0
+            posty = 0
+        
         # Apply the post-exponentials
         if postx!=0:
             f = x**postx
@@ -1473,7 +1482,7 @@ Optional parameters (and their defaults) are:
         
 
 
-    def _ao(self, tt, dd, diff=2):
+    def _fo(self, tt, dd, diff=2):
         """Dimensionless ideal gas helmholtz free energy (primative routine)
 Evaluates an ideal gas equation of the form
     a = log(dd) + logt*log(tt) + tlogt*tt*log(tt) + p(t) + ... 
@@ -1483,7 +1492,7 @@ where
     dd = d / dscale
     tt = Tscale / T
 
-In the AOgroup dictionary defined by the mp1 data, the polynomial, p,
+In the IGgroup dictionary defined by the mp1 data, the polynomial, p,
 is defined by the 'coef0' list.  This list should should be readable
 by the _poly1() method.  The 'logt' and 'tlogt' constants define the 
 coefficients of the log(tt) and tt*log(tt) terms.  They are optional.
@@ -1497,79 +1506,83 @@ nondimensionalized, and the returned values are non-dimensionalzied.
         
         # Start with the logarithmic terms
         # Log of density is easy - no coefficients needed
-        A = np.log(dd)
-        At = 0.
-        Ad = 0.
-        Att = 0.
-        Atd = 0.
-        Add = 0.
+        F = np.log(dd)
+        Ft = 0.
+        Fd = 0.
+        Ftt = 0.
+        Ftd = 0.
+        Fdd = 0.
+        
+        IGgroup = self.data['IGgroup']
         
         if diff>0:
-            At = 0
-            Ad = 1./dd
+            Ft = 0
+            Fd = 1./dd
             if diff>1:
-                Add = -Ad/dd
-                Att = 0.
-                Atd = 0.
+                Fdd = -Fd/dd
+                Ftt = 0.
+                Ftd = 0.
         # The logt term does not appear in all models, but it does in many
         logt = None
-        coef = self.data['AOgroup'].get('logt')
+        coef = IGgroup.get('logt')
         if coef is not None:
             # We might need logt again - keep it for later
             logt = np.log(tt)
-            A += coef * logt
+            F += coef * logt
             if diff>0:
                 pt = coef/tt
-                At += pt
+                Ft += pt
                 if diff>1:
-                    Att += -pt/tt
+                    Ftt += -pt/tt
         
         # In rare cases, the ideal gas model also includes a t * ln(t) term
-        coef = self.data['AOgroup'].get('tlogt')
+        coef = IGgroup.get('tlogt')
         if coef is not None:
             # Don't repeat the logt call if it has already been made
             if logt is None:
                 logt = np.log(tt)
-            A += coef * tt * logt
+            F += coef * tt * logt
             if diff>0:
-                At += coef * (logt + 1)
+                Ft += coef * (logt + 1)
                 if diff>1:
-                    Att += coef/tt
+                    Ftt += coef/tt
         
         
         # Move on to the polynomial expansion
-        if 'coef0' in self.data['AOgroup']:
-            p,pt,ptt = self._poly1(tt,self.data['AOgroup']['coef0'],diff)
-            A+=p
+        gr = IGgroup.get('group0')
+        if gr is not None:
+            p,pt,ptt = self._poly1(tt,gr,diff)
+            F+=p
             if diff>0:
-                At += pt
+                Ft += pt
                 if diff>1:
-                    Att += ptt
+                    Ftt += ptt
         
         # Now the nested log/exp expansion
-        if 'coef1' in self.data['AOgroup']:
-            for theta,c in self.data['AOgroup']['coef1']:
+        gr = IGgroup.get('group1')
+        if gr is not None: 
+            for theta,c in gr:
                 e = np.exp(-theta*tt)
                 p = np.log(1-e)
-                A += c*p
+                F += c*p
                 if diff>0:
                     pt = theta*e/(1.-e)
-                    At += c*pt
+                    Ft += c*pt
                     if diff>1:
                         ptt = -pt*(theta + pt)
-                        Att += c*ptt
+                        Ftt += c*ptt
                         
-        return A, At, Ad, Att, Atd, Add
+        return F, Ft, Fd, Ftt, Ftd, Fdd
 
 
-    def _ar(self, tt, dd, diff=2):
+    def _fr(self, tt, dd, diff=2):
         """Dimensionless residual helmhotz free energy (primative routine)
 Each fit in the group is of the form
-    a = exp(-dd**k) * pk(tt, dd)
+    f = exp(-dd**k) * pk(tt, dd)
     
 when dd = d / dscale, tt = Tscale / T
     
-    A,Ad,At,Add,Adt,Att = _ar(tt, dd, order=2)
+    F,Fd,Ft,Fdd,Fdt,Ftt = _fr(tt, dd, order=2)
 
 Returns the Helmholtz free energy and its derivatives up to diff.
 
@@ -1582,15 +1595,16 @@ nondimensionalized, and the returned values are non-dimensionalzied.
         # p_d() algorithm for R134a evaluated in about 80us on a 4 core
         # AMD A10-9700B R7
 
-        ARgroup = self.data['ARgroup']
+        Rgroup = self.data['Rgroup']
 
+        gr = Rgroup['group0'][0]
         # First evaluate the polynomial without an exponential coefficient
-        A,At,Ad,Att,Atd,Add = self._poly2(tt,dd,ARgroup['coef0'][0],diff)
+        F,Ft,Fd,Ftt,Ftd,Fdd = self._poly2(tt,dd,gr,diff)
         
         k=0
         ddk = 1.
-        for term in ARgroup['coef0'][1:]:
-            p,pt,pd,ptt,ptd,pdd = self._poly2(tt, dd, term, diff)
+        for gr in Rgroup['group0'][1:]:
+            p,pt,pd,ptt,ptd,pdd = self._poly2(tt, dd, gr, diff)
             
             k += 1
             ddk *= dd
@@ -1609,25 +1623,26 @@ nondimensionalized, and the returned values are non-dimensionalzied.
                     ptd = e*(ptd + pt*ed)
                     ptt *= e
                     
-                    Att += ptt
-                    Atd += ptd
-                    Add += pdd
+                    Ftt += ptt
+                    Ftd += ptd
+                    Fdd += pdd
                     
                 pd = e*(p*ed + pd)
                 pt *= e
                 
-                At += pt
-                Ad += pd
+                Ft += pt
+                Fd += pd
                 
             p *= e
             
-            A += p
+            F += p
     
-        # Evaluate AR1: c * dd**d * tt**t * exp(-a*(dd-ep)**2 - b*(tt-gam)**2)
-        if 'coef1' in ARgroup:
+        # Evaluate group1: c * dd**d * tt**t * exp(-a*(dd-ep)**2 - b*(tt-gam)**2)
+        gr = Rgroup.get('group1')
+        if gr is not None:
             #This is the original table order
             #for c,d,t,a,b,gam,ep in ARgroup['coef1']:
-            for t,d,b,a,gam,ep,c in ARgroup['coef1']:
+            for t,d,b,a,gam,ep,c in gr:
                 ddm1 = dd-ep
                 ttm1 = tt-gam
                 e = np.exp(-a*ddm1**2 - b*ttm1**2)
@@ -1646,15 +1661,16 @@ nondimensionalized, and the returned values are non-dimensionalzied.
                         edd = -2*a*(e + ddm1*ed)
                         etd = -2*b*ttm1*ed
                         
-                        Att += e*ptt + 2*et*pt + ett*p
-                        Atd += e*ptd + ed*pt + et*pd + etd*p
-                        Add += e*pdd + 2*ed*pd + edd*p
-                    At += e*pt + et*p
-                    Ad += e*pd + ed*p
-                A += e*p
+                        Ftt += e*ptt + 2*et*pt + ett*p
+                        Ftd += e*ptd + ed*pt + et*pd + etd*p
+                        Fdd += e*pdd + 2*ed*pd + edd*p
+                    Ft += e*pt + et*p
+                    Fd += e*pd + ed*p
+                F += e*p
         
-        if 'coef2' in ARgroup:
-            for a,b,m,AA,BB,CC,DD,c in ARgroup['coef2']:
+        gr = Rgroup.get('group2')
+        if gr is not None:
+            for a,b,m,AA,BB,CC,DD,c in gr:
                 ddm1 = dd-1
                 ttm1 = tt-1
                 # The model uses 1/m.  We will invert it only once.
@@ -1802,18 +1818,18 @@ nondimensionalized, and the returned values are non-dimensionalzied.
                         ett = -2*DD*(ttm1*et + e)
                         etd = (-2*CC*ddm1)*et
                         edd = -2*CC*(ddm1*ed + e)
-                # Finally done; add the result to A
-                A += p*e
+                # Finally done; add the result to F
+                F += p*e
                 if diff>0:
-                    At += pt*e + p*et
-                    Ad += pd*e + p*ed
+                    Ft += pt*e + p*et
+                    Fd += pd*e + p*ed
                     if diff>1:
-                        Att += ptt*e + 2*pt*et + p*ett
-                        Atd += ptd*e + pt*ed + pd*et + p*etd
-                        Add += pdd*e + 2*pd*ed + p*edd
+                        Ftt += ptt*e + 2*pt*et + p*ett
+                        Ftd += ptd*e + pt*ed + pd*et + p*etd
+                        Fdd += pdd*e + 2*pd*ed + p*edd
                 
         
-        return A,At,Ad,Att,Atd,Add
+        return F,Ft,Fd,Ftt,Ftd,Fdd
 
 
 
@@ -1870,13 +1886,14 @@ fn is an integer indicating which property fit form to use
     def _dsv(self,T,diff=0):
         """Saturated vapor density (inner routine)
 """
-        Tscale = self.data['DSVgroup']['Tscale']
-        dscale = self.data['DSVgroup']['dscale']
-        
+        group = self.data['DSVgroup']
+        Tscale = group['Tscale']
+        dscale = group['dscale']
+                
         d,dt,dtt = self._satfit( 
                 T/Tscale,
-                self.data['DSVgroup']['fn'],
-                self.data['DSVgroup']['coef'],
+                group['fn'],
+                group['poly'],
                 diff)
         # Rescale 
         d *= dscale
@@ -1893,13 +1910,14 @@ fn is an integer indicating which property fit form to use
         """Saturated liquid density (inner routine)
 """
         
-        Tscale = self.data['DSLgroup']['Tscale']
-        dscale = self.data['DSLgroup']['dscale']
+        group = self.data['DSLgroup']
+        Tscale = group['Tscale']
+        dscale = group['dscale']
         
         d,dt,dtt = self._satfit( 
                 T/Tscale,
-                self.data['DSLgroup']['fn'],
-                self.data['DSLgroup']['coef'],
+                group['fn'],
+                group['poly'],
                 diff)
         # Rescale 
         d *= dscale
@@ -2012,13 +2030,14 @@ equation of state using the Maxwell criteria.
     
 Presumes temperature is in Kelvin, reports pressure in Pa
 """
-        Tscale = self.data['PSgroup']['Tscale']
-        pscale = self.data['PSgroup']['pscale']
+        group = self.data['PSgroup']
+        Tscale = group['Tscale']
+        pscale = group['pscale']
         
         p,pt,ptt = self._satfit( 
                 T/Tscale,
-                self.data['PSgroup']['fn'],
-                self.data['PSgroup']['coef'],
+                group['fn'],
+                group['poly'],
                 diff)
         # Rescale 
         p *= pscale
@@ -2066,14 +2085,14 @@ sub-critical densities to be either purely liquid or vapor.
         pt = 0.
         pd = 0.
 
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         R = self.data['R']
         # Calculate dimensionless arrays
         tt = Tscale/T
         dd = d/dscale
         # Calculate the Helmholtz free energy
-        _,_,ard,_,artd,ardd = self._ar(tt,dd,diff+1)
+        _,_,ard,_,artd,ardd = self._fr(tt,dd,diff+1)
         p = T*d*R*(1. + dd*ard)
         if diff>0:
             pt = R*d*(1 + dd*ard - tt*dd*artd)
@@ -2991,11 +3010,11 @@ other conditions, x<0 and d1 == d2.
 
         # The IG part        
         R = self.data['R']
-        Tscale = self.data['AOgroup']['Tscale']
-        dscale = self.data['AOgroup']['dscale']
+        Tscale = self.data['IGgroup']['Tscale']
+        dscale = self.data['IGgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        _,at,_,att,atd,_ = self._ao(tt,dd,diff+1)
+        _,at,_,att,atd,_ = self._fo(tt,dd,diff+1)
         
         e = at
         if diff>0:
@@ -3003,11 +3022,11 @@ other conditions, x<0 and d1 == d2.
             ed = atd/dscale
         
         # The residual part
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        _,at,ad,att,atd,add = self._ar(tt,dd,diff+1)
+        _,at,ad,att,atd,add = self._fr(tt,dd,diff+1)
         e += at
         e *= R*Tscale
         if diff>0:
@@ -3028,11 +3047,11 @@ other conditions, x<0 and d1 == d2.
 
         # The IG part        
         R = self.data['R']
-        Tscale = self.data['AOgroup']['Tscale']
-        dscale = self.data['AOgroup']['dscale']
+        Tscale = self.data['IGgroup']['Tscale']
+        dscale = self.data['IGgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        _,at,_,att,atd,_ = self._ao(tt,dd,diff+1)
+        _,at,_,att,atd,_ = self._fo(tt,dd,diff+1)
         
         h = 1. + tt*at
         if diff>0:
@@ -3040,11 +3059,11 @@ other conditions, x<0 and d1 == d2.
             hd = tt*atd/dscale
         
         # The residual part
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        _,at,ad,att,atd,add = self._ar(tt,dd,diff+1)
+        _,at,ad,att,atd,add = self._fr(tt,dd,diff+1)
         h += dd*ad + tt*at
         h *= R*T
         if diff>0:
@@ -3064,11 +3083,11 @@ other conditions, x<0 and d1 == d2.
 
         # The IG part        
         R = self.data['R']
-        Tscale = self.data['AOgroup']['Tscale']
-        dscale = self.data['AOgroup']['dscale']
+        Tscale = self.data['IGgroup']['Tscale']
+        dscale = self.data['IGgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        a,at,ad,att,atd,_ = self._ao(tt,dd,diff+1)
+        a,at,ad,att,atd,_ = self._fo(tt,dd,diff+1)
         
         s = tt*at - a
         if diff>0:
@@ -3076,11 +3095,11 @@ other conditions, x<0 and d1 == d2.
             sd = (tt*atd - ad)/dscale
         
         # The residual part
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        a,at,ad,att,atd,_ = self._ar(tt,dd,diff+1)
+        a,at,ad,att,atd,_ = self._fr(tt,dd,diff+1)
         s += tt*at - a
         s *= R
         if diff>0:
@@ -3098,11 +3117,11 @@ other conditions, x<0 and d1 == d2.
 """
         # The IG part        
         R = self.data['R']
-        Tscale = self.data['AOgroup']['Tscale']
-        dscale = self.data['AOgroup']['dscale']
+        Tscale = self.data['IGgroup']['Tscale']
+        dscale = self.data['IGgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        a,at,ad,_,_,_ = self._ao(tt,dd,diff+1)
+        a,at,ad,_,_,_ = self._fo(tt,dd,diff)
 
         f = a
         ft = None
@@ -3112,11 +3131,11 @@ other conditions, x<0 and d1 == d2.
             fd = ad/dscale
         
         # The residual part
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        a,at,ad,_,_,_ = self._ar(tt,dd,diff+1)
+        a,at,ad,_,_,_ = self._fr(tt,dd,diff)
 
         f += a
         f *= R*T
@@ -3137,11 +3156,11 @@ other conditions, x<0 and d1 == d2.
 """
         # The IG part        
         R = self.data['R']
-        Tscale = self.data['AOgroup']['Tscale']
-        dscale = self.data['AOgroup']['dscale']
+        Tscale = self.data['IGgroup']['Tscale']
+        dscale = self.data['IGgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        a,at,ad,_,atd,add = self._ao(tt,dd,diff+1)
+        a,at,ad,_,atd,add = self._fo(tt,dd,diff+1)
         
         g = a + 1.
         gt = None
@@ -3151,11 +3170,11 @@ other conditions, x<0 and d1 == d2.
             gd = ad/dscale
         
         # The residual part
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        a,at,ad,_,atd,add = self._ar(tt,dd,diff+1)
+        a,at,ad,_,atd,add = self._fr(tt,dd,diff+1)
 
         g += a + dd*ad
         g *= R*T
@@ -3172,11 +3191,11 @@ other conditions, x<0 and d1 == d2.
     a = _a(T,d)
 """
         R = self.data['R']
-        Tscale = self.data['AOgroup']['Tscale']
-        dscale = self.data['AOgroup']['dscale']
+        Tscale = self.data['IGgroup']['Tscale']
+        dscale = self.data['IGgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        _,_,_,att,_,_ = self._ao(tt,dd,2)
+        _,_,_,att,_,_ = self._fo(tt,dd,2)
 
         # We'll build this in three terms
         # b - c*c/d
@@ -3185,11 +3204,11 @@ other conditions, x<0 and d1 == d2.
         D = tt * tt * att
         
         # The residual part
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        _,_,ad,att,atd,add = self._ar(tt,dd,2)
+        _,_,ad,att,atd,add = self._fr(tt,dd,2)
         B += dd*(2*ad + dd*add)
         C += dd*(ad - tt*atd)
         D += tt * tt * att
@@ -3204,20 +3223,20 @@ other conditions, x<0 and d1 == d2.
 
         # The IG part        
         R = self.data['R']
-        Tscale = self.data['AOgroup']['Tscale']
-        dscale = self.data['AOgroup']['dscale']
+        Tscale = self.data['IGgroup']['Tscale']
+        dscale = self.data['IGgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        _,_,_,att,_,_ = self._ao(tt,dd,2)
+        _,_,_,att,_,_ = self._fo(tt,dd,2)
         
         cp = -tt*tt*att
         
         # The residual part
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        _,_,ad,att,atd,add = self._ar(tt,dd,2)
+        _,_,ad,att,atd,add = self._fr(tt,dd,2)
 
         temp = 1.+dd*(ad-tt*atd)
         cp += -tt*tt*att + temp*temp/(1.+dd*(2.*ad+dd*add))
@@ -3232,20 +3251,20 @@ other conditions, x<0 and d1 == d2.
 
         # The IG part        
         R = self.data['R']
-        Tscale = self.data['AOgroup']['Tscale']
-        dscale = self.data['AOgroup']['dscale']
+        Tscale = self.data['IGgroup']['Tscale']
+        dscale = self.data['IGgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        _,_,_,att,_,_ = self._ao(tt,dd,2)
+        _,_,_,att,_,_ = self._fo(tt,dd,2)
         
         cv = tt*tt*att
         
         # The residual part
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        _,_,_,att,_,_ = self._ar(tt,dd,2)
+        _,_,_,att,_,_ = self._fr(tt,dd,2)
 
         cv += tt*tt*att
         cv *= -R
@@ -3778,11 +3797,11 @@ available by calling the cv() method directly.
         # In saturated cases, d2 should always be used to caluclate 
         # pressure
         # The IG part        
-        Tscale = self.data['AOgroup']['Tscale']
-        dscale = self.data['AOgroup']['dscale']
+        Tscale = self.data['IGgroup']['Tscale']
+        dscale = self.data['IGgroup']['dscale']
         tt = Tscale / T
         dd = d2 / dscale
-        a,at,ad,att,atd,add = self._ao(tt,dd,2)
+        a,at,ad,att,atd,add = self._fo(tt,dd,2)
         
         p = 1.
         e = at
@@ -3792,11 +3811,11 @@ available by calling the cv() method directly.
         cv = tt*tt*att
         
         # The residual part
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         tt = Tscale / T
         dd = d2 / dscale
-        a,at,ad,att,atd,add = self._ar(tt,dd,2)
+        a,at,ad,att,atd,add = self._fr(tt,dd,2)
 
         p += dd*ad
         p *= T*d2*R
@@ -3828,11 +3847,11 @@ available by calling the cv() method directly.
         
         # Finish with the liquid (d1) half of the calculation
         # The IG part        
-        Tscale = self.data['AOgroup']['Tscale']
-        dscale = self.data['AOgroup']['dscale']
+        Tscale = self.data['IGgroup']['Tscale']
+        dscale = self.data['IGgroup']['dscale']
         tt = Tscale / T[I]
         dd = d1[I] / dscale
-        a,at,ad,att,atd,add = self._ao(tt,dd,2)
+        a,at,ad,att,atd,add = self._fo(tt,dd,2)
         
         e = at
         h = 1. + tt*at
@@ -3841,11 +3860,11 @@ available by calling the cv() method directly.
         cv = tt*tt*att
         
         # The residual part
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         tt = Tscale / T[I]
         dd = d1[I] / dscale
-        a,at,ad,att,atd,add = self._ar(tt,dd,2)
+        a,at,ad,att,atd,add = self._fr(tt,dd,2)
 
         e += at
         e *= R*Tscale
@@ -4175,21 +4194,21 @@ quality of the liquid/vapor mixture is also returned
         
         # The IG part        
         R = self.data['R']
-        Tscale = self.data['AOgroup']['Tscale']
-        dscale = self.data['AOgroup']['dscale']
+        Tscale = self.data['IGgroup']['Tscale']
+        dscale = self.data['IGgroup']['dscale']
         tt = Tscale / T
         dd = d1 / dscale
-        a,at,_,_,_,_ = self._ao(tt,dd,1)
+        a,at,_,_,_,_ = self._fo(tt,dd,1)
         
         h = 1. + tt*at
         s = tt*at - a
         
         # The residual part
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         tt = Tscale / T
         dd = d1 / dscale
-        a,at,ad,_,_,_ = self._ar(tt,dd,1)
+        a,at,ad,_,_,_ = self._fr(tt,dd,1)
         h += dd*ad + tt*at
         s += tt*at - a
 
@@ -4201,21 +4220,21 @@ quality of the liquid/vapor mixture is also returned
             
             # The IG part        
             R = self.data['R']
-            Tscale = self.data['AOgroup']['Tscale']
-            dscale = self.data['AOgroup']['dscale']
+            Tscale = self.data['IGgroup']['Tscale']
+            dscale = self.data['IGgroup']['dscale']
             tt = Tscale / T[I]
             dd = d2[I] / dscale
-            a,at,_,_,_,_ = self._ao(tt,dd,1)
+            a,at,_,_,_,_ = self._fo(tt,dd,1)
             
             h[I] += (1. + tt*at)*x[I]
             s[I] += (tt*at - a)*x[I]
             
             # The residual part
-            Tscale = self.data['ARgroup']['Tscale']
-            dscale = self.data['ARgroup']['dscale']
+            Tscale = self.data['Rgroup']['Tscale']
+            dscale = self.data['Rgroup']['dscale']
             tt = Tscale / T[I]
             dd = d2[I] / dscale
-            a,at,ad,_,_,_ = self._ar(tt,dd,1)
+            a,at,ad,_,_,_ = self._fr(tt,dd,1)
             h[I] += (dd*ad + tt*at)*x[I]
             s[I] += (tt*at - a)*x[I]
             # Modify density
