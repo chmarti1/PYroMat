@@ -186,4 +186,10 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 - Added `a()` speed of sound method to all classes
 - Corrected the error in the R1234ze saturation line data (github issue 86)
 - Added Helmholtz (`f`) and Gibbs (`g`) energies to all classes
-- Wrote the _ds() precision inner saturation property method; fully functional, but not yet used.
+- Wrote the `_ds()` precision inner saturation property method; fully functional, but not yet used.
+
+## Version 2.3.0
+- Changed the `mp1` data model to make writing new models easier
+- Added mp.C3H2F4 (R1234yf) from the 2022 Lemmon and Akasaka model
+- Added polishing to improve the accuracy of saturation parameters (see github issue 89)
+- Added the `mp2` class, which uses a table to "look up" saturation states prior to polishing with the Maxwell criteria

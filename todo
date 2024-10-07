@@ -1,0 +1,38 @@
+Multi-phase expansion plans
+
+Ar          Argon           Tegeler 1999
+C3H6O       Acetone         Lemmon 2006
+C3H8        Propane         Lemmon 2009
+C3H8O2      Propylene glyc- Eisenbach 2021
+C5H12       Pentane
+C5H12_1     IsoPentane      Lemmon 2006
+C5H12_2     NeoPentane      Lemmon 2006
+C6H14       Hexane
+C6H14_1     IsoHexane       Lemmon 2006
+C7H8        Toluene         Lemmon 2006
+C9H20       Nonane          Lemmon 2006
+C10H22      Decane          Lemmon 2006
+CO          Carbon Monoxide Lemmon 2006
+COS         Carbonyl Sulfi- Lemmon 2006
+H2          Hydrogen        Leachman 2009
+H2_1        ParaHydrogen    Leachman 2009
+H2_2        OrthoHydrogen   Leachman 2009
+H2S         Hydrogen Sulfi- Lemmon 2006
+H3N         Ammonia         Gao 2023, Tillner-Roth 1998, Haar 1997
+Kr          Krypton         Lemmon 2006
+N2O         Nitrous Oxide   Lemmon 2006
+O2S         Sulfer Dioxide  Lemmon 2006, Gao 2016
+Xe          Xenon           Lemmon 2006
+
+Refrigerants
+R32         Tillner-Roth 1997, Lemmon 2002
+R41         Lemmon 2006
+R116        Lemmon 2006
+R125        Lemmon 2002, Piao 1998
+R134a       Lemmon 2002, Tillner-Roth 1994
+R141b       Lemmon 2006
+R142b       Lemmon 2006
+R143a       Lemmon 2002, Lemmon 2000
+R152a       Lemmon 2002
+R218        Lemmon 2006
+R245fa      Lemmon 2006, Akasaka 2015
