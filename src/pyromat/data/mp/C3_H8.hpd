@@ -14,7 +14,7 @@
     "C": 3,
     "H": 8
   },
-  "doc": "Equations of state are adapted from:\n        \nThermodynamic Properties of Propane III. A Reference Equation of State for Temperatures from the Melting Line to 650 K and Pressures up to 1000 MPa, Journal of Chemical Engineering Data, v54, 12, pg 3141-3312, 2009.",
+  "doc": "Equations of state are adapted from:\n        \nE. Lemmon, M. McLinden, W. Wagner, Thermodynamic Properties of Propane III. A Reference Equation of State for Temperatures from the Melting Line to 650 K and Pressures up to 1000 MPa, Journal of Chemical Engineering Data, v54, 12, pg 3141-3312, 2009.",
   "mw": 44.09562,
   "dc": 220.4781,
   "Tc": 369.89,
@@ -24,7 +24,7 @@
   "R": 188.55529456561082,
   "Tlim": [85.525, 650.0],
   "plim": [0, 1000e6],
-  "dlim": [0.0, 1600.0],
+  "dlim": [0.0, 880.0],
   "PSgroup": {
     "fn": 3,
     "Tscale": 369.89,

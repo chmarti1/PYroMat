@@ -4,7 +4,7 @@
     "atoms": {
         "N": 2
     },
-    "doc": "Roland Span, Eric Lemon, Richard Jacobsen, Wolfgang Wagner, Akimichi Yokozeki, \"Reference Equation of State for Thermodynamic Properties of Nitrogen for Temperatures from 63.151 to 1000 K and Pressures to 2200 MPa,\" Journal of Physical and Chemical Reference Data v29, pp1361, 2000. doi:10.1063/1.1349047",
+    "doc": "The equation of state is adapted from\n \nRoland Span, Eric Lemon, Richard Jacobsen, Wolfgang Wagner, Akimichi Yokozeki, \"Reference Equation of State for Thermodynamic Properties of Nitrogen for Temperatures from 63.151 to 1000 K and Pressures to 2200 MPa,\" Journal of Physical and Chemical Reference Data v29, pp1361, 2000. doi:10.1063/1.1349047",
     "names": [
         "Nitrogen",
         "Dinitrogen",

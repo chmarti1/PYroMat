@@ -15,7 +15,7 @@
     "H": 2,
     "F": 4
   },
-  "doc": "Equations of state are adapted from:\n        \nAn International Standard Formulation for 2,3,3,3-Tetrafluoroprop-1-ene (R1234yf) Covering Temepratures from the Triple Point Temperature to 410 K and Pressures Up to 100 MPa, International Journal of Thermophysics, v43, 119, 2022.\n",
+"doc": "Equations of state are adapted from:\n        \nE. Lemmon, R. Akasaka, An International Standard Formulation for 2,3,3,3-Tetrafluoroprop-1-ene (R1234yf) Covering Temepratures from the Triple Point Temperature to 410 K and Pressures Up to 100 MPa, International Journal of Thermophysics, v43, 119, 2022.\n doi: 10.1007/s10765-022-03015-y",
   "mw": 114.0416,
   "dc": 476.693888,
   "Tc": 367.85,

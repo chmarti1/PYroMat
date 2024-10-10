@@ -124,7 +124,7 @@
         0,
         1260.0
     ],
-    "doc": "",
+    "doc": "The International Association for the Properties of Water and Steam issued the IAPWS-95 model [1], and it has subsequently been revised [2] for improvements near the triple point.  The revised data are used here.\n \n[1] W. Wagner, A. Pruss, \"The IAPWS Formulation 1995 for the Thermodynamic Properties of Ordinary Water Substance for General and Scientific Use,\" Journal of Physical and Chemical Reference Data, v31, 387-535, 2002. doi: 10.1063/1.1461829\n \n[2] IAPWS, \"Revised Release on the IAPWS Formulation 1995 for the Thermodynamic Properties of Ordinary Water Substance for General and Scientific Use,\" R6-95, 2018. url: https://iapws.org/relguide/IAPWS95-2018.pdf",
     "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/mp/H2_O.hpd",
     "id": "mp.H2O",
     "names": [
