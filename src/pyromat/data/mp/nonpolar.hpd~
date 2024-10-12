@@ -1,0 +1,80 @@
+{
+    "id": "mp.C3H60",
+    "names": [
+        "Acetone"
+    ],
+    "atoms": {
+        "C": 3, "H": 6, "O"
+    },
+    "class": "mp2",
+    "doc": "Acetone is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
+    "mw": 58.0714,
+    "dc": 272.93558,
+    "Tc": 508.1,
+    "pc": 4.7e6,
+    "Tt": 178.5,
+    "R": 208.1333,
+    "Tlim": [
+        178.5,
+        550.0
+    ],
+    "plim": [
+        0.0,
+        700e6
+    ],
+    "dlim": [
+        0.0,
+        1600.0
+    ],
+    "IGgroup": {
+        "Tscale": 508.1,
+        "dscale": 272.93558,
+        "logt": 3.0,
+        "group0": {
+            "coef": [[1, 7.1422719708], [0, -9.4883659997]]
+        },
+        "group1": [
+            [0.6101161188742373, 3.7072],
+            [6.849045463491438, 7.0675],
+            [3.1017516236961225, 11.012]
+        ]
+    },
+    "Rgroup": {
+        "Tscale": 508.1,
+        "dscale": 272.93558,
+        "group0":   [
+            {
+                "pre": [0.125, 1],
+                "coef": [
+                    [12, 1, ],  (3)
+                    [11, 2, ],  (4)
+                    [9, 1, ],   (2)
+                    [7, 7, ],   (6)
+                    [2, 3, ],   (5)
+                    [2, 1, ]    (1)
+                ]
+            },
+            {
+                "pre": [0.125, 1],
+                "coef": [
+                    [14, 5, ],  (8)
+                    [5, 2, ]    (7)
+                ]
+            },
+            {
+                "post": [3.625, 0],
+                "coef": [
+                    [0, 4, ],   (10)
+                    [0, 1, ]    (9)
+                ]
+            },
+            {
+                "pre": [0.5, 1],
+                "coef": [
+                    [29, 3, ],  (11)
+                    [24, 4, ]   (12)
+                ]
+            },
+        ]
+    }
+}

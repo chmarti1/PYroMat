@@ -10,7 +10,7 @@ import os,sys
 
 
 class mp2(pm.reg.__basedata__):
-    """The PYroMat multi-phase generalist class 2
+    """The PYroMat multi-phase generalist class 1
 
 ** Available Property Methods **
 MP2 provides property methods:
@@ -91,7 +91,7 @@ not depend on the state.
     
 ** Deprecated Properties **
 As of version 2.2.0, inverse routines like T_s(), T_h(), d_s(), and the 
-hsd() have been labeled as "deprecated" in favor of the standard property
+hsd() have been labeled as "depreciated" in favor of the standard property
 methods, which are now sufficiently flexible to handle s and h as 
 arguments.  These methods are still included for reverse compatibility,
 but they will be removed when the major version bumps to 3.  Future
@@ -160,12 +160,26 @@ various empirical fits.  Each group is a dictionary (within the
 dictionary) that defines the various parameters necessary for at least
 one of the inner methods.
 
-SATgroup        Saturation line data group
-    Ts          Saturation temperature array
-    ps          Saturation pressure array
-    dsl         Saturated liquid density array
-    dsv         Saturated vapor density array
-                (see the _sattab method for details)
+PSgroup         Saturated pressure data group
+    Tscale      Temperature scale for normalizing T in the fit
+    pscale      Pressure scale for re-scaling the result
+    coef        a coefficient group to be passed to _satfit()
+    fn          An integer index identifying the fit form to use 
+                (see the _satfit method for details)
+
+DSLgroup        Saturated liquid density data group
+    Tscale      Temperature scale for normalizing T in the fit
+    dscale      Density scale for re-scaling the result
+    coef        a coefficient group to be passed to _poly1()
+    fn          An integer index identifying the fit form to use 
+                (see the _satfit method for details)
+
+DSVgroup        Saturated vapor density data group; a dict containing:
+    Tscale      Temperature scale for normalizing T in the fit
+    dscale      Density scale for re-scaling the result
+    coef        a coefficient group to be passed to _poly1()
+    fn          An integer index identifying the fit form to use 
+                (see the _satfit method for details)
 
 AOgroup        Helmholtz free energy ideal gas group; a dict containing:
     Tscale      Temperature scale for normalizing T
@@ -376,32 +390,32 @@ Test criteria:
         #0.1 AOgroup must contain positive scalars, Tscale, dscale
         error = False
         for test in ['Tscale', 'dscale']:
-            if test in self.data['AOgroup']:
+            if test in self.data['IGgroup']:
                 pass
-            elif self.data['AOgroup'][test] > 0:
+            elif self.data['IGgroup'][test] > 0:
                 pass
             else:
                 error = True
                 break
         if error:
             report.write('[FAILED]    0.1 AOgroup must contain positive scalars, Tscale, dscale\n')
-            report.write('            ' + test + ' = ' + repr(self.data['AOgroup'][test]) + '\n')
+            report.write('            ' + test + ' = ' + repr(self.data['IGgroup'][test]) + '\n')
             result = False
         else:
             report.write('[passed]    0.1 AOgroup must contain positive scalars, Tscale, dscale\n')
             
         #0.2 AOgroup's logt parameter must be a scalar
-        if 'logt' in self.data['AOgroup'] and not isinstance(self.data['AOgroup']['logt'], (float,int)):
+        if 'logt' in self.data['IGgroup'] and not isinstance(self.data['IGgroup']['logt'], (float,int)):
             report.write('[FAILED]    0.2 AOgroup logt parameter must be a scalar\n')
-            report.write('            logt = ' + repr(self.data['AOgroup']['logt']) + '\n')
+            report.write('            logt = ' + repr(self.data['IGgroup']['logt']) + '\n')
             result = False
         else:
             report.write('[passed]    0.2 AOgroup logt parameter must be a scalar\n')
         
         #0.3 AOgroup's coef0 parameter must be a legal poly1 group
         error = False
-        if 'coef0' in self.data['AOgroup']:
-            error,message = _check_poly1(self.data['AOgroup']['coef0'])
+        if 'coef0' in self.data['IGgroup']:
+            error,message = _check_poly1(self.data['IGgroup']['coef0'])
         if error:
             report.write('[FAILED]    0.3 AOgroup coef0 parameter must be a legal poly1 group\n')
             report.write('            ' + message + '\n')
@@ -411,12 +425,12 @@ Test criteria:
         
         #0.4 AOgroup's coef1 parameter must be a table with two columns
         error = False
-        if 'coef1' in self.data['AOgroup']:
-            if not isinstance(self.data['AOgroup']['coef1'], (list,tuple)):
+        if 'coef1' in self.data['IGgroup']:
+            if not isinstance(self.data['IGgroup']['coef1'], (list,tuple)):
                 error = True
                 message = 'coef1 was not iterable.'
             else:
-                for row in self.data['AOgroup']['coef1']:
+                for row in self.data['IGgroup']['coef1']:
                     if not isinstance(row, (list,tuple)) or len(row) != 2:
                         error = True
                         message = 'coef1 has at least one row without 2 columns'
@@ -430,16 +444,16 @@ Test criteria:
         #0.5 ARgroup must contain Tscale, dscale
         error = False
         for test in ['Tscale', 'dscale']:
-            if test in self.data['ARgroup']:
+            if test in self.data['Rgroup']:
                 pass
-            elif self.data['ARgroup'][test] > 0:
+            elif self.data['Rgroup'][test] > 0:
                 pass
             else:
                 error = True
                 break
         if error:
             report.write('[FAILED]    0.5 ARgroup must contain positive scalars, Tscale, dscale\n')
-            report.write('            ' + test + ' = ' + repr(self.data['ARgroup'][test]) + '\n')
+            report.write('            ' + test + ' = ' + repr(self.data['Rgroup'][test]) + '\n')
             result = False
         else:
             report.write('[passed]    0.5 ARgroup must contain positive scalars, Tscale, dscale\n')
@@ -447,12 +461,12 @@ Test criteria:
         #0.6 ARgroup's coef0 must be a list of legal poly2 groups
         error = False
         message = ''
-        if 'coef0' in self.data['ARgroup']:
-            if not isinstance(self.data['ARgroup']['coef0'], (list,tuple)):
+        if 'coef0' in self.data['Rgroup']:
+            if not isinstance(self.data['Rgroup']['coef0'], (list,tuple)):
                 error = True
                 message = 'coef0 was not iterable.'
             else:
-                for cgi,cg in enumerate(self.data['ARgroup']['coef0']):
+                for cgi,cg in enumerate(self.data['Rgroup']['coef0']):
                     error,message = _check_poly2(cg)
                     if error:
                         message = 'Error in term number ' + str(cgi) + '\n            ' + message
@@ -467,12 +481,12 @@ Test criteria:
         #0.7 ARgroup's coef1 must be a table with seven columns
         error = False
         message = ''
-        if 'coef1' in self.data['ARgroup']:
-            if not isinstance(self.data['ARgroup']['coef1'], (list,tuple)):
+        if 'coef1' in self.data['Rgroup']:
+            if not isinstance(self.data['Rgroup']['coef1'], (list,tuple)):
                 error = True
                 message = 'coef1 was not iterable.'
             else:
-                for row in self.data['ARgroup']['coef1']:
+                for row in self.data['Rgroup']['coef1']:
                     if len(row) != 7:
                         error = True
                         message = 'coef1 has at least one row without 7 columns'
@@ -486,12 +500,12 @@ Test criteria:
         #0.8 ARgroup's coef2 must be a table with eight columns
         error = False
         message = ''
-        if 'coef2' in self.data['ARgroup']:
-            if not isinstance(self.data['ARgroup']['coef2'], (list,tuple)):
+        if 'coef2' in self.data['Rgroup']:
+            if not isinstance(self.data['Rgroup']['coef2'], (list,tuple)):
                 error = True
                 message = 'coef2 was not iterable.'
             else:
-                for row in self.data['ARgroup']['coef2']:
+                for row in self.data['Rgroup']['coef2']:
                     if len(row) != 8:
                         error = True
                         message = 'coef2 has at least one row without 8 columns'
@@ -560,14 +574,14 @@ Test criteria:
         return result
         
 
-    def _poly2(self,x,y,group,diff=2):    
+    def _poly2(self,x,y,pcoef,diff=2):    
         """Polynomial evaluation (primative routine)
-(p, px, py, pxx, pxy, pyy) = _poly(x,y,coef,diff=2)
+(p, px, py, pxx, pxy, pyy) = _poly(x,y,pcoef,diff=2)
 
 Evaluates a polynomial on x and y and its derivatives.
 x       x value
 y       y value
-param   coefficient list
+pcoef   coefficient dictionary/list
 diff    the highest order derivative to evaluate (0,1, or 2)
 
 Returns
@@ -581,44 +595,44 @@ pyy     d2p/dy2
 The behavior of poly2 is very much the same as poly1, but for functions
 of two variables.  The pre- and post- exponents for poly2 are expected
 to be lists or tuples: [prex, prey], [postx, posty]
-The innermost lists defining the terms must contain three elements:
-[powxN, powyN, coefN].  The coefficients must be sorted by x-power and
-then by y-power in descending order.
+The coefficient lists defining the terms must contain three elements:
+[<i>, <j>, <c>].  The coefficients must be sorted by x-power and
+then by y-power in descending order.  The powers must be non-negative
+integers.
 
-A coefficient list might appear
+A coefficient dictionary might appear
 
-coef = [
-    [
-        [prex, prey], 
-        [postx, posty],
-        [powxN, powyN, coefN],
+coef = {
+    'pre': [<xpre>, <ypre>],
+    'post': [<xpost>, <ypost>],
+    'coef':[
+        [<i>, <j>, <c>],
         ...
-        [powx0, powy0, coef0]
-    ],
-    [
-        [prex, prey], 
-        [postx, posty],
-        [powxN, powyN, coefN],
-        ...
-        [powx0, powy0, coef0]
     ]
 ]
-    
+
 The pre-exponents are applied to the arguments to the polynomial, and
 the post-exponents are applied after the polynomial is evaluated, so 
 that the value returned is
-    x**postx * y**posty * p(x**prex, y**prey)
+    X = x**xpre
+    Y = y**ypre
+    p = c00 + ... cij * X**i * Y**j + ...
+    output = x**xpost * y**post * p
 
-Starting with the third element (element 2) of the coefficient list,
-each element of coef is a three-element list defining a term in the 
-polynomial; the x-exponent, the y-exponent, and the corresponding
-coefficient.  It must be sorted in descending order by the first column
-and then the second column.
+For example, the polynomial,
+    p(x,y) = .5 + 1.2y + .2y**2 + 0.1xy
+might be represented by the dict:
+pcoef = {
+    'coef':[
+        [1, 0, 0.1],
+        [0, 2, 0.2],
+        [0, 1, 1.2],
+        [0, 0, 0.5]
+    ]
+}
 
-For example, the list,
-[[[1,1], [0,0], [1, 1, 0.1], [0, 2, 0.2], [0, 1, 1.2], [0, 0, 0.5]]]
-corresponds to the polynomial
-p(x,y) = .5 + 1.2y + .2y**2 + 0.1xy
+In this example the 'pre' and 'post' values are omitted because they are
+not necessary.
 
 Efficient polynomial evaluation algorithms are normally restricted to
 positive integer exponents, but many thermodynamic property models use 
@@ -627,188 +641,202 @@ used to acheive a much wider range of functions.
 
 For example,
     p(x,y) = x**(-1.5) + x**(3.5)
-might be expressed as a coefficient list
-    [[[0.5,1], [-1.5, 0], [10, 0, 1], [0, 0, 1]]]
-The pre- and post- exponents make this equivalent to
-    xx = x**0.5
-    p(x,y) = x**(-1.5) (xx**10 + 1)
+might be expressed with the dictionary
+pcoef = {
+    'pre': [0.5, 1],
+    'post':[-1.5, 0],
+    'coef':[
+        [10, 0, 1],
+        [0, 0, 1]
+    ]
+}
+
 which is equivalent to the original polynomial, except that the core of
 the evaluation algorithm only operates on positive integers.
 """
-    
-        g = 0.  # total group
-        gx = 0.
-        gy = 0.
-        gxx = 0.
-        gxy = 0.
-        gyy = 0.
-
-        for coef in group:
-            # initialize the final polynomial and its derivatives
-            p = 0.  # total polynomial
-            px = 0.
-            py = 0.
-            pxx = 0.
-            pxy = 0.
-            pyy = 0.
+        if isinstance(pcoef, list):
+            g = 0.  # total group
+            gx = 0.
+            gy = 0.
+            gxx = 0.
+            gxy = 0.
+            gyy = 0.
             
-            # collect the pre- and post-exponentials
-            prex,prey = coef[0]
-            postx,posty = coef[1]
-            
-            # Apply the pre-exponentials
-            if prex!=1.:
-                x_0 = x**prex
-                if diff>0:
-                    x_1 = x_0*prex/x
-                else:
-                    x_1 = 0.
-                if diff>1:
-                    x_2 = x_1*(prex-1.)/x
-                else:
-                    x_2 = 0.
-            else:
-                x_0 = x
-                x_1 = 1.
-                x_2 = 0.
+            for this in pcoef:
+                p,px,py,pxx,pxy,pyy = self._poly2(x,y,this,diff)
                 
-            if prey!=1.:
-                y_0 = y**prey
-                if diff>0:
-                    y_1 = y_0*prey/y
-                else:
-                    y_1 = 0.
-                if diff>1:
-                    y_2 = y_1*(prey-1.)/y
-                else:
-                    y_2 = 0.
-            else:
-                y_0 = y
-                y_1 = 1.
-                y_2 = 0.
-
-            # From here, we loop over terms of the form a*(x**ii)*(y**jj)
-            # If a particular ii,jj combination is not found in the data, then
-            # its coefficient is treated as zero.
-            # What is the largest ii?
-            II = coef[2][0]
-            
-            # On which coefficient are we currently operating?
-            index = 2
-            # This is a flag that indicates the active index was used in 
-            # the last loop, so it needs to be incremented.
-            
-            for ii in range(II,-1,-1):
-                # If the current x-exponent is the same one represented in
-                # the active coefficient row, then calculate q.
-                if index<len(coef) and coef[index][0] == ii:
-                    # For this value of ii, what is the largest jj?
-                    JJ = coef[index][1]
-                    # q is a sub-polynomial on y that represents the 
-                    # variation on y of all terms that share the same
-                    # power in x.  This inner loop is much like the loop
-                    # on ii, except that it looks at both the x and y 
-                    # exponents.
-                    q = 0
-                    qy = 0
-                    qyy = 0
-                    for jj in range(JJ,-1,-1):
-                        if diff > 1:
-                            qyy = 2*qy + y_0*qyy
-                        if diff > 0:
-                            qy = q + y_0*qy
-                        # If the current y-exponent is represented in the 
-                        # active coefficient row, then fold it into the q
-                        # expansion.
-                        if index<len(coef) and coef[index][0] == ii and coef[index][1] == jj:
-                            q = coef[index][2] + y_0*q
-                            # increment the active index
-                            index += 1
-                        else:
-                            q *= y_0
-                        
-                    # Fold the current q values into the p expansion
-                    # Update the highest derivatives first since they depend
-                    # on the historical values of the lower derivatives
-                    if diff > 1:
-                        pyy = qyy + x_0 * pyy
-                        pxx = 2*px + x_0 * pxx
-                        pxy = py + x_0 * pxy
-                    if diff > 0:
-                        px = p + x_0 * px
-                        py = qy + x_0 * py
-                    p = q + x_0 * p
-                # If the current x exponent is not represented, execute a
-                # p-expansion with zero q.
-                else:
-                    if diff > 0:
-                        if diff > 1:
-                            pyy = x_0 * pyy
-                            pxx = 2*px + x_0 * pxx
-                            pxy = py + x_0 * pxy
-                        px = p + x_0 * px
-                        py = x_0 * py
-                    p = x_0 * p
-                    
-            # Modify the derivatives for the pre-exponnetials
-            if prex!=1.:
-                if diff>0:
-                    if diff>1:
-                        pxx = pxx*x_1*x_1 + px*x_2
-                        pyy = pyy*y_1*y_1 + py*y_2
-                        pxy = pxy*x_1*y_1
-                    px *= x_1
-                    py *= y_1
-                
-            # Apply the post-exponentials
-            if postx!=0:
-                f = x**postx
-                if diff>0:
-                    fx = postx*f/x
-                    if diff>1:
-                        fxx = fx*(postx-1)/x
-                        pxx = pxx*f + 2.*px*fx + p*fxx
-                        pyy = pyy*f
-                        pxy = pxy*f + py*fx
-                    px = px*f + p*fx
-                    py = py*f
-                p *= f
-            if posty!=0:
-                f = y**posty
-                if diff>0:
-                    fy = posty*f/y
-                    if diff>1:
-                        fyy = fy*(posty-1)/y
-                        pyy = pyy*f + 2.*py*fy + p*fyy
-                        pxx = pxx*f
-                        pxy = pxy*f + px*fy
-                    py = py*f + p*fy
-                    px = px*f
-                p *= f
-            
-            # If the group has only one coefficient set, just return
-            if len(group) == 1:
-                return p,px,py,pxx,pxy,pyy
-                
-            g += p
-            if diff>0:
+                g += p
                 gx += px
                 gy += py
-                if diff>1:
-                    gxx += pxx
-                    gxy += pxy
-                    gyy += pyy
+                gxx += pxx
+                gxy += pxy
+                gyy += pyy
+                
+            return g,gx,gy,gxx,gxy,gyy
+
+        # initialize the polynomial and its derivatives
+        p = 0.  # total polynomial
+        px = 0.
+        py = 0.
+        pxx = 0.
+        pxy = 0.
+        pyy = 0.
+        
+        # collect the pre-exponentials
+        if 'pre' in pcoef:
+            prex,prey = pcoef['pre']
+        else:
+            prex = 1
+            prey = 1
+        # Apply the pre-exponentials
+        if prex != 1:
+            x_0 = x**prex
+            if diff>0:
+                x_1 = x_0*prex/x
+            else:
+                x_1 = 0.
+            if diff>1:
+                x_2 = x_1*(prex-1.)/x
+            else:
+                x_2 = 0.
+        else:
+            x_0 = x
+            x_1 = 1.
+            x_2 = 0.
+            
+        if prey!=1:
+            y_0 = y**prey
+            if diff>0:
+                y_1 = y_0*prey/y
+            else:
+                y_1 = 0.
+            if diff>1:
+                y_2 = y_1*(prey-1.)/y
+            else:
+                y_2 = 0.
+        else:
+            y_0 = y
+            y_1 = 1.
+            y_2 = 0.
+
+        # From here, we loop over terms of the form a*(x**ii)*(y**jj)
+        # If a particular ii,jj combination is not found in the data, then
+        # its coefficient is treated as zero.
+        # What is the largest ii?
+        coef = pcoef['coef']
+        ncoef = len(coef)
+        imax = coef[0][0]
+        
+        # On which coefficient are we currently operating?
+        index = 0
+        # This is a flag that indicates the active index was used in 
+        # the last loop, so it needs to be incremented.
+        
+        for ii in range(imax,-1,-1):
+            # If the current x-exponent is the same one represented in
+            # the active coefficient row, then calculate q.
+            if index<ncoef and coef[index][0] == ii:
+                # For this value of ii, what is the largest jj?
+                jmax = coef[index][1]
+                # q is a sub-polynomial on y that represents the 
+                # variation on y of all terms that share the same
+                # power in x.  This inner loop is much like the loop
+                # on ii, except that it looks at both the x and y 
+                # exponents.
+                q = 0
+                qy = 0
+                qyy = 0
+                for jj in range(jmax,-1,-1):
+                    if diff > 1:
+                        qyy = 2*qy + y_0*qyy
+                    if diff > 0:
+                        qy = q + y_0*qy
+                    # If the current y-exponent is represented in the 
+                    # active coefficient row, then fold it into the q
+                    # expansion.
+                    if index<len(coef) and coef[index][0] == ii and coef[index][1] == jj:
+                        q = coef[index][2] + y_0*q
+                        # increment the active index
+                        index += 1
+                    else:
+                        q *= y_0
                     
-        return g,gx,gy,gxx,gxy,gyy
+                # Fold the current q values into the p expansion
+                # Update the highest derivatives first since they depend
+                # on the historical values of the lower derivatives
+                if diff > 1:
+                    pyy = qyy + x_0 * pyy
+                    pxx = 2*px + x_0 * pxx
+                    pxy = py + x_0 * pxy
+                if diff > 0:
+                    px = p + x_0 * px
+                    py = qy + x_0 * py
+                p = q + x_0 * p
+            # If the current x exponent is not represented, execute a
+            # p-expansion with zero q.
+            else:
+                if diff > 0:
+                    if diff > 1:
+                        pyy = x_0 * pyy
+                        pxx = 2*px + x_0 * pxx
+                        pxy = py + x_0 * pxy
+                    px = p + x_0 * px
+                    py = x_0 * py
+                p = x_0 * p
+                
+        # Modify the derivatives for the pre-exponnetials
+        if prex!=1 or prey!=1:
+            if diff>0:
+                if diff>1:
+                    pxx = pxx*x_1*x_1 + px*x_2
+                    pyy = pyy*y_1*y_1 + py*y_2
+                    pxy = pxy*x_1*y_1
+                px *= x_1
+                py *= y_1
+        
+        # Collect the post-exponentials
+        if 'post' in pcoef:
+            postx,posty = pcoef['post']
+        else:
+            postx = 0
+            posty = 0
+        
+        # Apply the post-exponentials
+        if postx!=0:
+            f = x**postx
+            if diff>0:
+                fx = postx*f/x
+                if diff>1:
+                    fxx = fx*(postx-1)/x
+                    pxx = pxx*f + 2.*px*fx + p*fxx
+                    pyy = pyy*f
+                    pxy = pxy*f + py*fx
+                px = px*f + p*fx
+                py = py*f
+            p *= f
+        if posty!=0:
+            f = y**posty
+            if diff>0:
+                fy = posty*f/y
+                if diff>1:
+                    fyy = fy*(posty-1)/y
+                    pyy = pyy*f + 2.*py*fy + p*fyy
+                    pxx = pxx*f
+                    pxy = pxy*f + px*fy
+                py = py*f + p*fy
+                px = px*f
+            p *= f
+        
+        return p,px,py,pxx,pxy,pyy
 
 
-    def _poly1(self,x,group,diff=2):    
+    def _poly1(self,x,pcoef,diff=2):    
         """Polynomial evaluation (primative routine)
-(p, px, pxx) = _poly1(x,coef,diff=2)
+(p, px, pxx) = _poly1(x,pcoef,diff=2)
 
 Evaluates a polynomial on x and y and its derivatives.
 x       x value
-coef    coefficient list
+pcoef   coefficient list/dictionary
 diff    the highest order derivative to evaluate (0,1, or 2)
 
 Returns
@@ -821,145 +849,131 @@ returned as 0.  The default for diff is 2 to protect against careless
 treatment as if these values ARE zero, but reducing diff will make poly1
 execute more efficiently.
 
-The coefficient list represents a nested list structure defining a poly-
-nomial series.  The inner-most lists contain two elements, specifying
-an integer exponent and a coefficient: [power, coefficient] for each
-term.  They are contained in a list that represents groups of terms.
-The groups must be sorted by power from highest to lowest.
+The pcoef parameter is either a dictionary or a list of dictionaries
+representing a polynomial series.  Each dictionary defines a polynomial
+with optional pre- and post-exponents, defining a polynomial of the form
+    X = x**pre
+    p = c0 + c1*X + c2*X**2 + ... cn*X**n + ...
+    output = x**post * p
 
-Each group is lead by two elements that define a pre- and post- 
-exponents.
-    [pre, post, [powN, coefN], ... , [pow0, coef0]]
+When the pcoef parameter is a list of dictionaries, each dictionary 
+defines one of these polynomials, and the results are summed together.
 
-This defines a polynomial of the form
-    x**post * p(x**pre)
-    
-The powers must be integers, but no such restriciton exists on the pre-
-and post- exponents.  This permits efficient evaluaiton of polynomials
-with rational exponents.
-
-The highest level list contains a list of these groups, so that separate
-pre- and post- exponentials may be applied to certain terms of the 
-polynomial.
-
-coef = [
-    [
-        pre, 
-        post,
-        [
-            [powN, coefN],
-            ...,
-            [pow0, coef0]
-        ]
-    ],
-    [
-        pre, 
-        post,
-        [
-            [powN, coefN],
-            ...,
-            [pow0, coef0]
-        ]
+Each dictionary is of the form:
+{
+    'pre':<pre>,
+    'post':<post>,
+    'coef':[
+        [<n>, <c>],
+        [<n>, <c>],
+        ...
     ]
-]
+}
+<n> and <c> represent the exponent and corresponding coefficient.  The
+coefficient list is sparse, so zero-value coefficients are simply 
+omitted.  THE LIST MUST BE IN DECENDING ORDER OF EXPONENTS.
+
+If the pre- and post-terms are omitted, then they are ignored.  This is
+equivalent to pre=1 and post=0.
 
 In a simple example, the polynomial,
     p(x) = 2*x**-1.5 - x**0.5
     
 might be specified
-[[  0.5, -1.5, [0, 2.], [4, -1.]]]
+pcoef = {
+    'pre': 0.5,
+    'post': -1.5,
+    'coef': [[4,-1], [0,2.]]
+}
 """
-        g = 0.
-        gx = 0.
-        gxx = 0.
-    
-        for coef in group:
-            # initialize the final polynomial and its derivatives
-            p = 0.  # total polynomial
-            px = 0.
-            pxx = 0.
-
-            # collect the pre- and post-exponentials
-            pre = coef[0]
-            post = coef[1]
-            
-            # Apply the pre-exponentials
-            if pre!=1.:
-                x_0 = x**pre
-                if diff>0:
-                    x_1 = x_0*pre/x
-                else:
-                    x_1 = 0.
-                if diff>1:
-                    x_2 = x_1*(pre-1.)/x
-                else:
-                    x_2 = 0.
-            else:
-                x_0 = x
-                x_1 = 1.
-                x_2 = 0.
-
-            # From here, we loop over terms of the form a*(x**ii)
-            # If a particular ii,jj combination is not found in the data, then
-            # its coefficient is treated as zero.
-            # What is the largest ii?
-            II = coef[2][0]
-            
-            # On which coefficient are we currently operating?
-            index = 2
-            # This is a flag that indicates the active index was used in 
-            # the last loop, so it needs to be incremented.
-            
-            for ii in range(II,-1,-1):
-                # If the current x-exponent is the same one represented in
-                # the active coefficient row, then calculate q.
-                if index<len(coef) and coef[index][0] == ii:
-                    # Fold the current coefficient into the p expansion
-                    # Update the highest derivatives first since they depend
-                    # on the historical values of the lower derivatives
-                    if diff>0:
-                        if diff > 1:
-                            pxx = 2*px + x_0 * pxx
-                        px = p + x_0 * px
-                    p = coef[index][1] + x_0 * p
-                    index += 1
-                # If the current x exponent is not represented, execute a
-                # p-expansion with zero q.
-                else:
-                    if diff > 0:
-                        if diff > 1:
-                            pxx = 2*px + x_0 * pxx
-                        px = p + x_0 * px
-                    p = x_0 * p
-                    
-            # Modify the derivatives for the pre-exponnetials
-            if pre!=1.:
-                if diff>0:
-                    if diff>1:
-                        pxx = pxx*x_1*x_1 + px*x_2
-                    px *= x_1
-                
-            # Apply the post-exponentials
-            if post!=0:
-                f = x**post
-                if diff>0:
-                    fx = post*f/x
-                    if diff>1:
-                        fxx = fx*(post-1)/x
-                        pxx = pxx*f + 2.*px*fx + p*fxx
-                    px = px*f + p*fx
-                p *= f
-
-            if len(group)==1:
-                return p,px,pxx
-
-            g += p
-            if diff>0:
+        if isinstance(pcoef, list):
+            g = 0.
+            gx = 0.
+            gxx = 0.
+            for this in pcoef:
+                p,px,pxx = self._poly1(x,this,diff=diff)
+                g += p
                 gx += px
+                gxx += pxx
+            return g,gx,gxx
+
+    
+        # initialize the final polynomial and its derivatives
+        p = 0.  # total polynomial
+        px = 0.
+        pxx = 0.
+       
+        # Apply the pre-exponentials
+        if 'pre' in pcoef and pcoef['pre'] != 1:
+            pre = pcoef['pre']
+            x_0 = x**pre
+            if diff>0:
+                x_1 = x_0*pre/x
+            else:
+                x_1 = 0.
+            if diff>1:
+                x_2 = x_1*(pre-1.)/x
+            else:
+                x_2 = 0.
+        else:
+            pre = 1.
+            x_0 = x
+            x_1 = 1.
+            x_2 = 0.
+
+        # From here, we loop over terms of the form a*(x**ii)
+        # If a particular ii,jj combination is not found in the data, then
+        # its coefficient is treated as zero.
+        # What is the largest ii?
+        coef = pcoef['coef']
+        imax = coef[0][0]
+        ncoef = len(coef)
+        
+        # On which coefficient are we currently operating?
+        index = 0
+        # Loop through all polynomial powers
+        for ii in range(imax,-1,-1):
+            # If the current x-exponent is the same one represented in
+            # the active coefficient row, then calculate q.
+            if index<ncoef and coef[index][0] == ii:
+                # Fold the current coefficient into the p expansion
+                # Update the highest derivatives first since they depend
+                # on the historical values of the lower derivatives
+                if diff>0:
+                    if diff > 1:
+                        pxx = 2*px + x_0 * pxx
+                    px = p + x_0 * px
+                p = coef[index][1] + x_0 * p
+                index += 1
+            # If the current x exponent is not represented, execute a
+            # p-expansion with zero q.
+            else:
+                if diff > 0:
+                    if diff > 1:
+                        pxx = 2*px + x_0 * pxx
+                    px = p + x_0 * px
+                p = x_0 * p
+                
+        # Modify the derivatives for the pre-exponnetials
+        if pre!=1.:
+            if diff>0:
                 if diff>1:
-                    gxx += pxx
-                    
-        return g,gx,gxx
+                    pxx = pxx*x_1*x_1 + px*x_2
+                px *= x_1
+            
+        # Apply the post-exponentials
+        if 'post' in pcoef and pcoef['post'] != 0:
+            post = pcoef['post']
+            f = x**post
+            if diff>0:
+                fx = post*f/x
+                if diff>1:
+                    fxx = fx*(post-1)/x
+                    pxx = pxx*f + 2.*px*fx + p*fxx
+                px = px*f + p*fx
+            p *= f
+
+        return p,px,pxx
     
     
     def _iter1(self, fn, prop, y, x, Ids, xmin, xmax,
@@ -1468,7 +1482,7 @@ Optional parameters (and their defaults) are:
         
 
 
-    def _ao(self, tt, dd, diff=2):
+    def _fo(self, tt, dd, diff=2):
         """Dimensionless ideal gas helmholtz free energy (primative routine)
 Evaluates an ideal gas equation of the form
     a = log(dd) + logt*log(tt) + tlogt*tt*log(tt) + p(t) + ... 
@@ -1478,7 +1492,7 @@ where
     dd = d / dscale
     tt = Tscale / T
 
-In the AOgroup dictionary defined by the mp1 data, the polynomial, p,
+In the IGgroup dictionary defined by the mp1 data, the polynomial, p,
 is defined by the 'coef0' list.  This list should should be readable
 by the _poly1() method.  The 'logt' and 'tlogt' constants define the 
 coefficients of the log(tt) and tt*log(tt) terms.  They are optional.
@@ -1492,79 +1506,83 @@ nondimensionalized, and the returned values are non-dimensionalzied.
         
         # Start with the logarithmic terms
         # Log of density is easy - no coefficients needed
-        A = np.log(dd)
-        At = 0.
-        Ad = 0.
-        Att = 0.
-        Atd = 0.
-        Add = 0.
+        F = np.log(dd)
+        Ft = 0.
+        Fd = 0.
+        Ftt = 0.
+        Ftd = 0.
+        Fdd = 0.
+        
+        IGgroup = self.data['IGgroup']
         
         if diff>0:
-            At = 0
-            Ad = 1./dd
+            Ft = 0
+            Fd = 1./dd
             if diff>1:
-                Add = -Ad/dd
-                Att = 0.
-                Atd = 0.
+                Fdd = -Fd/dd
+                Ftt = 0.
+                Ftd = 0.
         # The logt term does not appear in all models, but it does in many
         logt = None
-        coef = self.data['AOgroup'].get('logt')
+        coef = IGgroup.get('logt')
         if coef is not None:
             # We might need logt again - keep it for later
             logt = np.log(tt)
-            A += coef * logt
+            F += coef * logt
             if diff>0:
                 pt = coef/tt
-                At += pt
+                Ft += pt
                 if diff>1:
-                    Att += -pt/tt
+                    Ftt += -pt/tt
         
         # In rare cases, the ideal gas model also includes a t * ln(t) term
-        coef = self.data['AOgroup'].get('tlogt')
+        coef = IGgroup.get('tlogt')
         if coef is not None:
             # Don't repeat the logt call if it has already been made
             if logt is None:
                 logt = np.log(tt)
-            A += coef * tt * logt
+            F += coef * tt * logt
             if diff>0:
-                At += coef * (logt + 1)
+                Ft += coef * (logt + 1)
                 if diff>1:
-                    Att += coef/tt
+                    Ftt += coef/tt
         
         
         # Move on to the polynomial expansion
-        if 'coef0' in self.data['AOgroup']:
-            p,pt,ptt = self._poly1(tt,self.data['AOgroup']['coef0'],diff)
-            A+=p
+        gr = IGgroup.get('group0')
+        if gr is not None:
+            p,pt,ptt = self._poly1(tt,gr,diff)
+            F+=p
             if diff>0:
-                At += pt
+                Ft += pt
                 if diff>1:
-                    Att += ptt
+                    Ftt += ptt
         
         # Now the nested log/exp expansion
-        if 'coef1' in self.data['AOgroup']:
-            for theta,c in self.data['AOgroup']['coef1']:
+        gr = IGgroup.get('group1')
+        if gr is not None: 
+            for theta,c in gr:
                 e = np.exp(-theta*tt)
                 p = np.log(1-e)
-                A += c*p
+                F += c*p
                 if diff>0:
                     pt = theta*e/(1.-e)
-                    At += c*pt
+                    Ft += c*pt
                     if diff>1:
                         ptt = -pt*(theta + pt)
-                        Att += c*ptt
+                        Ftt += c*ptt
                         
-        return A, At, Ad, Att, Atd, Add
+        return F, Ft, Fd, Ftt, Ftd, Fdd
 
 
-    def _ar(self, tt, dd, diff=2):
+    def _fr(self, tt, dd, diff=2):
         """Dimensionless residual helmhotz free energy (primative routine)
 Each fit in the group is of the form
-    a = exp(-dd**k) * pk(tt, dd)
+    f = exp(-dd**k) * pk(tt, dd)
     
 when dd = d / dscale, tt = Tscale / T
     
-    A,Ad,At,Add,Adt,Att = _ar(tt, dd, order=2)
+    F,Fd,Ft,Fdd,Fdt,Ftt = _fr(tt, dd, order=2)
 
 Returns the Helmholtz free energy and its derivatives up to diff.
 
@@ -1577,15 +1595,16 @@ nondimensionalized, and the returned values are non-dimensionalzied.
         # p_d() algorithm for R134a evaluated in about 80us on a 4 core
         # AMD A10-9700B R7
 
-        ARgroup = self.data['ARgroup']
+        Rgroup = self.data['Rgroup']
 
+        gr = Rgroup['group0'][0]
         # First evaluate the polynomial without an exponential coefficient
-        A,At,Ad,Att,Atd,Add = self._poly2(tt,dd,ARgroup['coef0'][0],diff)
+        F,Ft,Fd,Ftt,Ftd,Fdd = self._poly2(tt,dd,gr,diff)
         
         k=0
         ddk = 1.
-        for term in ARgroup['coef0'][1:]:
-            p,pt,pd,ptt,ptd,pdd = self._poly2(tt, dd, term, diff)
+        for gr in Rgroup['group0'][1:]:
+            p,pt,pd,ptt,ptd,pdd = self._poly2(tt, dd, gr, diff)
             
             k += 1
             ddk *= dd
@@ -1604,25 +1623,26 @@ nondimensionalized, and the returned values are non-dimensionalzied.
                     ptd = e*(ptd + pt*ed)
                     ptt *= e
                     
-                    Att += ptt
-                    Atd += ptd
-                    Add += pdd
+                    Ftt += ptt
+                    Ftd += ptd
+                    Fdd += pdd
                     
                 pd = e*(p*ed + pd)
                 pt *= e
                 
-                At += pt
-                Ad += pd
+                Ft += pt
+                Fd += pd
                 
             p *= e
             
-            A += p
+            F += p
     
-        # Evaluate AR1: c * dd**d * tt**t * exp(-a*(dd-ep)**2 - b*(tt-gam)**2)
-        if 'coef1' in ARgroup:
+        # Evaluate group1: c * dd**d * tt**t * exp(-a*(dd-ep)**2 - b*(tt-gam)**2)
+        gr = Rgroup.get('group1')
+        if gr is not None:
             #This is the original table order
             #for c,d,t,a,b,gam,ep in ARgroup['coef1']:
-            for t,d,b,a,gam,ep,c in ARgroup['coef1']:
+            for t,d,b,a,gam,ep,c in gr:
                 ddm1 = dd-ep
                 ttm1 = tt-gam
                 e = np.exp(-a*ddm1**2 - b*ttm1**2)
@@ -1641,15 +1661,16 @@ nondimensionalized, and the returned values are non-dimensionalzied.
                         edd = -2*a*(e + ddm1*ed)
                         etd = -2*b*ttm1*ed
                         
-                        Att += e*ptt + 2*et*pt + ett*p
-                        Atd += e*ptd + ed*pt + et*pd + etd*p
-                        Add += e*pdd + 2*ed*pd + edd*p
-                    At += e*pt + et*p
-                    Ad += e*pd + ed*p
-                A += e*p
+                        Ftt += e*ptt + 2*et*pt + ett*p
+                        Ftd += e*ptd + ed*pt + et*pd + etd*p
+                        Fdd += e*pdd + 2*ed*pd + edd*p
+                    Ft += e*pt + et*p
+                    Fd += e*pd + ed*p
+                F += e*p
         
-        if 'coef2' in ARgroup:
-            for a,b,m,AA,BB,CC,DD,c in ARgroup['coef2']:
+        gr = Rgroup.get('group2')
+        if gr is not None:
+            for a,b,m,AA,BB,CC,DD,c in gr:
                 ddm1 = dd-1
                 ttm1 = tt-1
                 # The model uses 1/m.  We will invert it only once.
@@ -1797,18 +1818,260 @@ nondimensionalized, and the returned values are non-dimensionalzied.
                         ett = -2*DD*(ttm1*et + e)
                         etd = (-2*CC*ddm1)*et
                         edd = -2*CC*(ddm1*ed + e)
-                # Finally done; add the result to A
-                A += p*e
+                # Finally done; add the result to F
+                F += p*e
                 if diff>0:
-                    At += pt*e + p*et
-                    Ad += pd*e + p*ed
+                    Ft += pt*e + p*et
+                    Fd += pd*e + p*ed
                     if diff>1:
-                        Att += ptt*e + 2*pt*et + p*ett
-                        Atd += ptd*e + pt*ed + pd*et + p*etd
-                        Add += pdd*e + 2*pd*ed + p*edd
+                        Ftt += ptt*e + 2*pt*et + p*ett
+                        Ftd += ptd*e + pt*ed + pd*et + p*etd
+                        Fdd += pdd*e + 2*pd*ed + p*edd
                 
         
-        return A,At,Ad,Att,Atd,Add
+        return F,Ft,Fd,Ftt,Ftd,Fdd
+
+
+
+    def _satfit(self, tt, fn, coef, diff=0):
+        """Generic saturated property fit (primative routine)
+    s, st, stt = _satfit(tt, fn=0, diff=0)
+
+tt = T / Tc
+
+returns saturation property normalized by its critical value
+
+fn is an integer indicating which property fit form to use
+0   poly(tt)
+    coef is interpreted by poly1
+1   poly(1-tt)
+    coef is interpreted by poly1
+2   exp(poly(1-tt))
+    coef is interpreted by poly1, and the result is passed to np.exp()
+3   exp(1/tt * poly(1-tt))
+    coef is interpreted by poly1, the result is multiplied by 1/tt, and
+    passed to np.exp()
+"""
+        
+        if fn == 0:
+            p,pt,ptt = self._poly1(tt, coef, diff=diff)
+        elif fn == 1:
+            p,pt,ptt = self._poly1(1-tt, coef, diff=diff)
+            if diff>0:
+                pt = -pt
+        elif fn == 2:
+            p,pt,ptt = self._poly1(1-tt, coef, diff=diff)
+            p = np.exp(p)
+            if diff>0:
+                pt = -pt
+                if diff>1:
+                    ptt = p*(ptt + pt*pt)
+                pt *= p
+        elif fn == 3:
+            p,pt,ptt = self._poly1(1-tt, coef, diff=diff)
+            invt = 1./tt
+            p*=invt
+            if diff>0:
+                pt = invt*(-pt-p)
+                if diff>1:
+                    ptt = invt*(ptt-2*pt)
+            p=np.exp(p)
+            if diff>0:
+                if diff>1:
+                    ptt = p*(ptt + pt*pt)
+                pt = p * pt
+        return p,pt,ptt
+        
+        
+    def _dsv(self,T,diff=0):
+        """Saturated vapor density (inner routine)
+"""
+        group = self.data['DSVgroup']
+        Tscale = group['Tscale']
+        dscale = group['dscale']
+                
+        d,dt,dtt = self._satfit( 
+                T/Tscale,
+                group['fn'],
+                group['poly'],
+                diff)
+        # Rescale 
+        d *= dscale
+        if diff>0:
+            dscale /= Tscale
+            dt *= dscale
+            if diff>1:
+                dtt *= dscale/Tscale
+        
+        return d,dt,dtt
+        
+        
+    def _dsl(self,T,diff=0):
+        """Saturated liquid density (inner routine)
+"""
+        
+        group = self.data['DSLgroup']
+        Tscale = group['Tscale']
+        dscale = group['dscale']
+        
+        d,dt,dtt = self._satfit( 
+                T/Tscale,
+                group['fn'],
+                group['poly'],
+                diff)
+        # Rescale 
+        d *= dscale
+        if diff>0:
+            dscale /= Tscale
+            dt *= dscale
+            if diff>1:
+                dtt *= dscale/Tscale
+        
+        return d,dt,dtt
+        
+    def _ds(self, T, diff=0):
+        """Calculate saturated liquid and vapor density (inner routine)
+    dL,dV,dLT,dVT = _ds(T, diff=0)
+    
+Unlike _dsl and _dsv, which use polynomials to estimate the saturation
+lines, _ds is an iterative routine that calculates saturation from the
+equation of state using the Maxwell criteria.
+"""
+        # Create an iteration downselect array
+        # and an out-of-bounds array
+        I = np.logical_and(T < self.data['Tc'], T > self.data['Tt'])
+
+        # First, we need guesses for the high and low densities.
+        # If there are polynomial groups available in the data set, use
+        # them.  If not, we will make some dangerous initial guesses.
+        if 'DSLgroup' in self.data:
+            d1 = self._dsl(T=T)[0]
+        else:
+            d1 = self.data['dlim'][1]
+            
+        if 'DSVgroup' in self.data:
+            d2 = self._dsv(T=T)[0]
+        else:
+            d2 = .001 * d1
+
+        # Obtain the critical density
+        dc = self.data['dc']
+        
+        A = np.empty((I.shape + (2,2)), dtype=float)
+        R = np.empty((I.shape + (2,)), dtype=float)        
+        
+        # Iterate a maximum of 100 times
+        for count in range(100):
+            # Evaluate Gibbs energy at d1 and d2
+            g1,g1T,g1d = self._g(T=T[I], d=d1[I], diff=1)
+            g2,g2T,g2d = self._g(T=T[I], d=d2[I], diff=1)
+            # Evaluate pressures at d1 and d2
+            p1,p1T,p1d = self._p(T=T[I], d=d1[I], diff=1)
+            p2,p2T,p2d = self._p(T=T[I], d=d2[I], diff=1)
+            
+            # Formulate a residual array
+            R[I,0] = g1-g2
+            R[I,1] = p1-p2
+            
+            # Formulate a solution matrix
+            A[I,0,0] = -g1d
+            A[I,0,1] = g2d
+            A[I,1,0] = -p1d
+            A[I,1,1] = p2d
+            
+            # Solve and update the densities
+            D = np.linalg.solve(A[I],R[I])
+            
+            # Test for range - force the densities to the correct side
+            # of the critical point.  If the test fails, then automatically
+            # fail the convergence check.
+            d1test = d1[I] + D[:,0]
+            d2test = d2[I] + D[:,1]
+            
+            d1[I] = d1test
+            d2[I] = d2test
+
+            # Test for convergence
+            I[I] = np.logical_or(np.abs(D[:,0]) > d1[I]*1e-6, 
+                    np.abs(D[:,1]) > d2[I]*1e-6)
+            if not I.any():
+                break
+
+        if I.any():
+            raise pm.utility.PMAnalysisError('mp1._ds(): Iteration failed to converge at T(K) = ' + repr(T[I]))
+        
+        d1T = d2T = None
+        if diff:
+            # Re-evaluate properties everywhere at the solution
+            # Evaluate Gibbs energy at d1 and d2
+            g1,g1T,g1d = self._g(T=T, d=d1, diff=1)
+            g2,g2T,g2d = self._g(T=T, d=d2, diff=1)
+            # Evaluate pressures at d1 and d2
+            p1,p1T,p1d = self._p(T=T, d=d1, diff=1)
+            p2,p2T,p2d = self._p(T=T, d=d2, diff=1)
+            
+            A[:,0,0] = -g1d
+            A[:,0,1] = g2d
+            A[:,1,0] = -p1d
+            A[:,1,1] = p2d
+            
+            R[:,0] = g1T-g2T
+            R[:,1] = p1T-p2T
+            
+            D = np.linalg.solve(A,R)
+            d1T = D[:,0]
+            d2T = D[:,1]
+            
+        return d1,d2,d1T,d2T
+        
+    def _ps(self,T,diff=0):
+        """Saturation pressure (inner routine)
+    ps, ps_T, ps_TT = _ps(T, diff=0)
+    
+Presumes temperature is in Kelvin, reports pressure in Pa
+"""
+        group = self.data['PSgroup']
+        Tscale = group['Tscale']
+        pscale = group['pscale']
+        
+        p,pt,ptt = self._satfit( 
+                T/Tscale,
+                group['fn'],
+                group['poly'],
+                diff)
+        # Rescale 
+        p *= pscale
+        if diff>0:
+            pscale /= Tscale
+            pt *= pscale
+            if diff>1:
+                ptt *= pscale/Tscale
+        
+        return p,pt,ptt
+        
+        
+
+    def _Ts(self,p):
+        """Saturated temperature from pressure (inner routine)"""
+        # Initialize the result array
+        T = np.ones_like(p, dtype=float) * \
+                0.5*(self.data['Tt'] + self.data['Tc'])
+        T,Tmin,Tmax = np.broadcast_arrays(T, self.data['Tt']*.99, self.data['Tc'])
+        
+        # Create a down-select array
+        Ids = np.logical_and(
+                p >= self.data['pt'],
+                p <= self.data['pc'])
+        # Execute the iteration
+        self._iter1(
+                self._ps,           # Invert the saturation pressure
+                'T',                # Solve for temperature
+                p,                  # such that _ps(T) = p
+                T,                  # The initial T values
+                Ids,                # The down-select array
+                Tmin,               # Minimum at the triple temp.
+                Tmax)               # Maximum at the critical temp.
+        return T
 
         
     def _p(self, T, d, diff=0):
@@ -1822,14 +2085,14 @@ sub-critical densities to be either purely liquid or vapor.
         pt = 0.
         pd = 0.
 
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         R = self.data['R']
         # Calculate dimensionless arrays
         tt = Tscale/T
         dd = d/dscale
         # Calculate the Helmholtz free energy
-        _,_,ard,_,artd,ardd = self._ar(tt,dd,diff+1)
+        _,_,ard,_,artd,ardd = self._fr(tt,dd,diff+1)
         p = T*d*R*(1. + dd*ard)
         if diff>0:
             pt = R*d*(1 + dd*ard - tt*dd*artd)
@@ -2022,7 +2285,7 @@ inverted to calculate T
         return T
         
         
-    def _sat_argparse(self, T=None, p=None, epsilon=1e-6):
+    def _sat_argparse(self, T=None, p=None):
         """A standard argument parsing scheme for all user-layer saturation properties
     T,dL,dV = _sat_argparse(T=None, p=None)
     
@@ -2046,34 +2309,6 @@ dL and dV are the liquid and vapor densities in kg/m3
                 raise pm.utility.PMParamError(
                         'Saturation properties are not available at ' +
                         'temperatures beyond the triple or critical points.')
-            # Look up densities
-            Tdata = self.data['SATgroup']['Ts']
-            DLdata = self.data['SATgroup']['dsl']
-            DVdata = self.data['SATgroup']['dsv']
-            oob = pm.config['def_oob']
-
-            dl = np.interp(T, Tdata, DLdata, left=oob, right=oob)
-            dv = np.interp(T, Tdata, DVdata, left=oob, right=oob)
-            
-            # Polish the solution using Newton iteration            
-            Ids = np.ones_like(T, dtype=bool)
-            while Ids.any():
-                gl,glt,gld = self._g(T[Ids],dl[Ids],diff=1)
-                gv,gvt,gvd = self._g(T[Ids],dv[Ids],diff=1)
-                pl,plt,pld = self._p(T[Ids],dl[Ids],diff=1)
-                pv,pvt,pvd = self._p(T[Ids],dv[Ids],diff=1)
-
-                e = np.array([gl-gv, pl-pv])
-                J = np.array([[gld, -gvd],[pld, -pvd]])
-                dd = np.linalg.solve(J,e)
-                
-                dl[Ids] -= dd[0]
-                dv[Ids] -= dd[1]
-                
-                Ids[Ids] = np.logical_and(
-                    np.abs(dd[0]) > epsilon*dl[Ids],
-                    np.abs(dd[1]) > epsilon*dv[Ids])
-            
         elif T is None:
             p = pm.units.pressure(
                     np.asarray(p, dtype=float), 
@@ -2084,44 +2319,14 @@ dL and dV are the liquid and vapor densities in kg/m3
                 raise pm.utility.PMParamError(
                         'Saturation properties are not available at ' +
                         'pressures beyond the triple or critical points.')
-                        
-            # Look up densities
-            Pdata = self.data['SATgroup']['ps']
-            Tdata = self.data['SATgroup']['Ts']
-            DLdata = self.data['SATgroup']['dsl']
-            DVdata = self.data['SATgroup']['dsv']
-            oob = pm.config['def_oob']
-
-            T = np.interp(p, Pdata, Tdata, left=oob, right=oob)
-            dl = np.interp(p, Pdata, DLdata, left=oob, right=oob)
-            dv = np.interp(p, Pdata, DVdata, left=oob, right=oob)
-            
-            # Polish the solution using Newton iteration            
-            Ids = np.ones_like(T, dtype=bool)
-            while Ids.any():
-                gl,glt,gld = self._g(T[Ids],dl[Ids],diff=1)
-                gv,gvt,gvd = self._g(T[Ids],dv[Ids],diff=1)
-                pl,plt,pld = self._p(T[Ids],dl[Ids],diff=1)
-                pv,pvt,pvd = self._p(T[Ids],dv[Ids],diff=1)
-
-                e = np.array([gl-gv, pl-p, pv-p])
-                J = np.array([[glt-gvt, gld, gvd],[plt, pld, 0.],[pvt, 0., pvd]])
-                dd = np.linalg.solve(J,e)
-                
-                T[Ids] -= dd[0]
-                dl[Ids] -= dd[1]
-                dv[Ids] -= dd[2]
-                
-                Ids[Ids] = np.logical_and(
-                    np.abs(dd[0]) > epsilon*T[Ids], np.logical_and(
-                    np.abs(dd[1]) > epsilon*dl[Ids],
-                    np.abs(dd[2]) > epsilon*dv[Ids]))
-            
+            T = self._Ts(p)
         else:
             raise pm.utility.PMParamError(
                 'Saturation temperature and pressure cannot be simultaneously specified')
 
-        return T, dl, dv
+        dL = self._dsl(T,0)[0]
+        dV = self._dsv(T,0)[0]
+        return T, dL, dV
         
         
     def _argparse(self, *varg, **kwarg):
@@ -2805,11 +3010,11 @@ other conditions, x<0 and d1 == d2.
 
         # The IG part        
         R = self.data['R']
-        Tscale = self.data['AOgroup']['Tscale']
-        dscale = self.data['AOgroup']['dscale']
+        Tscale = self.data['IGgroup']['Tscale']
+        dscale = self.data['IGgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        _,at,_,att,atd,_ = self._ao(tt,dd,diff+1)
+        _,at,_,att,atd,_ = self._fo(tt,dd,diff+1)
         
         e = at
         if diff>0:
@@ -2817,11 +3022,11 @@ other conditions, x<0 and d1 == d2.
             ed = atd/dscale
         
         # The residual part
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        _,at,ad,att,atd,add = self._ar(tt,dd,diff+1)
+        _,at,ad,att,atd,add = self._fr(tt,dd,diff+1)
         e += at
         e *= R*Tscale
         if diff>0:
@@ -2842,11 +3047,11 @@ other conditions, x<0 and d1 == d2.
 
         # The IG part        
         R = self.data['R']
-        Tscale = self.data['AOgroup']['Tscale']
-        dscale = self.data['AOgroup']['dscale']
+        Tscale = self.data['IGgroup']['Tscale']
+        dscale = self.data['IGgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        _,at,_,att,atd,_ = self._ao(tt,dd,diff+1)
+        _,at,_,att,atd,_ = self._fo(tt,dd,diff+1)
         
         h = 1. + tt*at
         if diff>0:
@@ -2854,11 +3059,11 @@ other conditions, x<0 and d1 == d2.
             hd = tt*atd/dscale
         
         # The residual part
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        _,at,ad,att,atd,add = self._ar(tt,dd,diff+1)
+        _,at,ad,att,atd,add = self._fr(tt,dd,diff+1)
         h += dd*ad + tt*at
         h *= R*T
         if diff>0:
@@ -2878,11 +3083,11 @@ other conditions, x<0 and d1 == d2.
 
         # The IG part        
         R = self.data['R']
-        Tscale = self.data['AOgroup']['Tscale']
-        dscale = self.data['AOgroup']['dscale']
+        Tscale = self.data['IGgroup']['Tscale']
+        dscale = self.data['IGgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        a,at,ad,att,atd,_ = self._ao(tt,dd,diff+1)
+        a,at,ad,att,atd,_ = self._fo(tt,dd,diff+1)
         
         s = tt*at - a
         if diff>0:
@@ -2890,11 +3095,11 @@ other conditions, x<0 and d1 == d2.
             sd = (tt*atd - ad)/dscale
         
         # The residual part
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        a,at,ad,att,atd,_ = self._ar(tt,dd,diff+1)
+        a,at,ad,att,atd,_ = self._fr(tt,dd,diff+1)
         s += tt*at - a
         s *= R
         if diff>0:
@@ -2912,11 +3117,11 @@ other conditions, x<0 and d1 == d2.
 """
         # The IG part        
         R = self.data['R']
-        Tscale = self.data['AOgroup']['Tscale']
-        dscale = self.data['AOgroup']['dscale']
+        Tscale = self.data['IGgroup']['Tscale']
+        dscale = self.data['IGgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        a,at,ad,_,_,_ = self._ao(tt,dd,diff+1)
+        a,at,ad,_,_,_ = self._fo(tt,dd,diff)
 
         f = a
         ft = None
@@ -2926,11 +3131,11 @@ other conditions, x<0 and d1 == d2.
             fd = ad/dscale
         
         # The residual part
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        a,at,ad,_,_,_ = self._ar(tt,dd,diff+1)
+        a,at,ad,_,_,_ = self._fr(tt,dd,diff)
 
         f += a
         f *= R*T
@@ -2951,11 +3156,11 @@ other conditions, x<0 and d1 == d2.
 """
         # The IG part        
         R = self.data['R']
-        Tscale = self.data['AOgroup']['Tscale']
-        dscale = self.data['AOgroup']['dscale']
+        Tscale = self.data['IGgroup']['Tscale']
+        dscale = self.data['IGgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        a,at,ad,_,atd,add = self._ao(tt,dd,diff+1)
+        a,at,ad,_,atd,add = self._fo(tt,dd,diff+1)
         
         g = a + 1.
         gt = None
@@ -2965,11 +3170,11 @@ other conditions, x<0 and d1 == d2.
             gd = ad/dscale
         
         # The residual part
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        a,at,ad,_,atd,add = self._ar(tt,dd,diff+1)
+        a,at,ad,_,atd,add = self._fr(tt,dd,diff+1)
 
         g += a + dd*ad
         g *= R*T
@@ -2986,11 +3191,11 @@ other conditions, x<0 and d1 == d2.
     a = _a(T,d)
 """
         R = self.data['R']
-        Tscale = self.data['AOgroup']['Tscale']
-        dscale = self.data['AOgroup']['dscale']
+        Tscale = self.data['IGgroup']['Tscale']
+        dscale = self.data['IGgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        _,_,_,att,_,_ = self._ao(tt,dd,2)
+        _,_,_,att,_,_ = self._fo(tt,dd,2)
 
         # We'll build this in three terms
         # b - c*c/d
@@ -2999,11 +3204,11 @@ other conditions, x<0 and d1 == d2.
         D = tt * tt * att
         
         # The residual part
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        _,_,ad,att,atd,add = self._ar(tt,dd,2)
+        _,_,ad,att,atd,add = self._fr(tt,dd,2)
         B += dd*(2*ad + dd*add)
         C += dd*(ad - tt*atd)
         D += tt * tt * att
@@ -3018,20 +3223,20 @@ other conditions, x<0 and d1 == d2.
 
         # The IG part        
         R = self.data['R']
-        Tscale = self.data['AOgroup']['Tscale']
-        dscale = self.data['AOgroup']['dscale']
+        Tscale = self.data['IGgroup']['Tscale']
+        dscale = self.data['IGgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        _,_,_,att,_,_ = self._ao(tt,dd,2)
+        _,_,_,att,_,_ = self._fo(tt,dd,2)
         
         cp = -tt*tt*att
         
         # The residual part
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        _,_,ad,att,atd,add = self._ar(tt,dd,2)
+        _,_,ad,att,atd,add = self._fr(tt,dd,2)
 
         temp = 1.+dd*(ad-tt*atd)
         cp += -tt*tt*att + temp*temp/(1.+dd*(2.*ad+dd*add))
@@ -3046,20 +3251,20 @@ other conditions, x<0 and d1 == d2.
 
         # The IG part        
         R = self.data['R']
-        Tscale = self.data['AOgroup']['Tscale']
-        dscale = self.data['AOgroup']['dscale']
+        Tscale = self.data['IGgroup']['Tscale']
+        dscale = self.data['IGgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        _,_,_,att,_,_ = self._ao(tt,dd,2)
+        _,_,_,att,_,_ = self._fo(tt,dd,2)
         
         cv = tt*tt*att
         
         # The residual part
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         tt = Tscale / T
         dd = d / dscale
-        _,_,_,att,_,_ = self._ar(tt,dd,2)
+        _,_,_,att,_,_ = self._fr(tt,dd,2)
 
         cv += tt*tt*att
         cv *= -R
@@ -3592,11 +3797,11 @@ available by calling the cv() method directly.
         # In saturated cases, d2 should always be used to caluclate 
         # pressure
         # The IG part        
-        Tscale = self.data['AOgroup']['Tscale']
-        dscale = self.data['AOgroup']['dscale']
+        Tscale = self.data['IGgroup']['Tscale']
+        dscale = self.data['IGgroup']['dscale']
         tt = Tscale / T
         dd = d2 / dscale
-        a,at,ad,att,atd,add = self._ao(tt,dd,2)
+        a,at,ad,att,atd,add = self._fo(tt,dd,2)
         
         p = 1.
         e = at
@@ -3606,11 +3811,11 @@ available by calling the cv() method directly.
         cv = tt*tt*att
         
         # The residual part
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         tt = Tscale / T
         dd = d2 / dscale
-        a,at,ad,att,atd,add = self._ar(tt,dd,2)
+        a,at,ad,att,atd,add = self._fr(tt,dd,2)
 
         p += dd*ad
         p *= T*d2*R
@@ -3642,11 +3847,11 @@ available by calling the cv() method directly.
         
         # Finish with the liquid (d1) half of the calculation
         # The IG part        
-        Tscale = self.data['AOgroup']['Tscale']
-        dscale = self.data['AOgroup']['dscale']
+        Tscale = self.data['IGgroup']['Tscale']
+        dscale = self.data['IGgroup']['dscale']
         tt = Tscale / T[I]
         dd = d1[I] / dscale
-        a,at,ad,att,atd,add = self._ao(tt,dd,2)
+        a,at,ad,att,atd,add = self._fo(tt,dd,2)
         
         e = at
         h = 1. + tt*at
@@ -3655,11 +3860,11 @@ available by calling the cv() method directly.
         cv = tt*tt*att
         
         # The residual part
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         tt = Tscale / T[I]
         dd = d1[I] / dscale
-        a,at,ad,att,atd,add = self._ar(tt,dd,2)
+        a,at,ad,att,atd,add = self._fr(tt,dd,2)
 
         e += at
         e *= R*Tscale
@@ -3989,21 +4194,21 @@ quality of the liquid/vapor mixture is also returned
         
         # The IG part        
         R = self.data['R']
-        Tscale = self.data['AOgroup']['Tscale']
-        dscale = self.data['AOgroup']['dscale']
+        Tscale = self.data['IGgroup']['Tscale']
+        dscale = self.data['IGgroup']['dscale']
         tt = Tscale / T
         dd = d1 / dscale
-        a,at,_,_,_,_ = self._ao(tt,dd,1)
+        a,at,_,_,_,_ = self._fo(tt,dd,1)
         
         h = 1. + tt*at
         s = tt*at - a
         
         # The residual part
-        Tscale = self.data['ARgroup']['Tscale']
-        dscale = self.data['ARgroup']['dscale']
+        Tscale = self.data['Rgroup']['Tscale']
+        dscale = self.data['Rgroup']['dscale']
         tt = Tscale / T
         dd = d1 / dscale
-        a,at,ad,_,_,_ = self._ar(tt,dd,1)
+        a,at,ad,_,_,_ = self._fr(tt,dd,1)
         h += dd*ad + tt*at
         s += tt*at - a
 
@@ -4015,21 +4220,21 @@ quality of the liquid/vapor mixture is also returned
             
             # The IG part        
             R = self.data['R']
-            Tscale = self.data['AOgroup']['Tscale']
-            dscale = self.data['AOgroup']['dscale']
+            Tscale = self.data['IGgroup']['Tscale']
+            dscale = self.data['IGgroup']['dscale']
             tt = Tscale / T[I]
             dd = d2[I] / dscale
-            a,at,_,_,_,_ = self._ao(tt,dd,1)
+            a,at,_,_,_,_ = self._fo(tt,dd,1)
             
             h[I] += (1. + tt*at)*x[I]
             s[I] += (tt*at - a)*x[I]
             
             # The residual part
-            Tscale = self.data['ARgroup']['Tscale']
-            dscale = self.data['ARgroup']['dscale']
+            Tscale = self.data['Rgroup']['Tscale']
+            dscale = self.data['Rgroup']['dscale']
             tt = Tscale / T[I]
             dd = d2[I] / dscale
-            a,at,ad,_,_,_ = self._ar(tt,dd,1)
+            a,at,ad,_,_,_ = self._fr(tt,dd,1)
             h[I] += (dd*ad + tt*at)*x[I]
             s[I] += (tt*at - a)*x[I]
             # Modify density

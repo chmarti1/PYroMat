@@ -36,3 +36,16 @@ R143a       Lemmon 2002, Lemmon 2000
 R152a       Lemmon 2002
 R218        Lemmon 2006
 R245fa      Lemmon 2006, Akasaka 2015
+
+
+Documentation Notes:
+The multi-phase model derivation discussion needs editing.  All of the
+JSON code entries need to be updated to reflect the new data model.
+
+There is a mistake on the IG group portion: c0 is expressed with a -1;
+that is natural in the derivation, but it does not match the way the 
+code is implemented.
+
+The multiphase derivation of gibbs energy uses "a" when it should use 
+"f".
+
