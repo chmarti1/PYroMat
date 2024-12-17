@@ -181,7 +181,7 @@ refs["oxygen_c"] = {
         'T': 900,  # K
         'p': 1*(900/800)**(1.32282754/(1.32282754-1)),  # bar, gamma of 850K = 1.32282754
         'h': 601.41481211,  # kJ/kg
-        's': 7.37301205,  # kJ/kg K
+        's': 7.37297039,  # 7.37301205,  # kJ/kg K, ideally isentropic, actual value used
         'cp': 1.07371185  # kJ/kg K
     },
     'sub': 'ig.O2',
@@ -241,7 +241,7 @@ refs["boricacid_c"] = {
         'T': 900,  # K
         'p': 1*(900/800)**(1.08349905/(1.08349905-1)),  # bar, gamma of 850K = 1.08349905
         'h': -15153.82697422,  # kJ/kg
-        's': 6.13679451,  # kJ/kg K
+        's': 6.13665172, # 6.13679451,  # kJ/kg K ideally isentropic, actual value used
         'cp': 1.7789004  # kJ/kg K
     },
     'sub': 'ig.BH3O3',
@@ -304,7 +304,7 @@ refs["air_c"] = {
         'p': 1*(900/800)**(1.34859507/(1.34859507-1)),  # bar, gamma of 850K = 1.34859507
         'h': 630.51678945,  # kJ/kg
         # 's': 7.72397993,  # kJ/kg K  pre smix value
-        's': 7.88672745,  # kJ/kg K
+        's': 7.88668728, # 7.88672745,  # kJ/kg K ideally isentropic, actual value shown
         'cp': 1.12170972  # kJ/kg K
     },
     'sub': 'ig.air',
