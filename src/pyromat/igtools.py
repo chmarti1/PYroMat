@@ -715,7 +715,7 @@ _argparse decides which to populate based on what is most efficient.
         if len(these_args) > 1:
             message = 'Properties may not be specified together:'
             prefix = ' '
-            for name in inverse_args:
+            for name in these_args:
                 message += prefix + name
                 prefix = ', '
             raise pm.utility.PMParamError(message)
@@ -745,11 +745,11 @@ _argparse decides which to populate based on what is most efficient.
             kwarg['p'] = pm.units.pressure(kwarg['p'], to_units='Pa')
         if 'd' in kwarg:
             value = pm.units.volume(kwarg['d'], to_units='m3', exponent=-1)
-            kwarg['d'] = pm.units.matter(value, mw, to_units='kmol')
+            kwarg['d'] = pm.units.matter(value, self.mw(), to_units='kmol')
         if 'v' in kwarg:
             # Convert and replace with d at the same time
             value = pm.units.volume(kwarg['v'], to_units='m3')
-            kwarg['d'] = 1./pm.units.matter(value, mw, to_units='kmol', exponent=-1)
+            kwarg['d'] = 1./pm.units.matter(value, self.mw(), to_units='kmol', exponent=-1)
         if 'h' in kwarg:
             value = kwarg['h']
             value = pm.units.energy(value, to_units='kJ')
@@ -1749,7 +1749,7 @@ pairs to specify these properties:
         T,p,d = self._argparse(*varg, **kwarg)
         if p is None:
             p = d * (1000*pm.units.const_Ru * T)
-            
+
         pm.units.pressure(p, from_units='Pa', inplace=True)
         return p
 
@@ -1772,8 +1772,8 @@ pairs to specify these properties:
         T,p,d = self._argparse(*varg, **kwarg)
         if d is None:
             d = p / (1000*pm.units.const_Ru * T)
-            
-        pm.units.matter(d, mw, from_units='kmol', inplace=True)
+
+        pm.units.matter(d, self.mw(), from_units='kmol', inplace=True)
         pm.units.volume(d, from_units='m3', inplace=True, exponent=-1)
         return d
         
