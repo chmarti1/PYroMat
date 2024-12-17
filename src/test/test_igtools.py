@@ -45,7 +45,6 @@ class TestDefinitions:
         assert air['N2'] == 3.76
         assert air['O2'] == 1
 
-    @pytest.mark.skip("Currently failing")
     def test_summation_def(self):
         o2 = IgtMix('1 O2')
         n2 = IgtMix('3.76 N2')
@@ -190,17 +189,17 @@ class TestRefs:
         fn = getattr(sub, param)
         assert fn(T=ref['T'], s=ref['s']) == approx(ref[param], rel=1e-5, abs=1e-1)
 
-    @pytest.mark.skip("d-s not implemented")
     def test_ds(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        assert fn(d=ref['d'], s=ref['s']) == approx(ref[param], rel=1e-5, abs=1e-1)
+        with raises(pm.utility.PMParamError):
+            fn(d=ref['d'], s=ref['s'])
 
-    @pytest.mark.skip("v not implemented")
     def test_vs(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
-        assert fn(v=ref['v'], s=ref['s']) == approx(ref[param], rel=1e-5, abs=1e-1)
+        with raises(pm.utility.PMParamError):
+            fn(v=ref['v'], s=ref['s'])
 
     def test_ph(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
@@ -212,7 +211,6 @@ class TestRefs:
         fn = getattr(sub, param)
         assert fn(d=ref['d'], h=ref['h']) == approx(ref[param], rel=1e-5, abs=1e-1)
 
-    @pytest.mark.skip("v not implemented")
     def test_vh(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
@@ -228,7 +226,6 @@ class TestRefs:
         fn = getattr(sub, param)
         assert fn(d=ref['d'], e=ref['e']) == approx(ref[param], rel=1e-5, abs=1e-1)
 
-    @pytest.mark.skip("v not implemented")
     def test_ve(self, param, refdat):
         sub, ref = refdat['sub'], refdat['data']
         fn = getattr(sub, param)
