@@ -155,7 +155,7 @@ _argparse decides which to populate based on what is most efficient.
         if len(these_args) > 1:
             message = 'Properties may not be specified together:'
             prefix = ' '
-            for name in inverse_args:
+            for name in these_args:
                 message += prefix + name
                 prefix = ', '
             raise pm.utility.PMParamError(message)
@@ -225,10 +225,10 @@ _argparse decides which to populate based on what is most efficient.
         # Entropy requires special iteration
         if 's' in kwarg:
             # If density is specified
-            if 'd' in args:
+            if 'd' in kwarg:
                 s,d = np.broadcast_arrays(kwarg['s'], kwarg['d'])
                 Tlow = self.data['Tlim'][0]
-                Thigh = self.data['Thigh'][-1]
+                Thigh = self.data['Tlim'][-1]
                 T = np.full_like(s, 0.5*(Tlow+Thigh))
                 I = np.ones_like(s,dtype=bool)
                 self._iter1(self._sditer, 'T', s, T, I, Tlow, Thigh, param={'d':d})
@@ -239,7 +239,7 @@ _argparse decides which to populate based on what is most efficient.
                 # adjust entropy to the reference pressure
                 s += pm.units.const_Ru * np.log(p / self._pref_pa)
                 Tlow = self.data['Tlim'][0]
-                Thigh = self.data['Thigh'][-1]
+                Thigh = self.data['Tlim'][-1]
                 T = np.full_like(s, 0.5*(Tlow+Thigh))
                 I = np.ones_like(s,dtype=bool)
                 self._iter1(self._s, 'T', s, T, I, Tlow, Thigh)
