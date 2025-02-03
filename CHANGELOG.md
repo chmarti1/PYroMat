@@ -193,3 +193,4 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 - Added mp.C3H2F4 (R1234yf) from the 2022 Lemmon and Akasaka model
 - Added polishing to improve the accuracy of saturation parameters (see github issue 89)
 - Added the `mp2` class, which uses a table to "look up" saturation states prior to polishing with the Maxwell criteria
+- Corrected a bug in `mp1._sat_argparse()` to honor the `def_T_unit` parameter (see issue 99).

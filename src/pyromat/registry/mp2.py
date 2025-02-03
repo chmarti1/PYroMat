@@ -1833,109 +1833,202 @@ nondimensionalized, and the returned values are non-dimensionalzied.
 
 
 
-    def _satfit(self, tt, fn, coef, diff=0):
-        """Generic saturated property fit (primative routine)
-    s, st, stt = _satfit(tt, fn=0, diff=0)
+    def _satseek(self, step=0.02, epsilon=1e-6, verbose=False):
+        """Seek values (primative routine)
+    T, p, dL, dV = _satseek(step=0.02, epsilon=1e-6, verbose=False)
+    
+Constructs a table of values for the temperature, liquid density, vapor
+density, and pressure saturation curves.  This works by beginning at the
+critical point and following the Maxwell criteria until the triple point
+temperature is reached.
 
-tt = T / Tc
 
-returns saturation property normalized by its critical value
 
-fn is an integer indicating which property fit form to use
-0   poly(tt)
-    coef is interpreted by poly1
-1   poly(1-tt)
-    coef is interpreted by poly1
-2   exp(poly(1-tt))
-    coef is interpreted by poly1, and the result is passed to np.exp()
-3   exp(1/tt * poly(1-tt))
-    coef is interpreted by poly1, the result is multiplied by 1/tt, and
-    passed to np.exp()
 """
+        Tt = self.data['Tt']
+        Tc = self.data['Tc']
+        dc = self.data['dc']
         
-        if fn == 0:
-            p,pt,ptt = self._poly1(tt, coef, diff=diff)
-        elif fn == 1:
-            p,pt,ptt = self._poly1(1-tt, coef, diff=diff)
-            if diff>0:
-                pt = -pt
-        elif fn == 2:
-            p,pt,ptt = self._poly1(1-tt, coef, diff=diff)
-            p = np.exp(p)
-            if diff>0:
-                pt = -pt
-                if diff>1:
-                    ptt = p*(ptt + pt*pt)
-                pt *= p
-        elif fn == 3:
-            p,pt,ptt = self._poly1(1-tt, coef, diff=diff)
-            invt = 1./tt
-            p*=invt
-            if diff>0:
-                pt = invt*(-pt-p)
-                if diff>1:
-                    ptt = invt*(ptt-2*pt)
-            p=np.exp(p)
-            if diff>0:
-                if diff>1:
-                    ptt = p*(ptt + pt*pt)
-                pt = p * pt
-        return p,pt,ptt
+        # Initialize result parameters
+        T = Tc
+        dL = dc
+        dV = dc
+        # Initialize the output arrays
+        T_array = [T]
+        dL_array = [dL]
+        dV_array = [dV]
+        p_array = [self.data['pc']]
         
+        # Perform the iteration in two steps.  Very close to the critical
+        # point, the temperature is nearly constant, so we'll perturb in
+        # density steps.
+        #
+        # While the temperature is above a transition temperature, steps
+        # are in density
+        Tx = 0.85*Tc + 0.15*Tt
         
-    def _dsv(self,T,diff=0):
-        """Saturated vapor density (inner routine)
-"""
-        group = self.data['DSVgroup']
-        Tscale = group['Tscale']
-        dscale = group['dscale']
+        # Initialize a matrix and vector for inversion
+        A = np.zeros((2,2),dtype=float)
+        B = np.zeros(2,dtype=float)
+        
+        # Create an initial perturbation of the densities
+        # Do not perturb temperature
+        dL += step * dc / 1.414
+        dV -= step * dc / 1.414
+        
+        fail_outer=True
+        for count in range(200):
+            # Polish the root holding dV constant
+            fail_inner = True
+            for count in range(20):
+                gL,gLt,gLd = self._g(T,dL,1)
+                gV,gVt,gVd = self._g(T,dV,1)
+                pL,pLt,pLd = self._p(T,dL,1)
+                pV,pVt,pVd = self._p(T,dV,1)
                 
-        d,dt,dtt = self._satfit( 
-                T/Tscale,
-                group['fn'],
-                group['poly'],
-                diff)
-        # Rescale 
-        d *= dscale
-        if diff>0:
-            dscale /= Tscale
-            dt *= dscale
-            if diff>1:
-                dtt *= dscale/Tscale
+                # Test for convergence
+                eg = gL-gV  # Gibbs error
+                ep = pL-pV  # Pressure error
+                if np.abs(eg)/gL + np.abs(ep)/pL < epsilon:
+                    fail_inner = False
+                    break
+                
+                # Build the Jacobian on temperature and liquid density
+                A[0,0] = gLt - gVt
+                A[0,1] = gLd
+                A[1,0] = pLt - pVt
+                A[1,1] = pLd
+                B[0] = -eg
+                B[1] = -ep
+                
+                x = np.linalg.solve(A,B)
+                
+                T += x[0]
+                dL += x[1]
+            
+            if fail_inner:
+                raise Exception('Failed to converge.')
+                
+            T_array.append(T)
+            dL_array.append(dL)
+            dV_array.append(dV)
+            p_array.append(0.5*(pL+pV))
+            
+            # Detect the exit condition
+            if T < Tx:
+                fail_outer=False
+                break
+            
+            # Perturb the solution to the next interval
+            # Assume a unity change in dV, calculate other changes
+            ddV = -1.
+            # Construct the sensitivity matrix and perturbation vector
+            A[0,0] = gLt - gVt
+            A[0,1] = gLd
+            A[1,0] = pLt - pVt
+            A[1,1] = pLd
+            B[0] = gVd*ddV
+            B[1] = pVd*ddV
+            # Solve for the corresponding changes in T and dL
+            x = np.linalg.solve(A,B)
+            dT = x[0]
+            ddL = x[1]
+            # Rescale the steps so that the metric T/Tc, d/dc is equal to step
+            scale = step / np.sqrt(dT*dT/Tc/Tc + (ddL*ddL + ddV*ddV)/dc/dc)
+            dT *= scale
+            ddL *= scale
+            ddV *= scale
+            
+            T += dT
+            dL += ddL
+            dV += ddV
+            
+        if fail_outer:
+            raise Exception('Caught near critical point')
         
-        return d,dt,dtt
+        fail_outer=True
+        for count in range(200):
+            # Assume a unity change in dT, calculate other changes
+            dT = -1.
+            # Construct the sensitivity matrix and perturbation vector
+            A[0,0] = gLd
+            A[0,1] = -gVd
+            A[1,0] = pLd
+            A[1,1] = -pVd
+            B[0] = -(gLt-gVt)*dT
+            B[1] = -(pLt-pVt)*dT
+            # Solve for the corresponding changes in T and dL
+            x = np.linalg.solve(A,B)
+            ddL = x[0]
+            ddV = x[1]
+            # Rescale the steps so that the metric T/Tc, d/dc is equal to step
+            scale = step / np.sqrt(dT*dT/Tc/Tc + (ddL*ddL + ddV*ddV)/dc/dc)
+            dT *= scale
+            ddL *= scale
+            ddV *= scale
+            
+            # Catch the case that this step passes beyond the triple point
+            if T+dT < Tt:
+                scale = (Tt-T) / dT
+                T = Tt
+                dL += scale*ddL
+                dV += scale*ddV
+            else:
+                T += dT
+                dL += ddL
+                dV += ddV
+            
+            # Polish the root holding dT constant
+            fail_inner = True
+            for count in range(20):
+                gL,gLt,gLd = self._g(T,dL,1)
+                gV,gVt,gVd = self._g(T,dV,1)
+                pL,pLt,pLd = self._p(T,dL,1)
+                pV,pVt,pVd = self._p(T,dV,1)
+                
+                # Test for convergence
+                eg = gL-gV  # Gibbs error
+                ep = pL-pV  # Pressure error
+                if np.abs(eg)/gL + np.abs(ep)/pL < 1e-6:
+                    fail_inner = False
+                    break
+                
+                # Build the Jacobian on temperature and liquid density
+                A[0,0] = gLt - gVt
+                A[0,1] = gLd
+                A[1,0] = pLt - pVt
+                A[1,1] = pLd
+                B[0] = -eg
+                B[1] = -ep
+                
+                x = np.linalg.solve(A,B)
+                
+                T += x[0]
+                dL += x[1]
+                
+            if fail_inner:
+                raise Exception('Failed to converge.')
+                
+            T_array.append(T)
+            dL_array.append(dL)
+            dV_array.append(dV)
+            p_array.append(0.5*(pL+pV))
+            
+            if T <= Tt:
+                fail_outer = False
+                break
+                
+        if fail_outer:
+            raise Exception('Caught near triple point')
         
+        return np.array(T_array), np.array(p_array), np.array(dL_array), np.array(dV_array)
         
-    def _dsl(self,T,diff=0):
-        """Saturated liquid density (inner routine)
-"""
-        
-        group = self.data['DSLgroup']
-        Tscale = group['Tscale']
-        dscale = group['dscale']
-        
-        d,dt,dtt = self._satfit( 
-                T/Tscale,
-                group['fn'],
-                group['poly'],
-                diff)
-        # Rescale 
-        d *= dscale
-        if diff>0:
-            dscale /= Tscale
-            dt *= dscale
-            if diff>1:
-                dtt *= dscale/Tscale
-        
-        return d,dt,dtt
         
     def _ds(self, T, diff=0):
         """Calculate saturated liquid and vapor density (inner routine)
     dL,dV,dLT,dVT = _ds(T, diff=0)
     
-Unlike _dsl and _dsv, which use polynomials to estimate the saturation
-lines, _ds is an iterative routine that calculates saturation from the
-equation of state using the Maxwell criteria.
+Iteratively determines the saturation 
 """
         # Create an iteration downselect array
         # and an out-of-bounds array
@@ -2023,6 +2116,8 @@ equation of state using the Maxwell criteria.
             d2T = D[:,1]
             
         return d1,d2,d1T,d2T
+        
+        
         
     def _ps(self,T,diff=0):
         """Saturation pressure (inner routine)
@@ -2297,9 +2392,10 @@ Returns
 T   the temperature in K
 dL and dV are the liquid and vapor densities in kg/m3
 """
+        satg = self.data['SATGroup']
         if p is None:
             if T is None:
-                T = pm.config['def_T']
+                T = pm.config.def_T()
             T = pm.units.temperature_scale(
                     np.asarray(T, dtype=float), 
                     to_units='K')
@@ -2309,6 +2405,40 @@ dL and dV are the liquid and vapor densities in kg/m3
                 raise pm.utility.PMParamError(
                         'Saturation properties are not available at ' +
                         'temperatures beyond the triple or critical points.')
+            dL = np.interp(T, satg['Ts'], satg['dsL'])
+            dV = np.interp(T, satg['Ts'], satg['dsV'])
+            
+            # Polish
+            e = np.empty(T.shape + (2,), dtype=float)
+            J = np.empty(T.shape + (2,2), dtype=float)
+            I = np.ones_like(T, dtype=bool)
+            for count in range(50):
+                gL,gLt,gLd = self._g(T[I],dL[I],diff=1)
+                gV,gVt,gVd = self._g(T[I],dV[I],diff=1)
+                pL,pLt,pLd = self._p(T[I],dL[I],diff=1)
+                pV,pVt,pVd = self._p(T[I],dV[I],diff=1)
+                
+                # Error vector
+                e[I,0] = gL - gV
+                e[I,1] = pL - pV
+                # Jacobian
+                J[I,0,0] = gLd
+                J[I,0,1] = -gVd
+                J[I,1,0] = pLd
+                J[I,1,1] = -pVd
+                # Overwrite error with the perturbation to the estimates
+                e[I,:] = np.linalg.solve(J[I,:],e[I,:])
+                # Detect convergence
+                I[I] = np.logical_or( np.abs(e[I,0]) > 1e-6*dL[I],
+                        np.abs(e[I,1]) > 1e-6*dV[I] )
+                
+                if not I.any():
+                    return T, dL, dV
+                
+                dL[I] -= e[I,0]
+                dV[I] -= e[I,1]
+                
+            
         elif T is None:
             p = pm.units.pressure(
                     np.asarray(p, dtype=float), 
@@ -2319,13 +2449,13 @@ dL and dV are the liquid and vapor densities in kg/m3
                 raise pm.utility.PMParamError(
                         'Saturation properties are not available at ' +
                         'pressures beyond the triple or critical points.')
-            T = self._Ts(p)
+            T = np.interp(p, satg['ps'], satg['Ts'])
+            dL = np.interp(p, satg['ps'], satg['dsL'])
+            dV = np.interp(p, satg['ps'], satg['dsV'])
         else:
             raise pm.utility.PMParamError(
                 'Saturation temperature and pressure cannot be simultaneously specified')
 
-        dL = self._dsl(T,0)[0]
-        dV = self._dsv(T,0)[0]
         return T, dL, dV
         
         

@@ -1,0 +1,80 @@
+{
+    "id": "mp.C3H6O",
+    "names": [
+        "Acetone"
+    ],
+    "atoms": {
+        "C": 3, "H": 6, "O":1
+    },
+    "class": "mp2",
+    "doc": "Acetone is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
+    "mw": 58.0714,
+    "dc": 272.93558,
+    "Tc": 508.1,
+    "pc": 4.7e6,
+    "Tt": 178.5,
+    "R": 143.1765484929456,
+    "Tlim": [
+        178.5,
+        550.0
+    ],
+    "plim": [
+        0.0,
+        700e6
+    ],
+    "dlim": [
+        0.0,
+        1600.0
+    ],
+    "IGgroup": {
+        "Tscale": 508.1,
+        "dscale": 272.93558,
+        "logt": 3.0,
+        "group0": {
+            "coef": [[1, 7.1422719708], [0, -9.4883659997]]
+        },
+        "group1": [
+            [0.6101161188742373, 3.7072],
+            [6.849045463491438, 7.0675],
+            [3.1017516236961225, 11.012]
+        ]
+    },
+    "Rgroup": {
+        "Tscale": 508.1,
+        "dscale": 272.93558,
+        "group0":   [
+            {
+                "pre": [0.125, 1],
+                "coef": [
+                    [12, 1, -0.083409],
+                    [10, 1, -2.1267],
+                    [7, 7, 0.00016527],
+                    [2, 3, 0.065683],
+                    [2, 1, 0.90041]
+                ]
+            },
+            {
+                "pre": [0.125, 1],
+                "coef": [
+                    [19, 1, -0.039663],
+                    [17, 5, 0.0092318],
+                    [16, 2, 0.72085]
+                ]
+            },
+            {
+                "pre": [0.25, 1],
+                "coef": [
+                    [26, 1, -0.14961],
+                    [19, 4, -0.076124],
+                    [14, 1, -0.17217]
+                ]
+            },
+            {
+                "post": [12.5, 0],
+                "coef": [
+                    [0, 2, -0.018166]
+                ]
+            }
+        ]
+    }
+}
