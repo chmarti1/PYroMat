@@ -236,6 +236,9 @@ is returned instead.
         If the atoms() method returns a valid composition dictionary, it is used
         to build the string. Otherwise, hill() uses the substance ID string.
         """
+        # If the atoms dictionary is available, use that.  This is 
+        # preferred over atoms() because igmix instances will have 
+        # confusing decimal quantities
         out = ''
         if 'atoms' in self.data:
             aa = self.data['atoms']
