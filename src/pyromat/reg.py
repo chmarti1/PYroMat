@@ -228,40 +228,35 @@ is returned instead.
         
     def hill(self):
         """Return a string with the Hill notation of the chemical compound
-    hillstr = hill()
-    
-In Hill notation, chemical contents are listed in order [C][H][Others]
-where "others" are listed in alphabetical order.
-    
-If the atoms() method returns a valid composition dictionary, it is used
-to build the string.  Otherwise, hill() uses the substance ID string.
-"""
+        hillstr = hill()
+        
+        In Hill notation, chemical contents are listed in order [C][H][Others]
+        where "others" are listed in alphabetical order.
+        
+        If the atoms() method returns a valid composition dictionary, it is used
+        to build the string. Otherwise, hill() uses the substance ID string.
+        """
         out = ''
-        # If the atoms dictionary is available, use that.  This is 
-        # preferred over atoms() because igmix instances will have 
-        # confusing decimal quantities
         if 'atoms' in self.data:
             aa = self.data['atoms']
-            contents = list(aa.keys())
-            # The free electron is a special case
-            if contents == ['e']:
+            contents = set(aa.keys())
+            if contents == {'e'}:
                 return 'e-'
-            contents.sort()
             # Deal with carbon and hydrogen
             for this in ['C', 'H']:
                 if this in contents:
                     out += this
                     if aa[this] != 1:
                         out += f'{aa[this]}'
-            # all others in alphabetical order
-            for this in contents:
-                if this != 'C' and this != 'H' and this != 'e':
-                    out += this
-                    if aa[this] != 1:
-                        out += f'{aa[this]}'
+                    contents.remove(this)  # Remove to avoid reprocessing
+            # All others in alphabetical order
+            for this in sorted(contents - {'e'}):  # Exclude electron and sort here
+                out += this
+                if aa[this] != 1:
+                    out += f'{aa[this]}'
             # Finally, add on any ionization
             if 'e' in contents:
-                qty = aa[this]
+                qty = aa['e']
                 if qty < 0:
                     out += '+'
                     qty = -qty
@@ -270,8 +265,7 @@ to build the string.  Otherwise, hill() uses the substance ID string.
                 if qty != 1:
                     out += f'{qty}'
         else:
-            out = self.data['id'].split('.')[1]
-            out = out.split('_')[0]
+            out = self.data['id'].split('.')[1].split('_')[0]
         return out
         
 #
