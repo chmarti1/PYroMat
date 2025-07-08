@@ -187,3 +187,11 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 - Corrected the error in the R1234ze saturation line data (github issue 86)
 - Added Helmholtz (`f`) and Gibbs (`g`) energies to all classes
 - Wrote the _ds() precision inner saturation property method; fully functional, but not yet used.
+
+## Version 2.2.6
+- Changed `mp1.state()` to adapt to small errors in the saturation properties (github issue 104).
+- Corrected crashes in some arithmetic combinations with `igtools.IgtMix` (github issue 103).
+- Added unhandled cases to `ig.f()`, `ig.g()`, `ig2.f()`, and `ig2.g()` when `_argparse` does not return `p` (github issue 100).
+- Forced `IgtMix.T()`, `IgtMix.p()`, and `IgtMix.d()` to convert views into copies (github issue 101).
+- Created `IgtMix._mw()` to handle internal calcualtions without unit conversions (github issue 108).
+- Added scalar division to the `IgtMix` class.

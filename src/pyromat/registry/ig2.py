@@ -1243,6 +1243,8 @@ entries.
 Returns Gibbs energy in unit_energy / unit_matter
 """
         T,p,d = self._argparse(*varg, **kwarg)
+        if p is None:
+            p = d * (1000*pm.units.const_Ru * T)
         # Apply the model
         out = self._g(T)[0] + T * pm.units.const_Ru * np.log(p/self.data['pref'])
         # calculate a conversion factor
@@ -1274,6 +1276,8 @@ entries.
 Returns free energy in unit_energy / unit_matter
 """
         T,p,d = self._argparse(*varg, **kwarg)
+        if p is None:
+            p = d * (1000*pm.units.const_Ru * T)
         # Apply the model
         out = self._f(T)[0] + T * pm.units.const_Ru * np.log(p/self.data['pref'])
         # calculate a conversion factor

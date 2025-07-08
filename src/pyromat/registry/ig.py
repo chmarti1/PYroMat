@@ -1704,6 +1704,8 @@ entries.
 Returns enthalpy in unit_energy / unit_matter
 """
         T,p,d = self._argparse(*varg, **kwarg)
+        if p is None:
+            p = d * (1000*pm.units.const_Ru * T)
         # Apply the model
         out = self._g(T)[0] + T*pm.units.const_Ru * np.log(p/self._pref_pa)
         # calculate a conversion factor
@@ -1738,6 +1740,8 @@ entries.
 Returns enthalpy in unit_energy / unit_matter
 """
         T,p,d = self._argparse(*varg, **kwarg)
+        if p is None:
+            p = d * (1000*pm.units.const_Ru * T)
         # Apply the model
         out = self._f(T)[0] + T*pm.units.const_Ru * np.log(p/self._pref_pa)
         # calculate a conversion factor

@@ -341,9 +341,6 @@ _c      is a numpy array of ideal gas instances that make up the mixture.
         elif isinstance(contents, IgtMix):
             self._c = list(contents._c)
             self._q = np.array(contents._q)
-            self._units = str(contents._units)
-            if units is not None:
-                self.set_units(units)
             return
         # If the contents is a string or data instance, build a dummy dict
         elif isinstance(contents, str):
@@ -432,17 +429,11 @@ This combines the quantities of gas in mixture b into mixture a.
             q = np.zeros((NN,) + shape)
             q[:N] = self._q
             self._q = q
-                
-        # If units are not equal.
-        if self._units != b._units:
-            for bi,subst in enumerate(b._c):
-                ai = self._c.index(subst)
-                self._q[ai,:] += + pm.units.matter(b._q[bi,:],subst.mw(),b._units,self._units)
-        else:
-            for bi,subst in enumerate(b._c):
-                ai = self._c.index(subst)
-                self._q[ai,:] += b._q[bi,:]
-        
+             
+        for bi,subst in enumerate(b._c):
+            ai = self._c.index(subst)
+            self._q[ai,:] += b._q[bi,:]
+    
         return self
         
     
@@ -469,7 +460,6 @@ Makes a copy of a and calls __iadd__() to execute the operation.
         b = IgtMix()
         b._c = self._c.copy()
         b._q = -self._q
-        b._units = self._units
         return b
 
       
@@ -514,17 +504,19 @@ Negates b and uses __iadd__() to perform the operation.
         """Scale the quantity of a mixture
     c = a * qty
 """
-        c = IgtMix(self)
-        c *= b
-        return c
+        return IgtMix(self).__imul__(b)
         
     def __rmul__(self,b):
         return self.__mul__(b)
         
-        
+    def __itruediv__(self, b):
+        return self.__imul__(1./b)
+            
+    def __truediv__(self, b):
+        return IgtMix(self).__itruediv__(b)
 
     def _sindex(self, index):
-        """SINDEX - convert an item index into an array index
+        """SINDEX - convert an item index into an array index (inner routine)
     sindex = m._sindex(index)
     
 When the index is an integer, string, slice, or a data instance it is 
@@ -569,7 +561,7 @@ returns None.
                 raise
 
     def _broadcast_shape(self, qshape, sshape=None):
-        """BROADCAST_SHAPE - determine a new quantity shape
+        """BROADCAST_SHAPE - determine a new quantity shape (inner routine)
     shape = _broadcast_shape(qshape)
         OR
     shape = _broadcast_shape(qshape, sshape)
@@ -622,7 +614,7 @@ requirement.
     # The property interface
     #
     def _argparse(self, *varg, **kwarg):
-        """Parse the arguments supplied to an IgtMix property method
+        """Parse the arguments supplied to an IgtMix property method (inner routine)
     T,p,d = _argparse(*varg, **kwarg)
 
 _ARGPARSE automatically applies the default temperature and pressure,
@@ -693,7 +685,7 @@ _argparse decides which to populate based on what is most efficient.
         nargs = len(kwarg)
         args = set(kwarg.keys())
         # A set of the legal arguments
-        legal_args = set(['T','p','d','v','e','h','s'])
+        legal_args = {'T','p','d','v','e','h','s'}
         
         # 2.1: There may only be 2 arguments
         if nargs>2:
@@ -745,11 +737,11 @@ _argparse decides which to populate based on what is most efficient.
             kwarg['p'] = pm.units.pressure(kwarg['p'], to_units='Pa')
         if 'd' in kwarg:
             value = pm.units.volume(kwarg['d'], to_units='m3', exponent=-1)
-            kwarg['d'] = pm.units.matter(value, self.mw(), to_units='kmol')
+            kwarg['d'] = pm.units.matter(value, self._mw(), to_units='kmol')
         if 'v' in kwarg:
             # Convert and replace with d at the same time
             value = pm.units.volume(kwarg['v'], to_units='m3')
-            kwarg['d'] = 1./pm.units.matter(value, self.mw(), to_units='kmol', exponent=-1)
+            kwarg['d'] = 1./pm.units.matter(value, self._mw(), to_units='kmol', exponent=-1)
         if 'h' in kwarg:
             value = kwarg['h']
             value = pm.units.energy(value, to_units='kJ')
@@ -870,8 +862,22 @@ _argparse decides which to populate based on what is most efficient.
                     'Legal temperatures are between {} and {} Kelvin.'.format(Tlow, Thigh))
         return T,p,d
         
+    def _mw(self):
+        """MW - molecular weight (inner routine)
+
+    mw = m._mw()
+    
+Returns the molecular weight in kg / kmole.
+
+The optional keyword, X, allows passing the mole fraction array (not dict)
+to prevent redundant calculations.
+"""
+        mw = np.array([subst.data['mw'] for subst in self._c]).reshape((self._q.shape[0],) + (self._q.ndim-1)*(1,))
+        return np.sum(mw * self._q, axis=0) / np.sum(self._q, axis=0)
+        
+        
     def _sp(self, p, diff=False):
-        """SP - The pressure portion of entropy
+        """SP - The pressure portion of entropy (inner routine)
     ss, ssp = m._sp(p, diff=False)
     
 Accepts pressure in Pa.
@@ -1490,8 +1496,7 @@ Returns the molecular weight in [unit_mass] / [unit_molar].
 The optional keyword, X, allows passing the mole fraction array (not dict)
 to prevent redundant calculations.
 """
-        mw = np.array([subst.data['mw'] for subst in self._c]).reshape((self._q.shape[0],) + (self._q.ndim-1)*(1,))
-        out = np.sum(mw * self._q, axis=0) / np.sum(self._q, axis=0)
+        out = self._mw()
         pm.units.mass(out, from_units='kg', inplace=True)
         pm.units.molar(out, from_units='kmol', inplace=True, exponent=-1)
         return out
@@ -1727,6 +1732,8 @@ pairs to specify these properties:
     s   entropy             unit_energy / unit_temperature
 """
         T,p,d = self._argparse(*varg, **kwarg)
+        if T.base is not None:
+            T = np.copy(T)
         pm.units.temperature_scale(T, from_units='K', inplace=True)
         return T
     
@@ -1749,7 +1756,9 @@ pairs to specify these properties:
         T,p,d = self._argparse(*varg, **kwarg)
         if p is None:
             p = d * (1000*pm.units.const_Ru * T)
-
+        # Test to see if this is a view
+        if p.base is not None:
+            p = np.copy(p)
         pm.units.pressure(p, from_units='Pa', inplace=True)
         return p
 
@@ -1772,11 +1781,32 @@ pairs to specify these properties:
         T,p,d = self._argparse(*varg, **kwarg)
         if d is None:
             d = p / (1000*pm.units.const_Ru * T)
-
-        pm.units.matter(d, self.mw(), from_units='kmol', inplace=True)
-        pm.units.volume(d, from_units='m3', inplace=True, exponent=-1)
+        # Test to see if this is a view
+        if d.base is not None:
+            d = np.copy(d)
+        scale = pm.units.matter(1., self._mw(), from_units='kmol')
+        scale = pm.units.volume(scale, from_units='m3', exponent=-1)
+        np.multiply(d, scale, out=d)
         return d
         
+        
+    def v(self, *varg, **kwarg):
+        """V - Specific Volume
+    v = m.v(...)
+    
+Specific volume is calculated with units [unit_volume / unit_matter]
+
+All IgtMix instance properties accept flexible keyword arguments in 
+pairs to specify these properties:
+    T   temperature         unit_temperature
+    p   pressure            unit_pressure
+    d   density             unit_matter / unit_volume
+    v   specific volume     unit_volume
+    e   internal energy     unit_energy
+    h   enthalpy            unit_energy
+    s   entropy             unit_energy / unit_temperature
+"""
+        return 1. / self.d(*varg, **kwarg)
         
         
 

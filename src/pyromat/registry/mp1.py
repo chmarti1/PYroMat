@@ -3827,8 +3827,6 @@ available by calling the cv() method directly.
         out['d'] = d1
         out['x'] = x
         out['e'] = e
-        out['f'] = e - T*s
-        out['g'] = h - T*s
         out['h'] = h
         out['s'] = s
         out['cp'] = cp
@@ -3874,9 +3872,9 @@ available by calling the cv() method directly.
         out['e'][I] = out['e'][I]*(x[I]) + e*(1-x[I])
         out['h'][I] = out['h'][I]*(x[I]) + h*(1-x[I])
         out['s'][I] = out['s'][I]*(x[I]) + s*(1-x[I])
-        # Overwrite the helmholtz function with the mixture values
-        out['f'][I] = out['e'][I] - out['T'][I]*out['s'][I]
-        # Gibbs energy is constant across an equilibrium phase transition
+        # Use e, h, s, and T values to calculate f and g at all points
+        out['f'] = out['e'] - out['T']*out['s']
+        out['g'] = out['f'] - out['e'] + out['h']
         # d is not weighted by x - v is.
         out['d'][I] = 1./((1-x[I])/d1[I] + x[I]/d2[I])
         
