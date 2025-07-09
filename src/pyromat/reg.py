@@ -246,29 +246,32 @@ to build the string.  Otherwise, hill() uses the substance ID string.
             # The free electron is a special case
             if contents == ['e']:
                 return 'e-'
-            contents.sort()
-            # Deal with carbon and hydrogen
+            # Deal with carbon and hydrogen explicitly
             for this in ['C', 'H']:
                 if this in contents:
                     out += this
                     if aa[this] != 1:
-                        out += f'{aa[this]}'
-            # all others in alphabetical order
-            for this in contents:
-                if this != 'C' and this != 'H' and this != 'e':
-                    out += this
-                    if aa[this] != 1:
-                        out += f'{aa[this]}'
-            # Finally, add on any ionization
+                        out += f"{aa[this]}"
+                    contents.remove(this)
+            # If there is charge, stash it for later
+            charge = 0
             if 'e' in contents:
-                qty = aa[this]
-                if qty < 0:
-                    out += '+'
-                    qty = -qty
-                else:
-                    out += '-'
-                if qty != 1:
-                    out += f'{qty}'
+                charge = -aa['e']
+                contents.remove('e')
+            # all others in alphabetical order
+            contents.sort()
+            for this in contents:
+                out += this
+                if aa[this] != 1:
+                    out += f'{aa[this]}'
+            # Finally, add on any ionization
+            if charge < 0:
+                out += '-'
+                charge = -charge
+            elif charge > 0:
+                out += '+'
+            if charge > 1:
+                out += f'{qty}'
         else:
             out = self.data['id'].split('.')[1]
             out = out.split('_')[0]

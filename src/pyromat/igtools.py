@@ -867,10 +867,7 @@ _argparse decides which to populate based on what is most efficient.
 
     mw = m._mw()
     
-Returns the molecular weight in kg / kmole.
-
-The optional keyword, X, allows passing the mole fraction array (not dict)
-to prevent redundant calculations.
+Returns the molecular weight in kg / kmol.
 """
         mw = np.array([subst.data['mw'] for subst in self._c]).reshape((self._q.shape[0],) + (self._q.ndim-1)*(1,))
         return np.sum(mw * self._q, axis=0) / np.sum(self._q, axis=0)
@@ -1492,9 +1489,6 @@ Nmax        Maximum number of iterations (default 20)
     mw = m.mw()
     
 Returns the molecular weight in [unit_mass] / [unit_molar].
-
-The optional keyword, X, allows passing the mole fraction array (not dict)
-to prevent redundant calculations.
 """
         out = self._mw()
         pm.units.mass(out, from_units='kg', inplace=True)
@@ -1510,10 +1504,7 @@ Returns the gas constant in [unit_energy]/[unit_matter][unit_temperature]
         # Convert the universal constant to the configured units
         R = pm.units.energy(pm.units.const_Ru, from_units='kJ')
         R = pm.units.temperature(R, from_units='K', exponent=-1)
-        R = pm.units.molar(R, from_units='kmol', exponent=-1)
-        # If we need to switch into mass units, call mw()
-        if pm.units.ismass(pm.config['unit_matter']):
-            R /= self.mw()
+        R = pm.units.matter(R, self._mw(), from_units='kmol', exponent=-1)
         return R
 
     def Tlim(self):
@@ -1574,7 +1565,8 @@ pairs to specify these properties:
 """
         T,p,d = self._argparse(*varg, **kwarg)
         cv = self._propeval('_cp', T, diff=None)[0]
-        cv -= pm.units.const_Ru
+        # const_Ru is in J/mol/K == kJ/kmol/K
+        cv -= pm.units.const_Ru * np.sum(self._q, axis=0)
         pm.units.energy(cv, from_units='kJ', inplace=True)
         pm.units.temperature(cv, from_units='K', inplace=True, exponent=-1)
         return cv

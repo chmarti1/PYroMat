@@ -2288,7 +2288,7 @@ dL and dV are the liquid and vapor densities in kg/m3
 """
         if p is None:
             if T is None:
-                T = pm.config['def_T']
+                T = pm.config.def_T()
             T = pm.units.temperature_scale(
                     np.asarray(T, dtype=float), 
                     to_units='K')
@@ -3399,7 +3399,7 @@ argument and only return one value - each calculates the one in terms
 of the other.
 """
         if T is None:
-            T = pm.config['def_T']
+            T = pm.config.def_T()
 
         # Replace T with an array of the correct units
         T = pm.units.temperature_scale(
@@ -3426,7 +3426,7 @@ argument and only return one value - each calculates the one in terms
 of the other.
 """
         if p is None:
-            p = pm.config['def_p']
+            p = pm.config.def_p()
 
         # Replace p with an array of the correct units
         p = pm.units.pressure(

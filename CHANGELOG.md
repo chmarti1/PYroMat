@@ -195,3 +195,6 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 - Forced `IgtMix.T()`, `IgtMix.p()`, and `IgtMix.d()` to convert views into copies (github issue 101).
 - Created `IgtMix._mw()` to handle internal calcualtions without unit conversions (github issue 108).
 - Added scalar division to the `IgtMix` class.
+- Corrected bugs and made minor improvements to `__basedata__.hill()` suggested by @allrob23.
+- Corrected bugs in `_mp1._sat_argparse()`, `Ts()`, and `ps()` that ignored the default state units (github issue 99).
+- Corrected a bug in `IgtMix.cv()` that gave incorrect values (github issue 102).

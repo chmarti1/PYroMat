@@ -1,6 +1,6 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.4
 Name: PYroMat
-Version: 2.2.5
+Version: 2.2.6
 Summary: Thermodynamic properties in Python.
 Home-page: http://pyromat.org
 Author: Chris Martin
@@ -24,6 +24,19 @@ License-File: LICENSE.txt
 Requires-Dist: numpy>=1.7
 Provides-Extra: dev
 Requires-Dist: pytest; extra == "dev"
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: license
+Dynamic: license-file
+Dynamic: provides
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: summary
 
 # PYroMat
 
