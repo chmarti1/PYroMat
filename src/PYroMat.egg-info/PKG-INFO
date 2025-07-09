@@ -16,7 +16,6 @@ Classifier: Topic :: Scientific/Engineering :: Physics
 Classifier: Topic :: Scientific/Engineering :: Chemistry
 Classifier: Topic :: Scientific/Engineering :: Atmospheric Science
 Classifier: Natural Language :: English
-Classifier: Programming Language :: Python :: 2
 Classifier: Programming Language :: Python :: 3
 Provides: pyromat
 Description-Content-Type: text/markdown

@@ -47,7 +47,6 @@ setuptools.setup(
         'Topic :: Scientific/Engineering :: Chemistry',
         'Topic :: Scientific/Engineering :: Atmospheric Science',
         'Natural Language :: English',
-        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3'],
     license = 'GNU General Public License v3 (GPLv3)',
     keywords = 'thermodynamic properties',
