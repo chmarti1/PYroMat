@@ -5,6 +5,7 @@
 
 
 import numpy as np
+from numpy import linalg as la
 import pyromat as pm
 import os,sys
 
@@ -1080,6 +1081,151 @@ param       A dicitonary of keyword arguments are passed directly to the
                     Ids.sum(), Nmax))
                 return
 
+
+    def _iter2(self, f1, f2, y1, y2, T, d, Ids, 
+                Tmin=None, Tmax=None, dmin=None, dmax=None,
+                ep=1e-6, Nmax=20, verbose=False):
+        """Modified Newton iteration on a 2D inner routine. (primative routine)
+        
+    _iter2(self, f1, f2, y1, y2, T, d, Ids, 
+                Tmin=None, Tmax=None, dmin=None, dmax=None,
+                ep=1e-6, Nmax=20, verbose=False, param={})
+
+Unlike _iter1 and _hybrid1, _iter2 enforces that temperature and density
+iteration is being performed.  Generally, for all 2D iteration, this is
+true.
+
+*** Required Parameters ***
+f1, f2      The inner property routines (method) to be inverted.  They
+            must have a call signature 
+                f, fT, fd, ... = fn(T, d, ..., diff)
+            where f is the value of fn, and fT and fd are the derivatives
+            of each property w.r.t temperature and density resp.
+y1, y2      An arrays of N target values for f1 and f2 resp.
+T, d        Initial guesses and result arrays for temperature and 
+            density respectively.
+Ids         A down-select boolean index array; only T[Ids], d[Ids] will 
+            be evaluated.  This allows iteration in-place on data sets 
+            where only a portion of the data require iteration.  If y is
+            a floating point array with N elements, Ids must be a bool
+            array with N elements.  It will specify a down-selected 
+            data set with M elements, where M<=N.
+Tmin, Tmax  Upper and lower limit arrays for the T and d values.  These 
+dmin, dmax  must be broadcastable to match x and y.  Even values outside
+            of the down-select region should have legal values.
+*** Optional Parameters ***
+ep          Epsilon; fractional error permitted in y (default 1e-6)
+Nmax        Maximum number of iterations (default 20)
+param       A dicitonary of keyword arguments are passed directly to the 
+            inner routine being inverted.
+
+"""
+        # As the iteration progresses, the number of True elements in 
+        # Ids will decrease until they are all false
+        # There are some important intermediate values that will also
+        # require indexable arrays
+        A = np.empty(Ids.shape() + (2,2), dtype=float)
+        B = np.empty(Ids.shape() + (2,), dtype=float)
+        dx = np.empty(Ids.shape(), (2,), dtype=float)
+        IooB = np.zeros_like(Ids, dtype=bool)
+
+        count = 0
+        while Ids.any():
+            # Evaluate the funcitons and their derivatives
+            FF = f1(T[Ids],d[Ids], diff=1)
+            B[Ids,0] = y1[Ids] - FF[0]
+            A[Ids,0,0] = FF[1]
+            A[Ids,0,1] = FF[2]
+
+            FF = f2(T[Ids],d[Ids], diff=1)
+            B[Ids,1] = y2[Ids] - FF[0]
+            A[Ids,1,0] = FF[1]
+            A[Ids,1,1] = FF[2]
+            
+            dx[Ids,:] = np.linalg.solve(A[Ids,:,:], B[Ids,:])
+            
+            T[Ids] += dx[Ids,0]
+            d[Ids] += dx[Ids,1]
+            
+            if Tmin is not None:
+                IooB[Ids] = T[Ids] < Tmin[Ids]
+            if Tmax is not None:
+                IooB[Ids] = np.logical_or(IooB[Ids], T[Ids] > Tmax[Ids])
+            if dmin is not None:
+                IooB[Ids] = np.logical_or(IooB[Ids], d[Ids] < dmin[Ids])
+            if dmax is not None:
+                IooB[Ids] = np.logical_or(IooB[Ids], d[Ids] > dmax[Ids])
+            
+            # Check for convergence
+            Ids[Ids] = np.logical_or(np.logical_or(IooB[Ids], 
+                    np.abs(dx[Ids,0]) > ep * T[Ids]),
+                    np.abs(dx[Ids,1]) > ep * d[Ids])
+            
+            
+            # An out-of-bounds index
+            count_oob = 0
+            while IooB.any():
+                dx[IooB,:] /= 2.
+                T[IooB] -= dx[IooB,0]
+                d[Ioob] -= dx[IooB,1]
+
+                if Tmin is not None:
+                    IooB[IooB] = T[IooB] < Tmin[IooB]
+                if Tmax is not None:
+                    IooB[IooB] = np.logical_or(IooB[IooB], T[IooB] > Tmax[IooB])
+                if dmin is not None:
+                    IooB[IooB] = np.logical_or(IooB[IooB], d[IooB] < dmin[IooB])
+                if dmax is not None:
+                    IooB[IooB] = np.logical_or(IooB[IooB], d[IooB] > dmax[IooB])
+                # Prevent a while-loop-trap
+                count_oob += 1
+                if count_oob>Nmax:
+                    raise pm.utility.PMAnalysisError(
+                        '_iter2() failed to produce a guess that was in-bounds')
+            
+            # Prevent a while-loop-trap
+            count += 1
+            if count>Nmax:                
+                pm.utility.print_warning(\
+                    '_iter2() failed to converge for %d elements after %d attempts'%(\
+                    Ids.sum(), Nmax))
+                return
+
+
+    def _propseek1(self, prop, value, row=None, col=None):
+        """Find a state's location in a row or column of the table
+    row,col = _proprseek1(prop, value, row=index)
+        OR
+    row,col = _propseek1(prop, value, col=index)
+
+    prop    String key of the property table in data['tab']
+    value   Array of values to find in the table
+    row     Row index to search (specify row OR col)
+    col     Column index to search
+
+Returns indices row,col indicating the location of the state in the table.
+
+** Details **
+Let
+    p = data['tab'][prop]
+
+Condition 1: The unspecified index (row or col) is found such that the set,
+    {p[row-1, col-1], p[row-1,col], p[row,col-1], p[row,col]}
+contains at least one element less than value and at least one element
+greater than value. 
+
+Condition 2: The four-element set contains at least one state not inside
+the saturation region.
+"""
+        tab = self.data['tab']
+        
+        
+    def _propseek2(self, prop1, value1, prop2, value2):
+        """
+"""
+        pass
+        
+
     
     def _hybrid1(self, fn, prop, y, x, Ids, xmin, xmax,
                 ep=1e-6, Nmax=20, fx_index=1, 
@@ -1328,6 +1474,268 @@ param       A dicitonary of keyword arguments are passed directly to the
 
         if verbose:
             print(f"Converged for all elements in {count} iterations.")
+
+    def _Tsatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6, fast=False):
+        """Iterates on Maxwell's criteria while holding T constant (primative routine)
+    _Tsatiter(T, p, dL, dV, Ids)
+
+T       Saturation temperature used to specify the state.
+p       Pressure.  These values are overwritten without being used.
+dL      Liquid density.
+dV      Vapor density.
+Ids     Downselect array.  This is an array of booleans the same size 
+        and shape as the property arrays.  Iteration is only performed
+        on the corresponding elements set to True.  As states converge,
+        the corresponding values are set to False.
+
+Initial guesses for the state are established by interpolating the
+'sattab' table entries.
+
+Optional keywords are:
+Nmax        Maximum number of iterations allowed. (def = 20)
+ep          Fractional error allowed for convergence (def = 1e-6)
+fast        Use interpolated table values with no polishing (def = False)
+"""
+        Ts = self.data['sattab']['T']
+        ps = self.data['sattab']['p']
+        dsL = self.data['sattab']['dL']
+        dsV = self.data['sattab']['dV']
+
+        # The upper and lower boundaries on density
+        dL1 = np.empty_like(T, dtype=float)
+        dL2 = np.empty_like(T, dtype=float)
+        dV1 = np.empty_like(T, dtype=float)
+        dV2 = np.empty_like(T, dtype=float)
+
+        # Interpolate from the saturation table
+        i2 = np.searchsorted(Ts, T[Ids])
+        i1 = i2-1
+        dL2[Ids] = dsL[i2]
+        dL1[Ids] = dsL[i1]
+        dV2[Ids] = dsV[i2]
+        dV1[Ids] = dsV[i1]
+        t2 = (T[Ids] - Ts[i1])/(Ts[i2] - Ts[i1])
+        t1 = 1-t2
+        dL[Ids] = dL2[Ids]*t2 + dL1[Ids]*t1
+        dV[Ids] = dV2[Ids]*t2 + dV1[Ids]*t1
+
+        if fast:
+            p[Ids] = ps[i2]*t2 + ps[i1]*t1
+            return
+
+        # Polish
+        e = np.empty(T.shape + (2,), dtype=float)
+        J = np.empty(T.shape + (2,2), dtype=float)
+        fail = True
+        for count in range(Nmax):
+            
+            gL,gLt,gLd = self._g(T[Ids],dL[Ids],diff=1)
+            gV,gVt,gVd = self._g(T[Ids],dV[Ids],diff=1)
+            pL,pLt,pLd = self._p(T[Ids],dL[Ids],diff=1)
+            p[Ids],pVt,pVd = self._p(T[Ids],dV[Ids],diff=1)
+            
+            # Error vector
+            # The vapor pressure is stored in p
+            e[Ids,0] = gL - gV
+            e[Ids,1] = pL - p[Ids]
+            # Jacobian
+            J[Ids,0,0] = gLd
+            J[Ids,0,1] = -gVd
+            J[Ids,1,0] = pLd
+            J[Ids,1,1] = -pVd
+            # Overwrite error with the perturbation to the estimates
+            e[Ids,:] = np.linalg.solve(J[Ids,:],e[Ids,:])
+            
+            # Detect convergence
+            Ids[Ids] = np.logical_or( np.abs(e[Ids,0]) > ep*dL[Ids],
+                    np.abs(e[Ids,1]) > ep*dV[Ids] )
+            
+            if not Ids.any():
+                fail = False
+                break;
+            
+            # Update unknowns
+            dL[Ids] -= e[Ids,0]
+            dV[Ids] -= e[Ids,1]
+            
+            # Detect a diverging iteration
+            Ioob = np.logical_or( np.logical_or( dL[Ids] > dL1[Ids], dL[Ids] < dL2[Ids]),
+                    np.logical_or( dV[Ids] > dV2[Ids], dV[Ids] < dV1[Ids]))
+            
+            # Try to save a diverging iteration
+            inner_count = 0
+            while Ioob.any():
+                inner_count += 1
+                if inner_count > Nmax:
+                    raise pm.utility.PMAnalysisError('_Tsatiter: Could not save a diverging solution.')
+                e[Ids,:][Ioob] /= 2
+                dL[Ids][Ioob] += e[Ids,0][Ioob]
+                dV[Ids][Ioob] += e[Ids,1][Ioob]
+                Ioob = np.logical_or( np.logical_or( dL[Ids] > dL1[Ids], dL[Ids] < dL2[Ids]),
+                        np.logical_or( dV[Ids] > dV2[Ids], dV[Ids] < dV1[Ids]))
+                                
+        if fail:
+            raise pm.utility.PMAnalysisError(f'_Tsatuter: Failed to converge in {Nmax} iterations.')
+        
+
+    def _dsatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6):
+        """Iterates on Maxwell's criteria while holding dV constant
+"""
+        # Initialize arrays for the linear algebra
+        A = np.empty(Ids.shape + (2,2))
+        B = np.empty(Ids.shape + (2,))
+        count = 0
+        while Ids.any():
+            count += 1
+            if count > Nmax:
+                raise pm.utility.PMAnalysisError('_dsatiter: Failed to converge.')
+            # Evaluate the properties at the liquid and vapor lines
+            gL,gLt,gLd = self._g(T[Ids],dL[Ids],1)
+            gV,gVt,gVd = self._g(T[Ids],dV[Ids],1)
+            pL,pLt,pLd = self._p(T[Ids],dL[Ids],1)
+            pV,pVt,pVd = self._p(T[Ids],dV[Ids],1)
+            
+            # Update the pressure result too
+            p[Ids] = pV
+            
+            # Measure the error in the Maxwell criteria
+            gerr = gL-gV    # Gibbs error
+            perr = pL-pV    # Pressure error
+            
+            # Build the Jacobian on temperature and liquid density
+            A[Ids,0,0] = gLt-gVt
+            A[Ids,0,1] = gLd
+            A[Ids,1,0] = pLt-pVt
+            A[Ids,1,1] = pLd
+            B[Ids,0] = -gerr
+            B[Ids,1] = -perr
+            # Solve
+            x = np.linalg.solve(A[Ids,:],B[Ids,:])
+            # Update temperature and density
+            T[Ids] += x[:,0]
+            dL[Ids] += x[:,1]
+            
+            # Test for convergence
+            Ids[Ids] = np.logical_or(np.abs(x[:,0]) > ep*T[Ids], np.abs(x[:,1]) > ep*dV[Ids])
+
+
+    def _psatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6, fast=False):
+        """Iterates on Maxwell's criteria while holding p constant (primative routine)
+    _psatiter(T, p, dL, dV, Ids)
+
+T       Saturation temperature.
+p       Pressure used to determine the saturation state.
+dL      Liquid density.
+dV      Vapor density.
+Ids     Downselect array.  This is an array of booleans the same size 
+        and shape as the property arrays.  Iteration is only performed
+        on the corresponding elements set to True.  As states converge,
+        the corresponding values are set to False.
+
+Initial guesses for the state are established by interpolating the
+'sattab' table entries.
+
+Optional keywords are:
+Nmax        Maximum number of iterations allowed. (def = 20)
+ep          Fractional error allowed for convergence (def = 1e-6)
+fast        Use interpolated table values with no polishing (def = False)
+"""
+        Ts = self.data['sattab']['T']
+        ps = self.data['sattab']['p']
+        dsL = self.data['sattab']['dL']
+        dsV = self.data['sattab']['dV']
+
+        T1 = np.empty_like(p, dtype=float)
+        T2 = np.empty_like(p, dtype=float)
+        dL1 = np.empty_like(p, dtype=float)
+        dL2 = np.empty_like(p, dtype=float)
+        dV1 = np.empty_like(p, dtype=float)
+        dV2 = np.empty_like(p, dtype=float)
+
+        # Interpolate from the saturation table
+        i2 = np.searchsorted(ps, p[Ids])
+        i1 = i2-1
+        t2 = (p[Ids] - ps[i1])/(ps[i2] - ps[i1])
+        t1 = 1-t2
+        # Establish upper and lower boundaries
+        T1[Ids] = Ts[i1]
+        T2[Ids] = Ts[i2]
+        dL1[Ids] = dsL[i1]
+        dL2[Ids] = dsL[i2]
+        dV1[Ids] = dsV[i1]
+        dV2[Ids] = dsV[i2]
+        # Interpolate
+        T[Ids]  = T2[Ids]*t2  + T1[Ids]*t1
+        dL[Ids] = dL2[Ids]*t2 + dL1[Ids]*t1
+        dV[Ids] = dV2[Ids]*t2 + dV1[Ids]*t1
+
+        if fast:
+            return
+
+        # Polish
+        e = np.empty(T.shape + (3,), dtype=float)
+        J = np.empty(T.shape + (3,3), dtype=float)
+        fail = True
+        for count in range(Nmax):
+            
+            gL,gLt,gLd = self._g(T[Ids],dL[Ids],diff=1)
+            gV,gVt,gVd = self._g(T[Ids],dV[Ids],diff=1)
+            pL,pLt,pLd = self._p(T[Ids],dL[Ids],diff=1)
+            pV,pVt,pVd = self._p(T[Ids],dV[Ids],diff=1)
+            
+            # Error vector
+            e[Ids,0] = gL - gV
+            e[Ids,1] = pL - p[Ids]
+            e[Ids,2] = pV - p[Ids]
+            # Jacobian
+            J[Ids,0,0] = gLt-gVt
+            J[Ids,0,1] = gLd
+            J[Ids,0,2] = -gVd
+            
+            J[Ids,1,0] = pLt
+            J[Ids,1,1] = pLd
+            J[Ids,1,2] = 0.
+            
+            J[Ids,2,0] = pVt
+            J[Ids,2,1] = 0.
+            J[Ids,2,2] = pVd
+            # Overwrite error with the perturbation to the estimates
+            e[Ids,:] = np.linalg.solve(J[Ids,:],e[Ids,:])
+            # Detect convergence
+            Ids[Ids] = np.logical_or( np.abs(e[Ids,0]) > ep*T[Ids],
+                        np.logical_or( np.abs(e[Ids,1]) > ep*dL[Ids],
+                        np.abs(e[Ids,2]) > ep*dV[Ids]))
+            
+            if not Ids.any():
+                fail = False
+                break
+            
+            T[Ids] -= e[Ids,0]
+            dL[Ids] -= e[Ids,1]
+            dV[Ids] -= e[Ids,2]
+            
+            # Detect a diverging iteration
+            Ioob = np.logical_or( np.logical_or( dL[Ids] > dL1[Ids], dL[Ids] < dL2[Ids]),
+                    np.logical_or( dV[Ids] > dV2[Ids], dV[Ids] < dV1[Ids]),
+                    np.logical_or( T[Ids] > T2[Ids], T[Ids] < T1[Ids]))
+            
+            inner_count = 0
+            while Ioob.any():
+                inner_count += 1
+                if inner_count > Nmax:
+                    raise pm.utility.PMAnalysisError('_psatiter: Could not save a diverging solution.')
+                e[Ids,:][Ioob] /= 2
+                T[Ids][Ioob] += e[Ids,0][Ioob]
+                dL[Ids][Ioob] += e[Ids,1][Ioob]
+                dV[Ids][Ioob] += e[Ids,2][Ioob]
+                Ioob = np.logical_or( np.logical_or( dL[Ids] > dL1[Ids], dL[Ids] < dL2[Ids]),
+                        np.logical_or( dV[Ids] > dV2[Ids], dV[Ids] < dV1[Ids]),
+                        np.logical_or( T[Ids] > T2[Ids], T[Ids] < T1[Ids]))
+                
+            
+        if fail:
+            raise pm.utility.PMAnalysisError(f'_psatiter: Failed to converge in {Nmax} iterations.')
+
 
 
     def _tditer(self, T, d, fn, diff=1, debug=False):
@@ -1832,101 +2240,131 @@ nondimensionalized, and the returned values are non-dimensionalzied.
         return F,Ft,Fd,Ftt,Ftd,Fdd
 
 
-
-    def _satseek(self, step=0.02, epsilon=1e-6, verbose=False):
-        """Seek values (primative routine)
-    T, p, dL, dV = _satseek(step=0.02, epsilon=1e-6, verbose=False)
+    def _build_sattab(self, step=0.02, ep=1e-6, verbose=False, aslist=False):
+        """Generate saturation table values (primative routine)
+    sattab = _buil_sattab(step=0.02, epsilon=1e-6, verbose=False, aslist=False)
     
 Constructs a table of values for the temperature, liquid density, vapor
 density, and pressure saturation curves.  This works by beginning at the
 critical point and following the Maxwell criteria until the triple point
 temperature is reached.
 
+Returns a dictionary with numpy array entries:
+    T       Saturation temperature array
+    p       Saturation pressure array
+    g       Gibbs free energy
+    dL      Density, liquid
+    dV      Density, vapor
+    hL      Enthalpy, liquid
+    hV      Enthalpy, vapor
+    sL      Entropy, liquid
+    sV      Entropy, vapor
 
 
+Optional parameters:
+step    The step is the approximate length of the step taken between 
+        table entries.  The step size is measured as the magnitude of 
+        the vector d [T/Tc, dL/dc, dV/dc].  The temperature and density
+        elements are scaled by their critical values.  So, the default
+        step size 0.02 corresponds to a step size around 2% of the 
+        critical value.
+        
+ep      Epsilon or fractional error allowed.  Default is 1e-6
+
+aslist  When True, the properties are expressed as lists instead of Numpy
+        arrays. Default is False, but this should be True when storing
+        the result in JSON format.
+        
+verbose Print progress to stdout? Default is False
+
+** Notes **
+There are a number of design decisions in this code made in favor of 
+readability and robustness in favor of speed.  This algorithm is only 
+intended to be called by PYroMat authors when curating a new data set.
+Unless users are experimenting with table lookup performance, there 
+should never be a need to call this function.
 """
+
         Tt = self.data['Tt']
+        pc = self.data['pc']
         Tc = self.data['Tc']
         dc = self.data['dc']
         
         # Initialize result parameters
-        T = Tc
-        dL = dc
-        dV = dc
+        T = np.array([Tc])
+        dL = np.array([dc])
+        dV = np.array([dc])
+
         # Initialize the output arrays
-        T_array = [T]
-        dL_array = [dL]
-        dV_array = [dV]
-        p_array = [self.data['pc']]
+        T_array = [Tc]
+        dL_array = [dc]
+        dV_array = [dc]
+        p_array = [pc]
+        
+        if verbose:
+            print('T pc dL dV')
+            print(f'{Tc:8.2f} {pc:12.4e} {dc:8.2f} {dc:12.4e}')
         
         # Perform the iteration in two steps.  Very close to the critical
         # point, the temperature is nearly constant, so we'll perturb in
-        # density steps.
-        #
-        # While the temperature is above a transition temperature, steps
-        # are in density
-        Tx = 0.85*Tc + 0.15*Tt
+        # density steps.  When the vapor density is less than 20% of the
+        # critical density, we'll transition to constant temperature.
         
-        # Initialize a matrix and vector for inversion
-        A = np.zeros((2,2),dtype=float)
-        B = np.zeros(2,dtype=float)
+        # We'll need some linear algebra
+        A = np.empty((2,2), dtype=float)
+        B = np.empty((2,), dtype=float)
         
         # Create an initial perturbation of the densities
         # Do not perturb temperature
         dL += step * dc / 1.414
         dV -= step * dc / 1.414
-        
-        fail_outer=True
+        fail_outer = True
         for count in range(200):
-            # Polish the root holding dV constant
+            # Iterate with constant dV
             fail_inner = True
-            for count in range(20):
+            for count_inner in range(20):
+                # Re-establish the properties at L and V
                 gL,gLt,gLd = self._g(T,dL,1)
                 gV,gVt,gVd = self._g(T,dV,1)
                 pL,pLt,pLd = self._p(T,dL,1)
                 pV,pVt,pVd = self._p(T,dV,1)
-                
-                # Test for convergence
-                eg = gL-gV  # Gibbs error
-                ep = pL-pV  # Pressure error
-                if np.abs(eg)/gL + np.abs(ep)/pL < epsilon:
-                    fail_inner = False
-                    break
-                
-                # Build the Jacobian on temperature and liquid density
+
                 A[0,0] = gLt - gVt
                 A[0,1] = gLd
                 A[1,0] = pLt - pVt
                 A[1,1] = pLd
-                B[0] = -eg
-                B[1] = -ep
+                
+                B[0] = -(gL-gV)
+                B[1] = -(pL-pV)
                 
                 x = np.linalg.solve(A,B)
-                
                 T += x[0]
                 dL += x[1]
-            
-            if fail_inner:
-                raise Exception('Failed to converge.')
                 
-            T_array.append(T)
-            dL_array.append(dL)
-            dV_array.append(dV)
-            p_array.append(0.5*(pL+pV))
+                if np.abs(x[0] / T[0]) < ep and np.abs(x[1] / dL[0]) < ep:
+                    fail_inner = False
+                    break
+            if fail_inner:
+                raise pm.utility.PMAnalysisError(f'_satseek(): Failed to converge near the critical point dV = {dV}')
             
-            # Detect the exit condition
-            if T < Tx:
-                fail_outer=False
-                break
+            T_array.insert(0, T[0])
+            dL_array.insert(0, dL[0])
+            dV_array.insert(0, dV[0])
+            p = 0.5*(pV + pL)
+            p_array.insert(0, p[0])
+            
+            if verbose:
+                print(f'{T[0]:8.2f} {p[0]:12.4e} {dL[0]:8.2f} {dV[0]:12.4e}')
             
             # Perturb the solution to the next interval
             # Assume a unity change in dV, calculate other changes
             ddV = -1.
             # Construct the sensitivity matrix and perturbation vector
-            A[0,0] = gLt - gVt
-            A[0,1] = gLd
-            A[1,0] = pLt - pVt
-            A[1,1] = pLd
+            # A is unchanged from the last iteration
+            #A[0,0] = gLt - gVt
+            #A[0,1] = gLd
+            #A[1,0] = pLt - pVt
+            #A[1,1] = pLd
             B[0] = gVd*ddV
             B[1] = pVd*ddV
             # Solve for the corresponding changes in T and dL
@@ -1943,18 +2381,69 @@ temperature is reached.
             dL += ddL
             dV += ddV
             
+            # Detect the exit condition
+            if dV[0] < dc * 0.2:
+                fail_outer=False
+                break
+            
         if fail_outer:
             raise Exception('Caught near critical point')
         
+        if verbose:
+            print('Transitioning to constant-temperature')
+            print('T p dL dV')
+        
         fail_outer=True
         for count in range(200):
+            # Polish the root holding dT constant
+            fail_inner = True
+            for count_inner in range(20):
+                # Re-establish the properties at L and V
+                gL,gLt,gLd = self._g(T,dL,1)
+                gV,gVt,gVd = self._g(T,dV,1)
+                pL,pLt,pLd = self._p(T,dL,1)
+                pV,pVt,pVd = self._p(T,dV,1)
+
+                A[0,0] = gLd
+                A[0,1] = -gVd
+                A[1,0] = pLd
+                A[1,1] = -pVd
+                
+                B[0] = -(gL-gV)
+                B[1] = -(pL-pV)
+                
+                x = np.linalg.solve(A,B)
+                dL += x[0]
+                dV += x[1]
+                
+                if np.abs(x[0] / dL[0]) < ep and np.abs(x[1] / dV[0]) < ep:
+                    fail_inner = False
+                    break
+            if fail_inner:
+                raise pm.utility.PMAnalysisError(f'_satseek(): Failed to converge away from the critical point T = {T}')
+            
+            T_array.insert(0, T[0])
+            dL_array.insert(0, dL[0])
+            dV_array.insert(0, dV[0])
+            p = 0.5*(pV + pL)
+            p_array.insert(0, p[0])
+            
+            if verbose:
+                print(f'{T[0]:8.2f} {p[0]:12.4e} {dL[0]:8.2f} {dV[0]:12.4e}')
+            
+            # Test for completion
+            if T <= Tt:
+                fail_outer = False
+                break
+            
+            # Perturb the solution point            
             # Assume a unity change in dT, calculate other changes
             dT = -1.
             # Construct the sensitivity matrix and perturbation vector
-            A[0,0] = gLd
-            A[0,1] = -gVd
-            A[1,0] = pLd
-            A[1,1] = -pVd
+            #A[0,0] = gLd
+            #A[0,1] = -gVd
+            #A[1,0] = pLd
+            #A[1,1] = -pVd
             B[0] = -(gLt-gVt)*dT
             B[1] = -(pLt-pVt)*dT
             # Solve for the corresponding changes in T and dL
@@ -1970,60 +2459,159 @@ temperature is reached.
             # Catch the case that this step passes beyond the triple point
             if T+dT < Tt:
                 scale = (Tt-T) / dT
-                T = Tt
+                T = np.array([Tt])
                 dL += scale*ddL
                 dV += scale*ddV
             else:
                 T += dT
                 dL += ddL
                 dV += ddV
-            
-            # Polish the root holding dT constant
-            fail_inner = True
-            for count in range(20):
-                gL,gLt,gLd = self._g(T,dL,1)
-                gV,gVt,gVd = self._g(T,dV,1)
-                pL,pLt,pLd = self._p(T,dL,1)
-                pV,pVt,pVd = self._p(T,dV,1)
-                
-                # Test for convergence
-                eg = gL-gV  # Gibbs error
-                ep = pL-pV  # Pressure error
-                if np.abs(eg)/gL + np.abs(ep)/pL < 1e-6:
-                    fail_inner = False
-                    break
-                
-                # Build the Jacobian on temperature and liquid density
-                A[0,0] = gLt - gVt
-                A[0,1] = gLd
-                A[1,0] = pLt - pVt
-                A[1,1] = pLd
-                B[0] = -eg
-                B[1] = -ep
-                
-                x = np.linalg.solve(A,B)
-                
-                T += x[0]
-                dL += x[1]
-                
-            if fail_inner:
-                raise Exception('Failed to converge.')
-                
-            T_array.append(T)
-            dL_array.append(dL)
-            dV_array.append(dV)
-            p_array.append(0.5*(pL+pV))
-            
-            if T <= Tt:
-                fail_outer = False
-                break
-                
+
         if fail_outer:
             raise Exception('Caught near triple point')
         
-        return np.array(T_array), np.array(p_array), np.array(dL_array), np.array(dV_array)
+        if verbose:
+            print('Populating property lists...')
         
+        # Make arrays out of the properties
+        T = np.array(T_array)
+        dL = np.array(dL_array)
+        dV = np.array(dV_array)
+
+        # There is no need to be worried about speed.  We'll go ahead
+        # and make redundant property calls in favor of robust code.
+        hL = self._h(T=T,d=dL)[0]
+        hV = self._h(T=T,d=dV)[0]
+        sL = self._s(T=T,d=dL)[0]
+        sV = self._s(T=T,d=dV)[0]
         
+        if aslist:
+            out = {
+                'T':    T_array,
+                'p':    p_array,
+                'dL':   dL_array,
+                'dV':   dV_array,                
+                'hL':   list(hL),
+                'hV':   list(hV),
+                'sL':   list(sL),
+                'sV':   list(sV),
+            }
+        else:
+            out = {
+                'T' : T,
+                'p' : np.array(p_array),
+                'dL': dL,
+                'dV': dV,
+                'hL': hL,
+                'hV': hV,
+                'sL': sL,
+                'sV': sV,
+            }
+            
+        if verbose:
+            print('Done')
+                    
+        return out
+
+
+    def _build_tab(self, Nt=101, Nd=101, rst=10, rsd=10, aslist=False):
+        """Generate lookup tables
+    tab = _build_tab()
+"""
+        # Auto-generate temperature array
+        Tc = self.data['Tc']
+        Tmin,Tmax = self.data['Tlim']
+        Nt = 201
+        
+        # Caculate the dimensionless location of the critical 
+        # temperature 
+        xc = (Tc - Tmin)/(Tmax - Tmin)
+        
+        # Construct a piece-wise fit of quadratics
+        A = np.matrix([[ 0, 0, 1, 0, 0, 0],
+                       [ xc*xc, xc, 1, 0, 0, 0],
+                       [ 2*xc, 1, 0, 0, 0, 0],
+                       [ 0, 0, 0, 1, 1, 1],
+                       [ 0, 0, 0, xc*xc, xc, 1],
+                       [ 0, 0, 0, 2*xc, 1, 0]])
+        B = np.array([0, xc, 1/rst, 1, xc, 1/rst])
+        C = np.linalg.solve(A,B)
+        c1 = C[0:3]
+        c2 = C[3:6]
+        
+        N1 = int(xc * Nt)
+        x = np.concatenate((np.arange(0,xc,xc/N1), np.linspace(xc, 1, Nt-N1)))
+        
+        T = np.empty_like(x, dtype=float)
+        
+        I = x <= xc
+        T[I] = np.polyval(c1, x[I]) * (Tmax-Tmin) + Tmin
+        
+        I = x > xc
+        T[I] = np.polyval(c2, x[I]) * (Tmax-Tmin) + Tmin
+
+
+
+        # Auto-generate the density array
+        dc = self.data['dc']
+        dmin,dmax = self.data['dlim']
+        Nd = 201
+        
+        # Caculate the dimensionless location of the critical 
+        # density 
+        xc = (dc - dmin)/(dmax - dmin)
+        
+        # Construct a piece-wise fit of quadratics
+        A = np.matrix([[ 0, 0, 1, 0, 0, 0],
+                       [ xc*xc, xc, 1, 0, 0, 0],
+                       [ 2*xc, 1, 0, 0, 0, 0],
+                       [ 0, 0, 0, 1, 1, 1],
+                       [ 0, 0, 0, xc*xc, xc, 1],
+                       [ 0, 0, 0, 2*xc, 1, 0]])
+        B = np.array([0, xc, 1/rsd, 1, xc, 1/rsd])
+        C = np.linalg.solve(A,B)
+        c1 = C[0:3]
+        c2 = C[3:6]
+        
+        N1 = int(xc * Nt)
+        x = np.concatenate((np.arange(xc/N1,xc,xc/N1), np.linspace(xc, 1, Nt-N1)))
+        
+        d = np.empty_like(x, dtype=float)
+        
+        I = x <= xc
+        d[I] = np.polyval(c1, x[I]) * (dmax-dmin) + dmin
+        
+        I = x > xc
+        d[I] = np.polyval(c2, x[I]) * (dmax-dmin) + dmin
+    
+        TT,dd = np.meshgrid(T,d,copy=False,indexing='ij')
+        
+        # Speed is not a virtue here, so tolerate the redundant function
+        # calls
+        p = self._p(T=TT,d=dd)[0]
+        h = self._h(T=TT,d=dd)[0]
+        s = self._s(T=TT,d=dd)[0]
+        
+        if aslist:
+            out = {
+                'T': T.tolist(),
+                'd': d.tolist(),
+                'p': p.tolist(),
+                'h': h.tolist(),
+                's': s.tolist()
+            }
+        else:
+            out = {
+                'T': T,
+                'd': d,
+                'p': p,
+                'h': h,
+                's': s
+            }
+        
+        return out
+
+
     def _ds(self, T, diff=0):
         """Calculate saturated liquid and vapor density (inner routine)
     dL,dV,dLT,dVT = _ds(T, diff=0)
@@ -2032,90 +2620,32 @@ Iteratively determines the saturation
 """
         # Create an iteration downselect array
         # and an out-of-bounds array
-        I = np.logical_and(T < self.data['Tc'], T > self.data['Tt'])
+        I = np.logical_and(T < self.data['Tt'], T > self.data['Tc'])
 
-        # First, we need guesses for the high and low densities.
-        # If there are polynomial groups available in the data set, use
-        # them.  If not, we will make some dangerous initial guesses.
-        if 'DSLgroup' in self.data:
-            d1 = self._dsl(T=T)[0]
-        else:
-            d1 = self.data['dlim'][1]
-            
-        if 'DSVgroup' in self.data:
-            d2 = self._dsv(T=T)[0]
-        else:
-            d2 = .001 * d1
-
-        # Obtain the critical density
-        dc = self.data['dc']
-        
-        A = np.empty((I.shape + (2,2)), dtype=float)
-        R = np.empty((I.shape + (2,)), dtype=float)        
-        
-        # Iterate a maximum of 100 times
-        for count in range(100):
-            # Evaluate Gibbs energy at d1 and d2
-            g1,g1T,g1d = self._g(T=T[I], d=d1[I], diff=1)
-            g2,g2T,g2d = self._g(T=T[I], d=d2[I], diff=1)
-            # Evaluate pressures at d1 and d2
-            p1,p1T,p1d = self._p(T=T[I], d=d1[I], diff=1)
-            p2,p2T,p2d = self._p(T=T[I], d=d2[I], diff=1)
-            
-            # Formulate a residual array
-            R[I,0] = g1-g2
-            R[I,1] = p1-p2
-            
-            # Formulate a solution matrix
-            A[I,0,0] = -g1d
-            A[I,0,1] = g2d
-            A[I,1,0] = -p1d
-            A[I,1,1] = p2d
-            
-            # Solve and update the densities
-            D = np.linalg.solve(A[I],R[I])
-            
-            # Test for range - force the densities to the correct side
-            # of the critical point.  If the test fails, then automatically
-            # fail the convergence check.
-            d1test = d1[I] + D[:,0]
-            d2test = d2[I] + D[:,1]
-            
-            d1[I] = d1test
-            d2[I] = d2test
-
-            # Test for convergence
-            I[I] = np.logical_or(np.abs(D[:,0]) > d1[I]*1e-6, 
-                    np.abs(D[:,1]) > d2[I]*1e-6)
-            if not I.any():
-                break
-
-        if I.any():
-            raise pm.utility.PMAnalysisError('mp1._ds(): Iteration failed to converge at T(K) = ' + repr(T[I]))
-        
-        d1T = d2T = None
+        dL = np.empty_like(T, dtype=float)
+        dV = np.empty_like(T, dtype=float)
+        dLt = None
+        dVt = None
         if diff:
-            # Re-evaluate properties everywhere at the solution
-            # Evaluate Gibbs energy at d1 and d2
-            g1,g1T,g1d = self._g(T=T, d=d1, diff=1)
-            g2,g2T,g2d = self._g(T=T, d=d2, diff=1)
-            # Evaluate pressures at d1 and d2
-            p1,p1T,p1d = self._p(T=T, d=d1, diff=1)
-            p2,p2T,p2d = self._p(T=T, d=d2, diff=1)
-            
-            A[:,0,0] = -g1d
-            A[:,0,1] = g2d
-            A[:,1,0] = -p1d
-            A[:,1,1] = p2d
-            
-            R[:,0] = g1T-g2T
-            R[:,1] = p1T-p2T
-            
-            D = np.linalg.solve(A,R)
-            d1T = D[:,0]
-            d2T = D[:,1]
-            
-        return d1,d2,d1T,d2T
+            dLt = np.empty_like(T, dtype=float)
+            dVt = np.empty_like(T, dtype=float)
+            dLt[I] = pm.config['def_oob']
+            dVt[I] = pm.config['def_oob']
+        
+        dL[I] = pm.config['def_oob']
+        dV[I] = pm.config['def_oob']
+        
+        I = np.logical_not(I)
+        
+        Ts = self.sattab['T']
+        dsL = self.sattab['dL']
+        dsV = self.sattab['dV']
+        
+        ii = np.searchsorted(Ts, T[I])
+        t = (T[I] - Ts[ii-1]) / (T[ii] - T[ii-1])
+        dL[I] = t * dsL[ii-1] + (1-t) * dsL[ii]
+        dV[I] = t* dsV[ii-1] + (1-t) * dsV[ii]
+
         
         
         
@@ -2380,9 +2910,9 @@ inverted to calculate T
         return T
         
         
-    def _sat_argparse(self, T=None, p=None):
+    def _sat_argparse(self, T=None, p=None, Nmax=20, ep=1e-6):
         """A standard argument parsing scheme for all user-layer saturation properties
-    T,dL,dV = _sat_argparse(T=None, p=None)
+    T,p,dL,dV = _sat_argparse(T=None, p=None)
     
 Enforces that all returned parameters are numpy arrays with at least one
 dimension.  Accepts T and p as scalars or array-like objects in 
@@ -2392,7 +2922,10 @@ Returns
 T   the temperature in K
 dL and dV are the liquid and vapor densities in kg/m3
 """
-        satg = self.data['SATGroup']
+        Ts = self.data['sattab']['T']
+        ps = self.data['sattab']['p']
+        dsL = self.data['sattab']['dL']
+        dsV = self.data['sattab']['dV']
         if p is None:
             if T is None:
                 T = pm.config.def_T()
@@ -2401,62 +2934,51 @@ dL and dV are the liquid and vapor densities in kg/m3
                     to_units='K')
             if T.ndim==0:
                 T = np.reshape(T, (1,))
-            if (T<self.data['Tt']).any() or (T>self.data['Tc']).any():
-                raise pm.utility.PMParamError(
-                        'Saturation properties are not available at ' +
-                        'temperatures beyond the triple or critical points.')
-            dL = np.interp(T, satg['Ts'], satg['dsL'])
-            dV = np.interp(T, satg['Ts'], satg['dsV'])
             
-            # Polish
-            e = np.empty(T.shape + (2,), dtype=float)
-            J = np.empty(T.shape + (2,2), dtype=float)
-            I = np.ones_like(T, dtype=bool)
-            for count in range(50):
-                gL,gLt,gLd = self._g(T[I],dL[I],diff=1)
-                gV,gVt,gVd = self._g(T[I],dV[I],diff=1)
-                pL,pLt,pLd = self._p(T[I],dL[I],diff=1)
-                pV,pVt,pVd = self._p(T[I],dV[I],diff=1)
-                
-                # Error vector
-                e[I,0] = gL - gV
-                e[I,1] = pL - pV
-                # Jacobian
-                J[I,0,0] = gLd
-                J[I,0,1] = -gVd
-                J[I,1,0] = pLd
-                J[I,1,1] = -pVd
-                # Overwrite error with the perturbation to the estimates
-                e[I,:] = np.linalg.solve(J[I,:],e[I,:])
-                # Detect convergence
-                I[I] = np.logical_or( np.abs(e[I,0]) > 1e-6*dL[I],
-                        np.abs(e[I,1]) > 1e-6*dV[I] )
-                
-                if not I.any():
-                    return T, dL, dV
-                
-                dL[I] -= e[I,0]
-                dV[I] -= e[I,1]
-                
+            # Initialize results
+            p = np.full_like(T, pm.config['def_oob'])
+            dL = np.full_like(T, pm.config['def_oob'])
+            dV = np.full_like(T, pm.config['def_oob'])
             
+            # Detect points that are precisely equal to the critical point
+            Ids = (T == self.data['Tc'])
+            p[Ids] = self.data['pc']
+            dL[Ids] = self.data['dc']
+            dV[Ids] = self.data['dc']
+            
+            # Detect points that are in-bounds            
+            Ids = np.logical_and(T >= self.data['Tt'], T < self.data['Tc'])
+            # Happy calculating!
+            self._Tsatiter(T,p,dL,dV,Ids)
+                
         elif T is None:
             p = pm.units.pressure(
                     np.asarray(p, dtype=float), 
                     to_units='Pa')
             if p.ndim==0:
                 p = np.reshape(p, (1,))
-            if (p<self.data['pt']).any() or (p>self.data['pc']).any():
-                raise pm.utility.PMParamError(
-                        'Saturation properties are not available at ' +
-                        'pressures beyond the triple or critical points.')
-            T = np.interp(p, satg['ps'], satg['Ts'])
-            dL = np.interp(p, satg['ps'], satg['dsL'])
-            dV = np.interp(p, satg['ps'], satg['dsV'])
+
+            # Initialize results
+            T = np.full_like(p, pm.config['def_oob'])
+            dL = np.full_like(p, pm.config['def_oob'])
+            dV = np.full_like(p, pm.config['def_oob'])
+            
+            # Detect points that are precisely equal to the critical point
+            Ids = (p == self.data['pc'])
+            T[Ids] = self.data['Tc']
+            dL[Ids] = self.data['dc']
+            dV[Ids] = self.data['dc']
+            
+            # Detect points that are in-bounds
+            Ids = np.logical_and(p >= self.data['pt'], p < self.data['pc'])
+            # Happy calculating!
+            self._psatiter(T,p,dL,dV,Ids)
+
         else:
             raise pm.utility.PMParamError(
-                'Saturation temperature and pressure cannot be simultaneously specified')
+                '_sat_argparse: Saturation temperature and pressure cannot be simultaneously specified')
 
-        return T, dL, dV
+        return T, p, dL, dV
         
         
     def _argparse(self, *varg, **kwarg):
