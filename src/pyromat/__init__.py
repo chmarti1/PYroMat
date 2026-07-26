@@ -4,7 +4,7 @@ PYroMat is an open-source Python-based software platform for retrieving
 the physical properties of substances.  For complete documentation, 
 visit "pyromat.org"
 
-Chris Martin (c) 2015-2022
+Chris Martin (c) 2015-2026
 Released under the GNU General Publice License v3.0
   http://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -40,7 +40,7 @@ To search for species, see the info() funciton's other features
 # utility.load_config() checks this value to establish the read-only version
 # setup.py looks for this line to establish the version
 # MUST be unindented
-__version__ = "2.2.5"
+__version__ = "2.3.0"
 
 
 # loading the PYroMat utility functions
@@ -83,7 +83,7 @@ Returns a substance data class for the substance named.
     
 
 
-def search(name=None, contains=None, collection=None, pmclass=None, cas=None, inchi=None, members=None):
+def search(name=None, mw=None, contains=None, collection=None, pmclass=None, cas=None, inchi=None, members=None):
     """Returns a set of substance instances that match a set of search criteria
     members = search( ... )
 
@@ -113,6 +113,13 @@ following must be true:
         list, then this criterion is ignored.  This comparison is NOT
         case sensitive, but this is not a Google search - check your
         spelling.
+        
+** mw **
+The molecular weight keyword expects a scalar number or a tuple of two
+values.  If a single number is given, it is interpreted as a minimum
+molecular weight.  If a pair of numbers is given, it is interpreted as
+(minimum, maximum) values for the molecular weight.  To specify only a
+maxmum, use mw=(0, maximum).
 
 ** contains **
 The contains keyword is used to specify the atomic contents of the 
@@ -161,13 +168,26 @@ listed in both multi-phase and ideal gas collections.
     if name is not None:
         name_lower = name.lower()
     
+    # coerce the mw parameter to be a two-tuple in standard amu units
+    if mw is not None:
+        if isinstance(mw, (float, int)):
+            mw = (mw, float('inf'))
+        elif len(mw) != 2:
+            raise utility.PMParamError('search(): mw expects a scalar or a two-tuple.')
+    
+    # Apply the conditions to the set
     for candidate in members:
         match = True
         # Start by reducing the set size with the simplest comparisons
         # The class is easy
         if match and pmclass is not None and pmclass != candidate.data['class']:
             match = False
-            
+        
+        # mw is easy
+        cmw = candidate.mw()
+        if match and mw is not None and (mw[0] > cmw or mw[1] < cmw):
+            match = False
+        
         # The collection is also easy
         if match and collection is not None and not candidate.data['id'].startswith(collection):
             match = False
@@ -356,25 +376,25 @@ there instead of standard out.
         # first, obtain a sorted list of the loaded data
         members = list(members)
         members.sort(key=lambda ss: ss.data['id'])
-        # find the longest id string
-        idlen = 2
-        classlen = 5
+        # Loop over the members to find the longest entry for each column
+        idlen = 3
+        classlen = 6
+        mwlen = 7
+        casidlen = 6
         namelen = 4
         for ss in members:
             idlen = max(idlen, len(ss.data['id']))
-            if 'names' in ss.data and len(ss.data['names']) > 0:
-                namelen = max(namelen, len(ss.data['names'][0]))
-                
-        # A list of properties for wich to search
-        proplist = ['T', 'p', 'd', 'v', 'cp', 'cv', 'gam', 'e', 'h', 's', 'mw', 'R', 'X', 'Y']
-        proplen = 0
-        for prop in proplist:
-            proplen += len(prop) + 1
+            names = ss.names()
+            if names:
+                namelen = max(namelen, len(names[0]))
+            casidlen = max(casidlen, len(ss.casid()))
+        totallen = idlen + classlen + mwlen + casidlen + namelen + 14
 
-        fmt = ' {:<' + str(idlen) + 's} : {:^' + str(classlen) + 's} : {:' + str(namelen) + 's} :'
-        head = '-'*(idlen + classlen + namelen + proplen + 11) + '\n' + \
-            fmt.format('ID','class','name') + ' properties\n' + \
-            '-'*(idlen + classlen + namelen + proplen + 11) + '\n'
+        fmt = ' {:<' + str(idlen) + 's} : {:^' + str(classlen) + 's} : {:>7.3f} : {:^' + str(casidlen) + 's} : {:' + str(namelen) + 's}'
+        headfmt = ' {:<' + str(idlen) + 's} : {:^' + str(classlen) + 's} : {:>' + str(mwlen) + 's} : {:^' + str(casidlen) + 's} : {:' + str(namelen) + 's}'
+        head = '-'*totallen + '\n' + \
+            headfmt.format('SID','class','MW', 'CAS ID','name') + '\n' + \
+            '-'*totallen + '\n'
 
         index = 0
         for ss in members:
@@ -382,14 +402,9 @@ there instead of standard out.
                 target.write(head)
             index+=1
 
-            if 'names' in ss.data and len(ss.data['names'])>0:
-                target.write( fmt.format(ss.data['id'], ss.data['class'], ss.data['names'][0] ))
+            names = ss.names()
+            if names:
+                target.write( fmt.format(ss.data['id'], ss.data['class'], ss.mw(), ss.casid(), names[0] ))
             else:
-                target.write( fmt.format(ss.data['id'], ss.data['class'], ''))
-                
-            for prop in proplist:
-                if hasattr(ss,prop):
-                    target.write( ' ' + prop )
-                else:
-                    target.write( ' ' * (len(prop)+1) )
+                target.write( fmt.format(ss.data['id'], ss.data['class'], ss.mw(), ss.casid(), '' ))
             target.write('\n')

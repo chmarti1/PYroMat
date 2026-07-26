@@ -194,3 +194,8 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 - Added polishing to improve the accuracy of saturation parameters (see github issue 89)
 - Added the `mp2` class, which uses a table to "look up" saturation states prior to polishing with the Maxwell criteria
 - Corrected a bug in `mp1._sat_argparse()` to honor the `def_T_unit` parameter (see issue 99).
+- Added the `astuple` keyword to the `casid()` method to reformat as an integer tuple
+- Added molecular weight searching to the `search()` function
+- Updated the `info()` table printing format - removed property list, added mw and casid.
+
+

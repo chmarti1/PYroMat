@@ -194,16 +194,30 @@ explicitly.  If not, an empty string will be returned.
             return self.data['inchi']
         return ''
         
-    def casid(self):
+    def casid(self, astuple=False):
         """Return the CAS registry ID string
     casidstr = subst.casid()
+    
+    casidtup = subst.casid(asuple=True)
 
 If the "cas" key is found in the dataset, it will be returned 
 explicitly.  If not, an empty string will be returned.
+
+When the astuple keyword is set to True, the CAS identifier is returned
+as a tuple of integers instead of a string.
 """
+
         if 'cas' in self.data:
-            return self.data['cas']
-        return ''
+            casid = self.data['cas']
+        else:
+            casid = ''
+            
+        if astuple:
+            if casid:
+                casid = tuple([int(part) for part in casid.split('-')])
+            else:
+                casid = tuple()
+        return casid
 
     def atoms(self):
         """Return a dictionary specifying the chemical composition of the substance.
@@ -230,8 +244,11 @@ is returned instead.
         """Return a string with the Hill notation of the chemical compound
     hillstr = hill()
     
-In Hill notation, chemical contents are listed in order [C][H][Others]
-where "others" are listed in alphabetical order.
+In Hill notation, chemical contents are listed in order 
+    [C][H][Others][Charge]
+where "others" are atoms other than C and H listed in alphabetical 
+order, and "charge" is "+" or "-", followed by an integer if the 
+magnitude of the charge is greater than 1.
     
 If the atoms() method returns a valid composition dictionary, it is used
 to build the string.  Otherwise, hill() uses the substance ID string.
@@ -246,29 +263,32 @@ to build the string.  Otherwise, hill() uses the substance ID string.
             # The free electron is a special case
             if contents == ['e']:
                 return 'e-'
-            contents.sort()
-            # Deal with carbon and hydrogen
+            # Deal with carbon and hydrogen explicitly
             for this in ['C', 'H']:
                 if this in contents:
                     out += this
                     if aa[this] != 1:
-                        out += f'{aa[this]}'
-            # all others in alphabetical order
-            for this in contents:
-                if this != 'C' and this != 'H' and this != 'e':
-                    out += this
-                    if aa[this] != 1:
-                        out += f'{aa[this]}'
-            # Finally, add on any ionization
+                        out += f"{aa[this]}"
+                    contents.remove(this)
+            # If there is charge, stash it for later
+            charge = 0
             if 'e' in contents:
-                qty = aa[this]
-                if qty < 0:
-                    out += '+'
-                    qty = -qty
-                else:
-                    out += '-'
-                if qty != 1:
-                    out += f'{qty}'
+                charge = -aa['e']
+                contents.remove('e')
+            # all others in alphabetical order
+            contents.sort()
+            for this in contents:
+                out += this
+                if aa[this] != 1:
+                    out += f'{aa[this]}'
+            # Finally, add on any ionization
+            if charge < 0:
+                out += '-'
+                charge = -charge
+            elif charge > 0:
+                out += '+'
+            if charge > 1:
+                out += str(charge)
         else:
             out = self.data['id'].split('.')[1]
             out = out.split('_')[0]

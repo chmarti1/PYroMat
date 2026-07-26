@@ -10,6 +10,92 @@ import pyromat as pm
 import os,sys
 
 
+#
+# Helper Functions
+#
+
+def ndxgen(xc, N, r):
+    """Generate a 1D array of N values in [0,1] with density r about xc
+    x, ci = ndxgen(xc, N, r)
+    
+Constructs an array of N data increasing from 0 to 1 with a relative 
+density, r, at 0 < xc < 1.  The nominal density of data is N, so the 
+relative denstiy, r*N.  
+
+x   The array of values
+ci  The index corresponding precisely to xc.
+"""
+
+    # Construct a dimensionless piece-wise fit of two quadratics
+    # joined at the critical point (d-less, xc)
+    Nc = int(xc * N)
+    N1 = N-1
+    
+    A = np.matrix([[ 0, 0, 1],
+                   [ Nc*Nc, Nc, 1],
+                   [ 2*Nc, 1, 0]], dtype=float)
+    B = np.array([0, xc, 1./r/N1])
+    c1 = np.linalg.solve(A,B)
+
+    A = np.matrix([[N1*N1, N1, 1],
+                   [ Nc*Nc, Nc, 1],
+                   [ 2*Nc, 1, 0]], dtype=float)
+    B = np.array([1., xc, 1./r/N1])
+    c2 = np.linalg.solve(A,B)
+
+    # Generate the array
+    x = np.empty(N, dtype=float)
+    x[:Nc] = np.polyval(c1, np.arange(0,Nc))
+    x[Nc:] = np.polyval(c2, np.arange(Nc,N))
+    return x, Nc
+
+def interp_scalar(x, x0, x1, f0, f1):
+    """Perform 1D linear interpolation between two explicitly provided points
+    f = interp_scalar(x, x0, x1, f0, f1)
+    
+Performs the standard linear interpolation on the line segment between 
+the point pairs, (x0,f0) to (x1,f1), using the equation
+    f = (x - x0)/(x1 - x0) * (f1 - f0) + f0
+
+Detects precise equality with x0 or x1 to return precisely f0 or f1
+respectively.
+"""
+    # If x lies precisely on the nodes, return the f values precisely
+    # Strangely, single-line if-else structures give about a 10% speedup
+    # even if they are less readable
+    return f0 if x == x0 else f1 if x == x1 else f0 + (f1-f0)*(x-x0)/(x1-x0)
+
+
+def crossing2(I):
+    """Find elements of a 2D boolean grid with dissimilar corners for _mapsearch2
+    
+    J = crossing2(I)
+
+If I is an m by n 2D array of boolean values, representing a logical 
+test values at the nodes of a 2D data map, crossing2() identifies the
+elements with at least one False and at least one True node.
+
+    False   
+        +---+ True
+        |   |
+   True +---+
+            True
+            
+When I.shape is (m,n), J.shape is (m-1, n-1).
+
+This is relegated to a helper function because it needs to be performed
+twice by _mapsearch2() -- once on fdata and once on gdata.
+"""
+    a = I[:-1,:-1]      # Lower-left
+    b = I[:-1,1:]       # Lower-right
+    c = I[1:,:-1]       # Upper-left
+    d = I[1:,1:]        # Upper-right
+    # not a*b*c*d is true iff at least one node is False
+    # a+b+c+d is true iff at least one node is True
+    return (~(a*b*c*d)) * (a+b+c+d)
+
+
+
 class mp2(pm.reg.__basedata__):
     """The PYroMat multi-phase generalist class 1
 
@@ -89,14 +175,6 @@ not depend on the state.
     plim()  Returns [pmin, pmax] valid pressure range
     critical()  Returns the state at the critical point
     triple()    Returns the state at the triple point
-    
-** Deprecated Properties **
-As of version 2.2.0, inverse routines like T_s(), T_h(), d_s(), and the 
-hsd() have been labeled as "depreciated" in favor of the standard property
-methods, which are now sufficiently flexible to handle s and h as 
-arguments.  These methods are still included for reverse compatibility,
-but they will be removed when the major version bumps to 3.  Future
-software should not use them.
 
 *** MORE DOCUMENTATION ***
 MP1 models thermo-physical properties of a liquid-gas system using a 
@@ -156,31 +234,10 @@ sense for numerical efficiency.  In summary: these aren't the methods
 you're looking for.
 
 --- DATA DICTIONARY ---
-The MP1 data dictionary must have certain data "groups" to define the 
+The MP2 data dictionary must have certain data "groups" to define the 
 various empirical fits.  Each group is a dictionary (within the 
 dictionary) that defines the various parameters necessary for at least
 one of the inner methods.
-
-PSgroup         Saturated pressure data group
-    Tscale      Temperature scale for normalizing T in the fit
-    pscale      Pressure scale for re-scaling the result
-    coef        a coefficient group to be passed to _satfit()
-    fn          An integer index identifying the fit form to use 
-                (see the _satfit method for details)
-
-DSLgroup        Saturated liquid density data group
-    Tscale      Temperature scale for normalizing T in the fit
-    dscale      Density scale for re-scaling the result
-    coef        a coefficient group to be passed to _poly1()
-    fn          An integer index identifying the fit form to use 
-                (see the _satfit method for details)
-
-DSVgroup        Saturated vapor density data group; a dict containing:
-    Tscale      Temperature scale for normalizing T in the fit
-    dscale      Density scale for re-scaling the result
-    coef        a coefficient group to be passed to _poly1()
-    fn          An integer index identifying the fit form to use 
-                (see the _satfit method for details)
 
 AOgroup        Helmholtz free energy ideal gas group; a dict containing:
     Tscale      Temperature scale for normalizing T
@@ -231,8 +288,37 @@ coef2 is an optional list of lists of coefficients forming a matrix
     ar2 = c * X**b * d * exp(-C*(dd-1)**2 - D*(tt-1)**2) + ...
     Ar2 = ar2 * R * T
 
-Additionally, there are a number of parameters that define static 
-properties
+There are optional tabular data elements that allow designers to 
+explicitly store tabular data.  If they are omitted, the data will be
+automatically generated from AOgroup and ARgroup.  The properties of
+the automatically generated table can also be specified.
+
+Tdata           A 1D list with (m) elements specifying the temperatures 
+                of the table entries.  Units must be Kelvin.
+NT              An integer specifying the number of temperature data 
+                to automatically generate if 'Tdata' is absent. 
+                Defaults to 101 if absent.
+rT              The relative density of temperature data near the
+                critical point.  Defaults to 2 if absent.
+ddata           A 1D list with (n) elements specifying the densities 
+                for the table entries.  Units must be kg/m^3.
+Nd              An integer specifying the number of temperature data 
+                to automatically generate if 'Tdata' is absent. 
+                Defaults to 101 if absent.
+rd              The relative density of temperature data near the
+                critical point.  Defaults to 2 if absent.
+hdata           A 2D list with (m x n) entries of enthalpy evaluated at
+                h(Tdata, ddata).  hdata may not be specified if either
+                Tdata or ddata were not specified.  Units must be J/kg.
+sdata           A 2D list with (m x n) entries of entropy evaluated at
+                s(Tdata, ddata).  sdata may not be specified if either
+                Tdata or ddata were not specified.  Units must be J/kg/K.
+                
+Tsdata, psdata, dsLdata, dsVdata
+    1D lists specifying
+
+Additionally, there are a number of parameters that define global 
+properties (true at all states)
 
 Tlim            A two-element list of the upper and lower temperatures
                 for which the data set is valid.
@@ -247,15 +333,19 @@ R               Ideal gas constant 8.314 / mw
 mw              Molecular weight
 atoms           A dictionary with a key for each atom and a value for 
                 its count in the molecule.  For example, CO2 would 
-                have content = {'C':1, 'O':2}
+                have atoms = {'C':1, 'O':2}
                 
 There are also the typical mandatory PYroMat meta data elements:
 id              What substance is this?
 doc             Where did it come from?
 class           What class should be used to evaluate the data?
 """
-    
-    
+
+    def __init__(self, *arg, **kwarg):
+        # Call the basedata class initializer
+        pm.reg.__basedata__.__init__(self, *arg, **kwarg)
+
+            
     def _test(self, tab, sattab, report=None, basic=False):
         """Test the MP1 class model
     _test(tab, sattab)     # Prints to stdout
@@ -574,6 +664,7 @@ Test criteria:
         
         return result
         
+
 
     def _poly2(self,x,y,pcoef,diff=2):    
         """Polynomial evaluation (primative routine)
@@ -1192,41 +1283,600 @@ param       A dicitonary of keyword arguments are passed directly to the
                 return
 
 
-    def _propseek1(self, prop, value, row=None, col=None):
-        """Find a state's location in a row or column of the table
-    row,col = _proprseek1(prop, value, row=index)
+
+    def _mapsearch1(self, xdata, fdata, fvalue=0):
+        """Search 1D map for an inverse estimates (primative routine)
+    x = mapsearch1(xdata, fdata)
         OR
-    row,col = _propseek1(prop, value, col=index)
-
-    prop    String key of the property table in data['tab']
-    value   Array of values to find in the table
-    row     Row index to search (specify row OR col)
-    col     Column index to search
-
-Returns indices row,col indicating the location of the state in the table.
-
-** Details **
-Let
-    p = data['tab'][prop]
-
-Condition 1: The unspecified index (row or col) is found such that the set,
-    {p[row-1, col-1], p[row-1,col], p[row,col-1], p[row,col]}
-contains at least one element less than value and at least one element
-greater than value. 
-
-Condition 2: The four-element set contains at least one state not inside
-the saturation region.
-"""
-        tab = self.data['tab']
-        
-        
-    def _propseek2(self, prop1, value1, prop2, value2):
-        """
-"""
-        pass
-        
-
+    x = mapsearch1(xdata, fdata, fvalue)
     
+Uses tabulated data to generate estimates for x in the 1D inversion 
+problem
+    f(x) = fvalue
+
+The fdata is a 1D array of tabulated values of f(x) with an identically
+sized array of corresponding xdata.  This is notably distinct from 1D 
+interpolation because the fdata map does not need to be monotonically 
+increasing.  Instead, the algorithm performs a global search by 
+explicitly comparing all node values,
+    fvalue < f_i
+Because this is vectorized and performed in the compiled Numpy back-end,
+exhaustive explicit search in tabulated data is significantly faster
+than iterative calculation using the full Span and Wagner models, and
+cost is roughly linear with data set size.
+
+Elements containing a solution are identified when one node is below or
+equal to the value, and the other is greater than the value.  The 
+solution estimate is extrated by linear interpolation.
+
+SEE ALSO:
+    _mapsearch2()
+"""
+        I = fvalue < fdata
+        xi = np.nonzero(I[:-1] ^ I[1:])[0]
+        xi1 = xi+1
+        x = xdata[xi] + (xdata[xi1] - xdata[xi]) * (fvalue - fdata[xi]) / (fdata[xi1] - fdata[xi])
+        return x
+
+    def _mapsearch2(self, xdata, ydata, fdata, gdata, fvalue, gvalue, indices=True):
+        r"""Search 2D map for inverse estimates (primative routine)
+    x,y,xi,yi = mapsearch2(xdata, ydata, fdata, gdata, fvalue, gvalue)
+        OR
+    x,y,xi,yi = mapsearch2(..., indices=False)
+    
+Uses tabulated data to generate an estimates for x,y in the 2D inversion
+problem
+    f(x,y) = fvalue
+    g(x,y) = gvalue
+
+ARGUMENTS:
+xdata, ydata
+    One-dimensional array-like containing grid values for the x- and y-
+    coordinates.  The sizes of the x- and y-data arrays must match the 
+    fdata and gdata arrays (see below).
+    
+fdata, gdata
+    Two-dimensional array-like containing tabulated values for f(x,y) 
+    and g(x,y).  The indices should be arranged so that
+        fdata[i,j] = f(xdata[i], ydata[j])
+        gdata[i,j] = g(xdata[i], ydata[j])
+        
+fvalue, gvalue
+    Scalar values for f() and g().
+    
+indices
+    Boolean, indicating whether the table indices of the nodes bounding
+    the solution should be returned as well.  If True, the additional
+    arrays, xi and yi are returned (see below).
+    
+RETURNS: 
+x,y
+    One-dimensional arrays, such that each x,y pair represents a 
+    distinct estimated solution.  This implies that, for every entry in 
+    the x and y arrays,
+        f(x,y) =approx= fvalue
+        g(x,y) =approx= gvalue
+
+xi,yi
+    One-dimensional integer arrays identifying the indices of the 
+    elements in which the estimated solution was identified.  Care must
+    be taken, because the actual solution may lie in a neighboring 
+    element -- especially when estimates are very near the element edge.
+    If the optional keyword, "indices" is set to False, these are 
+    returned as None.
+
+DESCRIPTION:
+
+The fdata and gdata are 2D arrays of tabulated values of f(x,y) and 
+g(x,y) in a rectangular grid of x and y values.  This is notably 
+distinct from 2D interpolation because the maps, fdata and gdata, do not
+need to be monotonically increasing.  The algorithm performs a global 
+search by explicitly comparing all node values:
+    fvalue < f_ij
+    gvalue < g_ij
+
+Grid elements containing potential solutions are identified as those 
+with at least one node above and below the target values for both f() 
+and g().  Then estimates are generated by finding the approximate 
+intersections of the paths in x,y implied by the f() and g() 
+constraints inside the element.  First, the element's edges are 
+interpolated to find estimates for two points where f(x,y)==fvalue and
+g(x,y)==gvalue.  The intersection (if one exists) of the two resulting
+line segments is interpreted as the estimated solution.
+
+    +--x----+           +---x---+
+    |  |    |           |  /    |
+    |  \_,.-o           | /   ,-o
+    o-' |   |           x'   /  |
+    +---x---+           +---o---+
+    Intersection        No Intersection
+
+SPEED AND STABILITY:
+
+Because this is vectorized and performed in the compiled Numpy back-end,
+exhaustive explicit search in tabulated data is significantly faster
+than iterative calculation using the full Span and Wagner models. Tests
+using a single core of an AMD Ryzen 9 7900 show that property evaluation
+is roughly equivalent with 5e6 (five million) floating point comparisons.
+On RISC systems, without machine-level vectorized comparison operations,
+vector comparison may be significantly slower, but most maps only 
+contain roughly 1e4 (ten thousand) elements.  In general, an iteration 
+saved by a better initial guess is worth MANY bulk floating point 
+comparisons.
+
+Though speed is certainly a benefit, the real reason to use maps is to
+produce initial guesses close enough to the actual solution so that the 
+faster (and simpler) Newton-Rapson root polishing algorithm can be used 
+without fear of numerical stability problems in higher dimensions. 
+Beyond a minimum performance threshold, PYroMat values reliabile 
+convergence and robust identification of all possible solutions more 
+highly than speed.
+
+The real limitation of _mapsearch2() is that its inputs are inherently 
+scalar, allowing only one fvalue, gvalue pair at a time.  This means 
+_mapsearch2() must be implemented in a loop to work on datasets, which 
+always bodes poorly for performance.  Most users seem to use PYroMat on 
+datasets smaller than the back-end maps, so it is better to vectorize 
+the map search than to vectorize the value inputs. 
+
+ABOUT SOLUTION SEGMENT INTERPOLATION:
+
+Solution segment interpolation was selected over the usual bilinear 
+interpolation because of its linearity.  Bilinear 2D element 
+interpolation is obnoxious to invert because of its nonlinear xy term,
+which can cause saddle points and other irritating issues.  However, 
+solution segment interpolation still suffers from problems, which are 
+mitigated in this algorithm:
+(1) When the solution lies precisely on a node, one line segment 
+    vanishes, leading to a singular problem.  This is mitigated by 
+    explicitly testing for precise equality at the nodes.
+(2) When solution estimates lie very close to the element edge, tiny 
+    numerical errors can cause redundant estimates from neighboring
+    elements or the estimate can be omitted altogether.  When estimates
+    are a small distance from an element's edge (even if it is very 
+    slightly outside) it is included.  If the corresponding neighboring
+    element also appears as a candidate, it is deselected to prevent
+    redundant reporting.
+(3) When line segments are very nearly parallel, the intersection 
+    problem  becomes singular.  The determinant of the 2x2 matrix is
+    calculated in a separate step, and the process is halted if it is 
+    too small to possibly generate a reasonable solution.  This approach
+    also prevents wasting time calculating the intersections of lines 
+    that clearly have no chance of intersecting inside the element.
+(4) "Saddle" elements have diagonal nodes on one side of the target 
+    value and anti-diagonal nodes on the other.  The interpolation of
+    the two implied solution path segments is ambiguous, the existence
+    of a solution is uncertain, and it is likely to be very nearly 
+    singular.  For the purposes of PYroMat's numerical problems, these
+    cases are detected and discarded.
+
+SEE ALSO:
+    _mapsearch1(), _mapsearch2(), _mapsearch2x(), _mapsearch2y()
+"""
+        # Define an increment for small values
+        # For most systems, eps is about 2.2e-16, so small will be about
+        # 2.2e-12.  This is the number we use to detect dimensionless
+        # proximity to the element boundary.
+        small = np.finfo(float).eps * 1e4
+        # Initialize lists for the result values
+        x = []
+        y = []
+        XI = []
+        YI = []
+        # Generate a boolean array indicating candidate elements with a solution
+        # Bulk element comparison seems expensive, but it is not on a 
+        # system with vectorized processing.  Bulk comparisons like this
+        # are remarkably cheap. 
+        fI = fvalue < fdata
+        gI = gvalue < gdata
+        I = crossing2(fI) * crossing2(gI)
+        
+        # For each element that contains a crossing in both f and g
+        for xi,yi in zip(*np.nonzero(I)):
+            # Only continue if this candidate is still flagged
+            # Elements can be unflagged as the algorithm progresses if a neighbor
+            # has claimed a point on the border or in the corner.
+            if I[xi,yi]:
+                # Indices for the other four nodes in this element
+                xi1 = xi+1
+                yi1 = yi+1
+                # Identify the two f-edge crossings [(x,y), ...]
+                fc = []
+                # Track the indices of the neighboring elements in case the
+                # solution is very near to the element's boundary.  Only 
+                # the neighbors of the f-segment are tracked.
+                neighbor = []
+                # Test each of the edges for a crossing of f()
+                # Bottom edge
+                if fI[xi,yi] != fI[xi1,yi]:
+                    xx = interp_scalar(fvalue, fdata[xi,yi], fdata[xi1,yi], xdata[xi], xdata[xi1])
+                    fc.append(np.array((xx,ydata[yi])))
+                    neighbor.append((xi, yi-1))
+                # Left edge
+                if fI[xi,yi] != fI[xi,yi1]:
+                    yy = interp_scalar(fvalue, fdata[xi,yi], fdata[xi,yi1], ydata[yi], ydata[yi1])
+                    fc.append(np.array((xdata[xi], yy)))
+                    neighbor.append((xi-1, yi))
+                # Top edge
+                if fI[xi,yi1] != fI[xi1,yi1]:
+                    xx = interp_scalar(fvalue, fdata[xi,yi1], fdata[xi1,yi1], xdata[xi], xdata[xi1])
+                    fc.append(np.array((xx,ydata[yi1])))
+                    neighbor.append((xi, yi+1))
+                # Right edge
+                if fI[xi1,yi] != fI[xi1,yi1]:
+                    yy = interp_scalar(fvalue, fdata[xi1,yi], fdata[xi1,yi1], ydata[yi], ydata[yi1])
+                    fc.append(np.array((xdata[xi1], yy)))
+                    neighbor.append((xi+1, yi))
+                # Identify the two g-edge crossings [(x,y), ...]
+                gc = []
+                # Test each of the edges for a crossing of g()
+                # Bottom edge
+                if gI[xi,yi] != gI[xi1,yi]:
+                    xx = interp_scalar(gvalue, gdata[xi,yi], gdata[xi1,yi], xdata[xi], xdata[xi1])
+                    gc.append(np.array((xx,ydata[yi])))
+                # Left edge
+                if gI[xi,yi] != gI[xi,yi1]:
+                    yy = interp_scalar(gvalue, gdata[xi,yi], gdata[xi,yi1], ydata[yi], ydata[yi1])
+                    gc.append(np.array((xdata[xi], yy)))
+                # Top edge
+                if gI[xi,yi1] != gI[xi1,yi1]:
+                    xx = interp_scalar(gvalue, gdata[xi,yi1], gdata[xi1,yi1], xdata[xi], xdata[xi1])
+                    gc.append(np.array((xx,ydata[yi1])))
+                # Right edge
+                if gI[xi1,yi] != gI[xi1,yi1]:
+                    yy = interp_scalar(gvalue, gdata[xi1,yi], gdata[xi1,yi1], ydata[yi], ydata[yi1])
+                    gc.append(np.array((xdata[xi1], yy)))
+                # At this point, fc and gc list (x,y) coordinates for 
+                # the points along the element edge where crossings occur
+                # Meanwhile, neighbor lists the (xi,yi) indices of the
+                # elements that share the edges where f() has a solution
+                # We'll use neighbor to resolve conflict over solutions
+                # very close to the edges.
+                
+                # Detect the saddle case
+                if len(fc) != 2 or len(gc) != 2:
+                    # For now, warn the user, and DO NOT append the case
+                    pm.utility.print_warning('mp2._mapsearch2: Discarded a potential solution near a saddle point.  If you believe this was a legitimate solution, please report the code that generated this warning to the PYroMat GitHub issues page.')
+                # Two edges have intersections for each function
+                else:
+                    fx0 = fc[0]
+                    fdx = fc[1] - fc[0]
+                    gx0 = gc[0]
+                    gdx = gc[1] - gc[0]
+                    #print('')
+                    #print('xi,yi,x,y:', xi,yi,xdata[xi], ydata[yi])
+                    #print('fdata values:', fdata[xi,yi], fdata[xi1,yi], fdata[xi,yi1], fdata[xi1,yi1])
+                    #print('gdata values:', gdata[xi,yi], gdata[xi1,yi], gdata[xi,yi1], gdata[xi1,yi1])
+                    
+                    # Check for a solution precisely at the corner
+                    if (fdx == 0).all():
+                        if (gc[0] == fx0).all() or (gc[1] == fx0).all():
+                            #print('Corner: clearing both neighbors')
+                            I[*neighbor[0]] = False
+                            I[*neighbor[1]] = False
+                            x.append(fx0[0])
+                            y.append(fx0[1])
+                            XI.append(xi)
+                            YI.append(yi)
+                    # Ignore gdx == 0 cases - we'll catch corners with fdx == 0
+                    elif not (gdx == 0).all():                        
+                        # Solve for a dimensionless number, s
+                        # The linear problem is
+                        #   fdx * s + fx0 - gdx * r - gx0 = 0
+                        # So, solving for scalars, r and s, leads to a matrix
+                        #   A = [fdx  -gdx]
+                        #   B = -fx0 + gx0
+                        #   A * [s r]' = B
+                        # Rather than use the solve algorithm, calculate the
+                        # determinant explicitly to detect the very nearly
+                        # parallel case
+                        det = -fdx[0]*gdx[1] + fdx[1]*gdx[0]
+                        B = -fx0 + gx0
+                        # s without dividing by det yet
+                        s = -B[0]*gdx[1] + B[1]*gdx[0]
+                        # If the determinant is small, there is no need to keep going
+                        if 2*abs(det) > abs(s):
+                            s /= det
+                            # If the solution lies in the element or very
+                            # slightly outside of it, log the potential 
+                            # solution.
+                            if -small < s < 1+small:
+                                # Store the solution
+                                x.append(fx0[0] + s*fdx[0])
+                                y.append(fx0[1] + s*fdx[1])
+                                # If the solution is very near a boundary, remove
+                                # the neighbor element as a candidate to prevent
+                                # redundant solutions.
+                                if -small < s < small:
+                                    #print('Near start: clearing neighboring point.')
+                                    I[*neighbor[0]] = False
+                                if 1-small < s < 1+small:
+                                    I[*neighbor[1]] = False
+                                    #print('Near finish: clearing neighboring point.')
+                                if indices:
+                                    XI.append(xi)
+                                    YI.append(yi)
+        if indices:
+            return np.array(x), np.array(y), np.array(XI,dtype=int), np.array(YI,dtype=int)
+        return np.array(x), np.array(y), None, None
+
+    def _mapsearch2x(self, xdata, ydata, fdata, yvalue, fvalue, indices=True):
+        r"""Search 2D map for inverse estimates (primative routine)
+    x, xi, yi = _mapsearch2x(xdata, ydata, fdata, yvalue, fvalue)
+        OR
+    x, xi, yi = _mapsearch2x(..., indices=False)
+    
+Uses tabulated data to generate an estimate for x in the 2D inversion
+problem
+    f(x,yvalue) = fvalue
+
+ARGUMENTS:
+xdata, ydata
+    One-dimensional array-like containing grid values for the x- and y-
+    coordinates.  The sizes of the x- and y-data arrays must match the 
+    fdata and gdata arrays (see below).
+    
+fdata
+    Two-dimensional array-like containing tabulated values for f(x,y).  
+    The indices should be arranged so that
+        fdata[i,j] = f(xdata[i], ydata[j])
+        gdata[i,j] = g(xdata[i], ydata[j])
+        
+yvalue
+    The scalar value of y used to interpolate the table.
+    
+fvalue
+    The scalar value of f() for which we are searching.
+    
+RETURNS: 
+x
+    One-dimensional array, such that each x value represents a distinct 
+    estimated solution.  This implies that, for every entry in 
+    the x array,
+        f(x,yvalue) =approx= fvalue
+        
+xi
+    One-dimensional array containing indices of the elements in which 
+    a solution was found.  
+    
+yi
+    Scalar integer index of the row in which yvalue was found.
+
+DESCRIPTION:
+
+Similarly to _mapsearch2, _mapsearch2x looks for intersections of the
+curves implied by
+    f(x, y) = fvalue
+    y = yvalue
+cross.  Inside of elements, the f(x,y)=fvalue curve is interpolated 
+linearly between the points where it crosses along the element edges.
+
+Unlike _mapsearch2, _mapsearch2x does not need to search the entire 
+domain for solutions - it only performs operations on the row of 
+elements implied by the y-value.  As a result, it is faster.
+
+SEE ALSO:
+    _mapsearch1(), _mapsearch2(), _mapsearch2x(), _mapsearch2y()
+"""
+        # Define an increment for small values
+        # For most systems, eps is about 2.2e-16, so small will be about
+        # 2.2e-12.  This is the number we use to detect dimensionless
+        # proximity to the element boundary.
+        small = np.finfo(float).eps * 1e4
+        # Initialize result arrays
+        x = []
+        XI = []
+        # Search for the table row that contains yvalue
+        # This supports arrays
+        yi1 = np.searchsorted(ydata, yvalue, side='right')
+        yi = yi1 - 1
+        # Compare the values of only the appropriate row
+        fI = fvalue < fdata[:, yi:yi+2]
+        # Detect elements with a crossing
+        I = crossing2(fI)
+        for xi in np.nonzero(I)[0]:
+            xi1 = xi+1
+            # Initialize some crossing parameters
+            fc = []
+            neighbor = []
+            # Proceed only if the element is still flagged
+            if I[xi,0]:
+                # Detect the edges
+                # Bottom Edge
+                if fI[xi,0] != fI[xi1,0]:
+                    xx = interp_scalar(fvalue, fdata[xi,yi], fdata[xi1,yi], xdata[xi], xdata[xi1])
+                    fc.append(np.array([xx, ydata[yi]]))
+                    neighbor.append(None)
+                # Left Edge
+                if fI[xi,0] != fI[xi,1]:
+                    yy = interp_scalar(fvalue, fdata[xi,yi], fdata[xi,yi1], ydata[yi], ydata[yi1])
+                    fc.append(np.array([xdata[xi], yy]))
+                    neighbor.append((xi-1, 0))
+                # Top Edge
+                if fI[xi,1] != fI[xi1,1]:
+                    xx = interp_scalar(fvalue, fdata[xi,yi1], fdata[xi1,yi1], xdata[xi], xdata[xi1])
+                    fc.append(np.array([xx, ydata[yi1]]))
+                    neighbor.append(None)
+                # Right Edge
+                if fI[xi1,0] != fI[xi1,1]:
+                    yy = interp_scalar(fvalue, fdata[xi1,yi], fdata[xi1,yi1], ydata[yi], ydata[yi1])
+                    fc.append(np.array([xdata[xi1], yy]))
+                    neighbor.append((xi1, 0))
+                # Detect the saddle case
+                if len(fc) != 2:
+                    # For now, warn the user, and DO NOT append the case
+                    pm.utility.print_warning('mp2._mapsearch2x: Discarded a potential solution near a saddle point.  If you believe this was a legitimate solution, please report the code that generated this warning to the PYroMat GitHub issues page.')
+                # Two edges have intersections for each function
+                else:
+                    fx0 = fc[0]
+                    fdx = fc[1] - fc[0]
+                    # Detect precise equality at a corner
+                    if (fdx == 0).all() and fx0[1] == yvalue:
+                        x.append(fx0[0])
+                        if indices:
+                            XI.append(xi)
+                        if neighbor[0] is not None:
+                            I[*neighbor[0]] = False
+                        if neighbor[1] is not None:
+                            I[*neighbor[1]] = False
+                    else:
+                        # Calculate the distance along the f=0 curve to intersect 
+                        # Perform the calculations in two steps - leave the division
+                        # for last, so we can detect nearly singular problems
+                        s = yvalue - fx0[1]
+                        det = fdx[1]
+                        
+                        if 2*abs(det) > abs(s):
+                            s /= det
+                            if -small < s < 1+small:
+                                x.append(fx0[0] + fdx[0] * s)
+                                if indices:
+                                    XI.append(xi)
+                            # Clear the flag for a neighbor if the solution is very near an edge
+                            if -small < s < small and neighbor[0] is not None:
+                                I[*neighbor[0]] = False
+                            if 1-small < s < 1+small and neighbor[1] is not None:
+                                I[*neighbor[1]] = False
+        if indices:
+            return np.array(x), np.array(XI, dtype=int), yi
+        return np.array(x), None, None
+                
+    def _mapsearch2y(self, xdata, ydata, fdata, xvalue, fvalue):
+        r"""Search 2D map for inverse estimates (primative routine)
+    y, xi, yi = mapsearch2x(xdata, ydata, fdata, yvalue, fvalue)
+    
+Uses tabulated data to generate an estimate for y in the 2D inversion
+problem
+    f(xvalue,y) = fvalue
+
+ARGUMENTS:
+xdata, ydata
+    One-dimensional array-like containing grid values for the x- and y-
+    coordinates.  The sizes of the x- and y-data arrays must match the 
+    fdata and gdata arrays (see below).
+    
+fdata
+    Two-dimensional array-like containing tabulated values for f(x,y).  
+    The indices should be arranged so that
+        fdata[i,j] = f(xdata[i], ydata[j])
+        gdata[i,j] = g(xdata[i], ydata[j])
+        
+xvalue
+    The scalar value of x used to interpolate the table.
+    
+fvalue
+    The scalar value of f() for which we are searching.
+    
+RETURNS: 
+y
+    One-dimensional array, such that each y value represents a distinct 
+    estimated solution.  This implies that, for every entry in 
+    the y array,
+        f(xvalue,y) =approx= fvalue
+
+xi
+    Scalar integer index indicating the row in which xvalue was found.
+
+yi
+    One-dimensional array containing indices of the elements in which 
+    a solution was found.  
+
+DESCRIPTION:
+
+Similarly to _mapsearch2, _mapsearch2y looks for intersections of the
+curves implied by
+    f(x, y) = fvalue
+    x = xvalue
+cross.  Inside of elements, the f(x,y)=fvalue curve is interpolated 
+linearly between the points where it crosses along the element edges.
+
+Unlike _mapsearch2, _mapsearch2y does not need to search the entire 
+domain for solutions - it only performs operations on the column of 
+elements implied by the x-value.  As a result, it is faster.
+
+SEE ALSO:
+    _mapsearch1(), _mapsearch2(), _mapsearch2x(), _mapsearch2y()
+"""
+        # Define an increment for small values
+        # For most systems, eps is about 2.2e-16, so small will be about
+        # 2.2e-12.  This is the number we use to detect dimensionless
+        # proximity to the element boundary.
+        small = np.finfo(float).eps * 1e4
+        # Initialize result arrays
+        y = []
+        YI = []
+        # Search for the table row that contains yvalue
+        # This supports arrays
+        xi1 = np.searchsorted(xdata, xvalue, side='right')
+        xi = xi1 - 1
+        # Compare the values of only the appropriate row
+        fI = fvalue < fdata[xi:xi+2, :]
+        # Detect elements with a crossing
+        I = crossing2(fI)
+        for yi in np.nonzero(I)[1]:
+            yi1 = yi+1
+            # Initialize some crossing parameters
+            fc = []
+            neighbor = []
+            # Proceed only if the element is still flagged
+            if I[0,yi]:
+                # Detect the edges
+                # Bottom Edge
+                if fI[0,yi] != fI[1,yi]:
+                    xx = interp_scalar(fvalue, fdata[xi,yi], fdata[xi1,yi], xdata[xi], xdata[xi1])
+                    fc.append(np.array([xx, ydata[yi]]))
+                    neighbor.append((0,yi-1))
+                # Left Edge
+                if fI[0,yi] != fI[0,yi1]:
+                    yy = interp_scalar(fvalue, fdata[xi,yi], fdata[xi,yi1], ydata[yi], ydata[yi1])
+                    fc.append(np.array([xdata[xi], yy]))
+                    neighbor.append(None)
+                # Top Edge
+                if fI[0,yi1] != fI[1,yi1]:
+                    xx = interp_scalar(fvalue, fdata[xi,yi1], fdata[xi1,yi1], xdata[xi], xdata[xi1])
+                    fc.append(np.array([xx, ydata[yi1]]))
+                    neighbor.append((0,yi1))
+                # Right Edge
+                if fI[1,yi] != fI[1,yi1]:
+                    yy = interp_scalar(fvalue, fdata[xi1,yi], fdata[xi1,yi1], ydata[yi], ydata[yi1])
+                    fc.append(np.array([xdata[xi1], yy]))
+                    neighbor.append(None)
+                # Detect the saddle case
+                if len(fc) != 2:
+                    # For now, warn the user, and DO NOT append the case
+                    pm.utility.print_warning('mp2._mapsearch2y: Discarded a potential solution near a saddle point.  If you believe this was a legitimate solution, please report the code that generated this warning to the PYroMat GitHub issues page.')
+                # Two edges have intersections for each function
+                else:
+                    fx0 = fc[0]
+                    fdx = fc[1] - fc[0]
+                    # Detect precise equality at a corner
+                    if (fdx == 0).all() and fx0[0] == xvalue:
+                        y.append(fx0[1])
+                        YI.append(yi)
+                        if neighbor[0] is not None:
+                            I[*neighbor[0]] = False
+                        if neighbor[1] is not None:
+                            I[*neighbor[1]] = False
+                    else:
+                        # Calculate the distance along the f=0 curve to intersect 
+                        # Perform the calculations in two steps - leave the division
+                        # for last, so we can detect nearly singular problems
+                        s = xvalue - fx0[0]
+                        det = fdx[0]
+                        
+                        if 2*abs(det) > abs(s):
+                            s /= det
+                            if -small < s < 1+small:
+                                y.append(fx0[1] + fdx[1] * s)
+                                YI.append(yi)
+                            # Clear the flag for a neighbor if the solution is very near an edge
+                            if -small < s < small and neighbor[0] is not None:
+                                I[*neighbor[0]] = False
+                            if 1-small < s < 1+small and neighbor[1] is not None:
+                                I[*neighbor[1]] = False
+        return np.array(y), xi, np.array(YI, dtype=int)
+
+
     def _hybrid1(self, fn, prop, y, x, Ids, xmin, xmax,
                 ep=1e-6, Nmax=20, fx_index=1, 
                 verbose=False, paranoid=True, param={}):
@@ -1475,7 +2125,8 @@ param       A dicitonary of keyword arguments are passed directly to the
         if verbose:
             print(f"Converged for all elements in {count} iterations.")
 
-    def _Tsatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6, fast=False):
+
+    def _Tsatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6):
         """Iterates on Maxwell's criteria while holding T constant (primative routine)
     _Tsatiter(T, p, dL, dV, Ids)
 
@@ -1488,56 +2139,32 @@ Ids     Downselect array.  This is an array of booleans the same size
         on the corresponding elements set to True.  As states converge,
         the corresponding values are set to False.
 
-Initial guesses for the state are established by interpolating the
-'sattab' table entries.
+Initial guesses for the state are taken from the values in dL, dV, and
+T.  The values in p are overwritten.
 
 Optional keywords are:
 Nmax        Maximum number of iterations allowed. (def = 20)
 ep          Fractional error allowed for convergence (def = 1e-6)
-fast        Use interpolated table values with no polishing (def = False)
 """
-        Ts = self.data['sattab']['T']
-        ps = self.data['sattab']['p']
-        dsL = self.data['sattab']['dL']
-        dsV = self.data['sattab']['dV']
-
-        # The upper and lower boundaries on density
-        dL1 = np.empty_like(T, dtype=float)
-        dL2 = np.empty_like(T, dtype=float)
-        dV1 = np.empty_like(T, dtype=float)
-        dV2 = np.empty_like(T, dtype=float)
-
-        # Interpolate from the saturation table
-        i2 = np.searchsorted(Ts, T[Ids])
-        i1 = i2-1
-        dL2[Ids] = dsL[i2]
-        dL1[Ids] = dsL[i1]
-        dV2[Ids] = dsV[i2]
-        dV1[Ids] = dsV[i1]
-        t2 = (T[Ids] - Ts[i1])/(Ts[i2] - Ts[i1])
-        t1 = 1-t2
-        dL[Ids] = dL2[Ids]*t2 + dL1[Ids]*t1
-        dV[Ids] = dV2[Ids]*t2 + dV1[Ids]*t1
-
-        if fast:
-            p[Ids] = ps[i2]*t2 + ps[i1]*t1
-            return
-
-        # Polish
-        e = np.empty(T.shape + (2,), dtype=float)
+        # Initialize an error vector and a jacobian matrix
+        e = np.empty(T.shape + (2,1), dtype=float)
         J = np.empty(T.shape + (2,2), dtype=float)
         fail = True
         for count in range(Nmax):
+            # Create down-selected views
+            T_ = T[Ids]
+            dL_ = dL[Ids]
+            dV_ = dV[Ids]
             
-            gL,gLt,gLd = self._g(T[Ids],dL[Ids],diff=1)
-            gV,gVt,gVd = self._g(T[Ids],dV[Ids],diff=1)
-            pL,pLt,pLd = self._p(T[Ids],dL[Ids],diff=1)
-            p[Ids],pVt,pVd = self._p(T[Ids],dV[Ids],diff=1)
+            gL,gLt,gLd = self._g(T_, dL_, diff=1)
+            gV,gVt,gVd = self._g(T_ ,dV_, diff=1)
+            pL,pLt,pLd = self._p(T_, dL_, diff=1)
+            p[Ids],pVt,pVd = self._p(T_, dV_, diff=1)
             
             # Error vector
             # The vapor pressure is stored in p
-            e[Ids,0] = gL - gV
-            e[Ids,1] = pL - p[Ids]
+            e[Ids,0,0] = gL - gV
+            e[Ids,1,0] = pL - p[Ids]
             # Jacobian
             J[Ids,0,0] = gLd
             J[Ids,0,1] = -gVd
@@ -1546,80 +2173,111 @@ fast        Use interpolated table values with no polishing (def = False)
             # Overwrite error with the perturbation to the estimates
             e[Ids,:] = np.linalg.solve(J[Ids,:],e[Ids,:])
             
+            # Update unknowns
+            dL[Ids] -= e[Ids,0,0]
+            dV[Ids] -= e[Ids,1,0]
+            
             # Detect convergence
-            Ids[Ids] = np.logical_or( np.abs(e[Ids,0]) > ep*dL[Ids],
-                    np.abs(e[Ids,1]) > ep*dV[Ids] )
+            Ids[Ids] = np.logical_or( np.abs(e[Ids,0,0]) > ep*dL[Ids],
+                    np.abs(e[Ids,1,0]) > ep*dV[Ids] )
             
             if not Ids.any():
                 fail = False
                 break;
-            
-            # Update unknowns
-            dL[Ids] -= e[Ids,0]
-            dV[Ids] -= e[Ids,1]
-            
-            # Detect a diverging iteration
-            Ioob = np.logical_or( np.logical_or( dL[Ids] > dL1[Ids], dL[Ids] < dL2[Ids]),
-                    np.logical_or( dV[Ids] > dV2[Ids], dV[Ids] < dV1[Ids]))
-            
-            # Try to save a diverging iteration
-            inner_count = 0
-            while Ioob.any():
-                inner_count += 1
-                if inner_count > Nmax:
-                    raise pm.utility.PMAnalysisError('_Tsatiter: Could not save a diverging solution.')
-                e[Ids,:][Ioob] /= 2
-                dL[Ids][Ioob] += e[Ids,0][Ioob]
-                dV[Ids][Ioob] += e[Ids,1][Ioob]
-                Ioob = np.logical_or( np.logical_or( dL[Ids] > dL1[Ids], dL[Ids] < dL2[Ids]),
-                        np.logical_or( dV[Ids] > dV2[Ids], dV[Ids] < dV1[Ids]))
+
                                 
         if fail:
-            raise pm.utility.PMAnalysisError(f'_Tsatuter: Failed to converge in {Nmax} iterations.')
+            raise pm.utility.PMAnalysisError(f'_Tsatiter: Failed to converge in {Nmax} iterations.')
         
 
-    def _dsatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6):
+    def _dVsatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6):
         """Iterates on Maxwell's criteria while holding dV constant
 """
         # Initialize arrays for the linear algebra
-        A = np.empty(Ids.shape + (2,2))
-        B = np.empty(Ids.shape + (2,))
-        count = 0
-        while Ids.any():
-            count += 1
-            if count > Nmax:
-                raise pm.utility.PMAnalysisError('_dsatiter: Failed to converge.')
+        e = np.empty((Ids.size,) + (2,1), dtype=float)
+        J = np.empty((Ids.size,) + (2,2), dtype=float)
+        fail = True
+        for count in range(Nmax):
+            # Create down-selected views
+            T_ = T[Ids]
+            dL_ = dL[Ids]
+            dV_ = dV[Ids]
+            
             # Evaluate the properties at the liquid and vapor lines
-            gL,gLt,gLd = self._g(T[Ids],dL[Ids],1)
-            gV,gVt,gVd = self._g(T[Ids],dV[Ids],1)
-            pL,pLt,pLd = self._p(T[Ids],dL[Ids],1)
-            pV,pVt,pVd = self._p(T[Ids],dV[Ids],1)
-            
-            # Update the pressure result too
-            p[Ids] = pV
-            
-            # Measure the error in the Maxwell criteria
-            gerr = gL-gV    # Gibbs error
-            perr = pL-pV    # Pressure error
+            gL,gLt,gLd = self._g(T_, dL_,1)
+            gV,gVt,gVd = self._g(T_, dV_,1)
+            pL,pLt,pLd = self._p(T_ ,dL_ ,1)
+            p[Ids],pVt,pVd = self._p(T_ ,dV_ ,1)
             
             # Build the Jacobian on temperature and liquid density
-            A[Ids,0,0] = gLt-gVt
-            A[Ids,0,1] = gLd
-            A[Ids,1,0] = pLt-pVt
-            A[Ids,1,1] = pLd
-            B[Ids,0] = -gerr
-            B[Ids,1] = -perr
-            # Solve
-            x = np.linalg.solve(A[Ids,:],B[Ids,:])
+            J[Ids,0,0] = gLt-gVt
+            J[Ids,0,1] = gLd
+            J[Ids,1,0] = pLt-pVt
+            J[Ids,1,1] = pLd
+            # Build the error vector
+            e[Ids,0,0] = gL-gV        # Gibbs error
+            e[Ids,1,0] = pL-p[Ids]    # Pressure error
+            # Solve.  Ovewrite error with the estimate perturbation
+            e[Ids,:] = np.linalg.solve(J[Ids,:],e[Ids,:])
             # Update temperature and density
-            T[Ids] += x[:,0]
-            dL[Ids] += x[:,1]
+            T[Ids] -= e[Ids,0,0]
+            dL[Ids] -= e[Ids,1,0]
             
             # Test for convergence
-            Ids[Ids] = np.logical_or(np.abs(x[:,0]) > ep*T[Ids], np.abs(x[:,1]) > ep*dV[Ids])
+            Ids[Ids] = np.logical_or(np.abs(e[Ids,0,0]) > ep*T_, np.abs(e[Ids,1,0]) > ep*dL_)
+            
+            # If all points have converged
+            if not Ids.any():
+                fail = False
+                break
+        if fail:
+            raise pm.utility.PMAnalysisError(f'_dVsatiter: Failed to converge in {Nmax} iterations.')
+
+    def _dLsatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6):
+        """Iterates on Maxwell's criteria while holding dL constant
+"""
+        # Initialize arrays for the linear algebra
+        e = np.empty(T.shape + (2,1), dtype=float)
+        J = np.empty(T.shape + (2,2), dtype=float)
+        fail = True
+        for count in range(Nmax):
+            # Create down-selected views
+            T_ = T[Ids]
+            dL_ = dL[Ids]
+            dV_ = dV[Ids]
+            
+            # Evaluate the properties at the liquid and vapor lines
+            gL,gLt,gLd = self._g(T_, dL_,1)
+            gV,gVt,gVd = self._g(T_, dV_,1)
+            pL,pLt,pLd = self._p(T_ ,dL_ ,1)
+            p[Ids],pVt,pVd = self._p(T_ ,dV_ ,1)
+            
+            # Build the Jacobian on temperature and liquid density
+            J[Ids,0,0] = gLt-gVt
+            J[Ids,0,1] = -gVd
+            J[Ids,1,0] = pLt-pVt
+            J[Ids,1,1] = -pVd
+            # Build the error vector
+            e[Ids,0,0] = gL-gV        # Gibbs error
+            e[Ids,1,0] = pL-p[Ids]    # Pressure error
+            # Solve.  Ovewrite error with the estimate perturbation
+            e[Ids,:] = np.linalg.solve(J[Ids,:],e[Ids,:])
+            # Update temperature and density
+            T[Ids] -= e[Ids,0,0]
+            dV[Ids] -= e[Ids,1,0]
+            
+            # Test for convergence
+            Ids[Ids] = np.logical_or(np.abs(e[Ids,0,0]) > ep*T_, np.abs(e[Ids,1,0]) > ep*dV_)
+            
+            # If all points have converged
+            if not Ids.any():
+                fail = False
+                break
+        if fail:
+            raise pm.utility.PMAnalysisError(f'_dLsatiter: Failed to converge in {Nmax} iterations.')
 
 
-    def _psatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6, fast=False):
+    def _psatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6):
         """Iterates on Maxwell's criteria while holding p constant (primative routine)
     _psatiter(T, p, dL, dV, Ids)
 
@@ -1638,45 +2296,19 @@ Initial guesses for the state are established by interpolating the
 Optional keywords are:
 Nmax        Maximum number of iterations allowed. (def = 20)
 ep          Fractional error allowed for convergence (def = 1e-6)
-fast        Use interpolated table values with no polishing (def = False)
 """
-        Ts = self.data['sattab']['T']
-        ps = self.data['sattab']['p']
-        dsL = self.data['sattab']['dL']
-        dsV = self.data['sattab']['dV']
 
-        T1 = np.empty_like(p, dtype=float)
-        T2 = np.empty_like(p, dtype=float)
-        dL1 = np.empty_like(p, dtype=float)
-        dL2 = np.empty_like(p, dtype=float)
-        dV1 = np.empty_like(p, dtype=float)
-        dV2 = np.empty_like(p, dtype=float)
 
-        # Interpolate from the saturation table
-        i2 = np.searchsorted(ps, p[Ids])
-        i1 = i2-1
-        t2 = (p[Ids] - ps[i1])/(ps[i2] - ps[i1])
-        t1 = 1-t2
-        # Establish upper and lower boundaries
-        T1[Ids] = Ts[i1]
-        T2[Ids] = Ts[i2]
-        dL1[Ids] = dsL[i1]
-        dL2[Ids] = dsL[i2]
-        dV1[Ids] = dsV[i1]
-        dV2[Ids] = dsV[i2]
-        # Interpolate
-        T[Ids]  = T2[Ids]*t2  + T1[Ids]*t1
-        dL[Ids] = dL2[Ids]*t2 + dL1[Ids]*t1
-        dV[Ids] = dV2[Ids]*t2 + dV1[Ids]*t1
-
-        if fast:
-            return
-
-        # Polish
-        e = np.empty(T.shape + (3,), dtype=float)
+        # Initialize arrays for the linear algebra
+        e = np.empty(T.shape + (3,1), dtype=float)
         J = np.empty(T.shape + (3,3), dtype=float)
         fail = True
         for count in range(Nmax):
+            # Generate views of the updated down-selected variables
+            T_ = T[Ids]
+            dL_ = dL[Ids]
+            dV_ = dV[Ids]
+            p_ = p[Ids]
             
             gL,gLt,gLd = self._g(T[Ids],dL[Ids],diff=1)
             gV,gVt,gVd = self._g(T[Ids],dV[Ids],diff=1)
@@ -1684,9 +2316,9 @@ fast        Use interpolated table values with no polishing (def = False)
             pV,pVt,pVd = self._p(T[Ids],dV[Ids],diff=1)
             
             # Error vector
-            e[Ids,0] = gL - gV
-            e[Ids,1] = pL - p[Ids]
-            e[Ids,2] = pV - p[Ids]
+            e[Ids,0,0] = gL - gV
+            e[Ids,1,0] = pL - p_
+            e[Ids,2,0] = pV - p_
             # Jacobian
             J[Ids,0,0] = gLt-gVt
             J[Ids,0,1] = gLd
@@ -1701,37 +2333,20 @@ fast        Use interpolated table values with no polishing (def = False)
             J[Ids,2,2] = pVd
             # Overwrite error with the perturbation to the estimates
             e[Ids,:] = np.linalg.solve(J[Ids,:],e[Ids,:])
+            
+            # Update the variables
+            T[Ids] -= e[Ids,0,0]
+            dL[Ids] -= e[Ids,1,0]
+            dV[Ids] -= e[Ids,2,0]
+            
             # Detect convergence
-            Ids[Ids] = np.logical_or( np.abs(e[Ids,0]) > ep*T[Ids],
-                        np.logical_or( np.abs(e[Ids,1]) > ep*dL[Ids],
-                        np.abs(e[Ids,2]) > ep*dV[Ids]))
+            Ids[Ids] = np.logical_or( np.abs(e[Ids,0,0]) > ep*T[Ids],
+                        np.logical_or( np.abs(e[Ids,1,0]) > ep*dL[Ids],
+                        np.abs(e[Ids,2,0]) > ep*dV[Ids]))
             
             if not Ids.any():
                 fail = False
                 break
-            
-            T[Ids] -= e[Ids,0]
-            dL[Ids] -= e[Ids,1]
-            dV[Ids] -= e[Ids,2]
-            
-            # Detect a diverging iteration
-            Ioob = np.logical_or( np.logical_or( dL[Ids] > dL1[Ids], dL[Ids] < dL2[Ids]),
-                    np.logical_or( dV[Ids] > dV2[Ids], dV[Ids] < dV1[Ids]),
-                    np.logical_or( T[Ids] > T2[Ids], T[Ids] < T1[Ids]))
-            
-            inner_count = 0
-            while Ioob.any():
-                inner_count += 1
-                if inner_count > Nmax:
-                    raise pm.utility.PMAnalysisError('_psatiter: Could not save a diverging solution.')
-                e[Ids,:][Ioob] /= 2
-                T[Ids][Ioob] += e[Ids,0][Ioob]
-                dL[Ids][Ioob] += e[Ids,1][Ioob]
-                dV[Ids][Ioob] += e[Ids,2][Ioob]
-                Ioob = np.logical_or( np.logical_or( dL[Ids] > dL1[Ids], dL[Ids] < dL2[Ids]),
-                        np.logical_or( dV[Ids] > dV2[Ids], dV[Ids] < dV1[Ids]),
-                        np.logical_or( T[Ids] > T2[Ids], T[Ids] < T1[Ids]))
-                
             
         if fail:
             raise pm.utility.PMAnalysisError(f'_psatiter: Failed to converge in {Nmax} iterations.')
@@ -2240,7 +2855,7 @@ nondimensionalized, and the returned values are non-dimensionalzied.
         return F,Ft,Fd,Ftt,Ftd,Fdd
 
 
-    def _build_sattab(self, step=0.02, ep=1e-6, verbose=False, aslist=False):
+    def _build_sattab(self, step=0.02, ep=1e-6, verbose=False):
         """Generate saturation table values (primative routine)
     sattab = _buil_sattab(step=0.02, epsilon=1e-6, verbose=False, aslist=False)
     
@@ -2270,19 +2885,39 @@ step    The step is the approximate length of the step taken between
         critical value.
         
 ep      Epsilon or fractional error allowed.  Default is 1e-6
-
-aslist  When True, the properties are expressed as lists instead of Numpy
-        arrays. Default is False, but this should be True when storing
-        the result in JSON format.
         
 verbose Print progress to stdout? Default is False
 
-** Notes **
-There are a number of design decisions in this code made in favor of 
-readability and robustness in favor of speed.  This algorithm is only 
-intended to be called by PYroMat authors when curating a new data set.
-Unless users are experimenting with table lookup performance, there 
-should never be a need to call this function.
+** DESCRIPTION **
+_build_sattab() is the first method called to discover the properties
+of a mp2 class dataset.  It begins at the critical point and cautiously
+explores the saturation curve in intervals defined by the step value.
+
+Once a point on the saturation curve is known, the next (more distant
+from the critical point) is approximated by perturbing the vector, 
+    x = [T, dL, dV]^T
+tangent to the saturation line.  The tangent is determined from the 
+Jacobian of the Maxwell criteria, and its magnitude is adjusted to obey
+the step magnitude.
+    g(T, dL) = g(T, dV)
+    p(T, dL) = p(T, dV)
+
+For states near the critical point, the vapor density is held constant
+and Newton-Rhapson iteration is used to polish temperature and liquid
+density.  This is done because the saturation curve is _very_ sensitive
+to small errors in temperature close to the critical point.  
+
+After the saturation curve's tangent line inclines to the point where
+dimensionless changes in vapor density are slower than dimensionless 
+changes in temperature, the iteration transitions to be constant-density
+    ddV / dc < dT / Tc
+Far from the critical point, the saturation curves transition to be very
+sensitive to small errors in density, but are much more tolerant to 
+temperature.
+
+Iterating in series like this produces an algorithm that is quite robust
+but relatively slow.  Because it is only called when a substance is
+initially imported, it is treated as a tolerable cost.
 """
 
         Tt = self.data['Tt']
@@ -2290,19 +2925,15 @@ should never be a need to call this function.
         Tc = self.data['Tc']
         dc = self.data['dc']
         
-        # Initialize result parameters
-        T = np.array([Tc])
-        dL = np.array([dc])
-        dV = np.array([dc])
-
-        # Initialize the output arrays
-        T_array = [Tc]
-        dL_array = [dc]
-        dV_array = [dc]
-        p_array = [pc]
+        # Initialize the outputs
+        Ts_array = [Tc]
+        dsL_array = [dc]
+        dsV_array = [dc]
+        ps_array = [pc]
         
         if verbose:
             print('T pc dL dV')
+            print('Critical Point:')
             print(f'{Tc:8.2f} {pc:12.4e} {dc:8.2f} {dc:12.4e}')
         
         # Perform the iteration in two steps.  Very close to the critical
@@ -2311,47 +2942,29 @@ should never be a need to call this function.
         # critical density, we'll transition to constant temperature.
         
         # We'll need some linear algebra
-        A = np.empty((2,2), dtype=float)
+        J = np.empty((2,2), dtype=float)
         B = np.empty((2,), dtype=float)
         
+        # Initialize scalar saturation state
+        T = np.array([Tc])
+        dL = np.array([dc])
+        dV = np.array([dc])
+        p = np.array([pc])
+        Ids = np.array([1],dtype=bool)
         # Create an initial perturbation of the densities
         # Do not perturb temperature
         dL += step * dc / 1.414
         dV -= step * dc / 1.414
-        fail_outer = True
+        fail = True
         for count in range(200):
             # Iterate with constant dV
-            fail_inner = True
-            for count_inner in range(20):
-                # Re-establish the properties at L and V
-                gL,gLt,gLd = self._g(T,dL,1)
-                gV,gVt,gVd = self._g(T,dV,1)
-                pL,pLt,pLd = self._p(T,dL,1)
-                pV,pVt,pVd = self._p(T,dV,1)
-
-                A[0,0] = gLt - gVt
-                A[0,1] = gLd
-                A[1,0] = pLt - pVt
-                A[1,1] = pLd
-                
-                B[0] = -(gL-gV)
-                B[1] = -(pL-pV)
-                
-                x = np.linalg.solve(A,B)
-                T += x[0]
-                dL += x[1]
-                
-                if np.abs(x[0] / T[0]) < ep and np.abs(x[1] / dL[0]) < ep:
-                    fail_inner = False
-                    break
-            if fail_inner:
-                raise pm.utility.PMAnalysisError(f'_satseek(): Failed to converge near the critical point dV = {dV}')
+            Ids[0] = True
+            self._dVsatiter(T, p, dL, dV, Ids)
             
-            T_array.insert(0, T[0])
-            dL_array.insert(0, dL[0])
-            dV_array.insert(0, dV[0])
-            p = 0.5*(pV + pL)
-            p_array.insert(0, p[0])
+            Ts_array.insert(0, T[0])
+            dsL_array.insert(0, dL[0])
+            dsV_array.insert(0, dV[0])
+            ps_array.insert(0, p[0])
             
             if verbose:
                 print(f'{T[0]:8.2f} {p[0]:12.4e} {dL[0]:8.2f} {dV[0]:12.4e}')
@@ -2359,16 +2972,21 @@ should never be a need to call this function.
             # Perturb the solution to the next interval
             # Assume a unity change in dV, calculate other changes
             ddV = -1.
-            # Construct the sensitivity matrix and perturbation vector
-            # A is unchanged from the last iteration
-            #A[0,0] = gLt - gVt
-            #A[0,1] = gLd
-            #A[1,0] = pLt - pVt
-            #A[1,1] = pLd
-            B[0] = gVd*ddV
-            B[1] = pVd*ddV
+            # Use the Maxwell criteria and its derivatives to construct
+            # a Jacobian and a perturbation vector assuming a unity 
+            # change in vapor density.
+            gL,gLt,gLd = self._g(T=T,d=dL,diff=1)
+            gV,gVt,gVd = self._g(T=T,d=dV,diff=1)
+            pL,pLt,pLd = self._p(T=T,d=dL,diff=1)
+            pV,pVt,pVd = self._p(T=T,d=dV,diff=1)
+            J[0,0] = gLt[0] - gVt[0]
+            J[0,1] = gLd[0]
+            J[1,0] = pLt[0] - pVt[0]
+            J[1,1] = pLd[0]
+            B[0] = gVd[0]*ddV
+            B[1] = pVd[0]*ddV
             # Solve for the corresponding changes in T and dL
-            x = np.linalg.solve(A,B)
+            x = np.linalg.solve(J,B)
             dT = x[0]
             ddL = x[1]
             # Rescale the steps so that the metric T/Tc, d/dc is equal to step
@@ -2382,72 +3000,52 @@ should never be a need to call this function.
             dV += ddV
             
             # Detect the exit condition
-            if dV[0] < dc * 0.2:
-                fail_outer=False
+            # When the fractional change in temperature is larger than 
+            # the fractional change in vapor density, transition to
+            # constant-temperature iteration.
+            if abs(dT/Tc) > abs(ddV/dc):
+                fail=False
                 break
             
-        if fail_outer:
-            raise Exception('Caught near critical point')
+        if fail:
+            pm.utility.print_error('This error should never appear in a release - please report this on the PYroMat Github Issues page.')
+            raise pm.utility.PMDataError('_build_sattab: Iteration froze near the critical point.' )
         
         if verbose:
-            print('Transitioning to constant-temperature')
-            print('T p dL dV')
+            print('Transitioning to constant-temperature:')
         
-        fail_outer=True
+        fail=True
         for count in range(200):
-            # Polish the root holding dT constant
-            fail_inner = True
-            for count_inner in range(20):
-                # Re-establish the properties at L and V
-                gL,gLt,gLd = self._g(T,dL,1)
-                gV,gVt,gVd = self._g(T,dV,1)
-                pL,pLt,pLd = self._p(T,dL,1)
-                pV,pVt,pVd = self._p(T,dV,1)
-
-                A[0,0] = gLd
-                A[0,1] = -gVd
-                A[1,0] = pLd
-                A[1,1] = -pVd
-                
-                B[0] = -(gL-gV)
-                B[1] = -(pL-pV)
-                
-                x = np.linalg.solve(A,B)
-                dL += x[0]
-                dV += x[1]
-                
-                if np.abs(x[0] / dL[0]) < ep and np.abs(x[1] / dV[0]) < ep:
-                    fail_inner = False
-                    break
-            if fail_inner:
-                raise pm.utility.PMAnalysisError(f'_satseek(): Failed to converge away from the critical point T = {T}')
+            # Iterate with constant T
+            Ids[0] = True
+            self._Tsatiter(T, p, dL, dV, Ids)
             
-            T_array.insert(0, T[0])
-            dL_array.insert(0, dL[0])
-            dV_array.insert(0, dV[0])
-            p = 0.5*(pV + pL)
-            p_array.insert(0, p[0])
+            Ts_array.insert(0, T[0])
+            dsL_array.insert(0, dL[0])
+            dsV_array.insert(0, dV[0])
+            ps_array.insert(0, p[0])
             
             if verbose:
                 print(f'{T[0]:8.2f} {p[0]:12.4e} {dL[0]:8.2f} {dV[0]:12.4e}')
             
-            # Test for completion
-            if T <= Tt:
-                fail_outer = False
-                break
-            
-            # Perturb the solution point            
-            # Assume a unity change in dT, calculate other changes
+            # Perturb the solution to the next interval
+            # Assume a unity change in dV, calculate other changes
             dT = -1.
-            # Construct the sensitivity matrix and perturbation vector
-            #A[0,0] = gLd
-            #A[0,1] = -gVd
-            #A[1,0] = pLd
-            #A[1,1] = -pVd
-            B[0] = -(gLt-gVt)*dT
-            B[1] = -(pLt-pVt)*dT
+            # Use the Maxwell criteria and its derivatives to construct
+            # a Jacobian and a perturbation vector assuming a unity 
+            # change in vapor density.
+            gL,gLt,gLd = self._g(T=T,d=dL,diff=1)
+            gV,gVt,gVd = self._g(T=T,d=dV,diff=1)
+            pL,pLt,pLd = self._p(T=T,d=dL,diff=1)
+            pV,pVt,pVd = self._p(T=T,d=dV,diff=1)
+            J[0,0] = gLd[0]
+            J[0,1] = -gVd[0]
+            J[1,0] = pLd[0]
+            J[1,1] = -pVd[0]
+            B[0] = (gVt[0] - gLt[0])*dT
+            B[1] = (pVt[0] - pLt[0])*dT
             # Solve for the corresponding changes in T and dL
-            x = np.linalg.solve(A,B)
+            x = np.linalg.solve(J,B)
             ddL = x[0]
             ddV = x[1]
             # Rescale the steps so that the metric T/Tc, d/dc is equal to step
@@ -2455,161 +3053,261 @@ should never be a need to call this function.
             dT *= scale
             ddL *= scale
             ddV *= scale
-            
-            # Catch the case that this step passes beyond the triple point
-            if T+dT < Tt:
-                scale = (Tt-T) / dT
-                T = np.array([Tt])
-                dL += scale*ddL
-                dV += scale*ddV
-            else:
-                T += dT
-                dL += ddL
-                dV += ddV
 
-        if fail_outer:
-            raise Exception('Caught near triple point')
+            # Detect the exit condition
+            # If the next guess would be beyond the triple point, halt
+            if T[0] + dT < Tt:
+                fail=False
+                break
+
+            T += dT
+            dL += ddL
+            dV += ddV
+            
+        if fail:
+            pm.utility.print_error('This error should never appear in a release - please report this on the PYroMat Github Issues page.')
+            raise pm.utility.PMDataError('_build_sattab: Iteration froze near the triple point.' )
+        
+        scale = (Tt - T[0]) / dT
+        ddL *= scale
+        ddV *= scale
+        
+        T[0] = Tt
+        dL += ddL
+        dV += ddV
+        Ids[0] = True
+        
+        self._Tsatiter(T, p, dL, dV, Ids)
+    
+        if verbose:
+            print('Triple Point:')
+            print(f'{T[0]:8.2f} {p[0]:12.4e} {dL[0]:8.2f} {dV[0]:12.4e}')
+        
+        Ts_array.insert(0, T[0])
+        dsL_array.insert(0, dL[0])
+        dsV_array.insert(0, dV[0])
+        ps_array.insert(0, p[0])
         
         if verbose:
+            print(f'Used {len(Ts_array)} points.')
             print('Populating property lists...')
         
-        # Make arrays out of the properties
-        T = np.array(T_array)
-        dL = np.array(dL_array)
-        dV = np.array(dV_array)
-
-        # There is no need to be worried about speed.  We'll go ahead
-        # and make redundant property calls in favor of robust code.
-        hL = self._h(T=T,d=dL)[0]
-        hV = self._h(T=T,d=dV)[0]
-        sL = self._s(T=T,d=dL)[0]
-        sV = self._s(T=T,d=dV)[0]
+        # Convert to Numpy arrays
+        Ts_array = np.array(Ts_array)
+        ps_array = np.array(ps_array)
+        dsL_array = np.array(dsL_array)
+        dsV_array = np.array(dsV_array)
         
-        if aslist:
-            out = {
-                'T':    T_array,
-                'p':    p_array,
-                'dL':   dL_array,
-                'dV':   dV_array,                
-                'hL':   list(hL),
-                'hV':   list(hV),
-                'sL':   list(sL),
-                'sV':   list(sV),
-            }
-        else:
-            out = {
-                'T' : T,
-                'p' : np.array(p_array),
-                'dL': dL,
-                'dV': dV,
-                'hL': hL,
-                'hV': hV,
-                'sL': sL,
-                'sV': sV,
-            }
-            
+        self._sattable = {
+            'T':Ts_array, 
+            'p':ps_array, 
+            'dL':dsL_array, 
+            'dV':dsV_array,
+            'eL':self._e(T=Ts_array,d=dsL_array)[0],
+            'eV':self._e(T=Ts_array,d=dsV_array)[0],
+            'hL':self._h(T=Ts_array,d=dsL_array)[0],
+            'hV':self._h(T=Ts_array,d=dsV_array)[0],
+            'sL':self._s(T=Ts_array,d=dsL_array)[0],
+            'sV':self._s(T=Ts_array,d=dsV_array)[0],
+            'g':self._g(T=Ts_array,d=dsV_array)[0],
+            'fL':self._f(T=Ts_array,d=dsL_array)[0],
+            'fV':self._f(T=Ts_array,d=dsV_array)[0]
+        }
+        
         if verbose:
             print('Done')
-                    
-        return out
 
 
-    def _build_tab(self, Nt=101, Nd=101, rst=10, rsd=10, aslist=False):
-        """Generate lookup tables
-    tab = _build_tab()
+    def _build_tab(self, NT=100, Nd=100, verbose=False):
+        """Generate lookup tables (primative routine)
+    _build_tab(NT=100, Nd=100)
+
+Accepts arguments, NT and Nd, which specify a nominal number of 
+temperature and density points in the grid.  The actual number may be
+significantly more (but not less) in order to obey certain spacing 
+conditions (See GRID GENERATION below).
+
+Automatically generates a dictionary attribute ``self._table'' 
+containing keyword member arrays:
+    'T'     1D temperature array in ascending order
+    'd'     1D density array in ascending order
+    'p'     2D pressure array
+    'e'     2D internal energy array
+    'h'     2D enthalpy array
+    's'     2D entropy array
+    'g'     2D Gibbs energy array
+    'f'     2D Helmholts energy array
+    'cI'    A 2-tuple of integers indicating the indices of T and d
+            containing precisely the critical point.
+
+The properties are evaluated in a rectangular grid using nodes defined
+by the 1D T and d arrays.  2D arrays are indexed such that, for a 
+property, f(T,d),
+    f[i,j] = f(T[i], d[j])
+This can be accomplished using Numpy broadcasting rules 
+    TT,dd = np.meshgrid(T,d,indexing='ij')
+        OR
+    TT,dd = np.ix_(T,d)
+
+The critical coordinates, ``cI'' can be used
+    Tc == T[cI[0]]
+    dc == d[cI[1]]
+    pc == p[*cI]
+    ec == e[*cI] 
+        ... and so on ...
+
+** GRID GENERATION **
+Property surfaces have severe curvature with repeated local maxima and 
+minima ``under the dome,'' which can pose severe problems to naive 
+numerical routines.  To ensure good characterization of the surface, the
+T,d grid is chosen with the following rules:
+
+1) Density and temperature arrays must be in ascending order.
+2) No step between any two temperatyre or density values may be larger 
+    than (Tmax-Tmin)/NT or (dmax-dmin)/Nd respectively.
+3) The critical point must be represented precisely as a node.
+4) For each temperature below the critical temperature, there must be a
+    density value corresponding precisely to the liquid and vapor 
+    saturation densities.
+5) For each density between the triple point (liquid and vapor) 
+    densities, there must be a temperature value corresponding precisely
+    to the corresponding saturation temperature.
+
+These rules naturally result in dense grid groupings near the vertical
+and horizontal portions of the saturation line, where initial estimates
+are most important for numerical convergence.
+
+They also have the useful side effect that segments of the T and d 
+arrays precisely represent the saturation curve.  Saturation temperature
+density triples can be formed by incrementing from the cI indices.
+    Ts = T[cI[0] - k]
+    dsV = d[cI[1] - k]
+    dsL = d[cI[1] + k]
+If the property surfaces were plotted with against indices instead of 
+temperature and density values, the saturation points would lie on an 
+isosceles triangle descending on either side of the critical point.
+
+** ZERO DENSITY **
+There is no minimum density value.  Asymptotically, the Span and Wagner
+model converges to ideal gas properties at zero density.  Pressure is
+simply zero.  Though energy and enthalpy converge, entropy diverges.  
+For the purposes of interpolation to produce a useful initial guess for 
+numerical convergence, s, g, and f are set to their respective values at
+the triple point vapor density (very low density) instead of zero 
+density.
 """
-        # Auto-generate temperature array
+
         Tc = self.data['Tc']
         Tmin,Tmax = self.data['Tlim']
-        Nt = 201
-        
-        # Caculate the dimensionless location of the critical 
-        # temperature 
-        xc = (Tc - Tmin)/(Tmax - Tmin)
-        
-        # Construct a piece-wise fit of quadratics
-        A = np.matrix([[ 0, 0, 1, 0, 0, 0],
-                       [ xc*xc, xc, 1, 0, 0, 0],
-                       [ 2*xc, 1, 0, 0, 0, 0],
-                       [ 0, 0, 0, 1, 1, 1],
-                       [ 0, 0, 0, xc*xc, xc, 1],
-                       [ 0, 0, 0, 2*xc, 1, 0]])
-        B = np.array([0, xc, 1/rst, 1, xc, 1/rst])
-        C = np.linalg.solve(A,B)
-        c1 = C[0:3]
-        c2 = C[3:6]
-        
-        N1 = int(xc * Nt)
-        x = np.concatenate((np.arange(0,xc,xc/N1), np.linspace(xc, 1, Nt-N1)))
-        
-        T = np.empty_like(x, dtype=float)
-        
-        I = x <= xc
-        T[I] = np.polyval(c1, x[I]) * (Tmax-Tmin) + Tmin
-        
-        I = x > xc
-        T[I] = np.polyval(c2, x[I]) * (Tmax-Tmin) + Tmin
-
-
-
-        # Auto-generate the density array
         dc = self.data['dc']
         dmin,dmax = self.data['dlim']
-        Nd = 201
+        pc = self.data['pc']
+        # The nominal temperature step - use to determine density values
+        Tstep = (Tmax - Tmin)/NT
+        # Generate a nominal density step
+        dstep = (dmax - dmin)/Nd
+
+        if verbose:
+            print(f'Tmin={Tmin}, Tc={Tc}, Tmax={Tmax}, Tstep={Tstep}')
+            print(f'dmin={dmin}, dc={dc}, dmax={dmax}, dstep={dstep}')
+
+        # Generate an array of sub-critical points
+        Ts = np.linspace(Tmin, Tc, 1+int(np.ceil((Tc-Tmin)/Tstep)))
+        if verbose:
+            print(f'Preliminary sub-critical temperature array: {len(Ts)} temperatures.')
+
+        dsV = np.interp(Ts, self._sattable['T'], self._sattable['dV'])
+        # Repeatedly bisect the density steps until they are all smaller than dstep
+        # Very near the critical point, a high density of temperatures
+        # will be needed.
+        for count in range(10):
+            I = np.nonzero((dsV[1:] - dsV[:-1]) > dstep)[0]+1
+            if len(I) == 0:
+                break
+            if verbose:
+                print(f'Refinement step {count}/10: Bisecting {len(I)} intervals.')
+            dnew = (dsV[I] + dsV[I-1])*0.5
+            Tnew = np.interp(dnew, self._sattable['dV'], self._sattable['T'])
+            dsV = np.insert(dsV, I, dnew)
+            Ts = np.insert(Ts, I, Tnew)
         
-        # Caculate the dimensionless location of the critical 
-        # density 
-        xc = (dc - dmin)/(dmax - dmin)
+        if verbose:
+            print(f'Using {len(Ts)} sub-critical temperatures.')
+            print('Constant-temperature polishing far from the critical point...')
+        # Generate liquid density values
+        dsL = np.interp(Ts, self._sattable['T'], self._sattable['dL'])
+        # Create an empty psat array
+        ps = np.empty_like(Ts)
+        # Polish with constant-temperature far from the critical point
+        I = dsV < 0.5 * dc
+        Ids = np.array(I)
+        self._Tsatiter(Ts, ps, dsL, dsV, Ids)
+        # Polish with constant-density near the critical point
+        if verbose:
+            print('Constant-vapor-density polishing near the critical point...')
+        Ids = np.logical_not(I)
+        Ids[-1] = False     # Do not polish the critical point
+        self._dVsatiter(Ts, ps, dsL, dsV, Ids)
+
+
+        # Build temperature and density arrays to flesh out the remainder
+        # of the parameter space
+        T = np.concatenate((
+                Ts,
+                np.linspace(Ts[-1], Tmax, 1+int(np.ceil((Tmax-Ts[-1])/Tstep)))[1:]
+            ))
+        # Record the index for the critical point
+        Tci = len(Ts)-1
         
-        # Construct a piece-wise fit of quadratics
-        A = np.matrix([[ 0, 0, 1, 0, 0, 0],
-                       [ xc*xc, xc, 1, 0, 0, 0],
-                       [ 2*xc, 1, 0, 0, 0, 0],
-                       [ 0, 0, 0, 1, 1, 1],
-                       [ 0, 0, 0, xc*xc, xc, 1],
-                       [ 0, 0, 0, 2*xc, 1, 0]])
-        B = np.array([0, xc, 1/rsd, 1, xc, 1/rsd])
-        C = np.linalg.solve(A,B)
-        c1 = C[0:3]
-        c2 = C[3:6]
+        d = np.concatenate((
+                [dsV[0]],       # d=0 is the lowest valid density, but will generate singularities  We'll override it later.
+                dsV,            # saturated vapor points
+                np.flip(dsL[:-1]), # Reverse the liquid densities to be in ascending order and leave off the critical point
+                np.linspace(dsL[0], dmax, 1+int(np.ceil((dmax-dsL[0])/dstep)))[1:]    # Use even space throughout the remainder
+            ))
+        # Record the index for the critical point
+        dci = len(dsV)
+
+        if verbose:
+            print(f'Appended the rest of the domain.  NT={len(T)}, Nd={len(d)}.')
+            print(f'Generating property data...')
+
+        TT,dd = np.broadcast_arrays(*np.ix_(T,d))
+
+        # Generate state data
+        p = self._p(T=TT, d=dd)[0]
+        e = self._e(T=TT, d=dd)[0]
+        h = self._h(T=TT, d=dd)[0]
+        s = self._s(T=TT, d=dd)[0]
+        g = self._g(T=TT, d=dd)[0]
+        f = self._f(T=TT, d=dd)[0]
         
-        N1 = int(xc * Nt)
-        x = np.concatenate((np.arange(xc/N1,xc,xc/N1), np.linspace(xc, 1, Nt-N1)))
+        if verbose:
+            print('Evaluating the zero-density limit...')
+        # Restore the minimum density to zero
+        d[0] = 0.
+        # Override the minimum density values
+        R = self.data['R']
+        Tscale = self.data['IGgroup']['Tscale']
+        dscale = self.data['IGgroup']['dscale']
+        tt = Tscale / T
+        one = np.broadcast_to(np.array(1.), T.shape)
+        _,ft,_,_,_,_ = self._fo(tt, one, 1)
+        p[:,0] = 0.
+        e[:,0] = ft*(R*Tscale)
+        h[:,0] = (ft*tt + 1.)*R*T
+        # s, g, and f diverge in reality.
+        # However, for initial guesses we'll let them equal their neighboring
+        # values at the triple point vapor (very small) density.  
+        # Convergence in a sparse vapor should be relatively easy.
+        #s[:,0] = float('inf')
+        #g[:,0] = float('-inf')
+        #f[:,0] = float('-inf')
         
-        d = np.empty_like(x, dtype=float)
-        
-        I = x <= xc
-        d[I] = np.polyval(c1, x[I]) * (dmax-dmin) + dmin
-        
-        I = x > xc
-        d[I] = np.polyval(c2, x[I]) * (dmax-dmin) + dmin
-    
-        TT,dd = np.meshgrid(T,d,copy=False,indexing='ij')
-        
-        # Speed is not a virtue here, so tolerate the redundant function
-        # calls
-        p = self._p(T=TT,d=dd)[0]
-        h = self._h(T=TT,d=dd)[0]
-        s = self._s(T=TT,d=dd)[0]
-        
-        if aslist:
-            out = {
-                'T': T.tolist(),
-                'd': d.tolist(),
-                'p': p.tolist(),
-                'h': h.tolist(),
-                's': s.tolist()
-            }
-        else:
-            out = {
-                'T': T,
-                'd': d,
-                'p': p,
-                'h': h,
-                's': s
-            }
-        
-        return out
+        # Build the table dictionary
+        self._table = {'T':T, 'd':d, 'cI':(Tci, dci), 'p':p, 'e':e, 'h':h, 's':s, 'g':g, 'f':f}
+        if verbose:
+            print('Done.')
 
 
     def _ds(self, T, diff=0):
@@ -2986,9 +3684,11 @@ dL and dV are the liquid and vapor densities in kg/m3
     T,d1,d2,x,I = _argparse( .. keyword arguments ..)
 
 Accepts keyword arguments:
-    e   internal energy - requires p, d, v, or x
-    h   enthalpy - requires p, d, v, or x
-    s   entropy - requires T, p, d, v, or x
+    e   internal energy
+    f   free energy
+    g   Gibbs energy
+    h   enthalpy
+    s   entropy
     T   temperature
     p   pressure
     d   density
