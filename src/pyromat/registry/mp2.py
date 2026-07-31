@@ -1066,222 +1066,6 @@ pcoef = {
             p *= f
 
         return p,px,pxx
-    
-    
-    def _iter1(self, fn, prop, y, x, Ids, xmin, xmax,
-                ep=1e-6, Nmax=20, fx_index=1, 
-                verbose=False, param={}):
-        """Modified Newton iteration on a 1D inner routine. (primative routine)
-        
-    _iter1(fn, prop, y, x, Ids, xmin, xmax,)
-
-*** Required Parameters ***
-fn          The inner routine (method) to be inverted.  It must have a 
-            call signature 
-                f, fx0, ... = fn(x0, x1, ..., diff)
-            where f is the value of fn, and fx0 is the derivative of fn
-            with respect to prop0. The fx_index keyword can be used to
-            change where fx is found in the returned tuple.  By default
-            it is 1.
-prop        The string keyword index of the property to be calculated.
-y           An array of N target values for fn().
-x           The result array.  It should be an N-element floating point
-            array.
-Ids         A down-select boolean index array; only x[Ids],y[Ids] will 
-            be evaluated.  This allows iteration in-place on data sets 
-            where only a portion of the data require iteration.  If y is
-            a floating point array with N elements, Ids must be a bool
-            array with N elements.  It will specify a down-selected 
-            data set with M elements, where M<=N.
-xmin, xmax  Upper and lower limit arrays for the x values.  These must
-            broadcastable to match x and y.  Even values outside of the
-            down-select region should have legal values.  Note that 
-            these arrays are volatile, and will be written to by the
-            bisection process.
-*** Optional Parameters ***
-ep          Epsilon; fractional error permitted in y (default 1e-6)
-Nmax        Maximum number of iterations (default 20)
-fx_index    The location of the property derivative in the call 
-            signature (default 1)
-param       A dicitonary of keyword arguments are passed directly to the 
-            inner routine being inverted.
-
-"""
-        # As the iteration progresses, the number of True elements in 
-        # Ids will decrease until they are all false
-        # There are some important intermediate values that will also
-        # require indexable arrays
-        dx = np.zeros_like(y, dtype=float)
-        error = np.zeros_like(dx, dtype=float)
-        IooB = np.zeros_like(Ids, dtype=bool)
-
-        if verbose:
-            print('Iterating on "' + prop + '"')
-            print('Target values:')
-            print(y)
-            print('Limits:')
-            print(xmin,xmax)
-            print('x', 'yvalue', 'dydx', 'dx', 'Ids')
-
-
-        # Create an argument dictionary
-        arg = param.copy()
-        count = 0
-        while Ids.any():
-            # Build the new argument list
-            for k,v in param.items():
-                # For any array arguments, shrink them along with Ids
-                if isinstance(v,np.ndarray):
-                    arg[k] = v[Ids]
-            # Shrink the primary property array
-            arg[prop] = x[Ids]
-            # Evaluate the funciton and isolate its derivative
-            FF = fn( diff=1, **arg)
-            yy = FF[0]
-            yyx = FF[fx_index]
-            # note that x[Ids], yy, yyx, and all the other floating 
-            # intermediates are now in m-space; the sub-set of values
-            # still under iteration.
-            # Calculate the error, the linear change in x, and the new x
-            error[Ids] = y[Ids] - yy
-            dx[Ids] = error[Ids] / yyx
-            if verbose:
-                print(x, yy, yyx, dx, Ids)
-            x[Ids] += dx[Ids]
-            # An out-of-bounds index
-            #IooB = np.logical_or( x < xmin, x > xmax)
-            IooB[Ids] = np.logical_or( x[Ids] < xmin[Ids], x[Ids] > xmax[Ids])
-            count_oob = 0
-            while IooB[Ids].any():
-                dx[IooB] /= 2.
-                x[IooB] -= dx[IooB]
-                IooB[Ids] = np.logical_or( x[Ids] < xmin[Ids], x[Ids] > xmax[Ids])
-                # Prevent a while-loop-trap
-                count_oob += 1
-                if count_oob>Nmax:
-                    raise pm.utility.PMAnalysisError(
-                        '_iter1() failed to produce a guess that was in-bounds')
-            
-            # Check the iteration convergence
-            Ids[Ids] = abs(error[Ids]) > abs(ep*y[Ids])
-            # Prevent a while-loop-trap
-            count += 1
-            if count>Nmax:                
-                pm.utility.print_warning(\
-                    '_iter1() failed to converge for %d elements after %d attempts'%(\
-                    Ids.sum(), Nmax))
-                return
-
-
-    def _iter2(self, f1, f2, y1, y2, T, d, Ids, 
-                Tmin=None, Tmax=None, dmin=None, dmax=None,
-                ep=1e-6, Nmax=20, verbose=False):
-        """Modified Newton iteration on a 2D inner routine. (primative routine)
-        
-    _iter2(self, f1, f2, y1, y2, T, d, Ids, 
-                Tmin=None, Tmax=None, dmin=None, dmax=None,
-                ep=1e-6, Nmax=20, verbose=False, param={})
-
-Unlike _iter1 and _hybrid1, _iter2 enforces that temperature and density
-iteration is being performed.  Generally, for all 2D iteration, this is
-true.
-
-*** Required Parameters ***
-f1, f2      The inner property routines (method) to be inverted.  They
-            must have a call signature 
-                f, fT, fd, ... = fn(T, d, ..., diff)
-            where f is the value of fn, and fT and fd are the derivatives
-            of each property w.r.t temperature and density resp.
-y1, y2      An arrays of N target values for f1 and f2 resp.
-T, d        Initial guesses and result arrays for temperature and 
-            density respectively.
-Ids         A down-select boolean index array; only T[Ids], d[Ids] will 
-            be evaluated.  This allows iteration in-place on data sets 
-            where only a portion of the data require iteration.  If y is
-            a floating point array with N elements, Ids must be a bool
-            array with N elements.  It will specify a down-selected 
-            data set with M elements, where M<=N.
-Tmin, Tmax  Upper and lower limit arrays for the T and d values.  These 
-dmin, dmax  must be broadcastable to match x and y.  Even values outside
-            of the down-select region should have legal values.
-*** Optional Parameters ***
-ep          Epsilon; fractional error permitted in y (default 1e-6)
-Nmax        Maximum number of iterations (default 20)
-param       A dicitonary of keyword arguments are passed directly to the 
-            inner routine being inverted.
-
-"""
-        # As the iteration progresses, the number of True elements in 
-        # Ids will decrease until they are all false
-        # There are some important intermediate values that will also
-        # require indexable arrays
-        A = np.empty(Ids.shape() + (2,2), dtype=float)
-        B = np.empty(Ids.shape() + (2,), dtype=float)
-        dx = np.empty(Ids.shape(), (2,), dtype=float)
-        IooB = np.zeros_like(Ids, dtype=bool)
-
-        count = 0
-        while Ids.any():
-            # Evaluate the funcitons and their derivatives
-            FF = f1(T[Ids],d[Ids], diff=1)
-            B[Ids,0] = y1[Ids] - FF[0]
-            A[Ids,0,0] = FF[1]
-            A[Ids,0,1] = FF[2]
-
-            FF = f2(T[Ids],d[Ids], diff=1)
-            B[Ids,1] = y2[Ids] - FF[0]
-            A[Ids,1,0] = FF[1]
-            A[Ids,1,1] = FF[2]
-            
-            dx[Ids,:] = np.linalg.solve(A[Ids,:,:], B[Ids,:])
-            
-            T[Ids] += dx[Ids,0]
-            d[Ids] += dx[Ids,1]
-            
-            if Tmin is not None:
-                IooB[Ids] = T[Ids] < Tmin[Ids]
-            if Tmax is not None:
-                IooB[Ids] = np.logical_or(IooB[Ids], T[Ids] > Tmax[Ids])
-            if dmin is not None:
-                IooB[Ids] = np.logical_or(IooB[Ids], d[Ids] < dmin[Ids])
-            if dmax is not None:
-                IooB[Ids] = np.logical_or(IooB[Ids], d[Ids] > dmax[Ids])
-            
-            # Check for convergence
-            Ids[Ids] = np.logical_or(np.logical_or(IooB[Ids], 
-                    np.abs(dx[Ids,0]) > ep * T[Ids]),
-                    np.abs(dx[Ids,1]) > ep * d[Ids])
-            
-            
-            # An out-of-bounds index
-            count_oob = 0
-            while IooB.any():
-                dx[IooB,:] /= 2.
-                T[IooB] -= dx[IooB,0]
-                d[Ioob] -= dx[IooB,1]
-
-                if Tmin is not None:
-                    IooB[IooB] = T[IooB] < Tmin[IooB]
-                if Tmax is not None:
-                    IooB[IooB] = np.logical_or(IooB[IooB], T[IooB] > Tmax[IooB])
-                if dmin is not None:
-                    IooB[IooB] = np.logical_or(IooB[IooB], d[IooB] < dmin[IooB])
-                if dmax is not None:
-                    IooB[IooB] = np.logical_or(IooB[IooB], d[IooB] > dmax[IooB])
-                # Prevent a while-loop-trap
-                count_oob += 1
-                if count_oob>Nmax:
-                    raise pm.utility.PMAnalysisError(
-                        '_iter2() failed to produce a guess that was in-bounds')
-            
-            # Prevent a while-loop-trap
-            count += 1
-            if count>Nmax:                
-                pm.utility.print_warning(\
-                    '_iter2() failed to converge for %d elements after %d attempts'%(\
-                    Ids.sum(), Nmax))
-                return
-
 
 
     def _mapsearch1(self, xdata, fdata, fvalue=0):
@@ -1318,11 +1102,9 @@ SEE ALSO:
         x = xdata[xi] + (xdata[xi1] - xdata[xi]) * (fvalue - fdata[xi]) / (fdata[xi1] - fdata[xi])
         return x
 
-    def _mapsearch2(self, xdata, ydata, fdata, gdata, fvalue, gvalue, indices=True):
+    def _mapsearch2(self, xdata, ydata, fdata, gdata, fvalue, gvalue):
         r"""Search 2D map for inverse estimates (primative routine)
     x,y,xi,yi = mapsearch2(xdata, ydata, fdata, gdata, fvalue, gvalue)
-        OR
-    x,y,xi,yi = mapsearch2(..., indices=False)
     
 Uses tabulated data to generate an estimates for x,y in the 2D inversion
 problem
@@ -1342,18 +1124,14 @@ fdata, gdata
         gdata[i,j] = g(xdata[i], ydata[j])
         
 fvalue, gvalue
-    Scalar values for f() and g().
-    
-indices
-    Boolean, indicating whether the table indices of the nodes bounding
-    the solution should be returned as well.  If True, the additional
-    arrays, xi and yi are returned (see below).
+    Numpy arrays with the same shape containing values for properties,
+    fdata and gdata.
+
     
 RETURNS: 
 x,y
-    One-dimensional arrays, such that each x,y pair represents a 
-    distinct estimated solution.  This implies that, for every entry in 
-    the x and y arrays,
+    Arrays of the same shape as fvalue and gvalue that approximate 
+    solutions to the problem
         f(x,y) =approx= fvalue
         g(x,y) =approx= gvalue
 
@@ -1362,8 +1140,6 @@ xi,yi
     elements in which the estimated solution was identified.  Care must
     be taken, because the actual solution may lie in a neighboring 
     element -- especially when estimates are very near the element edge.
-    If the optional keyword, "indices" is set to False, these are 
-    returned as None.
 
 DESCRIPTION:
 
@@ -1414,7 +1190,7 @@ highly than speed.
 
 The real limitation of _mapsearch2() is that its inputs are inherently 
 scalar, allowing only one fvalue, gvalue pair at a time.  This means 
-_mapsearch2() must be implemented in a loop to work on datasets, which 
+_mapsearch2() is vectorized by a for a loop to work on datasets, which 
 always bodes poorly for performance.  Most users seem to use PYroMat on 
 datasets smaller than the back-end maps, so it is better to vectorize 
 the map search than to vectorize the value inputs. 
@@ -1449,6 +1225,13 @@ mitigated in this algorithm:
     of a solution is uncertain, and it is likely to be very nearly 
     singular.  For the purposes of PYroMat's numerical problems, these
     cases are detected and discarded.
+    
+A number of versions of _mapsearch2() were tested. This version simply 
+returns the first solution discovered.  Other versions faithfully 
+reported multiple candidate solutions if they were discovered.  Since
+the top layer of PYroMat does not currently permit reporting multiple
+solutions, this funcitonality was discarded.  It might be recovered in
+later versions if it is needed.
 
 SEE ALSO:
     _mapsearch1(), _mapsearch2(), _mapsearch2x(), _mapsearch2y()
@@ -1459,24 +1242,35 @@ SEE ALSO:
         # proximity to the element boundary.
         small = np.finfo(float).eps * 1e4
         # Initialize lists for the result values
-        x = []
-        y = []
-        XI = []
-        YI = []
-        # Generate a boolean array indicating candidate elements with a solution
-        # Bulk element comparison seems expensive, but it is not on a 
-        # system with vectorized processing.  Bulk comparisons like this
-        # are remarkably cheap. 
-        fI = fvalue < fdata
-        gI = gvalue < gdata
-        I = crossing2(fI) * crossing2(gI)
+        x = np.empty_like(fvalue, dtype=float)
+        y = np.empty_like(fvalue, dtype=float)
+        XI = np.empty_like(fvalue, dtype=int)
+        YI = np.empty_like(fvalue, dtype=int)
         
-        # For each element that contains a crossing in both f and g
-        for xi,yi in zip(*np.nonzero(I)):
-            # Only continue if this candidate is still flagged
-            # Elements can be unflagged as the algorithm progresses if a neighbor
-            # has claimed a point on the border or in the corner.
-            if I[xi,yi]:
+        for index in range(fvalue.size):
+            fv = fvalue.flat[index]
+            gv = gvalue.flat[index]
+
+            # Generate a boolean array indicating candidate elements with a solution
+            # Bulk element comparison seems expensive, but it is not on a 
+            # system with vectorized processing.  Bulk comparisons like this
+            # are remarkably cheap. 
+            fI = fv < fdata
+            gI = gv < gdata
+            I = crossing2(fI) * crossing2(gI)
+
+            fail = True
+
+            # For each element that contains a crossing in both f and g
+            for xi,yi in zip(*np.nonzero(I)):
+                # Only continue if this candidate is still flagged
+                # Elements can be unflagged as the algorithm progresses if a neighbor
+                # has claimed a point on the border or in the corner.
+                # This conditional was removed when the code was modified to return the
+                # first solution discovered.  Uncomment and indent if the code needs to
+                # return multiple solutions.
+                #<<==>>
+                #if I[xi,yi]:
                 # Indices for the other four nodes in this element
                 xi1 = xi+1
                 yi1 = yi+1
@@ -1485,46 +1279,52 @@ SEE ALSO:
                 # Track the indices of the neighboring elements in case the
                 # solution is very near to the element's boundary.  Only 
                 # the neighbors of the f-segment are tracked.
-                neighbor = []
+                # This code
+                #<<==>>
+                #neighbor = []
                 # Test each of the edges for a crossing of f()
                 # Bottom edge
                 if fI[xi,yi] != fI[xi1,yi]:
-                    xx = interp_scalar(fvalue, fdata[xi,yi], fdata[xi1,yi], xdata[xi], xdata[xi1])
+                    xx = interp_scalar(fv, fdata[xi,yi], fdata[xi1,yi], xdata[xi], xdata[xi1])
                     fc.append(np.array((xx,ydata[yi])))
-                    neighbor.append((xi, yi-1))
+                    #<<==>>
+                    #neighbor.append((xi, yi-1))
                 # Left edge
                 if fI[xi,yi] != fI[xi,yi1]:
-                    yy = interp_scalar(fvalue, fdata[xi,yi], fdata[xi,yi1], ydata[yi], ydata[yi1])
+                    yy = interp_scalar(fv, fdata[xi,yi], fdata[xi,yi1], ydata[yi], ydata[yi1])
                     fc.append(np.array((xdata[xi], yy)))
-                    neighbor.append((xi-1, yi))
+                    #<<==>>
+                    #neighbor.append((xi-1, yi))
                 # Top edge
                 if fI[xi,yi1] != fI[xi1,yi1]:
-                    xx = interp_scalar(fvalue, fdata[xi,yi1], fdata[xi1,yi1], xdata[xi], xdata[xi1])
+                    xx = interp_scalar(fv, fdata[xi,yi1], fdata[xi1,yi1], xdata[xi], xdata[xi1])
                     fc.append(np.array((xx,ydata[yi1])))
-                    neighbor.append((xi, yi+1))
+                    #<<==>>
+                    #neighbor.append((xi, yi+1))
                 # Right edge
                 if fI[xi1,yi] != fI[xi1,yi1]:
-                    yy = interp_scalar(fvalue, fdata[xi1,yi], fdata[xi1,yi1], ydata[yi], ydata[yi1])
+                    yy = interp_scalar(fv, fdata[xi1,yi], fdata[xi1,yi1], ydata[yi], ydata[yi1])
                     fc.append(np.array((xdata[xi1], yy)))
-                    neighbor.append((xi+1, yi))
+                    #<<==>>
+                    #neighbor.append((xi+1, yi))
                 # Identify the two g-edge crossings [(x,y), ...]
                 gc = []
                 # Test each of the edges for a crossing of g()
                 # Bottom edge
                 if gI[xi,yi] != gI[xi1,yi]:
-                    xx = interp_scalar(gvalue, gdata[xi,yi], gdata[xi1,yi], xdata[xi], xdata[xi1])
+                    xx = interp_scalar(gv, gdata[xi,yi], gdata[xi1,yi], xdata[xi], xdata[xi1])
                     gc.append(np.array((xx,ydata[yi])))
                 # Left edge
                 if gI[xi,yi] != gI[xi,yi1]:
-                    yy = interp_scalar(gvalue, gdata[xi,yi], gdata[xi,yi1], ydata[yi], ydata[yi1])
+                    yy = interp_scalar(gv, gdata[xi,yi], gdata[xi,yi1], ydata[yi], ydata[yi1])
                     gc.append(np.array((xdata[xi], yy)))
                 # Top edge
                 if gI[xi,yi1] != gI[xi1,yi1]:
-                    xx = interp_scalar(gvalue, gdata[xi,yi1], gdata[xi1,yi1], xdata[xi], xdata[xi1])
+                    xx = interp_scalar(gv, gdata[xi,yi1], gdata[xi1,yi1], xdata[xi], xdata[xi1])
                     gc.append(np.array((xx,ydata[yi1])))
                 # Right edge
                 if gI[xi1,yi] != gI[xi1,yi1]:
-                    yy = interp_scalar(gvalue, gdata[xi1,yi], gdata[xi1,yi1], ydata[yi], ydata[yi1])
+                    yy = interp_scalar(gv, gdata[xi1,yi], gdata[xi1,yi1], ydata[yi], ydata[yi1])
                     gc.append(np.array((xdata[xi1], yy)))
                 # At this point, fc and gc list (x,y) coordinates for 
                 # the points along the element edge where crossings occur
@@ -1551,13 +1351,16 @@ SEE ALSO:
                     # Check for a solution precisely at the corner
                     if (fdx == 0).all():
                         if (gc[0] == fx0).all() or (gc[1] == fx0).all():
-                            #print('Corner: clearing both neighbors')
-                            I[*neighbor[0]] = False
-                            I[*neighbor[1]] = False
-                            x.append(fx0[0])
-                            y.append(fx0[1])
-                            XI.append(xi)
-                            YI.append(yi)
+                            # When this code was modified to merely return the first solution discovered,
+                            # these lines were commented out.  Return them if multiple solutions are 
+                            # desired in the future.
+                            #I[*neighbor[0]] = False
+                            #I[*neighbor[1]] = False
+                            x.flat[index] = fx0[0]
+                            y.flat[index] = fx0[1]
+                            XI.flat[index] = xi
+                            YI.flat[index] = yi
+                            break
                     # Ignore gdx == 0 cases - we'll catch corners with fdx == 0
                     elif not (gdx == 0).all():                        
                         # Solve for a dimensionless number, s
@@ -1582,23 +1385,23 @@ SEE ALSO:
                             # solution.
                             if -small < s < 1+small:
                                 # Store the solution
-                                x.append(fx0[0] + s*fdx[0])
-                                y.append(fx0[1] + s*fdx[1])
+                                x.flat[index] = fx0[0] + s*fdx[0]
+                                y.flat[index] = fx0[1] + s*fdx[1]
                                 # If the solution is very near a boundary, remove
                                 # the neighbor element as a candidate to prevent
                                 # redundant solutions.
-                                if -small < s < small:
-                                    #print('Near start: clearing neighboring point.')
-                                    I[*neighbor[0]] = False
-                                if 1-small < s < 1+small:
-                                    I[*neighbor[1]] = False
-                                    #print('Near finish: clearing neighboring point.')
-                                if indices:
-                                    XI.append(xi)
-                                    YI.append(yi)
-        if indices:
-            return np.array(x), np.array(y), np.array(XI,dtype=int), np.array(YI,dtype=int)
-        return np.array(x), np.array(y), None, None
+                                # This was removed when the code was modified to only
+                                # return the first solution discovered.  Uncomment it
+                                # if multiple solutions are desired in the future
+                                #if -small < s < small:
+                                #    I[*neighbor[0]] = False
+                                #if 1-small < s < 1+small:
+                                #    I[*neighbor[1]] = False
+                                XI.flat[index] = xi
+                                YI.flat[index] = yi
+                                break
+        return x,y,XI,YI
+
 
     def _mapsearch2x(self, xdata, ydata, fdata, yvalue, fvalue, indices=True):
         r"""Search 2D map for inverse estimates (primative routine)
@@ -1623,24 +1426,21 @@ fdata
         gdata[i,j] = g(xdata[i], ydata[j])
         
 yvalue
-    The scalar value of y used to interpolate the table.
+    An array of y-values to interpolate from the table.  The dimensions
+    must match the dimensions of fvalue.
     
 fvalue
-    The scalar value of f() for which we are searching.
+    An array of f-values to interpolate from the table.  The dimensions
+    must match the dimensions of yvalue.
     
 RETURNS: 
 x
-    One-dimensional array, such that each x value represents a distinct 
-    estimated solution.  This implies that, for every entry in 
-    the x array,
-        f(x,yvalue) =approx= fvalue
+    An array with the same dimensions as fvalue and yvalue approximating
+    the inversion solution based on interpolation of the data given.
         
-xi
-    One-dimensional array containing indices of the elements in which 
-    a solution was found.  
-    
-yi
-    Scalar integer index of the row in which yvalue was found.
+xi, yi
+    Scalar integer indices of the element where the solution was 
+    discovered in the table.
 
 DESCRIPTION:
 
@@ -1664,44 +1464,51 @@ SEE ALSO:
         # proximity to the element boundary.
         small = np.finfo(float).eps * 1e4
         # Initialize result arrays
-        x = []
-        XI = []
-        # Search for the table row that contains yvalue
-        # This supports arrays
-        yi1 = np.searchsorted(ydata, yvalue, side='right')
-        yi = yi1 - 1
-        # Compare the values of only the appropriate row
-        fI = fvalue < fdata[:, yi:yi+2]
-        # Detect elements with a crossing
-        I = crossing2(fI)
-        for xi in np.nonzero(I)[0]:
-            xi1 = xi+1
-            # Initialize some crossing parameters
-            fc = []
-            neighbor = []
-            # Proceed only if the element is still flagged
-            if I[xi,0]:
+        x = np.empty_like(fvalue, dtype=float)
+        XI = np.empty_like(fvalue, dtype=int)
+        YI = np.searchsorted(ydata, yvalue, side='right')-1
+        for index in range(fvalue.size):
+            yv = yvalue.flat[index]
+            fv = fvalue.flat[index]
+            yi = YI.flat[index]
+            yi1 = yi + 1
+            # Compare the values of only the appropriate row
+            fI = fv < fdata[:, yi:yi+2]
+            # Detect elements with a crossing
+            I = crossing2(fI)
+            for xi in np.nonzero(I)[0]:
+                xi1 = xi+1
+                # Initialize some crossing parameters
+                fc = []
+                #neighbor = []
+                # Proceed only if the element is still flagged
+                #<<==>>
+                #if I[xi,0]:
                 # Detect the edges
                 # Bottom Edge
                 if fI[xi,0] != fI[xi1,0]:
-                    xx = interp_scalar(fvalue, fdata[xi,yi], fdata[xi1,yi], xdata[xi], xdata[xi1])
+                    xx = interp_scalar(fv, fdata[xi,yi], fdata[xi1,yi], xdata[xi], xdata[xi1])
                     fc.append(np.array([xx, ydata[yi]]))
-                    neighbor.append(None)
+                    #<<==>>
+                    #neighbor.append(None)
                 # Left Edge
                 if fI[xi,0] != fI[xi,1]:
-                    yy = interp_scalar(fvalue, fdata[xi,yi], fdata[xi,yi1], ydata[yi], ydata[yi1])
+                    yy = interp_scalar(fv, fdata[xi,yi], fdata[xi,yi1], ydata[yi], ydata[yi1])
                     fc.append(np.array([xdata[xi], yy]))
-                    neighbor.append((xi-1, 0))
+                    #<<==>>
+                    #neighbor.append((xi-1, 0))
                 # Top Edge
                 if fI[xi,1] != fI[xi1,1]:
-                    xx = interp_scalar(fvalue, fdata[xi,yi1], fdata[xi1,yi1], xdata[xi], xdata[xi1])
+                    xx = interp_scalar(fv, fdata[xi,yi1], fdata[xi1,yi1], xdata[xi], xdata[xi1])
                     fc.append(np.array([xx, ydata[yi1]]))
-                    neighbor.append(None)
+                    #<<==>>
+                    #neighbor.append(None)
                 # Right Edge
                 if fI[xi1,0] != fI[xi1,1]:
-                    yy = interp_scalar(fvalue, fdata[xi1,yi], fdata[xi1,yi1], ydata[yi], ydata[yi1])
+                    yy = interp_scalar(fv, fdata[xi1,yi], fdata[xi1,yi1], ydata[yi], ydata[yi1])
                     fc.append(np.array([xdata[xi1], yy]))
-                    neighbor.append((xi1, 0))
+                    #<<==>>
+                    #neighbor.append((xi1, 0))
                 # Detect the saddle case
                 if len(fc) != 2:
                     # For now, warn the user, and DO NOT append the case
@@ -1711,36 +1518,36 @@ SEE ALSO:
                     fx0 = fc[0]
                     fdx = fc[1] - fc[0]
                     # Detect precise equality at a corner
-                    if (fdx == 0).all() and fx0[1] == yvalue:
-                        x.append(fx0[0])
-                        if indices:
-                            XI.append(xi)
-                        if neighbor[0] is not None:
-                            I[*neighbor[0]] = False
-                        if neighbor[1] is not None:
-                            I[*neighbor[1]] = False
+                    if (fdx == 0).all() and fx0[1] == yv:
+                        x.flat[index] = fx0[0]
+                        XI.flat[index] = xi
+                        break
+                        #<<==>>
+                        #if neighbor[0] is not None:
+                        #    I[*neighbor[0]] = False
+                        #if neighbor[1] is not None:
+                        #    I[*neighbor[1]] = False
                     else:
                         # Calculate the distance along the f=0 curve to intersect 
                         # Perform the calculations in two steps - leave the division
                         # for last, so we can detect nearly singular problems
-                        s = yvalue - fx0[1]
+                        s = yv - fx0[1]
                         det = fdx[1]
                         
                         if 2*abs(det) > abs(s):
                             s /= det
                             if -small < s < 1+small:
-                                x.append(fx0[0] + fdx[0] * s)
-                                if indices:
-                                    XI.append(xi)
+                                x.flat[index] = fx0[0] + fdx[0] * s
+                                XI.flat[index] = xi
+                                break
                             # Clear the flag for a neighbor if the solution is very near an edge
-                            if -small < s < small and neighbor[0] is not None:
-                                I[*neighbor[0]] = False
-                            if 1-small < s < 1+small and neighbor[1] is not None:
-                                I[*neighbor[1]] = False
-        if indices:
-            return np.array(x), np.array(XI, dtype=int), yi
-        return np.array(x), None, None
-                
+                            #<<==>>
+                            #if -small < s < small and neighbor[0] is not None:
+                            #    I[*neighbor[0]] = False
+                            #if 1-small < s < 1+small and neighbor[1] is not None:
+                            #    I[*neighbor[1]] = False
+        return x, XI, YI
+        
     def _mapsearch2y(self, xdata, ydata, fdata, xvalue, fvalue):
         r"""Search 2D map for inverse estimates (primative routine)
     y, xi, yi = mapsearch2x(xdata, ydata, fdata, yvalue, fvalue)
@@ -1803,327 +1610,89 @@ SEE ALSO:
         # proximity to the element boundary.
         small = np.finfo(float).eps * 1e4
         # Initialize result arrays
-        y = []
-        YI = []
-        # Search for the table row that contains yvalue
-        # This supports arrays
-        xi1 = np.searchsorted(xdata, xvalue, side='right')
-        xi = xi1 - 1
-        # Compare the values of only the appropriate row
-        fI = fvalue < fdata[xi:xi+2, :]
-        # Detect elements with a crossing
-        I = crossing2(fI)
-        for yi in np.nonzero(I)[1]:
-            yi1 = yi+1
-            # Initialize some crossing parameters
-            fc = []
-            neighbor = []
-            # Proceed only if the element is still flagged
-            if I[0,yi]:
-                # Detect the edges
-                # Bottom Edge
-                if fI[0,yi] != fI[1,yi]:
-                    xx = interp_scalar(fvalue, fdata[xi,yi], fdata[xi1,yi], xdata[xi], xdata[xi1])
-                    fc.append(np.array([xx, ydata[yi]]))
-                    neighbor.append((0,yi-1))
-                # Left Edge
-                if fI[0,yi] != fI[0,yi1]:
-                    yy = interp_scalar(fvalue, fdata[xi,yi], fdata[xi,yi1], ydata[yi], ydata[yi1])
-                    fc.append(np.array([xdata[xi], yy]))
-                    neighbor.append(None)
-                # Top Edge
-                if fI[0,yi1] != fI[1,yi1]:
-                    xx = interp_scalar(fvalue, fdata[xi,yi1], fdata[xi1,yi1], xdata[xi], xdata[xi1])
-                    fc.append(np.array([xx, ydata[yi1]]))
-                    neighbor.append((0,yi1))
-                # Right Edge
-                if fI[1,yi] != fI[1,yi1]:
-                    yy = interp_scalar(fvalue, fdata[xi1,yi], fdata[xi1,yi1], ydata[yi], ydata[yi1])
-                    fc.append(np.array([xdata[xi1], yy]))
-                    neighbor.append(None)
-                # Detect the saddle case
-                if len(fc) != 2:
-                    # For now, warn the user, and DO NOT append the case
-                    pm.utility.print_warning('mp2._mapsearch2y: Discarded a potential solution near a saddle point.  If you believe this was a legitimate solution, please report the code that generated this warning to the PYroMat GitHub issues page.')
-                # Two edges have intersections for each function
-                else:
-                    fx0 = fc[0]
-                    fdx = fc[1] - fc[0]
-                    # Detect precise equality at a corner
-                    if (fdx == 0).all() and fx0[0] == xvalue:
-                        y.append(fx0[1])
-                        YI.append(yi)
-                        if neighbor[0] is not None:
-                            I[*neighbor[0]] = False
-                        if neighbor[1] is not None:
-                            I[*neighbor[1]] = False
+        y = np.empty_like(fvalue, dtype=float)
+        YI = np.empty_like(fvalue, dtype=int)
+        XI = np.searchsorted(xdata, xvalue, side='right')
+        for index in range(fvalue.size):
+            fv = fvalue.flat[index]
+            xv = xvalue.flat[index]
+            xi1 = XI.flat[index]
+            xi = xi1 - 1
+            # Compare the values of only the appropriate row
+            fI = fv < fdata[xi:xi+2, :]
+            # Detect elements with a crossing
+            I = crossing2(fI)
+            for yi in np.nonzero(I)[1]:
+                yi1 = yi+1
+                # Initialize some crossing parameters
+                fc = []
+                #<<==>>
+                #neighbor = []
+                # Proceed only if the element is still flagged
+                if I[0,yi]:
+                    # Detect the edges
+                    # Bottom Edge
+                    if fI[0,yi] != fI[1,yi]:
+                        xx = interp_scalar(fv, fdata[xi,yi], fdata[xi1,yi], xdata[xi], xdata[xi1])
+                        fc.append(np.array([xx, ydata[yi]]))
+                        #<<==>>
+                        #neighbor.append((0,yi-1))
+                    # Left Edge
+                    if fI[0,yi] != fI[0,yi1]:
+                        yy = interp_scalar(fv, fdata[xi,yi], fdata[xi,yi1], ydata[yi], ydata[yi1])
+                        fc.append(np.array([xdata[xi], yy]))
+                        #<<==>>
+                        #neighbor.append(None)
+                    # Top Edge
+                    if fI[0,yi1] != fI[1,yi1]:
+                        xx = interp_scalar(fv, fdata[xi,yi1], fdata[xi1,yi1], xdata[xi], xdata[xi1])
+                        fc.append(np.array([xx, ydata[yi1]]))
+                        #<<==>>
+                        #neighbor.append((0,yi1))
+                    # Right Edge
+                    if fI[1,yi] != fI[1,yi1]:
+                        yy = interp_scalar(fv, fdata[xi1,yi], fdata[xi1,yi1], ydata[yi], ydata[yi1])
+                        fc.append(np.array([xdata[xi1], yy]))
+                        #<<==>>
+                        #neighbor.append(None)
+                    # Detect the saddle case
+                    if len(fc) != 2:
+                        # For now, warn the user, and DO NOT append the case
+                        pm.utility.print_warning('mp2._mapsearch2y: Discarded a potential solution near a saddle point.  If you believe this was a legitimate solution, please report the code that generated this warning to the PYroMat GitHub issues page.')
+                    # Two edges have intersections for each function
                     else:
-                        # Calculate the distance along the f=0 curve to intersect 
-                        # Perform the calculations in two steps - leave the division
-                        # for last, so we can detect nearly singular problems
-                        s = xvalue - fx0[0]
-                        det = fdx[0]
-                        
-                        if 2*abs(det) > abs(s):
-                            s /= det
-                            if -small < s < 1+small:
-                                y.append(fx0[1] + fdx[1] * s)
-                                YI.append(yi)
-                            # Clear the flag for a neighbor if the solution is very near an edge
-                            if -small < s < small and neighbor[0] is not None:
-                                I[*neighbor[0]] = False
-                            if 1-small < s < 1+small and neighbor[1] is not None:
-                                I[*neighbor[1]] = False
-        return np.array(y), xi, np.array(YI, dtype=int)
+                        fx0 = fc[0]
+                        fdx = fc[1] - fc[0]
+                        # Detect precise equality at a corner
+                        if (fdx == 0).all() and fx0[0] == xv:
+                            y.flat[index] = fx0[1]
+                            YI.flat[index] = yi
+                            break
+                            #if neighbor[0] is not None:
+                            #    I[*neighbor[0]] = False
+                            #if neighbor[1] is not None:
+                            #    I[*neighbor[1]] = False
+                        else:
+                            # Calculate the distance along the f=0 curve to intersect 
+                            # Perform the calculations in two steps - leave the division
+                            # for last, so we can detect nearly singular problems
+                            s = xv - fx0[0]
+                            det = fdx[0]
+                            
+                            if 2*abs(det) > abs(s):
+                                s /= det
+                                if -small < s < 1+small:
+                                    y.flat[index] = fx0[1] + fdx[1] * s
+                                    YI.flat[index] = yi
+                                    break
+                                # Clear the flag for a neighbor if the solution is very near an edge
+                                #<<==>>
+                                #if -small < s < small and neighbor[0] is not None:
+                                #    I[*neighbor[0]] = False
+                                #if 1-small < s < 1+small and neighbor[1] is not None:
+                                #    I[*neighbor[1]] = False
+        return y, XI, YI
 
-
-    def _hybrid1(self, fn, prop, y, x, Ids, xmin, xmax,
-                ep=1e-6, Nmax=20, fx_index=1, 
-                verbose=False, paranoid=True, param={}):
-        """Hybrid numerical inversion of an inner routine (primative routine)
-        
-    _hybrid1(fn, prop, y, x, Ids, xmin, xmax,)
-
-This hybrid iteration algorithm is named for being a hybrid of biseciton
-and Newton iteration.  On "well behaved" functions it converges as 
-quickly as the Newton algorithm, but on "badly behaved" functions, it 
-is extremely stable.
-
-Iteration is performed in-place on the x array until fn(x) == y.  The 
-hybrid1 algorithm depends on the xmax and xmin values to bracket a 
-solution.  The funciton, fn, and its derivative are evaluated at the 
-maximum and minimum, and Newton's method is used to generate two 
-candidate next guesses.  The point bisecting the maximum and minimum is
-calculated, providing a third candidate guess.  Of the three candidates,
-the one in the middle is selected for the next iteration step.  If the
-middle point lies outside of xmax and xmin, then the bisection point is
-selected instead.
-
-Once a next guess is selected, the function and its derivative are 
-evaluated there.  This guess is used to replace either xmin or xmax, 
-just like would be done in a bisection algorithm, but then the three-
-candidate voting algorithm is repeated.  Since the calculated next guess
-of the boundaries is unchanged from the last iteration step, only one
-function evaluation is required per step, making the computational cost
-comparable with Newton's method.
-
-*** Required Parameters ***
-fn          The inner routine (method) to be inverted.  It must have a 
-            call signature 
-                f, fx0, ... = fn(x0, x1, ..., diff)
-            where f is the value of fn, and fx0 is the derivative of fn
-            with respect to prop0. The fx_index keyword can be used to
-            change where fx is found in the returned tuple.  By default
-            it is 1.
-prop        The string keyword index of the property to be calculated.
-y           An array of N target values for fn().
-x           The result array.  It should be an N-element floating point
-            array.
-Ids         A down-select boolean index array; only x[Ids],y[Ids] will 
-            be evaluated.  This allows iteration in-place on data sets 
-            where only a portion of the data require iteration.  If y is
-            a floating point array with N elements, Ids must be a bool
-            array with N elements.  It will specify a down-selected 
-            data set with M elements, where M<=N.
-xmin, xmax  Upper and lower limit arrays for the x values.  These must
-            broadcastable to match x and y.  Even values outside of the
-            down-select region should have legal values.  Note that 
-            these arrays are volatile, and will be written to by the
-            bisection process.
-*** Optional Parameters ***
-ep          Epsilon; fractional error permitted in y (default 1e-6)
-Nmax        Maximum number of iterations (default 20)
-fx_index    The location of the property derivative in the call 
-            signature (default 1)
-paranoid    If any of the candidate guesses is out of bounds, the revert to
-            bisection.  Otherwise, only test the median guess.  Paranoid 
-            operation can be essential in functions with +/- slope inflections
-            in the domain.
-param       A dicitonary of keyword arguments are passed directly to the 
-            inner routine being inverted.
-
-"""
-        #================================#
-        # Initialize intermediate arrays #
-        #================================#
-        # Produce arrays of candidate guesses xa and xb are produced by 
-        # the Newton algorithm from xmin and xmax respectively.  
-        # xc is produced by bisection.
-        xa = np.zeros_like(x, dtype=float)
-        xb = np.zeros_like(x, dtype=float)
-        xc = np.zeros_like(x, dtype=float)
-        
-        # Make local copies of xmax and xmin
-        xmax = np.array(xmax)
-        xmin = np.array(xmin)
-        
-        # The Iab, Ibc, and Ica indices are used to store comparsion
-        # truth values for sorting the candidate solutions, and Iwork
-        # is used to assign the values
-        Iab = np.zeros_like(Ids, dtype=bool)
-        Ibc = np.zeros_like(Ids, dtype=bool)
-        Ica = np.zeros_like(Ids, dtype=bool)
-        Iwork = np.zeros_like(Ids, dtype=bool)
-        Iaoob = np.zeros_like(Ids, dtype=bool) # Out-of-bounds arrays
-        Iboob = np.zeros_like(Ids, dtype=bool) # 
-        Iswap = np.zeros_like(Ids, dtype=bool) # which were swapped?
-        
-        if verbose:
-            print("Fn: " + repr(fn.__name__))
-            print("param: " + repr(param))
-        
-        # Initialize an argument dicitonary
-        arg = param.copy()
-        
-        # Build the argument list
-        for k,v in param.items():
-            # For any array arguments, shrink them along with Ids
-            if isinstance(v,np.ndarray):
-                arg[k] = v[Ids]
-        # Now, we'll evalaute the funciton at the limits
-        # Start at the minimum
-        arg[prop] = xmin[Ids]
-        FF = fn(diff=1, **arg)
-        yy = FF[0]
-        yyx = FF[fx_index]
-        # Calculate the first candidate solution
-        xa[Ids] = xmin[Ids] + (y[Ids] - yy)/yyx
-        # If f(xmin) > f(xmax) then the nominal slope of the curve is negative
-        # That means that these boundaries will need to be updated in reverse
-        # of the other boundaries.
-        Iswap[Ids] = yy >= y[Ids]
-        
-        # Now, evaluate at the maximum 
-        arg[prop] = xmax[Ids]
-        FF = fn(diff=1, **arg)
-        yy = FF[0]
-        yyx = FF[fx_index]
-        # Calculate the second candidate solution
-        xb[Ids] = xmax[Ids] + (y[Ids] - yy)/yyx
-        
-        # Verify that the limits bracket a solution
-        # Borrow the a out-of-bounds array to hold the result
-        # This is adapted from jranalli's graceful NaN failure edit
-        Iaoob[Ids] = np.logical_not(np.logical_xor(Iswap[Ids], yy >= y[Ids]))  # Figure out which meet the condition
-        if Ids.any() and Iaoob[Ids].all():  # All points failed to bracket. Fail and raise Error.
-            pm.utility.print_warning(
-                '_HYBRID1: Failure to bracket a solution. Check function '
-                'arguments to be sure they reference a valid state. This error '
-                'usually occurs if the properties are out-of-range.')
-            raise pm.utility.PMParamError(
-                '_HYBRID1: All of the target values appear to be out-of-bounds!')
-        elif Iaoob[Ids].any():  # Only some have failed to bracket
-            # Force the result to the out-of-bounds value
-            x[Iaoob] = pm.config['def_oob']
-            # Clear the corresponding downselect bits
-            Ids[Iaoob] = False
-            pm.utility.print_warning(
-                '_HYBRID1: Failure to bracket a solution for input '
-                'element(s): {}. Values set to config[\'def_oob\']. Check function '
-                'arguments to be sure they reference a valid state. This error'
-                ' usually occurs if the properties are out-of-range.'
-                .format(np.flatnonzero(Iaoob)))
-            # Clear the out-of-bounds index we just used.
-            Iaoob[:] = False
-        # If none of the Iaoob values were True, there's no need to
-        # clear them
-                
-        # Calculate the thrid candidate solution
-        xc[Ids] = 0.5*(xmin[Ids] + xmax[Ids])
-        
-        if verbose:
-            print(" xmin  xmax  xa  xb  xc ")
-        
-        count = 0
-        while Ids.any():
-            if count>Nmax:
-                pm.utility.print_warning(f'_HYBRID1: Failed to converge for {Ids.sum()} elements in {Nmax} iterations.')
-                return
-            
-            if verbose:
-                print(xmin, xmax, xa, xb, xc)
-            
-            # Clean the worker indexes
-            Iab[:] = False
-            Ibc[:] = False
-            Ica[:] = False
-            Iwork[:] = False
-            
-            # The last step has established three candidate solutions
-            # Which should we select?  First, compare the three candidate
-            # solutions to determine which is in the middle
-            Iab[Ids] = xa[Ids] < xb[Ids]
-            Ibc[Ids] = xb[Ids] < xc[Ids]
-            Ica[Ids] = xc[Ids] < xa[Ids]
-            
-            # Now, assign all values for which xa is the next guess
-            Iwork[Ids] = Iab[Ids] == Ica[Ids]
-            x[Iwork] = xa[Iwork]
-            # Now, assign all values for which xb is the next guess
-            Iwork[Ids] = Iab[Ids] == Ibc[Ids]
-            x[Iwork] = xb[Iwork]
-            # Now, assign all value for which xc is the next guess
-            Iwork[Ids] = Ibc[Ids] == Ica[Ids]
-            x[Iwork] = xc[Iwork]
-            # finally, deal with the xa and xb out-of-bounds case
-            if paranoid:
-                # In paranoid mode, either xa and xb being out of bounds
-                # forces xc to be selected
-                Iwork[Ids] = np.logical_or(xa[Ids] < xmin[Ids], xa[Ids] > xmax[Ids])
-                x[Iwork] = xc[Iwork]
-                Iwork[Ids] = np.logical_or(xb[Ids] < xmin[Ids], xb[Ids] > xmax[Ids])
-                x[Iwork] = xc[Iwork]
-            else:
-                Iwork[Ids] = np.logical_or(x[Ids] < xmin[Ids], xa[Ids] > xmax[Ids])
-                x[Iwork] = xc[Iwork]
-                
-                        
-            # Build the new argument list
-            for k,v in param.items():
-                # For any array arguments, shrink them along with Ids
-                if isinstance(v,np.ndarray):
-                    arg[k] = v[Ids]
-            # Shrink the primary property array
-            arg[prop] = x[Ids]
-            # Evaluate the funciton and isolate its derivative
-            FF = fn( diff=1, **arg)
-            yy = FF[0]
-            yyx = FF[fx_index]
-            
-            # use xc as a temporary variable
-            # First, calculate the size of the change in x
-            xc[Ids] = x[Ids] + (y[Ids] - yy) / yyx
-            # x is now the next guess
-            # xc is its next projected guess
-            
-            # Where is the guess?
-            # Should it be stored in xmin?
-            # xor with Iswap forces a swap when needed
-            Iwork[Ids] = np.logical_xor(yy <= y[Ids], Iswap[Ids])
-            xmin[Iwork] = x[Iwork]
-            xa[Iwork] = xc[Iwork]
-            # Test OOB
-            Iaoob[Iwork] = np.logical_or(xc[Iwork] <= xmin[Iwork], xc[Iwork] >= xmax[Iwork])
-            # or in xmax
-            Iwork[Ids] = np.logical_not(Iwork[Ids])
-            xmax[Iwork] = x[Iwork]
-            xb[Iwork] = xc[Iwork]
-            Iboob[Iwork] = np.logical_or(xc[Iwork] <= xmin[Iwork], xc[Iwork] >= xmax[Iwork])            
-            # Calculate the new bisection point
-            xc[Ids] = 0.5*(xmax[Ids] + xmin[Ids])
-            
-            # Check for convergence
-            # if xmax-xmin is small OR
-            # if the y error is small
-            Ids[Ids] = np.logical_and(\
-                    np.abs((xmax[Ids] - xmin[Ids])/x[Ids]) > ep,\
-                    np.abs((yy - y[Ids])/y[Ids]) > ep)
-                        
-            # Prevent a while-loop-trap
-            count += 1
-
-        if verbose:
-            print(f"Converged for all elements in {count} iterations.")
 
 
     def _Tsatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6):
@@ -2191,7 +1760,24 @@ ep          Fractional error allowed for convergence (def = 1e-6)
         
 
     def _dVsatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6):
-        """Iterates on Maxwell's criteria while holding dV constant
+        """Iterates on Maxwell's criteria while holding dV constant (primative routine)
+    _dVsatiter(T, p, dL, dV, Ids)
+
+T       Saturation temperature used to specify the state.
+p       Pressure.  These values are overwritten without being used.
+dL      Liquid density.
+dV      Vapor density.
+Ids     Downselect array.  This is an array of booleans the same size 
+        and shape as the property arrays.  Iteration is only performed
+        on the corresponding elements set to True.  As states converge,
+        the corresponding values are set to False.
+
+Initial guesses for the state are taken from the values in dL, dV, and
+T.  The values in p are overwritten.
+
+Optional keywords are:
+Nmax        Maximum number of iterations allowed. (def = 20)
+ep          Fractional error allowed for convergence (def = 1e-6)
 """
         # Initialize arrays for the linear algebra
         e = np.empty((Ids.size,) + (2,1), dtype=float)
@@ -2234,7 +1820,24 @@ ep          Fractional error allowed for convergence (def = 1e-6)
             raise pm.utility.PMAnalysisError(f'_dVsatiter: Failed to converge in {Nmax} iterations.')
 
     def _dLsatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6):
-        """Iterates on Maxwell's criteria while holding dL constant
+        """Iterates on Maxwell's criteria while holding dL constant (primative routine)
+    _dLsatiter(T, p, dL, dV, Ids)
+
+T       Saturation temperature used to specify the state.
+p       Pressure.  These values are overwritten without being used.
+dL      Liquid density.
+dV      Vapor density.
+Ids     Downselect array.  This is an array of booleans the same size 
+        and shape as the property arrays.  Iteration is only performed
+        on the corresponding elements set to True.  As states converge,
+        the corresponding values are set to False.
+
+Initial guesses for the state are taken from the values in dL, dV, and
+T.  The values in p are overwritten.
+
+Optional keywords are:
+Nmax        Maximum number of iterations allowed. (def = 20)
+ep          Fractional error allowed for convergence (def = 1e-6)
 """
         # Initialize arrays for the linear algebra
         e = np.empty(T.shape + (2,1), dtype=float)
@@ -2290,8 +1893,9 @@ Ids     Downselect array.  This is an array of booleans the same size
         on the corresponding elements set to True.  As states converge,
         the corresponding values are set to False.
 
-Initial guesses for the state are established by interpolating the
-'sattab' table entries.
+T, dL, and dV hold initial guesses for the saturation properties, while
+the values in p are treated as a constraint.  Values in p are not 
+changed.
 
 Optional keywords are:
 Nmax        Maximum number of iterations allowed. (def = 20)
@@ -2351,157 +1955,232 @@ ep          Fractional error allowed for convergence (def = 1e-6)
         if fail:
             raise pm.utility.PMAnalysisError(f'_psatiter: Failed to converge in {Nmax} iterations.')
 
+    def _satiter2(self, T, p, dL, dV, x, fn0, fn1, f0value, f1value, Ids, Nmax=10, ep=1e-6):
+        """Two-property saturation iteration (primative routine)
+    _satiter2(self, T, dL, dV, x, fn0, fn1, f0value, f1value, Ids, Nmax=10, ep=1e-6)
 
+Iteratively calculates the two-phase mixture conditions where a pair of
+properties have the prescribed values.  
 
-    def _tditer(self, T, d, fn, diff=1, debug=False):
-        """T,d iterator wrapper (primative routine)
-    _tditer(T,d,fn, diff=1, debug=False)
+T           Temperature array
+p           Pressure array
+dL          Saturated liquid density array
+dV          Saturated vapor density array
+x           Quality array
+fn0         Property method 0
+fn1         Property method 1
+f0value     Property method 0
+f1value     Property method 1 used to calculate x
+Ids         Boolean down-select array
+
+This algorithm iteratively solves the problem
+    p(T, dL) = p(T, dV)
+    g(T, dL) = g(T, dV)
+    (1-x) f0(T, dL) + x f0(T, dV) = f0value
+    (1-x) f1(T, dL) + x f1(T, dV) = f1value
+Because x can be explicitly calculated in each iteration, and because 
+some properties (p and g) are constant across the dome, there are 
+benefits to eliminating x during iteration, so
+    p(T, dL) = p(T, dV)
+    g(T, dL) = g(T, dV)
+    (f0value - f0L) (f1V - f1L) = (f1value - f1L) (f0V - f0L)
+
+T, dL, and dV contain initial guesses for the saturation conditions.  
+p and x are calculated explicitly and will be overwritten.  Quality is
+calculated as
+    x = (f1value - f1L) / (f1V - f1L)
     
-    This wrapper function evaluates a property inner routine from
-temperature and density.  It is intended to be used to allow ID 
-iteration on a property with respect to temperature with constant 
-density (isochoric).  
-
-_tditer accpets three required arguments:
-    T   Temperature numpy array in Kelvin
-    d   Density numpy array in kg/m3
-    fn  Property inner routine to be evaluated (e.g. self._h or self._s)
-    
-For example, a call to _hybrid1 to calculate temperature while 
-specifying entropy and pressure might appear
-
-    self._hybrid1( self._tditer, # Don't use _s, use _tditer
-        'T',                    # We want to calculate T
-        svalues,                # Here are the target entropy values
-        T,                      # The T array
-        Ids,                    # The pre-initialized down-select array
-        Tmin, Tmax,             # T bounds
-        param={'fn':self._s, 'd':dvalues})
-
-Optional parameters (and their defaults) are:
-    debug (False)   
-    Has no effect.  It is included only to provide the same call signature as
-    _tpiter().
-    
-    diff (1)
-    When 0, returns no derivatives.  When 1, returns the first-order 
-    derivatives.
+If pressure is one of the properties, it should never be passed as f1,
+since pV == pL.  It is MUCH faster to use _psatiter instead.
 """
-        y = np.empty_like(T, dtype=float)
-        yt = np.empty_like(T, dtype=float)
-        yd = np.empty_like(T, dtype=float)
-        dsL = np.empty_like(T, dtype=float)
-        dsLt = np.empty_like(T, dtype=float)
-        dsV = np.empty_like(T, dtype=float)
-        dsVt = np.empty_like(T, dtype=float)
 
-        # Only check sub-critical temperatures for saturation
-        I = T < self.data['Tc']
-        dsL[I],dsLt[I],_ = self._dsl(T[I],diff=diff)
-        dsV[I],dsVt[I],_ = self._dsv(T[I],diff=diff)
-        # Down-select for densities between the saturation properties
-        I[I] = np.logical_and(d[I] <= dsL[I], d[I] >= dsV[I])
-        if I.any():
-            # Use xd as a temporary result
-            # Start with the denominator
-            xd = 1./(dsL[I]/dsV[I] - 1.)
-            # Calculate quality
-            x = (dsL[I]/d[I] - 1.) * xd
-            if diff:
-                # Construct quality's deriv. w.r.t. temperature in steps
-                # First, the most complicated term: the denominator's derivative
-                xt = x * xd * (dsL[I]/dsV[I]) * (dsVt[I]/dsV[I] - dsLt[I]/dsL[I])
-                # Continue to construct xt
-                xt += xd*dsLt[I]/d[I]
-                # Finalize xd
-                xd *= -dsL[I] / d[I] / d[I]
-            # Evaluate the saturation properties
-            y[I],yt[I],yd[I] = fn(T[I],dsV[I],diff=diff)
-            yy,yyt,yyd = fn(T[I],dsL[I],diff=diff)
-            # Calculate the mixture properties and derivatives
-            if diff:
-                yt[I] = x*yt[I] + xt*y[I] + (1-x)*yyt - xt*yy
-                yd[I] = x*yd[I] + xd*y[I] + (1-x)*yyd - xd*yy
-            y[I] = x*y[I] + (1-x)*yy
-        # Now deal with points that are not under the dome.
-        I = np.logical_not(I)
-        if I.any():
-            y[I],yt[I],yd[I] = fn(T[I],d[I],diff=diff)
+        E = np.empty(T.shape + (3,1), dtype=float)
+        J = np.empty(T.shape + (3,3), dtype=float)
+
+        count = 0
+        while Ids.any():
+            count += 1
+            if count > Nmax:
+                raise pm.utility.PMParamError(
+                        f'mp2._satiter2: Failed to converge after {Nmax} iterations.')
             
-        return y,yt,yd
-        
+            TT = T[Ids]
+            DL = dL[Ids]
+            DV = dV[Ids]
+            # Evaluate the properties
+            pL,pLt,pLd = self._p(TT,DL,diff=1)
+            pV,pVt,pVd = self._p(TT,DV,diff=1)
+            gL,gLt,gLd = self._g(TT,DL,diff=1)
+            gV,gVt,gVd = self._g(TT,DV,diff=1)
+            f0L,f0Lt,f0Ld = fn0(TT,DL,diff=1)
+            f0V,f0Vt,f0Vd = fn0(TT,DV,diff=1)
+            f1L,f1Lt,f1Ld = fn1(TT,DL,diff=1)
+            f1V,f1Vt,f1Vd = fn1(TT,DV,diff=1)
 
-    def _tpiter(self, T, p, fn, diff=1, debug=False):
-        """T,p iterator wrapper (primative routine)
-    _tpiter(T,p,fn, diff=1, debug=False)
-    
-    This wrapper function evaluates a property inner routine from 
-temperature and pressure.  It is intended to be used to allow 1D 
-iteration on a property with respect to temperature with constant 
-pressure (isobaric).  Because the property functions require density
-and temperature, _tpiter implements an inner hybrid1 iteration routine
-to determine the density for each value of temperature.
+            # Property deltas across the dome
+            df0 = f0V - f0L
+            vf0 = f0value[Ids] - f0L
+            df1 = f1V - f1L
+            vf1 = f1value[Ids] - f1L
 
-When diff is 1 (as it needs to be for _hybrid1 to work properly), the 
-property's partial derivatives need to be shifted from constant-density
-into constant pressure space.
+            E[Ids, 0, 0] = pL - pV       # Maxwell, pressure
+            E[Ids, 1, 0] = gL - gV       # Maxwell, gibbs energy
+            E[Ids, 2, 0] = vf0*df1 - vf1*df0     # Quality constraint
+            
+            J[Ids, 0, 0] = pVt - pLt
+            J[Ids, 0, 1] = -pLd
+            J[Ids, 0, 2] = pVd
+            
+            J[Ids, 1, 0] = gVt - gLt
+            J[Ids, 1, 1] = -gLd
+            J[Ids, 1, 2] = gVd
+            
+            J[Ids, 2, 0] = -f1Lt*df0 + vf1*(f0Vt - f0Lt) + f0Lt*df1 - vf0*(f1Vt - f1Lt)
+            J[Ids, 2, 1] = -f1Ld*df0 + vf1*f0Ld + f0Ld*df1 + vf0*f1Ld
+            J[Ids, 2, 2] = vf1*f0Vd - vf0*f1Vd
+            
+            delta = np.linalg.solve(J, E)
+            T[Ids] += delta[Ids,0,0]
+            dL[Ids] += delta[Ids,1,0]
+            dV[Ids] += delta[Ids,2,0]
+            p[Ids] = pV
+            x[Ids] = vf1/df1
+            # Update convergence criteria
+            Ids[Ids] = (delta[Ids,0,0] > TT*ep) + (delta[Ids,1,0] > DL*ep) + (delta[Ids,2,0] > DV*ep)
+            
 
-_tpiter accpets three required arguments:
-    T   Temperature numpy array in Kelvin
-    p   Pressure numpy array in Pa
-    fn  Property inner routine to be evaluated (e.g. self._h or self._s)
-    
-For example, a call to _hybrid1 to calculate temperature while 
-specifying entropy and pressure might appear
+    def _Titer(self, T, d, fn, fvalue, Ids, Nmax=10, ep=1e-6):
+        """Constant-temperature iteration (primative routine)
+    _Titer(T, d, fn, fvalue, Ids)
 
-    self._hybrid1( self._tpiter, # Don't use _s, use _tpiter
-        'T',                    # We want to calculate T
-        svalues,                # Here are the target entropy values
-        T,                      # The T array
-        Ids,                    # The pre-initialized down-select array
-        Tmin, Tmax,             # T bounds
-        param={'fn':self._s, 'p':pvalues})
-        
-Optional parameters (and their defaults) are:
-    debug (False)   
-    Passed to the verbose parameter of the inner _hybrid1 routine.  This 
-    produces quite a bit of text in most iterations.  It should not be used 
-    by most users.
-    
-    diff (1)
-    When 0, returns no derivatives.  When 1, returns the first-order 
-    derivatives.
+While holding temperature constant, iterates on density to match a 
+property with its target values.
+
+Arguments are:
+    T       Temperature array
+    d       density array
+    f       inner property function
+    fvalue  array of target property values
+    Ids     boolean down-select array
+Optional keyword arguments are:
+    Nmax    Maximum number of iterations before declaring failure
+    ep      epsilon or fractional precision to require in density
+
+The iteration is performed in-place, so the initival values in the T and
+d arrays are used as the initial guesses for iteration.  As iteration 
+progresses, the Ids boolean array is modified to reflect values that 
+have converged.
 """
-        
-        # Assume a standard inner property routine call signature
-        d = self._d(T,p)
-        y,yt,yd = fn(T,d,diff=diff)
-        # If the derivative is requested, we need to shift from constant
-        # density to constant pressure.
-        if diff>0:
-            _,pt,pd = self._p(T,d,diff=1)
-            # Correct the partial derivatives of the property to be 
-            #  with respect to T,p instead of T,d.  Since d is used for
-            #  density, let's use D for derivative and _T or _d for
-            #  partial derivatives
-            # The property, y,
-            #   Dy(T,d) = y_T DT + y_d Dd    <== as evaluated by fn()
-            # Pressure, p,
-            #   Dp(T,d) = p_T DT + p_d Dd    <== as evaluated by _p()
-            # So, differentials in density w.r.t. temperature while 
-            # holding pressure constant, Dp = 0, and
-            #   Dd/DT | p=const = -p_T / p_d
-            # Differentials with density w.r.t. pressure while holding 
-            # temperature constant, DT = 0, and
-            #   Dd/Dp | T=const = 1/p_d
-            # Therefore, 
-            #   Dd = (-p_T / p_d) DT + (1 / p_d) Dp
-            # Finally,
-            #   Dy = (y_T - y_d p_T / p_d) DT + (y_d / p_d) Dp
-            yt = yt - yd * pt / pd
-            yp = yd / pd
-        # Do not support higher derivatives than 1
-        return y,yt,yp
+        count = 0
+        while Ids.any():
+            count += 1
+            # Only permit Nmax iterations
+            if count > Nmax:
+                raise pm.utility.PMParamError(
+                        f'mp2._Titer: Failed to converge after {Nmax} iterations.')
+            
+            DD = d[Ids]
+            TT = T[Ids]
+            
+            f,ft,fd = fn(T=TT, d=DD, diff=1)
+            dd = (fvalue[Ids] - f) / fd
+            d[Ids] += dd
+            Ids[Ids] = np.abs(dd) > ep * DD
+
+
+    def _diter(self, T, d, fn, fvalue, Ids, Nmax=10, ep=1e-6):
+        """Constant-density iteration (primative routine)
+    _diter(T, d, fn, fvalue, Ids)
+
+While holding density constant, iterates on temperature to match a 
+property with its target values.
+
+Arguments are:
+    T       Temperature array
+    d       density array
+    fn      inner property function
+    fvalue  array of target property values
+    Ids     boolean down-select array
+Optional keyword arguments are:
+    Nmax    Maximum number of iterations before declaring failure
+    ep      epsilon or fractional precision to require in density
+
+The iteration is performed in-place, so the initival values in the T and
+d arrays are used as the initial guesses for iteration.  As iteration 
+progresses, the Ids boolean array is modified to reflect values that 
+have converged.
+"""
+        count = 0
+        while Ids.any():
+            count += 1
+            # Only permit Nmax iterations
+            if count > Nmax:
+                raise pm.utility.PMParamError(
+                        f'mp2._diter: Failed to converge after {Nmax} iterations.')
+            
+            DD = d[Ids]
+            TT = T[Ids]
+            
+            f,ft,fd = fn(T=TT, d=DD, diff=1)
+            dT = (fvalue[Ids] - f) / ft
+            T[Ids] += dT
+            Ids[Ids] = np.abs(dT) > ep * TT
+
+
+    def _iter2(self, T, d, f0, f1, f0value, f1value, Ids, Nmax=10, ep=1e-6):
+        """Constant-density iteration (primative routine)
+    _iter2(T, d, f0, f1, f0value, f1value Ids)
+
+Iterate on both temperature and density to obtain a pair of property 
+values.
+
+Arguments are:
+    T       Temperature array
+    d       density array
+    f0      inner property function
+    f1      inner property function
+    f0value array of target property values
+    f1value array of target property values
+    Ids     boolean down-select array
+Optional keyword arguments are:
+    Nmax    Maximum number of iterations before declaring failure
+    ep      epsilon or fractional precision to require in density
+
+The iteration is performed in-place, so the initival values in the T and
+d arrays are used as the initial guesses for iteration.  As iteration 
+progresses, the Ids boolean array is modified to reflect values that 
+have converged.
+"""
+        count = 0
+        while Ids.any():
+            count += 1
+            # Only permit Nmax iterations
+            if count > Nmax:
+                raise pm.utility.PMParamError(
+                        f'mp2._iter2: Failed to converge after {Nmax} iterations.')
+            
+            DD = d[Ids]
+            TT = T[Ids]
+            
+            # We'll use f and g as placeholder function values
+            f,ft,fd = f0(T=TT, d=DD, diff=1)
+            g,gt,gd = f1(T=TT, d=DD, diff=1)
+            
+            # Calculate error arrays
+            ef = f0value[Ids] - f
+            eg = f1value[Ids] - g
+            # Determinants
+            det = (ft*gd - fd*gt)
+            # Calculate the changes in temperature and density
+            dT = (ef*gd-eg*fd)/det
+            dd = (-ef*gt+eg*ft)/det
+            # Apply the changes
+            T[Ids] += dT
+            d[Ids] += dd
+            # Update the convergence tests
+            Ids[Ids] = np.logical_and(np.abs(dT) > ep * TT, np.abs(dd) > ep * DD)
+
+
         
 
 
@@ -3297,12 +2976,29 @@ density.
         e[:,0] = ft*(R*Tscale)
         h[:,0] = (ft*tt + 1.)*R*T
         # s, g, and f diverge in reality.
-        # However, for initial guesses we'll let them equal their neighboring
-        # values at the triple point vapor (very small) density.  
-        # Convergence in a sparse vapor should be relatively easy.
-        #s[:,0] = float('inf')
-        #g[:,0] = float('-inf')
-        #f[:,0] = float('-inf')
+        s[:,0] = float('inf')
+        g[:,0] = float('-inf')
+        f[:,0] = float('-inf')
+        
+        if verbose:
+            print('Interpolating two-phase mixture data...')
+        for k in range(1, Tci+1):
+            # Indices for the saturation temperature and density
+            iT = Tci-k
+            iL = dci-k
+            iV = dci+k
+            
+            dmix = d[iL+1:iV]
+            xV = ((1./dmix)-(1./d[iL]))/((1./d[iV])-(1./d[iL]))
+            xL = 1-xV
+            # First, broadcast the constant properties, p and g
+            p[iT, iL+1:iV] = p[iT,iV]
+            g[iT, iL+1:iV] = g[iT,iV]
+            # Next, use quality to calculate the mixture properties
+            e[iT, iL+1:iV] = e[iT, iL]*xL + e[iT, iV]*xV
+            h[iT, iL+1:iV] = h[iT, iL]*xL + h[iT, iV]*xV
+            s[iT, iL+1:iV] = s[iT, iL]*xL + s[iT, iV]*xV
+            f[iT, iL+1:iV] = f[iT, iL]*xL + f[iT, iV]*xV
         
         # Build the table dictionary
         self._table = {'T':T, 'd':d, 'cI':(Tci, dci), 'p':p, 'e':e, 'h':h, 's':s, 'g':g, 'f':f}
@@ -3339,12 +3035,17 @@ Iteratively determines the saturation
         dsL = self.sattab['dL']
         dsV = self.sattab['dV']
         
-        ii = np.searchsorted(Ts, T[I])
-        t = (T[I] - Ts[ii-1]) / (T[ii] - T[ii-1])
-        dL[I] = t * dsL[ii-1] + (1-t) * dsL[ii]
-        dV[I] = t* dsV[ii-1] + (1-t) * dsV[ii]
+        temp = T[I]
+        ii = np.searchsorted(Ts, temp)
+        temp -= Ts[ii-1]
+        temp /= (T[ii] - T[ii-1])
+        temp1 = 1 - temp
+        dL[I] = temp * dsL[ii-1] + temp1 * dsL[ii]
+        dV[I] = temp * dsV[ii-1] + temp1 * dsV[ii]
 
-        
+        p = np.empty_like(T)
+        self._Tsatiter(T, p, dL, dV, I)
+        return dL, dV
         
         
     def _ps(self,T,diff=0):
@@ -3712,71 +3413,84 @@ other conditions, x<0 and d1 == d2.
         # 1) Handle varg and kward and their defaults
         # 2) Apply the argument rules...
         #   2.1: All arguments must be legal
-        #   2.2: Only 2 arguments unless T,p,x
-        #   2.3: Only 1 inverse property
-        #   2.4: d and v may not be specified together 
+        #   2.2: There are only two arguments unless one is x
+        #   2.3: x may only be specified with T, g, or p
+        #   2.4: Energy properties, T, e, h, f, and g may not be specified together
+        #   2.5: d and v may not be specified together 
+        #   
         # 3) Convert the arguments to arrays with dim 1 or greater
         # 4) Convert to standard units
         # 5) Check for out-of-bounds on basic arguments
         # 6) Replace specific volume with density if it appears
         # 7) Case out the possible combinations
+        #   7.1: x is specified
+        #       7.1.1: x,T,p
+        #       7.1.2: x,T
+        #       7.1.3: x,p
+        #   7.2: Two inverse properties
+        #   7.3: One inverse property
+        #       7.3.1: T,?
+        #       7.3.2: d,?
+        #   7.4: No inverse properties
+        #       7.4.1: T,d
+        #       7.4.2: Unhandled Exception
         # 8) Broadcast the arrays appropriately
         # 9) Calculate T,d1,d2,x, and I
-        
-        # Fancy tool for tracking iteration issues
-        debug = False
 
         # 1) Handle varg and kwarg and apply defaults
 
-        # If varg is specified, assign its values to T,p
-        if len(varg) > 0:
+        # If varg is specified, assign its values to T,p,x
+        Nargs = len(varg)
+        if Nargs > 0:
             if 'T' in kwarg:
                 raise pm.utility.PMParamError('T was specified both positionally and with a keyword.')
             kwarg['T'] = varg[0]
-        if len(varg) > 1:
-            if 'p' in kwarg:
-                raise pm.utility.PMParamError('p was specified both positionally and with a keyword.')
-            kwarg['p'] = varg[1]
-        if len(varg) > 2:
-            raise pm.utility.PMParamError('Property calls with more than two arguments require keywords.')
+            if Nargs > 1:
+                if 'p' in kwarg:
+                    raise pm.utility.PMParamError('p was specified both positionally and with a keyword.')
+                kwarg['p'] = varg[1]
+                if Nargs > 2:
+                    if 'x' in kwarg:
+                        raise pm.utility.PMParamError('x was specified both positionally and with a keyword.')
+                    kwarg['x'] = varg[2]
+                    if Nargs > 3 :
+                        raise pm.utility.PMParamError('Property calls with more than two arguments require keywords.')
 
-        # Count the number of arguments
-        nargs = len(kwarg)
-        if nargs == 1:
+        # Re-count the number of arguments -- in kwarg this time
+        # We'll assign default properties to T,p to ensure there are 
+        # at least two arguments.
+        Nargs = len(kwarg)
+        if Nargs == 1:
             if 'T' not in kwarg:
                 kwarg['T'] = pm.config.def_T()
             else:
                 kwarg['p'] = pm.config.def_p()
-        elif nargs == 0:
+        elif Nargs == 0:
             kwarg['T'] = pm.config.def_T()
             kwarg['p'] = pm.config.def_p()
         
         # 2) Apply the argument rules
         # Re-measure the number of arguments and use sets to enforce
         # the remaining rules
-        nargs = len(kwarg)
+        Nargs = len(kwarg)
         args = set(kwarg.keys())
         # inverse_methods is a map between the property names that require
         # iteration and the inner method that calculates it.  Inverse 
         # args is a set of their names that will be used for argument 
         # parsing
-        inverse_methods = {'e':self._e, 'h':self._h, 's':self._s}
+        inverse_methods = {'p':self._p, 'e':self._e, 'h':self._h, 's':self._s, 'f':self._f, 'g':self._g}
         inverse_args = set(inverse_methods.keys())
         # basic_args are the remaining legal arguments that do not need
         # iteration (OK, p does, but it's special). 
         # legal_args are all arguments that can be legally accepted.
-        basic_args = set(['T','p','d','v','x'])
+        basic_args = set(['T','d','v','x'])
         legal_args = inverse_args.union(basic_args)
-        # Group the available arguments into basic and inverse sets
+        # Find the number of inverse arguments
         inverse_args &= args
-        basic_args &= args
+        Ninv = len(inverse_args)
         
-        # 2.1: There may only be 2 arguments UNLESS the input is T,p,x
-        if nargs>2 and (args - set(['T','p','x'])):
-            raise pm.utility.PMParamError(
-                    'Specifying more than two simultaneous parameters is illegal (except for T,p,x).')
         
-        # 2.2: All arguments must be "legal" recognized arguments
+        # 2.1: All arguments must be "legal" recognized arguments
         these_args = args - legal_args
         if these_args:
             message = 'Unrecognized propert(y/ies):'
@@ -3786,17 +3500,25 @@ other conditions, x<0 and d1 == d2.
                 prefix = ', '
             raise pm.utility.PMParamError(message)
         
-        # 2.3: Only one inverse property is allowed
-        inverse_args = inverse_args.intersection(args)
-        if len(inverse_args) > 1:
-            message = 'Properties may not be specified together:'
-            prefix = ' '
-            for name in inverse_args:
-                message += prefix + name
-                prefix = ', '
-            raise pm.utility.PMParamError(message)
-        
-        # 2.4: Density and specific volume cannot be specified together
+        # Special rules applying to quality
+        if 'x' in args:
+            # 2.2: There may only be 2 arguments excluding 'x'
+            if Nargs > 3:
+                raise pm.utility.PMParamError(
+                    'Specifying more than two simultaneous parameters is illegal (except x with T and p).')
+            # 2.3: 'x' may only be specified with T or p
+            if args - {'x', 'T', 'p'}:
+                raise pm.utility.PMParamError(
+                        'Quality may only be specified with temperature and/or pressure.')
+        # 2.2: There may only be 2 arguments excluding 'x'
+        elif Nargs > 2:
+            raise pm.utility.PMParamError(
+                    'Specifying more than two simultaneous parameters is illegal (except x with T,p or g,p).')
+        # 2.4: T, e, h, f, and g may not be specified together
+        if len(args.intersection({'T', 'e', 'h', 'f', 'g'})) > 1:
+            raise pm.utility.PMParamError(
+                    'Energy parameters, T, e, h, f, or g, may not be specified as a pair.')
+        # 2.5: Density and specific volume cannot be specified together
         if 'v' in args and 'd' in args:
             raise pm.utility.PMParamError('Density (d) and specific volume (v) cannot be specified together.')
 
@@ -3854,19 +3576,13 @@ other conditions, x<0 and d1 == d2.
             # substitution.
             args.add('d')
             basic_args.add('d')
-            del kwarg['v']
-            args.remove('v')
-            basic_args.remove('v')
-        if 'h' in kwarg:
-            value = kwarg['h']
-            value = pm.units.energy(value, to_units='J')
-            value = pm.units.matter(value, self.data['mw'], to_units='kg', exponent=-1)
-            kwarg['h'] = value
-        if 'e'  in kwarg:
-            value = kwarg['e']
-            value = pm.units.energy(value, to_units='J')
-            value = pm.units.matter(value, self.data['mw'], to_units='kg', exponent=-1)
-            kwarg['e'] = value
+            # Keep v - it is sometimes useful
+        for this in ['h', 'e', 'f', 'g']:
+            if this in kwarg:
+                value = kwarg[this]
+                value = pm.units.energy(value, to_units='J')
+                value = pm.units.matter(value, self.data['mw'], to_units='kg', exponent=-1)
+                kwarg[this] = value
         if 's' in kwarg:
             value = kwarg['s']
             value = pm.units.energy(value, to_units='J')
@@ -3878,473 +3594,136 @@ other conditions, x<0 and d1 == d2.
             if (kwarg['x'] > 1).any() or (kwarg['x'] < -1).any():
                 raise pm.utility.PMParamError('Quality was found to be outside of the range -1,1.')
 
-
-        # 6) Case out the different combinations
         
-        # If one of the arguments requires an inverse routine...
-        if inverse_args:
-            # Isolate the inverse property argument
-            # Because of rule 2.3, there is only one
-            invp = inverse_args.pop()
-            invfn = inverse_methods[invp]
-
-            # There will only be one basic argument too - see rule 2.1
-            basp = basic_args.pop()
-            
-            # TP iteration
-            if basp == 'p':                    
-                # broadcast
-                # We'll use h for the property (whether it is or not)
-                h,p = np.broadcast_arrays(kwarg[invp],kwarg[basp])
-                # Initialize results
-                T = np.empty_like(h, dtype=float)
-                d1 = np.empty_like(h, dtype=float)
-                d2 = np.empty_like(h, dtype=float)
-
-                # Some important intermediates
-                I = np.zeros_like(h, dtype=bool)
-                Ta = np.empty_like(h, dtype=float)
-                Tb = np.empty_like(h, dtype=float)
-                Tsat = np.empty_like(h, dtype=float)
-                
-                # It's tempting not to define these as full-sized arrays, but
-                # They need to be down-selected for points under the dome to 
-                # calculate quality.
-                hsL = np.empty_like(h, dtype=float)
-                hsV = np.empty_like(h, dtype=float)
-                
-                # Start with super-critical and sub-triple points
-                Iwork = np.logical_or(p >= self.data['pc'], p <= self.data['pt'])
-                Ta[Iwork] = self.data['Tlim'][0]
-                Tb[Iwork] = self.data['Tlim'][1]
-                
-                # Now work with the sub-critical points where saturation
-                # is possible
-                Iwork = np.logical_not(Iwork)
-                if Iwork.any():
-                    # Get the saturation temperature at the specified pressure
-                    Tsat[Iwork] = self._Ts(p[Iwork])
-                    # Get the saturation densities at the specified pressure
-                    # We'll borrow d1 and d2 for this. The ones that aren't 
-                    # overwritten later will be needed!
-                    d1[Iwork] = self._dsl(Tsat[Iwork],0)[0]
-                    d2[Iwork] = self._dsv(Tsat[Iwork],0)[0]
-                    # Finally get the saturation "property" values at the specified pressure
-                    hsL[Iwork] = invfn(Tsat[Iwork], d1[Iwork] ,0)[0]
-                    hsV[Iwork] = invfn(Tsat[Iwork], d2[Iwork] ,0)[0]
-
-                    # Isolate points that are liquid
-                    # I will temporarily point to liquid states
-                    I[Iwork] = h[Iwork] < hsL[Iwork]
-                    Ta[I] = self.data['Tlim'][0]
-                    Tb[I] = Tsat[I]*(1-1e-6)
-                    
-                    # Isolate points that are vapor
-                    # I will temporarily point to vapor states
-                    I[Iwork] = h[Iwork] > hsV[Iwork]
-                    Ta[I] = Tsat[I]*(1+1e-6)
-                    Tb[I] = self.data['Tlim'][1]
-
-                    # Finally, isolate points that are saturated
-                    # These will be the final values for I
-                    I[Iwork] = np.logical_and( h[Iwork]<=hsV[Iwork], h[Iwork]>=hsL[Iwork] )
-                    # There's no need to iterate here
-                    # These temperatures are equal to Tsat
-                    Ta[I] = Tsat[I]
-                    Tb[I] = Tsat[I]
-                    T[I] = Tsat[I]
-
-                # Iwork is now a down-select array that points to non-
-                # saturated points. These are the only ones that require
-                # iteration.
-                Iwork = np.logical_not(I)
-                self._hybrid1(
-                        self._tpiter,
-                        'T',
-                        h,
-                        T,
-                        Iwork,
-                        Ta, Tb,
-                        param={'fn':invfn, 'p':p, 'debug':False},
-                        verbose=debug,
-                        Nmax=50)
-                        
-                # If there were saturated points
-                if I.any():
-                    x = -np.ones_like(h, dtype=float)
-                    x[I] = (h[I] - hsL[I])/(hsV[I]-hsL[I])
-                    # d1 and d2 already contain the liquid and vapor
-                    # densities at the saturated points
-                    # The remaining points still need to be calculated
-                    # use _d() to perform the iterative calculation
-                    Iwork = np.logical_not(I)
-                    d1[Iwork] = self._d(T=T[Iwork], p=p[Iwork])
-                    d2[Iwork] = d1[Iwork]
+        # 7: Case out the different property combinations
+        # 7.1: x is specified
+        if 'x' in kwarg:
+            if 'T' in kwarg:
+                # 7.1.1: T,p,x
+                # This is the special case that lets T,p specify any state
+                if 'p' in kwarg:
+                    T,p,x = np.broadcast_arrays(kwarg['T'], kwarg['p'], kwarg['x'])
+                    I = (x >= 0)
+                    d1 = np.empty_like(T)
+                    d2 = np.empty_like(T)
+                    # Calculate densities for saturated states
+                    if I.any():
+                        d1[I] = np.interp(T[I], self._sattable['T'], self._sattable['dL'], left=config['def_oob'], right=config['def_oob'])
+                        d2[I] = np.interp(T[I], self._sattable['T'], self._sattable['dV'], left=config['def_oob'], right=config['def_oob'])
+                        Ids = I.copy()
+                        self._Tsatiter(T,p,d1,d2,Ids)
+                    # Calculate densities for non-saturated states
+                    Ids = np.logical_not(I)
+                    if Ids.any():
+                        # Calculate densities for non-saturated points
+                        d2[Ids],Ti,di = self._mapsearch2y(self._table['T'], self._table['d'], self._table['p'], T[Ids], p[Ids])
+                        self._Titer(T, d2, self._p, p, Ids.copy())
+                        d1[Ids] = d2[Ids]
+                    return T, d1, d2, x, I
+                # 7.1.2: T,x
                 else:
-                    x = np.broadcast_to(-1, h.shape)
-                    d1 = self._d(T=T,p=p)
-                    d2 = d1
-
-                return T,d1,d2,x,I
-                
-            # T iteration
-            elif basp == 'd':                
-                # set up the iteration
-                # broadcast using h as the property
-                h,d = np.broadcast_arrays(kwarg[invp],kwarg[basp])
-                # Initialize results
-                T = np.empty_like(h, dtype=float)
-                x = -np.ones_like(h,dtype=float)
-                # Some important intermediates
-                Isat = np.ones_like(h, dtype=bool)
-                Ta = np.full_like(h, self.data['Tlim'][0], dtype=float)
-                Tb = np.full_like(h, self.data['Tlim'][1], dtype=float)
-                
-                # There is no need to deal with saturation conditions
-                # here - these are handled in the _tditer method since
-                # the saturation densities depend on T.
-                self._hybrid1(
-                        self._tditer,
-                        'T',
-                        h,
-                        T,
-                        Isat,
-                        Ta, Tb,
-                        param={'fn':invfn, 'd':d, 'debug':debug},
-                        verbose=debug,
-                        Nmax=50)
-                
-                # Finally, reconstruct quality and density. 
-                # Detect points with sub-critical temperatures.
-                I = T < self.data['Tc']
-                # If there are sub-critical points
-                if I.any():
-                    # Repurpose Ta and Tb to be density saturation values
-                    # We'll make better use of them when we figure out
-                    # which (if any) need to be kept
-                    Ta[I] = self._dsl(T[I])[0]
-                    Tb[I] = self._dsv(T[I])[0]
-                    I[I] = np.logical_and(d[I] >= Tb[I], d[I] <= Ta[I])
-
-                # Finally, check for points under the dome. Otherwise,
-                # we won't copy d - d1 and d2 will be identical
-                if I.any():
-                    d1 = d.copy()
-                    d2 = d.copy()
-                    d1[I] = Ta[I]
-                    d2[I] = Tb[I]
-                    x = -np.ones(T.shape, dtype = float)
-                    x[I] = (Ta[I]/d[I] - 1.)/(Ta[I]/Tb[I] - 1.)
-                else:
-                    d1 = d
-                    d2 = d
-                    x = np.broadcast_to(-1, T.shape)
-                    
-                return T,d1,d2,x,I
-
-            # Tx iteration
-            elif basp == 'x':
-                # Properties evaluated with arguments (T,x) are not monotonic;
-                # there are multiple values of T that produce the same 
-                # property value.  This is not a valid way to specify
-                # a state.
-                raise pm.utility.PMParamError('Specifying these properties is not enough information to determine the state: {:s}, {:s}\n'.format(invp,basp))
-                
-            # d iteration
-            elif basp == 'T':
-                # broadcast
-                # We'll use "s" for the property value
-                s,T = np.broadcast_arrays(kwarg[invp],kwarg[basp])
-                # Initialize results
-                d1 = np.empty_like(s, dtype=float)
-                d2 = np.empty_like(s, dtype=float)
-                x = -np.ones_like(s, dtype=float)
-
-                # Some important intermediates
-                da = np.zeros_like(s, dtype=float)
-                db = np.full_like(s, self.data['dlim'][1], dtype=float)
-                ssL = np.empty_like(s, dtype=float)
-                ssV = np.empty_like(s, dtype=float)
-                p = np.empty_like(s, dtype=float)
-                I = np.zeros_like(s, dtype=bool)
-                
-                # for points with sub-critical temperatures, we will test for
-                # saturation
-                Iwork = T < self.data['Tc']
-                if Iwork.any():
-                    # Use upper and lower density limits as temporaries
-                    # d1=liquid, d2=vapor
-                    d1[Iwork] = self._dsl(T[Iwork])[0]
-                    d2[Iwork] = self._dsv(T[Iwork])[0]
-                    ssL[Iwork] = invfn(T[Iwork], d1[Iwork])[0]
-                    ssV[Iwork] = invfn(T[Iwork], d2[Iwork])[0]
-
-                    # Start with liquid points. 
-                    # I will temporarily point to liquid states
-                    I[Iwork] = s[Iwork] < ssL[Iwork]
-                    # Adjust the lower bound by 1% to account for numerical inconsistencies
-                    da[I] = 0.99 * d1[I]
-                    db[I] = self.data['dlim'][1]
-                    
-                    # Now, move on to vapor points
-                    # I will temporarily point to vapor states
-                    I[Iwork] = s[Iwork] > ssV[Iwork]
-                    da[I] = self.data['dlim'][0]
-                    # Adjust the upper bound by 1% to account for numerical inconsistencies
-                    db[I] = 1.01*d2[I]
-                    
-                    # Finally, deal with points that are saturated
-                    I[Iwork] = np.logical_and(ssL[Iwork] <= s[Iwork], s[Iwork] <= ssV[Iwork])
-                    # I now has its final value, pointing to saturated points
-
-                # For most data sets, the minim density is zero, but that is not
-                # actually a legal value.  If necessary, iterate on the lower 
-                # bound until the solution is bracketed
-                Iwork = np.logical_and(da == 0, np.logical_not(I))
-                if Iwork.any():
-                    # Come up with a bracketing value for density that is not zero
-                    # Most data sets use the minimum density as 0, but that crashes
-                    da[Iwork] = .9999 * self.data['dlim'][0] + .0001 * self.data['dlim'][1]
-                    # calculate the entropy at the minimum and test to ensure inclusion
-                    # Recycle the ssL array as a temporary for the lower-bound entropy
-                    ssL[Iwork] = invfn(T=T[Iwork],d=da[Iwork])[0]
-                    Iwork[Iwork] = ssL[Iwork] < s[Iwork]
-                    count = 0
-                    # Keep going as long as the lower bound entropy is less than
-                    # the target entropy for any points
-                    while Iwork.any():
-                        # dump out if this has been going on for too long
-                        count += 1
-                        if count > 20:
-                            raise pm.utility.PMAnalysisError('Failed while searching for a lower density value to bracket a solution.')
-                        da[Iwork] = 0.5*(self.data['dlim'][0] + da[Iwork])
-                        ssL[Iwork] = invfn(T=T[Iwork], d=da[Iwork])[0]
-                        Iwork[Iwork] = ssL[Iwork] < s[Iwork]
-                
-                # Now, values are actually bracketed.  Now, we can iterate.
-                Iwork = np.logical_not(I)
-                self._hybrid1(
-                        invfn,
-                        'd',
-                        s,
-                        d1,
-                        Iwork,
-                        da, db,
-                        param={'T':T},
-                        verbose=debug,
-                        fx_index=2,
-                        Nmax=50)
-                    
-                # Finally, check for points under the dome. Otherwise,
-                # we won't copy d - d1 and d2 will be identical
-                if I.any():
-                    # d1 and d2 already contain liquid and vapor
-                    # densities at saturated points.  Everywhere else
-                    # they should be equal
-                    Iwork = np.logical_not(I)
-                    d2[Iwork] = d1[Iwork]
-                    x = -np.ones(T.shape, dtype = float)
-                    x[I] = (s[I] - ssL[I])/(ssV[I] - ssL[I])
-                else:
-                    # Throw away d2 and just return two identical copies
-                    # of d1
-                    d2 = d1
-                    x = np.broadcast_to(-1, T.shape)
-                
-                return T, d1, d2, x, I
-
-            # Catch an unhandled parameter bug
+                    T,x = np.broadcast_arrays(kwarg['T'], kwarg['x'])
+                    p = np.empty_like(T)                    
+                    I = (x >= 0)
+                    if not I.all():
+                        raise pm.utility.PMParamError(
+                            'Found x < 0.  Only two-phase mixtures can be specified with T,x.  All values of x must be [0,1].')
+                    dL = np.interp(T, self._sattable['T'], self._sattable['dL'], left=pm.config['def_oob'], right=pm.config['def_oob'])
+                    dV = np.interp(T, self._sattable['T'], self._sattable['dV'], left=pm.config['def_oob'], right=pm.config['def_oob'])
+                    self._Tsatiter(T,p,dL,dV,I.copy())
+                    return T, dL, dV, x, I
+            # 7.1.3: p,x
             else:
-                raise pm.utility.PMParamError('Please report a bug: There was an unhandled argument in the inverse_args algorithm: ' + basp)
-                
-            
-        elif 'T' in args:
-            
-            # T,p
-            # If p is defined, then none of the conditions are under the
-            # dome.  Use _d() to invert into density units.
-            if 'p' in args:
-                # Deal with the special case that T,p,x are specified
-                if 'x' in args:
-                    x = kwarg['x']
-                else:
-                    x = np.array([-1], dtype=float)
-                    
-                # Force compatible arrays
-                T,p,x = np.broadcast_arrays(kwarg['T'],kwarg['p'],x)
-                # Which points are not under the dome?
-                I = x<0.
-                
-                # Initialize densities
-                d1 = np.zeros_like(T)
-                d2 = np.zeros_like(T)
-                
-                # deal with the non-saturated points
-                d1[I] = self._d(T[I],p[I])
-                d2[I] = d1[I]
-                # Deal with densities under the dome
-                I = np.logical_not(I)
-                
-                # Verify that the temperatures are sub-critical values
-                # that fail this test will be set to nan
-                Iwork = np.zeros_like(T, dtype=bool)
-                Iwork[I] = T[I] > self.data['Tc']
-                if Iwork.any():
-                    # If T or x do not own their memory, copy them so we
-                    # can write to them
-                    if T.base is not None:
-                        T = np.array(T)
-                    if x.base is not None:
-                        x = np.array(x)
-                    if I.base is not None:
-                        I = np.array(I)
-                    T[Iwork] = pm.config['def_oob']
-                    d1[Iwork] = pm.config['def_oob']
-                    d2[Iwork] = pm.config['def_oob']
-                    x[Iwork] = pm.config['def_oob']
-                    I[Iwork] = False
-                    pm.utility.print_warning(
-                        'Quality was specified with temperatures above the critical point.')
-                
-                d1[I] = self._dsl(T[I])[0]
-                d2[I] = self._dsv(T[I])[0]
-
-                return T, d1, d2, x, I
-            
-            # T,d (or v)
-            elif 'd' in args:
-                # broadcast the arrays
-                T,d1 = np.broadcast_arrays(kwarg['T'], kwarg['d'])
-                # Isolate the sub-critical temperatures
-                I = np.asarray(T<self.data['Tc'])
-                # Calculate the saturation densities
-                dsL = self._dsl(T[I])[0]
-                dsV = self._dsv(T[I])[0]
-                # Identify the densities that are under the dome
-                Isat = np.logical_and(
-                            d1[I] < dsL, d1[I] > dsV)
-                # Modify I to include only the points that are saturated
-                I[I] = Isat
-                # If there are any densities under the dome
-                if Isat.any():
-                    # Broadcasting can cause elements of d1 to refer to
-                    # common locations in memory.  If there are 
-                    # saturated points, we need to modify d1, so this 
-                    # will force d1 to be a fully populated array.
-                    d1 = d1.copy()
-                    # Calculate the quality
-                    x = -np.ones_like(T, dtype=float)
-                    x[I] = (dsL[Isat] / d1[I] - 1.) / (dsL[Isat] / dsV[Isat] - 1.)
-                    # Update the densities
-                    d2 = d1.copy()
-                    d1[I] = dsL[Isat]
-                    d2[I] = dsV[Isat]
-                else:
-                    d2 = d1
-                    x = np.broadcast_to(-1,T.shape)
-                return T, d1, d2, x, I
-                
-            # T,x
-            # If quality is defined, then the points MUST be saturated
-            elif 'x' in args:
-                T,x,I = np.broadcast_arrays(kwarg['T'],kwarg['x'],True)
-                if (T>self.data['Tc']).any():
+                p,x = np.broadcast_arrays(kwarg['p'], kwarg['x'])
+                I = (x >= 0)
+                if not I.all():
                     raise pm.utility.PMParamError(
-                        'Quality cannot be specified above the critical temperature.')
-                elif (x<0).any():
-                    raise pm.utility.PMParamError(
-                        'When specifying T,x together, all values of x must be between 0 and 1.')
-                d1 = self._dsl(T,0)[0]
-                d2 = self._dsv(T,0)[0]
-                return T,d1,d2,x,I
-                
-            # This should never happen
-            else:
-                message = 'Please report a bug: Unhandled event [T] in _argparse with args:'
-                prefix = ' '
-                for name in args:
-                    message += prefix + name
-                    prefix = ', '
-                raise pm.utility.PMParamError(message)
-        # p
-        # If p is the primary parameter
-        elif 'p' in kwarg:
-            # p,d
-            # Pressure, density is an expensive combination since it
-            # involves iteration to determine the saturation properties
-            # AND to recover temperature.
-            if 'd' in kwarg:
-                # Broadcast the arrays
-                d1,p = np.broadcast_arrays(kwarg['d'],kwarg['p'])
-                # This one's an expensive funciton call
-                # Get temperature and the saturation densities
-                T,dsL,dsV,Isat = self._T(d1,p,sat=True)
-                # If there are any saturated points
-                if Isat.any():
-                    # Broadcasting can cause elements of d1 to refer to
-                    # common locations in memory.  If there are 
-                    # saturated points, we need to modify d1, so this 
-                    # will force d1 to be a fully populated array.
-                    if d1.base is not None:
-                        d1 = d1.copy()
-                    # Calculate the quality
-                    x = -np.ones_like(p, dtype=float)
-                    x[Isat] = (dsL[Isat] / d1[Isat] - 1.) / (dsL[Isat] / dsV[Isat] - 1.)
-                    # Update the densities
-                    d2 = d1.copy()
-                    d1[Isat] = dsL[Isat]
-                    d2[Isat] = dsV[Isat]
-                else:
-                    d2 = d1
-                    x = np.broadcast_to(-1,T.shape)
-                return T,d1,d2,x,Isat
+                        'Found x < 0.  Only two-phase mixtures can be specified with p,x.  All values of x must be [0,1].')
+                dL = np.interp(p, self._sattable['p'], self._sattable['dL'], left=pm.config['def_oob'], right=pm.config['def_oob'])
+                dV = np.interp(p, self._sattable['p'], self._sattable['dV'], left=pm.config['def_oob'], right=pm.config['def_oob'])
+                T = np.interp(p, self._sattable['p'], self._sattable['T'], left=pm.config['def_oob'], right=pm.config['def_oob'])
+                self._psatiter(T,p,dL,dV,I.copy())
+                return T, dL, dV, x, I
             
-            # p,x
-            # If quality is defined, we are saturated
-            elif 'x' in kwarg:
-                
-                # Ensure that p is sub-critical at all points
-                # Do this before broadcasting to prevent redundant checks
-                if (kwarg['p']>self.data['pc']).any():
-                    raise pm.utility.PMParamError('Quality cannot be specified at pressures above the critical point.')
-                elif (kwarg['x']<0).any():
-                    raise pm.utility.PMParamError('When specifying p,x, x must be between 0 and 1 at all points.')
-                    
-                p,x,I = np.broadcast_arrays(kwarg['p'],kwarg['x'],True)
-                # T is just the saturation temperature
-                T = self._Ts(p)
-                d1 = self._dsl(T,0)[0]
-                d2 = self._dsv(T,0)[0]
-                return T, d1, d2, x, I
-                
-            # This should never happen
+        # 7.2: Two inverse properties
+        elif Ninv > 1:
+            # Isolate the property strings, their methods, and their value arrays
+            f0str = args.pop()
+            f1str = args.pop()
+            fn0 = inverse_methods[f0str]
+            fn1 = inverse_methods[f1str]
+            f0value, f1value = np.broadcast_arrays(kwarg[f0str], kwarg[f1str])
+            # Look up estimates for T and d in the property tables
+            T,d2,Ti,di = self._mapsearch2(self._table['T'], self._table['d'], self._table[f0str], self._table[f1str], f0value, f1value)
+            x = np.full_like(T, -1.)
+            d1 = np.empty_like(d2)
+            # Test for entries under the dome
+            k = self._table['cI'][0] - Ti
+            diL = self._table['cI'][1] + k
+            diV = self._table['cI'][1] - k
+            I = (k>0) * (diV <= di) * (di < diL)
+            if I.any():
+                # g,p iteration will fail under the dome
+                if args == {'g', 'p'}:
+                    raise pm.utility.PMParamError(
+                            'mp2._argparse: Received g and p in or very close to a two-phase mixture: numerically singular.')
+                # Obtain estimates for saturation densities
+                d1[I] = np.interp(T[I], self._sattable['T'], self._sattable['dL'])
+                d2[I] = np.interp(T[I], self._sattable['T'], self._sattable['dV'])
+                # Constant-pressure iteration under the dome is a special case
+                # Pressure gives us temperature and densities explicitly,
+                # Then x can be calculated from f1value
+                if f0str == 'p':
+                    self._psatiter(T, f0value, d1, d2, I.copy())
+                    f1L,_,_ = fn1(T[I], d1[I], diff=0)
+                    f1V,_,_ = fn1(T[I], d2[I], diff=0)
+                    x[I] = (f1value[I] - f1L)/(f1V - f1L)
+                elif f1str == 'p':
+                    self._psatiter(T, f1value, d1, d2, I.copy())
+                    f0L,_,_ = fn0(T[I], d1[I], diff=0)
+                    f0V,_,_ = fn0(T[I], d2[I], diff=0)
+                    x[I] = (f0value[I] - f0L)/(f0V - f0L)
+                # For other property combinations, it will be necessary to 
+                # iterate.
+                else:
+                    self._satiter2(T, np.empty_like(T), d1, d2, x, fn0, fn1, f0value, f1value, I.copy())
+            # Detect states that are not quite under the dome, but very
+            # close.  These will have converged to out-of-bounds values
+            # for x.
+            Ids = np.zeros_like(I, dtype=bool)
+            Ids[I] = (x[I] < 0)
+            if Ids.any():
+                d2[Ids] = d1[Ids]
+                I[Ids] = False
+                x[Ids] = -1
+            Ids[I] = (x[I] > 1)
+            if Ids.any():
+                d1[Ids] = d2[Ids]
+                I[Ids] = False
+                x[Ids] = -1
+            
+            # All other states
+            Ids = np.logical_not(I)
+            if Ids.any():
+                self._iter2(T, d2, fn0, fn1, f0value, f1value, Ids.copy())
+                d1[Ids] = d2[Ids]
+            return T,d1,d2,x,I
+        # 7.3: One inverse property
+        elif Ninv > 0:
+            # 7.3.1: T,?
+            if 'T' in kwarg:
+                pass
+            # 7.3.2: d,?
+            elif 'd' in kwarg:
+                pass
+            # UNHANDLED CASE
             else:
-                message = 'Please report a bug: Unhandled event [p] in _argparse with args:'
-                prefix = ' '
-                for name in args:
-                    message += prefix + name
-                    prefix = ', '
-                raise pm.utility.PMParamError(message)
-                
-        # d
-        elif 'd' in args:
-            # d,x
-            # This combination is not supported!
-            # This represents an expensive inversion problem that is
-            # not certain to have a solution, and it is highly unusual 
-            # to specify quality AND density.
-            if 'x' in args:
-                raise pm.utility.PMParamError(
-                    'Specifying properties by density and quality is not currently supported.')                        
-            # This should never happen
-            else:
-                message = 'Please report a bug: Unhandled event [d] in _argparse with args:'
-                prefix = ' '
-                for name in args:
-                    message += prefix + name
-                    prefix = ', '
-                raise pm.utility.PMParamError(message)
-        message = 'Please report a bug: Unhandled event [MASTER] in _argparse with args:'
+                pass
+        # 7.4: T,d
+        else:
+            pass
+        
+        message = 'Please report a bug: Unhandled event [MASTER] in mp2._argparse with args:'
         prefix = ' '
         for name in args:
             message += prefix + name
