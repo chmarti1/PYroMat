@@ -65,6 +65,45 @@ respectively.
     # even if they are less readable
     return f0 if x == x0 else f1 if x == x1 else f0 + (f1-f0)*(x-x0)/(x1-x0)
 
+def interp_multiple(x, xdata, *varg):
+    """Perform 1D linear interpolation with multiple simultaneous ydata sets
+    y0, y1, y2, ... = interp_multiple(x, xdata, y0data, y1data, ...)
+
+This is equivalent to 
+    y0 = interp(x, xdata, y0data)
+    y1 = interp(x, xdata, y1data)
+    ...
+However, because redundant calls to interp cause the xdata array to be
+searched repeatedly, this algorithm is far more efficient for two or
+more interpolations.  
+
+In tests with data arrays with 10,000 data elements gave these results
+with arbitrary time units:
+    interp()            1.00
+    searchsorted()      0.94
+    interp_multiple()   1.28    (with one data set)
+    interp_multiple()   1.37    (with two data sets)
+    interp_multiple()   1.46    (with three data sets)
+
+The majority of the algorithm's time is spent on searching xdata, so
+the efficiency lost by performing the interpolation in uncompiled code
+is more than made up by stashing the search result.  Each additional
+dataset only costs about 9% of one call to interp().
+"""
+    i1 = np.searchsorted(xdata, x)
+    i0 = i1-1
+    # Advanced indexing makes an array copy.  We need x0 more than once
+    # so stash the copy for efficiency.  We'll overwrite it as soon as 
+    # we're done with it.
+    t0 = xdata[i0]
+    # Use dimensionless parameters, t0 and t1 = 1 - t0
+    t1 = (x-t0)/(xdata[i1]-t0)
+    t0[:] = 1-t1
+    # Initialize the output
+    output = []
+    for ydata in varg:
+        output.append(t1*ydata[i1] + t0*ydata[i0])
+    return tuple(output)
 
 def crossing2(I):
     """Find elements of a 2D boolean grid with dissimilar corners for _mapsearch2
@@ -1695,7 +1734,7 @@ SEE ALSO:
 
 
 
-    def _Tsatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6):
+    def _Tsatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6, debug=False):
         """Iterates on Maxwell's criteria while holding T constant (primative routine)
     _Tsatiter(T, p, dL, dV, Ids)
 
@@ -1746,6 +1785,26 @@ ep          Fractional error allowed for convergence (def = 1e-6)
             dL[Ids] -= e[Ids,0,0]
             dV[Ids] -= e[Ids,1,0]
             
+            # Test for densities that have overshot the critical point
+            Ioob = (dV > self.data['dc']) + (dL < self.data['dc'])
+            inner_count = 0
+            while Ioob.any():
+                inner_count += 1
+                if inner_count > Nmax:
+                    raise pm.utility.PMAnalysisError(f'mp2._Tsatiter: Crossed the critical point, and failed to produce a valid estimate after {Nmax} divisions!')
+                if debug:
+                    print(f'  Overstep correction {inner_count}')
+                e[Ioob,...] /= 2
+                dL[Ioob] += e[Ioob,0,0]
+                dV[Ioob] += e[Ioob,1,0]
+                Ioob = (dV > self.data['dc']) + (dL < self.data['dc'])
+
+            if debug:
+                print(f'**{count}**')
+                print('dL:', dL_)
+                print('dV:', dV_)
+                print('delta:,', e[Ids])
+            
             # Detect convergence
             Ids[Ids] = np.logical_or( np.abs(e[Ids,0,0]) > ep*dL[Ids],
                     np.abs(e[Ids,1,0]) > ep*dV[Ids] )
@@ -1759,7 +1818,7 @@ ep          Fractional error allowed for convergence (def = 1e-6)
             raise pm.utility.PMAnalysisError(f'_Tsatiter: Failed to converge in {Nmax} iterations.')
         
 
-    def _dVsatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6):
+    def _dVsatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6, debug=False):
         """Iterates on Maxwell's criteria while holding dV constant (primative routine)
     _dVsatiter(T, p, dL, dV, Ids)
 
@@ -1808,6 +1867,26 @@ ep          Fractional error allowed for convergence (def = 1e-6)
             # Update temperature and density
             T[Ids] -= e[Ids,0,0]
             dL[Ids] -= e[Ids,1,0]
+            # Test for densities that have overshot the critical point
+            Ioob = (dL < self.data['dc']) + (T > self.data['Tc'])
+            inner_count = 0
+            while Ioob.any():
+                inner_count += 1
+                if inner_count > Nmax:
+                    raise pm.utility.PMAnalysisError(f'mp2._dVsatiter: Crossed the critical point, and failed to produce a valid estimate after {Nmax} divisions!')
+                if debug:
+                    print(f'  Overstep correction {inner_count}')
+                e[Ioob,...] /= 2
+                T[Ioob] += e[Ioob,0,0]
+                dL[Ioob] += e[Ioob,1,0]
+                Ioob = (dL < self.data['dc']) + (T > self.data['Tc'])
+
+            
+            if debug:
+                print(f'**{count}**')
+                print('T:', T_)
+                print('dL:', dL_)
+                print('delta:,', e[Ids])
             
             # Test for convergence
             Ids[Ids] = np.logical_or(np.abs(e[Ids,0,0]) > ep*T_, np.abs(e[Ids,1,0]) > ep*dL_)
@@ -1819,7 +1898,7 @@ ep          Fractional error allowed for convergence (def = 1e-6)
         if fail:
             raise pm.utility.PMAnalysisError(f'_dVsatiter: Failed to converge in {Nmax} iterations.')
 
-    def _dLsatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6):
+    def _dLsatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6, debug=False):
         """Iterates on Maxwell's criteria while holding dL constant (primative routine)
     _dLsatiter(T, p, dL, dV, Ids)
 
@@ -1868,6 +1947,25 @@ ep          Fractional error allowed for convergence (def = 1e-6)
             # Update temperature and density
             T[Ids] -= e[Ids,0,0]
             dV[Ids] -= e[Ids,1,0]
+            # Test for densities that have overshot the critical point
+            Ioob = (dV > self.data['dc']) + (T > self.data['Tc'])
+            inner_count = 0
+            while Ioob.any():
+                inner_count += 1
+                if inner_count > Nmax:
+                    raise pm.utility.PMAnalysisError(f'mp2._dLsatiter: Crossed the critical point, and failed to produce a valid estimate after {Nmax} divisions!')
+                if debug:
+                    print(f'  Overstep correction {inner_count}')
+                e[Ioob,...] /= 2
+                T[Ioob] += e[Ioob,0,0]
+                dV[Ioob] += e[Ioob,1,0]
+                Ioob = (dV > self.data['dc']) + (T > self.data['Tc'])
+            
+            if debug:
+                print(f'**{count}**')
+                print('T:', T_)
+                print('dV:', dV_)
+                print('delta:,', e[Ids])
             
             # Test for convergence
             Ids[Ids] = np.logical_or(np.abs(e[Ids,0,0]) > ep*T_, np.abs(e[Ids,1,0]) > ep*dV_)
@@ -1880,7 +1978,7 @@ ep          Fractional error allowed for convergence (def = 1e-6)
             raise pm.utility.PMAnalysisError(f'_dLsatiter: Failed to converge in {Nmax} iterations.')
 
 
-    def _psatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6):
+    def _psatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6, debug=False):
         """Iterates on Maxwell's criteria while holding p constant (primative routine)
     _psatiter(T, p, dL, dV, Ids)
 
@@ -1943,6 +2041,28 @@ ep          Fractional error allowed for convergence (def = 1e-6)
             dL[Ids] -= e[Ids,1,0]
             dV[Ids] -= e[Ids,2,0]
             
+            # Test for densities that have overshot the critical point
+            Ioob = (dV > self.data['dc']) + (dL < self.data['dc']) + (T > self.data['Tc'])
+            inner_count = 0
+            while Ioob.any():
+                inner_count += 1
+                if inner_count > Nmax:
+                    raise pm.utility.PMAnalysisError(f'mp2._psatiter: Crossed the critical point, and failed to produce a valid estimate after {Nmax} divisions!')
+                if debug:
+                    print(f'  Overstep correction {inner_count}')
+                e[Ioob,...] /= 2
+                T[Ioob] += e[Ioob,0,0]
+                dL[Ioob] += e[Ioob,1,0]
+                dV[Ioob] += e[Ioob,2,0]
+                Ioob = (dV > self.data['dc']) + (dL < self.data['dc']) + (T > self.data['Tc'])
+            
+            if debug:
+                print(f'**{count}**')
+                print('T:', T_)
+                print('dL:', dL_)
+                print('dV:', dV_)
+                print('delta:,', e[Ids])
+            
             # Detect convergence
             Ids[Ids] = np.logical_or( np.abs(e[Ids,0,0]) > ep*T[Ids],
                         np.logical_or( np.abs(e[Ids,1,0]) > ep*dL[Ids],
@@ -1955,7 +2075,7 @@ ep          Fractional error allowed for convergence (def = 1e-6)
         if fail:
             raise pm.utility.PMAnalysisError(f'_psatiter: Failed to converge in {Nmax} iterations.')
 
-    def _satiter2(self, T, p, dL, dV, x, fn0, fn1, f0value, f1value, Ids, Nmax=10, ep=1e-6):
+    def _satiter2(self, T, p, dL, dV, x, fn0, fn1, f0value, f1value, Ids, Nmax=10, ep=1e-6, debug=False):
         """Two-property saturation iteration (primative routine)
     _satiter2(self, T, dL, dV, x, fn0, fn1, f0value, f1value, Ids, Nmax=10, ep=1e-6)
 
@@ -2045,6 +2165,14 @@ since pV == pL.  It is MUCH faster to use _psatiter instead.
             dV[Ids] += delta[Ids,2,0]
             p[Ids] = pV
             x[Ids] = vf1/df1
+            
+            if debug:
+                print(f'**{count}**')
+                print('T:', T_)
+                print('dL:', dL_)
+                print('dV:', dV_)
+                print('delta:,', delta[Ids])
+            
             # Update convergence criteria
             Ids[Ids] = (delta[Ids,0,0] > TT*ep) + (delta[Ids,1,0] > DL*ep) + (delta[Ids,2,0] > DV*ep)
             
@@ -3006,96 +3134,135 @@ density.
             print('Done.')
 
 
-    def _ds(self, T, diff=0):
-        """Calculate saturated liquid and vapor density (inner routine)
-    dL,dV,dLT,dVT = _ds(T, diff=0)
+    def _Tsat(self, T, debug=False):
+        """Calculate saturation state from temperature (inner routine)
+    T, p, dL, dV = _Tsat(T)
     
-Iteratively determines the saturation 
+Calculates saturation densities and their derivatives from temperature.  
+    T       A numpy array of temperatures. All values must be between
+            the triple point and critical point.  For speed, this is 
+            not verified, so unexpected behaviors or failures will 
+            result.
+Returns:
+    T       The original T array
+    p       Saturation pressure
+    dL      Saturated liquid density
+    dV      Saturated vapor density
+
+**DESCRIPTION**
+Interpolates the _sattable data for initial guesses of the saturation 
+properties, then polishes with _Tsatiter().  The return values and their
+order are to preserve a standard call signature for all saturation 
+routines.
+
+**SEE ALSO**
+    _Tsat(), _psat(), dLsat(), dVsat()
 """
-        # Create an iteration downselect array
-        # and an out-of-bounds array
-        I = np.logical_and(T < self.data['Tt'], T > self.data['Tc'])
-
-        dL = np.empty_like(T, dtype=float)
-        dV = np.empty_like(T, dtype=float)
-        dLt = None
-        dVt = None
-        if diff:
-            dLt = np.empty_like(T, dtype=float)
-            dVt = np.empty_like(T, dtype=float)
-            dLt[I] = pm.config['def_oob']
-            dVt[I] = pm.config['def_oob']
-        
-        dL[I] = pm.config['def_oob']
-        dV[I] = pm.config['def_oob']
-        
-        I = np.logical_not(I)
-        
-        Ts = self.sattab['T']
-        dsL = self.sattab['dL']
-        dsV = self.sattab['dV']
-        
-        temp = T[I]
-        ii = np.searchsorted(Ts, temp)
-        temp -= Ts[ii-1]
-        temp /= (T[ii] - T[ii-1])
-        temp1 = 1 - temp
-        dL[I] = temp * dsL[ii-1] + temp1 * dsL[ii]
-        dV[I] = temp * dsV[ii-1] + temp1 * dsV[ii]
-
+        dL, dV = interp_multiple(T, self._sattable['T'], self._sattable['dL'], self._sattable['dV'])
         p = np.empty_like(T)
-        self._Tsatiter(T, p, dL, dV, I)
-        return dL, dV
-        
-        
-    def _ps(self,T,diff=0):
-        """Saturation pressure (inner routine)
-    ps, ps_T, ps_TT = _ps(T, diff=0)
-    
-Presumes temperature is in Kelvin, reports pressure in Pa
-"""
-        group = self.data['PSgroup']
-        Tscale = group['Tscale']
-        pscale = group['pscale']
-        
-        p,pt,ptt = self._satfit( 
-                T/Tscale,
-                group['fn'],
-                group['poly'],
-                diff)
-        # Rescale 
-        p *= pscale
-        if diff>0:
-            pscale /= Tscale
-            pt *= pscale
-            if diff>1:
-                ptt *= pscale/Tscale
-        
-        return p,pt,ptt
-        
-        
 
-    def _Ts(self,p):
-        """Saturated temperature from pressure (inner routine)"""
-        # Initialize the result array
-        T = np.ones_like(p, dtype=float) * \
-                0.5*(self.data['Tt'] + self.data['Tc'])
-        T,Tmin,Tmax = np.broadcast_arrays(T, self.data['Tt']*.99, self.data['Tc'])
+        I = np.ones_like(T, dtype=bool)
+        self._Tsatiter(T, p, dL, dV, I, debug=debug)
+        return T, p, dL, dV
         
-        # Create a down-select array
-        Ids = np.logical_and(
-                p >= self.data['pt'],
-                p <= self.data['pc'])
-        # Execute the iteration
-        self._iter1(
-                self._ps,           # Invert the saturation pressure
-                'T',                # Solve for temperature
-                p,                  # such that _ps(T) = p
-                T,                  # The initial T values
-                Ids,                # The down-select array
-                Tmin,               # Minimum at the triple temp.
-                Tmax)               # Maximum at the critical temp.
-        return T
+        
+    def _psat(self, p, debug=False):
+        """Saturation state from pressure (inner routine)
+    T, p, dL, dV = _psat(p)
+    
+Calculates the saturation state from pressure
+    p       A Numpy array of pressure values.  All values must be 
+            between the triple point and critical point.  For speed, 
+            this is not verified, so unexpected behaviors or failures 
+            will result.
+Returns:
+    T       The saturation temperature array
+    p       The same array passed to _psat()
+    dL      Saturated liquid density array
+    dV      Saturated vapor density array
+
+**DESCRIPTION**
+Interpolates the _sattable data for initial guesses of the saturation 
+properties, then polishes with _psatiter().  The return values and their
+order are to preserve a standard call signature for all saturation 
+routines.
+
+**SEE ALSO**
+    _Tsat(), _psat(), dLsat(), dVsat()
+"""
+        T, dL, dV = interp_multiple(p, self._sattable['p'], 
+                self._sattable['T'], self._sattable['dL'], self._sattable['dV'])
+
+        I = np.ones_like(p, dtype=bool)
+        
+        self._psatiter(T, p, dL, dV, I, debug=debug)
+        return T, p, dL, dV
+        
+    def _dLsat(self, dL, debug=False):
+        """Saturation state from liquid density (inner routine)
+    T, p, dL, dV = _dLsat(dL)
+    
+Calculates the saturation state from pressure
+    dL      A Numpy array of saturated liquid density values.  All 
+            values must be between the triple point and critical point 
+            liquid densities.  For speed, this is not verified, so 
+            unexpected behaviors or failures will result.
+Returns:
+    T       The saturation temperature array
+    p       The saturation pressure array
+    dL      The same saturated liquid array passed to _dLsat()
+    dV      Saturated vapor density array
+
+**DESCRIPTION**
+Interpolates the _sattable data for initial guesses of the saturation 
+properties, then polishes with _dLsatiter().  The return values and their
+order are to preserve a standard call signature for all saturation 
+routines.
+
+**SEE ALSO**
+    _Tsat(), _psat(), dLsat(), dVsat()
+"""
+        T, dV = interp_multiple(dL, np.flip(self._sattable['dL']), 
+                np.flip(self._sattable['T']), np.flip(self._sattable['dV']))
+        p = np.empty_like(dL)
+
+        I = np.ones_like(dL, dtype=bool)
+        
+        self._dLsatiter(T, p, dL, dV, I, debug=debug)
+        return T, p, dL, dV
+
+
+    def _dVsat(self, dV, debug=False):
+        """Saturation state from liquid density (inner routine)
+    T, p, dL, dV = _dVsat(dV)
+    
+Calculates the saturation state from pressure
+    dV      A Numpy array of saturated vapor density values.  All values
+            must be between the triple point and critical point vapor 
+            densities.  For speed, this is not verified, so unexpected 
+            behaviors or failures will result.
+Returns:
+    T       The saturation temperature array
+    p       The saturation pressure array
+    dL      The same saturated liquid array passed to _dLsat()
+    dV      Saturated vapor density array
+
+**DESCRIPTION**
+Interpolates the _sattable data for initial guesses of the saturation 
+properties, then polishes with _dVsatiter().  The return values and their
+order are to preserve a standard call signature for all saturation 
+routines.
+
+**SEE ALSO**
+    _Tsat(), _psat(), dLsat(), dVsat()
+"""
+        T, dL = interp_multiple(dV, self._sattable['dV'], self._sattable['T'], self._sattable['dL'])
+        p = np.empty_like(dV)
+
+        I = np.ones_like(dV, dtype=bool)
+        
+        self._dVsatiter(T, p, dL, dV, I, debug=debug)
+        return T, p, dL, dV
 
         
     def _p(self, T, d, diff=0):
@@ -3428,12 +3595,12 @@ other conditions, x<0 and d1 == d2.
         #       7.1.2: x,T
         #       7.1.3: x,p
         #   7.2: Two inverse properties
-        #   7.3: One inverse property
-        #       7.3.1: T,?
-        #       7.3.2: d,?
-        #   7.4: No inverse properties
-        #       7.4.1: T,d
-        #       7.4.2: Unhandled Exception
+        #   7.3: T,?
+        #       7.3.1: T,d
+        #       7.3.2: T + inverse
+        #   7.4: d,?
+        #       7.4.1: d + inverse
+        # 
         # 8) Broadcast the arrays appropriately
         # 9) Calculate T,d1,d2,x, and I
 
@@ -3606,12 +3773,18 @@ other conditions, x<0 and d1 == d2.
                     I = (x >= 0)
                     d1 = np.empty_like(T)
                     d2 = np.empty_like(T)
+                    # Check for out-of-bounds
+                    TT = T[I]
+                    Ioob = (TT < self.data['Tt']) + (self.data['Tc'] <= TT)
+                    if Ioob.any():
+                        pm.utility.print_warning('mp2._argparse: Found (T,p,x) with T less than Tt or greater than Tc.')
+                        d1[I][Ioob] = pm.config['def_oob']
+                        d2[I][Ioob] = pm.config['def_oob']
+                        I[I] = Ioob
+                        TT = T[I]
                     # Calculate densities for saturated states
                     if I.any():
-                        d1[I] = np.interp(T[I], self._sattable['T'], self._sattable['dL'], left=config['def_oob'], right=config['def_oob'])
-                        d2[I] = np.interp(T[I], self._sattable['T'], self._sattable['dV'], left=config['def_oob'], right=config['def_oob'])
-                        Ids = I.copy()
-                        self._Tsatiter(T,p,d1,d2,Ids)
+                        _, _, d1[I], d2[I] = self._Tsat(TT)
                     # Calculate densities for non-saturated states
                     Ids = np.logical_not(I)
                     if Ids.any():
@@ -3623,27 +3796,39 @@ other conditions, x<0 and d1 == d2.
                 # 7.1.2: T,x
                 else:
                     T,x = np.broadcast_arrays(kwarg['T'], kwarg['x'])
-                    p = np.empty_like(T)                    
-                    I = (x >= 0)
-                    if not I.all():
+                    d1 = np.empty_like(T, dtype=float)
+                    d2 = np.empty_like(T, dtype=float)
+                    if (x<0).any():
                         raise pm.utility.PMParamError(
-                            'Found x < 0.  Only two-phase mixtures can be specified with T,x.  All values of x must be [0,1].')
-                    dL = np.interp(T, self._sattable['T'], self._sattable['dL'], left=pm.config['def_oob'], right=pm.config['def_oob'])
-                    dV = np.interp(T, self._sattable['T'], self._sattable['dV'], left=pm.config['def_oob'], right=pm.config['def_oob'])
-                    self._Tsatiter(T,p,dL,dV,I.copy())
-                    return T, dL, dV, x, I
+                            'Found x<0.  Only two-phase mixtures can be specified with T,x.  All values of x must be [0,1].')
+                    # Detect out-of-bounds
+                    I = (T < self.data['Tt']) + (self.data['Tc'] <= T)
+                    if I.any():
+                        pm.utility.print_warning('mp2._argparse: With (T,x) found temperatures below Tt or above Tc.')
+                        d1[I] = pm.config['def_oob']
+                        d2[I] = pm.config['def_oob']
+                    I = np.logical_not(I)
+                    _, _, d1[I], d2[I] = self._Tsat(T[I])
+                    return T, d1, d2, x, I
             # 7.1.3: p,x
             else:
                 p,x = np.broadcast_arrays(kwarg['p'], kwarg['x'])
-                I = (x >= 0)
-                if not I.all():
+                d1 = np.empty_like(p, dtype=float)
+                d2 = np.empty_like(p, dtype=float)
+                T = np.empty_like(p, dtype=float)
+                if (x<0).any():
                     raise pm.utility.PMParamError(
-                        'Found x < 0.  Only two-phase mixtures can be specified with p,x.  All values of x must be [0,1].')
-                dL = np.interp(p, self._sattable['p'], self._sattable['dL'], left=pm.config['def_oob'], right=pm.config['def_oob'])
-                dV = np.interp(p, self._sattable['p'], self._sattable['dV'], left=pm.config['def_oob'], right=pm.config['def_oob'])
-                T = np.interp(p, self._sattable['p'], self._sattable['T'], left=pm.config['def_oob'], right=pm.config['def_oob'])
-                self._psatiter(T,p,dL,dV,I.copy())
-                return T, dL, dV, x, I
+                        'Found x<0.  Only two-phase mixtures can be specified with p,x.  All values of x must be [0,1].')
+                # Detect out-of-bounds
+                I = (p < self.data['pt']) + (self.data['pc'] <= p)
+                if I.any():
+                    pm.utility.print_warning('mp2._argparse: With (p,x) found pressures below pt or above pc.')
+                    d1[I] = pm.config['def_oob']
+                    d2[I] = pm.config['def_oob']
+                    T[I] = pm.config['def_oob']
+                I = np.logical_not(I)
+                T[I], _, d1[I], d2[I] = self._psat(p[I])
+                return T, d1, d2, x, I
             
         # 7.2: Two inverse properties
         elif Ninv > 1:
@@ -3708,18 +3893,43 @@ other conditions, x<0 and d1 == d2.
                 self._iter2(T, d2, fn0, fn1, f0value, f1value, Ids.copy())
                 d1[Ids] = d2[Ids]
             return T,d1,d2,x,I
-        # 7.3: One inverse property
-        elif Ninv > 0:
-            # 7.3.1: T,?
-            if 'T' in kwarg:
-                pass
-            # 7.3.2: d,?
-            elif 'd' in kwarg:
-                pass
-            # UNHANDLED CASE
+        # 7.3: T,?
+        elif 'T' in kwarg:
+            # 7.3.1: T,d
+            if 'd' in kwarg:
+                # broadcast the arrays
+                T,d2 = np.broadcast_arrays(kwarg['T'],kwarg['d'])
+                x = np.full_like(T, -1)
+                d1 = d2.copy()
+                # Identify sub-critical temperatures
+                I = (T < self.data['Tc'])
+                if I.any():
+                    _,_,dL,dV = self._Tsat(T[I])
+                    # Down-select to the densities that are under the dome
+                    dd = d2[I]
+                    # Of the down-selected states, which are actually 2-phase?
+                    Imix = (dV < dd) * (dd < dL)
+                    I[I] = Imix
+                    if Imix.any():
+                        # Down-select the vapor, liquid, and mixture densities
+                        dV = dV[Imix]
+                        dL = dL[Imix]
+                        dd = d2[Imix]
+                        d1[I] = dL
+                        d2[I] = dV
+                        dL = 1./dL
+                        x[I] = (1./dd - dL) / (1./dV - dL)
+                return T,d1,d2,x,I
+            # 7.3.2: T + inverse
             else:
-                pass
-        # 7.4: T,d
+                args.remove('T')
+                fstr = args.pop()
+                fn = inverse_methods[fstr]
+                T,fvalue = np.broadcast_arrays(kwarg['T'], kwarg[fstr])
+                d, Ti, di = self._mapsearch2y(self._table['T'], self._table['d'], self._table[fstr], T, fvalue)
+                # Test for two-phase mixtures
+                
+        # 7.4: d + inverse
         else:
             pass
         
