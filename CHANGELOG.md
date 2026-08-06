@@ -199,3 +199,10 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 - Updated the `info()` table printing format - removed property list, added mw and casid.
 
 
+## Version 3.0.1
+- Added the `mp2` class!
+    - Uses table lookups to quickly generate accurate initial guesses and indentify out-of-bounds states
+    - Extends state definition to most properties
+    - Eliminates the `_hybrid1()` method
+    - Finally implements efficient and stable 2D inversion!
+- Added `_build()` to the `get()` algorithm to allow substances to dynamically construct themselves at load time.  This is a more elegant solution to the `igmix._bootstrap()` method, and it prevents `mp2` instances from wasting time and memory constructing their tables if they won't be needed.

@@ -136,9 +136,9 @@ twice by _mapsearch2() -- once on fdata and once on gdata.
 
 
 class mp2(pm.reg.__basedata__):
-    """The PYroMat multi-phase generalist class 1
+    """The PYroMat multi-phase generalist class 2
 
-** Available Property Methods **
+** PROPERTY METHODS **
 MP2 provides property methods:
     a()     Speed of sound
     cp()    Isobaric specific heat
@@ -154,10 +154,13 @@ MP2 provides property methods:
     d()     Density
     v()     Specific volume
     x()     Quality
-    state() Calculates all properties
+    state() Calculates most properties
     
-All of the above methods accept a standardized call signature, which 
-accepts any of the following arguments: T, p, d, v, e, h, s, x
+All of the above methods accept a standardized call signature.  See the
+_argparse() method documentation for a detailed description:
+    import pyromat as pm
+    S = pm.get('AN_MP2_SUBATANCE')
+    help(S._argparse)
 
 For example, enthalpy might be called
     h(T=300., p=1.01325)
@@ -170,10 +173,7 @@ so providing this interface flexibility has a numerical cost.  Once T and d
 are known, additional property evaluations should always be made in terms
 of them.
 
-Most property pairs are supported, but several are not.  For example, e,
-s, and h must be specified with a "basic" property; T, d, p, v, or x.  
-This limitation is to prevent the costly numerical iteration that occurs
-when two "higher" properties need to be simultaneously inverted.  
+Most property pairs are supported, but several are not.  
 
 Furthermore, since it is impossible to specify a saturated mixture with
 temperature and pressure alone, there is a special case, which permits 
@@ -188,7 +188,7 @@ it is set to True, the property will also return the vapor/liquid mixture
 quality in a tuple with the property value.  For example,
     h,x = h(T,d,quality=True)
 
-** Saturation Properties **
+** SATURATION PROPERTY METHODS **
 There are also saturation property methods:
     es()    Saturation internal energy
     hs()    Saturation enthalpy
@@ -204,7 +204,15 @@ Saturation methods accept either temperature or pressure as an argument.
 The density saturation method returns both liquid and vapor densities in a 
 tuple pair.  See their in-line documentaiton for more details.
 
-** Other Properties **
+It is also possible to obtain saturation properties by from the non-
+saturated property methods (for example by passing the liquid and vapor
+densities), but this can be less numerically precise than calling the 
+saturation methods.  Standard property methods do not ``understand'' that
+the state is constrained to be _precisely_ on the saturation line unless, 
+quality is given explicitly.  If the algorithm required iteration, it will 
+merely be ``close'' to the line.
+
+** OTHER PROPERTY METHODS **
 There are other methods that return useful information, but that do 
 not depend on the state.
     atoms() Returns a dictionary specifying the chemical composition.
@@ -216,11 +224,11 @@ not depend on the state.
     triple()    Returns the state at the triple point
 
 *** MORE DOCUMENTATION ***
-MP1 models thermo-physical properties of a liquid-gas system using a 
+MP2 models thermo-physical properties of a liquid-gas system using a 
 general fit for helmholtz free energy.  These "Span & Wagner" fits are 
 evaluated in a polynomial form with exponential post factors.
 
-The MP1 class is divided into three layers of methods (routines).  
+The MP2 class is divided into three layers of methods (routines).  
 
 --- USER ROUTINES ---
 Accept data in any format (array or scalar) and in whatever units are
@@ -233,26 +241,33 @@ Values from these methods are returned in appropriately broadcast arrays
 in the correctly configured units.
 
 --- INNER ROUTINES ---
-These methods presume that all arguments are numpy arrays and that they
-are in a common unit system.  This prevents redundant calls to the unit
-conversion functions as MP1 methods call one another.
+Configured for speed and efficiency, these methods presume that all 
+arguments are properly broadcast numpy arrays and that they are in a 
+common unit system.  This prevents redundant calls to the _argparse() 
+layey.  Units used by the MP2 back-end are:
     Energy:     J
     Matter      kg
     Pressure:   Pa
     Temperature:K
     
 Inner routines begin with a "_" to emphasize that they are not part of
-the standard interface.  Most property functions are wrappers for inner
+the standard interface, and their first line contains the text 
+``(inner-routine)''.  Most property functions are wrappers for inner
 routine property functions, so they may call each other when needed.  
-Inner routine property functions (like _h, _s, _p, etc...) have standard
+Inner routine property functions (e.g. _h, _s, _p, etc...) have standard
 call signatures that require temperature and density, and return the 
-property and its derivatives to temperature and density.
-    
-VERY rarely, these routines might be called by the user.  They are 
+property and its derivatives to temperature and density.  For example:
+    h, ht, hd = _h(T=T, d=d, diff=1)
+h is enthalpy, ht is the derivative of enthallpy with respect to 
+temeprature while holding density constant, and hd is the derivative of
+enthalpy with respect to density while holding temperature constant.
+
+VERY rarely, these routines might be called by the user to achieve 
+supperior numerical performance.  Inner routines are significantly 
 faster than the user routines because they do not have the overhead of
-unit conversions, array broadcasting, and call signature conversion, but
-they have stringent requirements on the format of data.  Users should
-beware.
+unit conversions, array broadcasting, and casing out the property 
+combinations.  However, they have stringent requirements on their 
+arguments:
 
 1) All arguments must be a numpy NDARRAY object of dimension 1 or 
     greater.
@@ -262,6 +277,9 @@ beware.
 4) Many of these functions also return their derivatives to facilitate
     numerical inversion.  Check the documentation to verify the call
     signature of each inner routine BEFORE implementing it in your code.
+5) Inner routines make no error checking for out-of-bounds or 
+    saturation.  This allows access to metastable states, but it also
+    allows users to naively query states that return utter nonsense.
 
 --- PRIMATIVE ROUTINES ---
 Methods that have been labeled as primative routines should UNDER NO
@@ -269,8 +287,9 @@ CIRCUMSTANCES be called by the user.  They accept non-dimensionalized
 arguments and return non-dimensional parameters.  These are encapsulated
 as independent methods either because they are complicated and need to 
 be called by a number of other methods, or because separating them made
-sense for numerical efficiency.  In summary: these aren't the methods
-you're looking for.
+sense for numerical efficiency.  They are also subject to change without 
+warning in future upgrades.  In summary: these aren't the methods you're
+looking for.
 
 --- DATA DICTIONARY ---
 The MP2 data dictionary must have certain data "groups" to define the 
@@ -278,7 +297,7 @@ various empirical fits.  Each group is a dictionary (within the
 dictionary) that defines the various parameters necessary for at least
 one of the inner methods.
 
-AOgroup        Helmholtz free energy ideal gas group; a dict containing:
+IGgroup         Helmholtz free energy ideal gas group; a dict containing:
     Tscale      Temperature scale for normalizing T
     dscale      density scale for normalizing d
     logt        a scalar coefficient of a log(tt) term
@@ -292,7 +311,7 @@ and dd = d/dscale
 where LOGT is the coefficient defined by the 'logt' parameter, and p is
 the polynomial defined by the coef list
 
-ARgroup         Helmholtz free energy residual group; a dict containing:
+Rgroup          Helmholtz free energy residual group; a dict containing:
     Tscale      Temperature scale for normalizing T
     dscale      density scale for normalizing d
     coef0       a nested list of coefficient lists
@@ -1521,7 +1540,7 @@ SEE ALSO:
                     # Detect the edges
                     # Bottom Edge
                     if fI[Ti,0] != fI[Ti1,0]:
-                        TT = interp_scalar(fv, fdata[Ti,di], fdata[Ti1,di], Tdata[Ti], Tdata[di1])
+                        TT = interp_scalar(fv, fdata[Ti,di], fdata[Ti1,di], Tdata[Ti], Tdata[Ti1])
                         fcross.append(np.array([TT, ddata[di]]))
                     # Left Edge
                     if fI[Ti,0] != fI[Ti,1]:
@@ -3210,6 +3229,25 @@ density.
         if verbose:
             print('Done.')
 
+    def _build(self, force=False):
+        """Build the back-end tables (inner routine)
+    _build(force=False)
+
+Creates the _table and _sattable attributes and populates them with data
+required for the proper function of the MP2 class.  If they are already
+created, they will not be re-created unless the force keyword is set to
+True.
+"""
+        if force or ('_table' not in self.__dict__) or ('_sattable' not in self.__dict__):
+            if pm.config['dat_verbose']:
+                print(f'{self.sid()}: Populating saturation table...')
+            self._build_sattab()
+            if pm.config['dat_verbose']:
+                print(f'{self.sid()}: Populating table...')
+            self._build_tab()
+            if pm.config['dat_verbose']:
+                print(f'{self.sid()}: Done.')            
+
 
     def _Tsat(self, T, debug=False):
         """Calculate saturation state from temperature (inner routine)
@@ -3555,7 +3593,7 @@ inverted to calculate T
         
     def _sat_argparse(self, T=None, p=None):
         """A standard argument parsing scheme for all user-layer saturation properties
-    T,p,dL,dV = _sat_argparse(T=None, p=None)
+    T,dL,dV = _sat_argparse(T=None, p=None)
     
 Enforces that all returned parameters are numpy arrays with at least one
 dimension.  Accepts T and p as scalars or array-like objects in 
@@ -3565,10 +3603,6 @@ Returns
 T   the temperature in K
 dL and dV are the liquid and vapor densities in kg/m3
 """
-        Ts = self.data['sattab']['T']
-        ps = self.data['sattab']['p']
-        dsL = self.data['sattab']['dL']
-        dsV = self.data['sattab']['dV']
         if p is None:
             if T is None:
                 T = pm.config.def_T()
@@ -3591,8 +3625,7 @@ dL and dV are the liquid and vapor densities in kg/m3
             
             # Detect points that are in-bounds            
             Ids = np.logical_and(T >= self.data['Tt'], T < self.data['Tc'])
-            # Happy calculating!
-            self._Tsatiter(T,p,dL,dV,Ids)
+            _,_,dL[Ids],dV[Ids] = self._Tsat(T[Ids])
                 
         elif T is None:
             p = pm.units.pressure(
@@ -3614,21 +3647,24 @@ dL and dV are the liquid and vapor densities in kg/m3
             
             # Detect points that are in-bounds
             Ids = np.logical_and(p >= self.data['pt'], p < self.data['pc'])
-            # Happy calculating!
-            self._psatiter(T,p,dL,dV,Ids)
+            T[Ids],_,dL[Ids],dV[Ids] = self._psat(p[Ids])
 
         else:
             raise pm.utility.PMParamError(
                 '_sat_argparse: Saturation temperature and pressure cannot be simultaneously specified')
 
-        return T, p, dL, dV
+        return T, dL, dV
         
         
     def _argparse(self, *varg, **kwarg):
         """Present a standard argument scheme for all user-layer property methods
-    T,d1,d2,x,I = _argparse( .. keyword arguments ..)
+    T,d1,d2,x,I = _argparse( .. property arguments ..)
 
-Accepts keyword arguments:
+This method processes the arguments passed to property methods, allowing
+users to specify the thermodynamic state using flexible combinations of 
+properties.
+
+Below are the keyword arguments accepted and the corresponding :
     e   internal energy
     f   free energy
     g   Gibbs energy
@@ -3640,6 +3676,107 @@ Accepts keyword arguments:
     v   specific volume
     x   quality
 
+**SPECIFYING A STATE**
+Users may specify the state in three ways:
+(1) Positional arguments (with no keywords) are always interpreted as
+    temperature and pressure.  For example:
+        f(304.1, 1.9)
+    is interpreted T=304.1 [unit_temperature] and p=1.9 [unit_pressure]
+    If positional arguments are omitted, the missing argument is set to
+    its default in pm.config:
+        def_T
+        def_T_unit
+        def_p
+        def_p_unit
+    For example:
+        f(304.1)
+    is interpreted T=304.1 [unit_temperature] and p=[def_p] [def_p_unit]
+
+(2) Keyword arguments are used to identify the properties being passed.
+    For example:
+        f(h=192.1, p=14.1)
+    is interpreted as enthalpy and pressure in their respective units.
+    Only two arguments may be specified this way.
+
+(3) As a special case, (T,p,x) may be specified as a keyword argument 
+    triple.  While other properties (except g) are capable of specifying
+    a two-phase mixture, (T,p) cannot.  For example,
+        f(T=[284., 285., 286.], p=1., x=[-1, 0.45, -1])
+    specifies constant-pressure states on either side of saturation 
+    with one two-phase mixture in the middle.
+    **NOTE** 
+    Technically, the state is over-specified if T,p,x are all specified 
+    together.  Temperature is used to specify the saturation state, and 
+    pressure IS NOT CHECKED for consistency.  User beware.
+
+**ARRAYS**
+Like in example 3 above, users may pass some or all properties as array-
+like objects.  These are automatically built into Numpy arrays of the
+appropriate shape, and all properties are automatically made compatible 
+using Numpy's broadcasting rules.  If broadcasting fails, Numpy's 
+back-end will raise an error.  
+
+Example 1: An array of states
+    T = [200., 300., 400.]
+    s = [1.9, 2.0, 2.1]
+    f(T=T, s=s)
+Here, the two properties (temperature and entropy) are passed as lists
+with the same dimensions.  No broadcasting is needed - this is 
+interpreted as three states (T=200., s=1.9), (T=300., s=2.0), and so on.
+
+Example 2: Broadcast arrays
+    T = [[200.], [300.], [400.]]
+    s = [1.9, 2.0, 2.1]    
+    f(T=T, s=s)
+Here, temperature has been modified to appear as a column vector.  
+Because its values proceed in a different dimension (Numpy's "axis"),
+this is interpreted as the nine states that result from the different 
+combinations of T and s values.  See Numpy's ix_() or meshgrid() 
+functions for automatically generating these kinds of arrays.
+
+Example 3: Constant parameter
+    T = 300
+    s = [1.9, 2.0, 2.1]
+    f(T=T, s=s)
+This is interpreted as three states, all of which have temperature 300.
+Note that temperature is lazily expressed as an integer - it will be
+automatically promoted to a floating point.
+
+**DISALLOWED COMBINATIONS**
+
+Most property combinations are allowed, but some combinations are either
+numerically unstable, or they do not theoretically define a unique 
+state.
+(1) Density and specific volume may not be specified together - they are
+    redundant.
+(2) No two properties from the "energy" set may be specified together:
+    {'T', 'e', 'h', 'f', 'g'}.  There are many combinations that do not
+    specify a unique state, and in many cases, this very poorly defines
+    the state -- meaning that the resulting numerical inversion problem
+    is very nearly singular.
+(3) Quality may only be specified with temperature and/or pressure.  
+    Specifying a entropy or an energy property (like enthalpy) with 
+    quality does not define a unique state.  For example, there are 
+    multiple states at which the same quality and enthalpy can be found.
+
+**BACK END**
+The mp2 class back-end calculates properties exclusively in units
+    unit_matter         kg
+    unit_mass           kg
+    unit_molar          kmol
+    unit_temperature    K
+    unit_pressure       Pa
+    unit_length         m
+    unit_volume         m3
+    unit_energy         J
+    unit_time           s
+
+All inputs are coerced into floating point Numpy arrays of at least 
+dimension 1, so broadcasting has the highest chance of success.  Unit
+conversion of the outputs automatically in mp2's standard units (see
+below).
+
+Returns:
 T the temperature array in K.
 d1 and d2 are densities in kg/m3.  If the conditions are under the dome,
     then d1 is the liquid, and d2 is the vapor density.
@@ -3658,7 +3795,7 @@ other conditions, x<0 and d1 == d2.
         # 2) Apply the argument rules...
         #   2.1: All arguments must be legal
         #   2.2: There are only two arguments unless one is x
-        #   2.3: x may only be specified with T, g, or p
+        #   2.3: x may only be specified with T or p
         #   2.4: Energy properties, T, e, h, f, and g may not be specified together
         #   2.5: d and v may not be specified together 
         #   
@@ -4527,7 +4664,8 @@ of the other.
                 'available above the critical point Tc=%f K or below the '%self.data['Tc'] +
                 'triple point Tt=%f K.'%self.data['Tt'] )
 
-        return pm.units.pressure(self._ps(T)[0], from_units='Pa')
+        
+        return pm.units.pressure(self._Tsat(T)[1], from_units='Pa')
         
         
     def Ts(self, p=None):
@@ -4559,12 +4697,12 @@ of the other.
                 'triple point pt=%f bar.'%(self.data['pt']/1e5) )
         
         return pm.units.temperature_scale( \
-            self._Ts(p), from_units='K')
+            self._psat(p)[0], from_units='K')
         
         
     def ds(self, *varg, **kwarg):
         """Saturation density
-    dsL, dsV = ds(T)
+    dsL, dsV = ds(...)
     
 If no keyword is specified, saturation properties interpret the argument
 as temperature.  However, pressure can be specified as well
@@ -4585,7 +4723,7 @@ Returns the liquid (dsL) and vapor (dsV) saturation density in units
         
     def vs(self, *varg, **kwarg):
         """Saturation specific volume
-    vsL, vsV = vs(T)
+    vsL, vsV = vs(...)
     
 If no keyword is specified, saturation properties interpret the argument
 as temperature.  However, pressure can be specified as well
@@ -4601,7 +4739,7 @@ Returns the liquid (vsL) and vapor (vsV) saturation density in units
 
     def es(self, *varg, **kwarg):
         """Saturation internal energy
-    esL, esV = es(T)
+    esL, esV = es(...)
 
 If no keyword is specified, saturation properties interpret the argument
 as temperature.  However, pressure can be specified as well
@@ -4626,7 +4764,7 @@ units [unit_energy / unit_matter]
 
     def hs(self, *varg, **kwarg):
         """Saturation enthalpy
-    hsL, hsV = hs(T)
+    hsL, hsV = hs(...)
     
 If no keyword is specified, saturation properties interpret the argument
 as temperature.  However, pressure can be specified as well
@@ -4651,7 +4789,7 @@ units [unit_energy / unit_matter]
         
     def ss(self, *varg, **kwarg):
         """Saturation entropy
-    ssL, ssV = ss(T,p)
+    ssL, ssV = ss(...)
     
 If no keyword is specified, saturation properties interpret the argument
 as temperature.  However, pressure can be specified as well
@@ -4675,36 +4813,26 @@ units [unit_energy / unit_matter / unit_temperature]
         ssV *= conv
         return ssL, ssV
 
-
     #                       #
     # EOS properties T,p,d  #
     #                       #
     
     def p(self, *varg, quality=False, **kwarg):
         """Pressure
-    p(...)
+    p = p(...)
+        OR
+    p,x = p(..., quality=True)
 
-All properties accept two other properties as flexible inputs.
-Below are the recognized keywords, their meaning, and the config entries
-that determine their units.
-    T   temperature         unit_temperature
-    p   pressure            unit_pressure
-    d   density             unit_matter / unit_volume
-    v   specific volume     unit_volume / unit_matter
-    x   quality             dimensionless
-    e   internal energy     unit_energy / unit_matter
-    h   enthalpy            unit_energy / unit_matter
-    s   entropy             unit_energy / unit_matter / unit_temperature
+Query the _argparse() method's documentation for a detailed description
+of the standard interface for specifying state.
 
-If no keywords are specified, the positional arguments are interpreted
-as (T,p).  To configure their defaults, use the def_T and def_p config
-entries.
+Returns pressure in [unit_pressure] found in pm.config
 
-Additionally, if the optional keyword, "quality" is set to True, the 
-quality of the liquid/vapor mixture is also returned
-    e,x = e(..., quality=True)
+If the optional ``quality'' keyword is set to True, the quality is also
+returned to save a redundant call to x().
 
-Returns pressure in unit_pressure
+See also:
+    a, cp, cv, d, e, f, g, gam, h, mw, p, R, s, T, v, x, state
 """
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
         # Use d2.  In theory, p(d1) = p(d2), but the liquid is so stiff
@@ -4722,34 +4850,28 @@ Returns pressure in unit_pressure
         
     def d(self, *varg, quality=False, **kwarg):
         """Density
-    d(...)
+    d = d(...)
+        OR
+    d,x = d(..., quality=True)
 
-All properties accept two other properties as flexible inputs.
-Below are the recognized keywords, their meaning, and the config entries
-that determine their units.
-    T   temperature         unit_temperature
-    p   pressure            unit_pressure
-    d   density             unit_matter / unit_volume
-    v   specific volume     unit_volume / unit_matter
-    x   quality             dimensionless
-    e   internal energy     unit_energy / unit_matter
-    h   enthalpy            unit_energy / unit_matter
-    s   entropy             unit_energy / unit_matter / unit_temperature
+Query the _argparse() method's documentation for a detailed description
+of the standard interface for specifying state.
 
-If no keywords are specified, the positional arguments are interpreted
-as (T,p).  To configure their defaults, use the def_T and def_p config
-entries.
+Returns density in [unit_matter / unit_volume] found in pm.config
 
-Additionally, if the optional keyword, "quality" is set to True, the 
-quality of the liquid/vapor mixture is also returned
-    e,x = e(..., quality=True)
+If the optional ``quality'' keyword is set to True, the quality is also
+returned to save a redundant call to x().
 
-Returns density in unit_matter / unit_volume
+See also:
+    a, cp, cv, d, e, f, g, gam, h, mw, p, R, s, T, v, x, state
 """
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
         if I.any():
-            d1[I] = (1.-x[I])/d1[I]
-            d1[I] += x[I]/d2[I]
+            xx = x[I]
+            dL = d1[I]
+            dV = d2[I]
+            d1[I] = (1.-xx)/dL
+            d1[I] += xx/dV
             d1[I] = 1. / d1[I]
             
         d1 = pm.units.matter(d1, self.data['mw'], from_units='kg')
@@ -4760,30 +4882,22 @@ Returns density in unit_matter / unit_volume
         
         
     def v(self, *varg, quality=False, **kwarg):
-        """specific volume
-    v(...)
-
-All properties accept two other properties as flexible inputs.
-Below are the recognized keywords, their meaning, and the config entries
-that determine their units.
-    T   temperature         unit_temperature
-    p   pressure            unit_pressure
-    d   density             unit_matter / unit_volume
-    v   specific volume     unit_volume / unit_matter
-    x   quality             dimensionless
-    e   internal energy     unit_energy / unit_matter
-    h   enthalpy            unit_energy / unit_matter
-    s   entropy             unit_energy / unit_matter / unit_temperature
-
-If no keywords are specified, the positional arguments are interpreted
-as (T,p).  To configure their defaults, use the def_T and def_p config
-entries.
-
-Additionally, if the optional keyword, "quality" is set to True, the 
-quality of the liquid/vapor mixture is also returned
+        """Specific volume
+    v = v(...)
+        OR
     v,x = v(..., quality=True)
 
-Returns volume in unit_volume / unit_matter
+Query the _argparse() method's documentation for a detailed description
+of the standard interface for specifying state.
+
+Returns specific volume in [unit_volume / unit_matter] found in 
+pm.config
+
+If the optional ``quality'' keyword is set to True, the quality is also
+returned to save a redundant call to x().
+
+See also:
+    a, cp, cv, d, e, f, g, gam, h, mw, p, R, s, T, v, x, state
 """
         d,x = self.d(*varg, quality=True, **kwarg)
         if quality:
@@ -4792,33 +4906,20 @@ Returns volume in unit_volume / unit_matter
         
     def T(self, *varg, quality=False, **kwarg):
         """Temperature
-    T(...)
-
-All properties accept two other properties as flexible inputs.
-Below are the recognized keywords, their meaning, and the config entries
-that determine their units.
-    T   temperature         unit_temperature
-    p   pressure            unit_pressure
-    d   density             unit_matter / unit_volume
-    v   specific volume     unit_volume / unit_matter
-    x   quality             dimensionless
-    e   internal energy     unit_energy / unit_matter
-    h   enthalpy            unit_energy / unit_matter
-    s   entropy             unit_energy / unit_matter / unit_temperature
-
-If no keywords are specified, the positional arguments are interpreted
-as (T,p).  To configure their defaults, use the def_T and def_p config
-entries.
-
-Returns temperature in unit_temperature
-
-In many applications, it is also necessary to calculate quality to 
-completely specify the state, and since it is an intermediate for any
-property calculation, it can be returned as well.  If the optional 
-"quality" keyword argument is set to True, x is appended in a tuple to 
-save an unnecessary redundant call to x().
-
+    T = T(...)
+        OR
     T,x = T(..., quality=True)
+
+Query the _argparse() method's documentation for a detailed description
+of the standard interface for specifying state.
+
+Returns temperature in [unit_temperature] found in pm.config
+
+If the optional ``quality'' keyword is set to True, the quality is also
+returned to save a redundant call to x().
+
+See also:
+    a, cp, cv, d, e, f, g, gam, h, mw, p, R, s, T, v, x, state
 """
         T,_,_,x,_ = self._argparse(*varg, **kwarg)
         T = pm.units.temperature_scale(T, from_units='K')
@@ -4828,30 +4929,20 @@ save an unnecessary redundant call to x().
         
     def x(self, *varg, **kwarg):
         """Quality
-    x(...)
+    x = x(...)
 
-All properties accept two other properties as flexible inputs.
-Below are the recognized keywords, their meaning, and the config entries
-that determine their units.
-    T   temperature         unit_temperature
-    p   pressure            unit_pressure
-    d   density             unit_matter / unit_volume
-    v   specific volume     unit_volume / unit_matter
-    x   quality             dimensionless
-    e   internal energy     unit_energy / unit_matter
-    h   enthalpy            unit_energy / unit_matter
-    s   entropy             unit_energy / unit_matter / unit_temperature
+Query the _argparse() method's documentation for a detailed description
+of the standard interface for specifying state.
 
-If no keywords are specified, the positional arguments are interpreted
-as (T,p).  To configure their defaults, use the def_T and def_p config
-entries.
+Returns temperature in [unit_temperature] found in pm.config
 
-Returns quality, which is a dimensionless number between 0 and 1 for 
-saturated mixtures and -1 for all other states.
+Quality is usually needed in conjunction with other properties, and it 
+is calculated as an intermediate parameter in the back-end anyway.  See
+the optional ``quality'' keyword of the other property methods to save
+a redundant call.
 
-In many applications quality is one of a few important properties.  To
-avoid redundant function calls, consider using the "quality" keyword in
-another property method or the state() method.
+See also:
+    a, cp, cv, d, e, f, g, gam, h, mw, p, R, s, T, v, x, state
 """
         _,_,_,x,_ = self._argparse(*varg, **kwarg)
         return x
@@ -4861,9 +4952,12 @@ another property method or the state() method.
     #                    #
     
     def state(self, *varg, **kwarg):
-        """The state method calculates all available properties at once.
+        """The state method calculates most available properties at once.
         
     sd = state(...)
+    
+Query the _argparse() method's documentation for a detailed description
+of the standard interface for specifying state.
     
 The properties are returned in a dictionary with keys:
     T   temperature         unit_temperature
@@ -4879,9 +4973,6 @@ The properties are returned in a dictionary with keys:
     cp  const. p sp. ht.    unit_energy / unit_matter / unit_temperature
     cv  const. v sp. ht.    unit_energy / unit_matter / unit_temperature
     
-Like all of the other property functions, arguments may be any two of
-T, p, d, v, e, h, s, and x.  
-
 Because calculating cv for saturation conditions is more computationally
 expensive, and because users rarely need this property, state() will
 return NaN for cv at saturated conditions.  This is a deliberate design
@@ -5019,35 +5110,28 @@ available by calling the cv() method directly.
         
     def e(self, *varg, quality=False, **kwarg):
         """Internal energy
-    e(...)
-
-All properties accept two other properties as flexible inputs.
-Below are the recognized keywords, their meaning, and the config entries
-that determine their units.
-    T   temperature         unit_temperature
-    p   pressure            unit_pressure
-    d   density             unit_matter / unit_volume
-    v   specific volume     unit_volume / unit_matter
-    x   quality             dimensionless
-    e   internal energy     unit_energy / unit_matter
-    h   enthalpy            unit_energy / unit_matter
-    s   entropy             unit_energy / unit_matter / unit_temperature
-
-If no keywords are specified, the positional arguments are interpreted
-as (T,p).  To configure their defaults, use the def_T and def_p config
-entries.
-
-Additionally, if the optional keyword, "quality" is set to True, the 
-quality of the liquid/vapor mixture is also returned
+    e = e(...)
+        OR
     e,x = e(..., quality=True)
 
-Returns energy in unit_energy / unit_matter
+Query the _argparse() method's documentation for a detailed description
+of the standard interface for specifying state.
+
+Returns internal energy in [unit_energy / unit_matter] found in 
+pm.config.
+
+If the optional ``quality'' keyword is set to True, the quality is also
+returned to save a redundant call to x().
+
+See also:
+    a, cp, cv, d, e, f, g, gam, h, mw, p, R, s, T, v, x, state
 """
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
         e = self._e(T,d1,0)[0]
         if I.any():
-            e[I] *= (1.-x[I])
-            e[I] += self._e(T[I],d2[I],0)[0] * x[I]
+            xx = x[I]
+            e[I] *= (1.-xx)
+            e[I] += self._e(T[I],d2[I],0)[0] * xx
         # Convert the units back to user space
         pm.units.energy(e, from_units='J', inplace=True)
         pm.units.matter(e, self.data['mw'], 
@@ -5058,35 +5142,27 @@ Returns energy in unit_energy / unit_matter
         
     def f(self, *varg, quality=False, **kwarg):
         """Free (Helmholtz) energy
-    f(...)
-
-All properties accept two other properties as flexible inputs.
-Below are the recognized keywords, their meaning, and the config entries
-that determine their units.
-    T   temperature         unit_temperature
-    p   pressure            unit_pressure
-    d   density             unit_matter / unit_volume
-    v   specific volume     unit_volume / unit_matter
-    x   quality             dimensionless
-    e   internal energy     unit_energy / unit_matter
-    h   enthalpy            unit_energy / unit_matter
-    s   entropy             unit_energy / unit_matter / unit_temperature
-
-If no keywords are specified, the positional arguments are interpreted
-as (T,p).  To configure their defaults, use the def_T and def_p config
-entries.
-
-Additionally, if the optional keyword, "quality" is set to True, the 
-quality of the liquid/vapor mixture is also returned
+    f = f(...)
+        OR
     f,x = f(..., quality=True)
 
-Returns free energy in unit_energy / unit_matter
+Query the _argparse() method's documentation for a detailed description
+of the standard interface for specifying state.
+
+Returns free energy in [unit_energy / unit_matter] found in pm.config.
+
+If the optional ``quality'' keyword is set to True, the quality is also
+returned to save a redundant call to x().
+
+See also:
+    a, cp, cv, d, e, f, g, gam, h, mw, p, R, s, T, v, x, state
 """
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
         f = self._f(T,d1,0)[0]
         if I.any():
-            f[I] *= (1.-x[I])
-            f[I] += self._f(T[I],d2[I],0)[0] * x[I]
+            xx = x[I]
+            f[I] *= (1.-xx)
+            f[I] += self._f(T[I],d2[I],0)[0] * xx
         # Convert the units back to user space
         pm.units.energy(f, from_units='J', inplace=True)
         pm.units.matter(f, self.data['mw'], 
@@ -5097,29 +5173,20 @@ Returns free energy in unit_energy / unit_matter
 
     def g(self, *varg, quality=False, **kwarg):
         """Gibbs energy
-    g(...)
-
-All properties accept two other properties as flexible inputs.
-Below are the recognized keywords, their meaning, and the config entries
-that determine their units.
-    T   temperature         unit_temperature
-    p   pressure            unit_pressure
-    d   density             unit_matter / unit_volume
-    v   specific volume     unit_volume / unit_matter
-    x   quality             dimensionless
-    e   internal energy     unit_energy / unit_matter
-    h   enthalpy            unit_energy / unit_matter
-    s   entropy             unit_energy / unit_matter / unit_temperature
-
-If no keywords are specified, the positional arguments are interpreted
-as (T,p).  To configure their defaults, use the def_T and def_p config
-entries.
-
-Additionally, if the optional keyword, "quality" is set to True, the 
-quality of the liquid/vapor mixture is also returned
+    g = g(...)
+        OR
     g,x = g(..., quality=True)
 
-Returns free energy in unit_energy / unit_matter
+Query the _argparse() method's documentation for a detailed description
+of the standard interface for specifying state.
+
+Returns Gibbs energy in [unit_energy / unit_matter] found in pm.config
+
+If the optional ``quality'' keyword is set to True, the quality is also
+returned to save a redundant call to x().
+
+See also:
+    a, cp, cv, d, e, f, g, gam, h, mw, p, R, s, T, v, x, state
 """
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
         g = self._g(T,d1,0)[0]
@@ -5135,30 +5202,21 @@ Returns free energy in unit_energy / unit_matter
         return g    
         
     def h(self, *varg, quality=False, **kwarg):
-        """Enthalpy
-    h(...)
-
-All properties accept two other properties as flexible inputs.
-Below are the recognized keywords, their meaning, and the config entries
-that determine their units.
-    T   temperature         unit_temperature
-    p   pressure            unit_pressure
-    d   density             unit_matter / unit_volume
-    v   specific volume     unit_volume / unit_matter
-    x   quality             dimensionless
-    e   internal energy     unit_energy / unit_matter
-    h   enthalpy            unit_energy / unit_matter
-    s   entropy             unit_energy / unit_matter / unit_temperature
-
-If no keywords are specified, the positional arguments are interpreted
-as (T,p).  To configure their defaults, use the def_T and def_p config
-entries.
-
-Additionally, if the optional keyword, "quality" is set to True, the 
-quality of the liquid/vapor mixture is also returned
+        """Temperature
+    h = h(...)
+        OR
     h,x = h(..., quality=True)
 
-Returns enthalpy as unit_energy / unit_matter
+Query the _argparse() method's documentation for a detailed description
+of the standard interface for specifying state.
+
+Returns enthalpy in [unit_energy / unit_matter] found in pm.config
+
+If the optional ``quality'' keyword is set to True, the quality is also
+returned to save a redundant call to x().
+
+See also:
+    a, cp, cv, d, e, f, g, gam, h, mw, p, R, s, T, v, x, state
 """
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
         h = self._h(T,d1,0)[0]
@@ -5176,36 +5234,34 @@ Returns enthalpy as unit_energy / unit_matter
 
     def s(self, *varg, quality=False, **kwarg):
         """Entropy
-    s(...)
-
-All properties accept two other properties as flexible inputs.
-Below are the recognized keywords, their meaning, and the config entries
-that determine their units.
-    T   temperature         unit_temperature
-    p   pressure            unit_pressure
-    d   density             unit_matter / unit_volume
-    v   specific volume     unit_volume / unit_matter
-    x   quality             dimensionless
-    e   internal energy     unit_energy / unit_matter
-    h   enthalpy            unit_energy / unit_matter
-    s   entropy             unit_energy / unit_matter / unit_temperature
-
-If no keywords are specified, the positional arguments are interpreted
-as (T,p).  To configure their defaults, use the def_T and def_p config
-entries.
-
-Additionally, if the optional keyword, "quality" is set to True, the 
-quality of the liquid/vapor mixture is also returned
+    s = s(...)
+        OR
     s,x = s(..., quality=True)
 
-Returns entropy in unit_energy / unit_matter / unit_temperature
+Query the _argparse() method's documentation for a detailed description
+of the standard interface for specifying state.
+
+Returns entropy in [unit_energy / unit_matter / unit_temperature] found 
+in pm.config.
+
+**NOTE**
+The entropy is calculated assuming the two-phase mixture is stratified -
+the vapor is fully separated above the liquid.  The entropy of an finely
+mixed liquid-vapor (e.g. a mist or cloud) is higher.
+
+If the optional ``quality'' keyword is set to True, the quality is also
+returned to save a redundant call to x().
+
+See also:
+    a, cp, cv, d, e, f, g, gam, h, mw, p, R, s, T, v, x, state
 """
             
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
         s = self._s(T,d1,0)[0]
         if I.any():
-            s[I] *= (1.-x[I])
-            s[I] += self._s(T[I],d2[I],0)[0] * x[I]
+            xx = x[I]
+            s[I] *= (1.-xx)
+            s[I] += self._s(T[I],d2[I],0)[0] * xx
         # Convert the units back to user space
         pm.units.energy(s, from_units='J', inplace=True)
         pm.units.matter(s, self.data['mw'], 
@@ -5219,34 +5275,31 @@ Returns entropy in unit_energy / unit_matter / unit_temperature
 
     def a(self, *varg, quality=False, **kwarg):
         """Speed of sound
-    a(...)
+    a = a(...)
+        OR
+    a,x = a(..., quality=True)
 
-All properties accept two other properties as flexible inputs.
-Below are the recognized keywords, their meaning, and the config entries
-that determine their units.
-    T   temperature         unit_temperature
-    p   pressure            unit_pressure
-    d   density             unit_matter / unit_volume
-    v   specific volume     unit_volume / unit_matter
-    x   quality             dimensionless
-    e   internal energy     unit_energy / unit_matter
-    h   enthalpy            unit_energy / unit_matter
-    s   entropy             unit_energy / unit_matter / unit_temperature
+Query the _argparse() method's documentation for a detailed description
+of the standard interface for specifying state.
 
-If no keywords are specified, the positional arguments are interpreted
-as (T,p).  To configure their defaults, use the def_T and def_p config
-entries.
+Returns speed of sound in [unit_length / unit_time] found in pm.config
 
-Additionally, if the optional keyword, "quality" is set to True, the 
-quality of the liquid/vapor mixture is also returned
-    s,x = s(..., quality=True)
+**NOTE**
+The speed of sound in a two-phase mixture is not well defined.  If the
+mixture is stratified (fully separated vapor over liquid) each volume
+has its own speed of sound determined by the saturation properties.
+If the mixture is a finely-mixed mist, bubble field, or something in
+the middle, wave propagation is a far more complex business.
 
-Returns speed of sound in unit_length / unit_time
+As a result, a() returns the out-of-bounds value config['def_oob'] in
+saturated states.  If the vapor and liquid speeds of sound are needed,
+use the saturation densities to obtain their values there.
 
-The speed of sound in a two-phase mixture is not currently defined.  
-Normally, the saturated state forms two separate regions of vapor and 
-liquid, each with its own speed of sound, which should be calculated at
-the saturation line.
+If the optional ``quality'' keyword is set to True, the quality is also
+returned to save a redundant call to x().
+
+See also:
+    a, cp, cv, d, e, f, g, gam, h, mw, p, R, s, T, v, x, state
 """
         
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
@@ -5259,138 +5312,30 @@ the saturation line.
         if quality:
             return a,x
         return a
-
-
-    def hsd(self, *varg, quality = False, **kwarg):
-        """Enthalpy, Entropy, Density
-** Deprecated - Use state() **
-        
-    h,s,d = hsd(...)
-        OR
-    h,s,d,x = hsd(..., quality=True)
-
-All properties accept two other properties as flexible inputs.
-Below are the recognized keywords, their meaning, and the config entries
-that determine their units.
-    T   temperature         unit_temperature
-    p   pressure            unit_pressure
-    d   density             unit_matter / unit_volume
-    v   specific volume     unit_volume / unit_matter
-    x   quality             dimensionless
-    e   internal energy     unit_energy / unit_matter
-    h   enthalpy            unit_energy / unit_matter
-    s   entropy             unit_energy / unit_matter / unit_temperature
-
-If no keywords are specified, the positional arguments are interpreted
-as (T,p).  To configure their defaults, use the def_T and def_p config
-entries.
-
-Additionally, if the optional keyword, "quality" is set to True, the 
-quality of the liquid/vapor mixture is also returned
-    e,x = e(..., quality=True)
-
-"""
-            
-        T,d1,d2,x,I = self._argparse(*varg, **kwarg)
-        
-        # There is no inner hsd funciton.  
-        # We have to do this the hard way.
-        
-        # The IG part        
-        R = self.data['R']
-        Tscale = self.data['IGgroup']['Tscale']
-        dscale = self.data['IGgroup']['dscale']
-        tt = Tscale / T
-        dd = d1 / dscale
-        a,at,_,_,_,_ = self._fo(tt,dd,1)
-        
-        h = 1. + tt*at
-        s = tt*at - a
-        
-        # The residual part
-        Tscale = self.data['Rgroup']['Tscale']
-        dscale = self.data['Rgroup']['dscale']
-        tt = Tscale / T
-        dd = d1 / dscale
-        a,at,ad,_,_,_ = self._fr(tt,dd,1)
-        h += dd*ad + tt*at
-        s += tt*at - a
-
-        # If there are data under the dome
-        if I.any():
-            temp = 1-x[I]
-            h[I] *= temp
-            s[I] *= temp
-            
-            # The IG part        
-            R = self.data['R']
-            Tscale = self.data['IGgroup']['Tscale']
-            dscale = self.data['IGgroup']['dscale']
-            tt = Tscale / T[I]
-            dd = d2[I] / dscale
-            a,at,_,_,_,_ = self._fo(tt,dd,1)
-            
-            h[I] += (1. + tt*at)*x[I]
-            s[I] += (tt*at - a)*x[I]
-            
-            # The residual part
-            Tscale = self.data['Rgroup']['Tscale']
-            dscale = self.data['Rgroup']['dscale']
-            tt = Tscale / T[I]
-            dd = d2[I] / dscale
-            a,at,ad,_,_,_ = self._fr(tt,dd,1)
-            h[I] += (dd*ad + tt*at)*x[I]
-            s[I] += (tt*at - a)*x[I]
-            # Modify density
-            d1[I] = temp/d1[I] 
-            d1[I] += x[I]/d2[I]
-            d1[I] = 1./d1[I]
-            
-        s *= R
-        h *= R*T
-        
-        conv = pm.units.energy(1.,from_units='J')
-        conv = pm.units.matter(conv, self.data['mw'], from_units='kg')
-        h*=conv
-        conv = pm.units.temperature(conv, from_units='K')
-        s*=conv
-        pm.units.matter(d1, self.data['mw'],from_units='kg',inplace=True)
-        pm.units.volume(d1, from_units='m3', exponent=-1, inplace=True)
-        
-        if quality:
-            return h,s,d1,x
-        return h,s,d1
         
 
     def cp(self, *varg, quality=False, **kwarg):
         """Constant-pressure specific heat
-    cp(...)
-
-All properties accept two other properties as flexible inputs.
-Below are the recognized keywords, their meaning, and the config entries
-that determine their units.
-    T   temperature         unit_temperature
-    p   pressure            unit_pressure
-    d   density             unit_matter / unit_volume
-    v   specific volume     unit_volume / unit_matter
-    x   quality             dimensionless
-    e   internal energy     unit_energy / unit_matter
-    h   enthalpy            unit_energy / unit_matter
-    s   entropy             unit_energy / unit_matter / unit_temperature
-
-If no keywords are specified, the positional arguments are interpreted
-as (T,p).  To configure their defaults, use the def_T and def_p config
-entries.
-
-Additionally, if the optional keyword, "quality" is set to True, the 
-quality of the liquid/vapor mixture is also returned
+    cp = cp(...)
+        OR
     cp,x = cp(..., quality=True)
 
-Note that constant-pressure specific heat is theoretically infinite for
-saturated liquid-vapor mixtures.  cp() returns +Inf for any states that
-are under the dome.
+Query the _argparse() method's documentation for a detailed description
+of the standard interface for specifying state.
 
-Returns specific heat in unit_energy / unit_matter / unit_temperature
+Returns specific heat in [unit_energy / unit_matter / unit_temperature] 
+found in pm.config.
+
+**NOTE**
+Constant-pressure specific heat is infinite in saturated mixtures of any
+kind.  This can cause some unexpected numerical problems if codes are 
+not expecting these values.
+
+If the optional ``quality'' keyword is set to True, the quality is also
+returned to save a redundant call to x().
+
+See also:
+    a, cp, cv, d, e, f, g, gam, h, mw, p, R, s, T, v, x, state
 """
             
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
@@ -5410,54 +5355,71 @@ Returns specific heat in unit_energy / unit_matter / unit_temperature
 
     def cv(self, *varg, quality=False, **kwarg):
         """Constant-volume specific heat
-    cv(...)
-
-All properties accept two other properties as flexible inputs.
-Below are the recognized keywords, their meaning, and the config entries
-that determine their units.
-    T   temperature         unit_temperature
-    p   pressure            unit_pressure
-    d   density             unit_matter / unit_volume
-    v   specific volume     unit_volume / unit_matter
-    x   quality             dimensionless
-    e   internal energy     unit_energy / unit_matter
-    h   enthalpy            unit_energy / unit_matter
-    s   entropy             unit_energy / unit_matter / unit_temperature
-
-If no keywords are specified, the positional arguments are interpreted
-as (T,p).  To configure their defaults, use the def_T and def_p config
-entries.
-
-Additionally, if the optional keyword, "quality" is set to True, the 
-quality of the liquid/vapor mixture is also returned
+    cv = cv(...)
+        OR
     cv,x = cv(..., quality=True)
-    
-The cv() method is unique in that it provides slightly different 
-behaviors from its corresponding value returned by the state() method.
-The state() method does not calculate specific heats of any kind for 
-saturated conditions.  Meanwhile, cv() uses the derivatives saturation
-density and internal energy to calculate the total mixture specific 
-heat.  Applications that require this behavior should use cv() 
-explicitly instead of depending on state().
 
-Returns specific heat in unit_energy / unit_matter / unit_temperature
+Query the _argparse() method's documentation for a detailed description
+of the standard interface for specifying state.
+
+Returns specific heat in [unit_energy / unit_matter / unit_temperature] 
+found in pm.config.
+
+**NOTE**
+The state() method returns out-of-bounds for constant-volume specific
+heats of two-phase mixtures, but the cv() method calculates them 
+correctly.  This is a deliberate design decision for speed in the 
+state() method.  If cv() of two-phase mixtures is needed, users must use
+cv() explicitly.
+
+If the optional ``quality'' keyword is set to True, the quality is also
+returned to save a redundant call to x().
+
+See also:
+    a, cp, cv, d, e, f, g, gam, h, mw, p, R, s, T, v, x, state
 """
         
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
         cv = self._cv(T,d1)
         if I.any():
-            # How do the saturation densities change with temperature?
-            _,dVT,_ = self._dsv(T[I], diff=1)
-            _,dLT,_ = self._dsl(T[I], diff=1)
-            # How does x change with temperature
-            temp = d1[I]/d2[I]
-            xT = (dLT/d1[I]*(1-x[I]) + temp*dVT/d2[I]*x) / (temp-1)
+            TT = T[I]
+            dL = d1[I]
+            dV = d2[I]
+            xx = x[I]
+            # We'll need to calculate the derivative of quality with
+            # respect to temperature.  To do that, we'll differentiate
+            # the Maxwell criteria
+            #   g(T,dL) = g(T,dV)
+            #   p(T,dL) = p(T,dV)
+            # Leads to
+            #   (gLt-gVt)*dT = gLd*ddV - gVd*ddL
+            #   (pLt-pVt)*dT = pLd*ddV - pVd*ddL
+            # Matrix inversion gives ddV/dT and ddL/dT
+            _,gLt,gLd = self._g(TT,dL,1)
+            _,gVt,gVd = self._g(TT,dV,1)
+            _,pLt,pLd = self._p(TT,dL,1)
+            _,pVt,pVd = self._p(TT,dV,1)
+            # This is only a 2x2, so we can do it "manually"
+            temp = (gLd*pVd - pLd*gVd)
+            gt = gLt - gVt
+            pt = pLt - pVt
+            dLT = (-pVd*gt + gVd*pt)/temp
+            dVT = (-pLd*gt + gLd*pt)/temp
+
+            # How does x change with temperature?  The process is 
+            # constant volume, so the density is also constant.  Only
+            # the saturation densities change.
+            #     (dL/d ) - 1
+            # x = -----------
+            #     (dL/dV) - 1
+            temp = dL/dV
+            xT = (dLT * (1-xx)/dL + dVT * xx*temp/dV) / (temp-1)
             # Grab the saturation sensitivities
             eL,eLT,eLd = self._e(T[I],d1[I],diff=1)
             eV,eVT,eVd = self._e(T[I],d2[I],diff=1)
             # Calculate the true isochoric specific heat for the
             # two-phase mixture
-            cv[I] = (eLT+eLd*dLT)*(1-x) + (eVT+eVd*dVT)*x + (eV-eL)*xT
+            cv[I] = (eLT+eLd*dLT)*(1-xx) + (eVT+eVd*dVT)*xx + (eV-eL)*xT
             
         # Convert the units back to user space
         pm.units.energy(cv, from_units='J', inplace=True)
@@ -5472,29 +5434,25 @@ Returns specific heat in unit_energy / unit_matter / unit_temperature
         
     def gam(self, *varg, quality=False, **kwarg):
         """Specific heat ratio
-    gam(...)
-
-All properties accept two other properties as flexible inputs.
-Below are the recognized keywords, their meaning, and the config entries
-that determine their units.
-    T   temperature         unit_temperature
-    p   pressure            unit_pressure
-    d   density             unit_matter / unit_volume
-    v   specific volume     unit_volume / unit_matter
-    x   quality             dimensionless
-    e   internal energy     unit_energy / unit_matter
-    h   enthalpy            unit_energy / unit_matter
-    s   entropy             unit_energy / unit_matter / unit_temperature
-
-If no keywords are specified, the positional arguments are interpreted
-as (T,p).  To configure their defaults, use the def_T and def_p config
-entries.
-
-Additionally, if the optional keyword, "quality" is set to True, the 
-quality of the liquid/vapor mixture is also returned
+    gam = gam(...)
+        OR
     gam,x = gam(..., quality=True)
 
-Returns specific heat ratio, which is dimensionless
+Query the _argparse() method's documentation for a detailed description
+of the standard interface for specifying state.
+
+Returns the dimensionless specific heat ratio.
+
+**NOTE**
+Constant-pressure specific heat is infinite in two-phase mixtures, and
+so is gamma.  This can cause problems in codes that do not expect this
+result.
+
+If the optional ``quality'' keyword is set to True, the quality is also
+returned to save a redundant call to x().
+
+See also:
+    a, cp, cv, d, e, f, g, gam, h, mw, p, R, s, T, v, x, state
 """
             
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
@@ -5507,69 +5465,3 @@ Returns specific heat ratio, which is dimensionless
             return cp/cv, x
         return cp/cv
 
-
-    def T_s(self, s, p=None, d=None, quality=False, debug=False):
-        """Temperature from entropy
-** Deprecated - use T() **
-
-    T = T_s(s, p=p)
-        OR
-    T = T_s(s, d=d)
-
-If neither pressure nor density is specified, the default pressure will be 
-used (config['def_p']).  
-
-The optional keyword flag, quality, will cause quality to be returned
-along with temperature.
-
-    T,x = T_s(s, p=p, quality=True)
-"""
-        if p is not None:
-            return self.T(s=s,p=p,quality=quality)
-        elif d is not None:
-            return self.T(s=s,d=d,quality=quality)
-        p = pm.config['def_p']
-        return self.T(s=s, p=p)
-
-
-    def d_s(self, s, T=None, quality=False, debug=False):
-        """Density from entropy
-** Deprecated - use d() **
-
-    d = d_s(s,T=T)
-    
-If temperature is not specified, the default temperature will be used 
-(config['def_T']).
-
-The optional keyword flag, quality, will cause quality to be returned along
-with pressure.
-"""
-        if T is not None:
-            return self.d(s=s, T=T, quality=quality)
-        return self.d(s=s, quality=quality)
-            
-
-
-
-    def T_h(self, h, p=None, d=None, quality=False, debug=False):
-        """Temperature from entropy
-** Deprecated - use T() **
-
-    T = T_s(s, p=p)
-        OR
-    T = T_s(s, d=d)
-
-If neither pressure nor density is specified, the default pressure will be 
-used (config['def_p']).  
-
-The optional keyword flag, quality, will cause quality to be returned
-along with temperature.
-
-    T,x = T_s(s, p=p, quality=True)
-"""
-        if p is not None:
-            return self.T(h=h,p=p,quality=quality)
-        elif d is not None:
-            return self.T(h=h,d=d,quality=quality)
-        p = pm.config['def_p']
-        return self.T(h=h, p=p)

@@ -79,6 +79,9 @@ Returns a substance data class for the substance named.
     if out is None:
         utility.print_error('No substanced named "' + str(idstr) + '" was found in the loaded data.')
         raise utility.PMParamError('Invalid substance ID string')
+    # If the instance has a build method, call it
+    if hasattr(out, '_build'):
+        out._build()
     return out
     
 
