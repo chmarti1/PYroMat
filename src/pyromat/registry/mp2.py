@@ -1141,44 +1141,45 @@ SEE ALSO:
         x = xdata[xi] + (xdata[xi1] - xdata[xi]) * (fvalue - fdata[xi]) / (fdata[xi1] - fdata[xi])
         return x
 
-    def _mapsearch2(self, xdata, ydata, fdata, gdata, fvalue, gvalue):
+    def _mapsearch2(self, f0data, f1data, f0value, f1value):
         r"""Search 2D map for inverse estimates (primative routine)
-    x,y,xi,yi = mapsearch2(xdata, ydata, fdata, gdata, fvalue, gvalue)
+    T, d, Isat, Ioob = mapsearch2(f0data, f1data, f0value, f1value)
     
 Uses tabulated data to generate an estimates for x,y in the 2D inversion
 problem
-    f(x,y) = fvalue
-    g(x,y) = gvalue
+    f0(T,d) = f0value
+    f1(T,d) = f1value
 
-ARGUMENTS:
-xdata, ydata
-    One-dimensional array-like containing grid values for the x- and y-
-    coordinates.  The sizes of the x- and y-data arrays must match the 
-    fdata and gdata arrays (see below).
+ARGUMENTS:    
+f0data, f1data
+    Two-dimensional array containing tabulated values for f0(T,d) and 
+    f1(T,d) from the substance's _table dict.  The indices should be 
+    arranged so that
+        f0[i,j] = f0(T[i], d[j])
+        f1[i,j] = f1(T[i], d[j])
+    where the T and d arrays are the temperature and density values 
+    itemized in the substance _table dict.
     
-fdata, gdata
-    Two-dimensional array-like containing tabulated values for f(x,y) 
-    and g(x,y).  The indices should be arranged so that
-        fdata[i,j] = f(xdata[i], ydata[j])
-        gdata[i,j] = g(xdata[i], ydata[j])
-        
-fvalue, gvalue
+f0value, f1value
     Numpy arrays with the same shape containing values for properties,
-    fdata and gdata.
-
+    f0data and f1data.
     
 RETURNS: 
-x,y
+T,d
     Arrays of the same shape as fvalue and gvalue that approximate 
     solutions to the problem
-        f(x,y) =approx= fvalue
-        g(x,y) =approx= gvalue
+        f0(T,d) =approx= f0value
+        f1(T,d) =approx= f1value
 
-xi,yi
-    One-dimensional integer arrays identifying the indices of the 
-    elements in which the estimated solution was identified.  Care must
-    be taken, because the actual solution may lie in a neighboring 
-    element -- especially when estimates are very near the element edge.
+Isat
+    A boolean array of the same shape as the xvalue and yvalue arrays,
+    indicating states at which the estimated solution is either 
+    saturated or very nearly saturated.  If Isat is False, the state is
+    definiately NOT saturated.
+    
+Ioob
+    A boolean array of the same shape as the xvalue and yvalue arrays,
+    indicating states that are out-of-bounds of the substance data map.
 
 DESCRIPTION:
 
@@ -1281,91 +1282,75 @@ SEE ALSO:
         # proximity to the element boundary.
         small = np.finfo(float).eps * 1e4
         # Initialize lists for the result values
-        x = np.empty_like(fvalue, dtype=float)
-        y = np.empty_like(fvalue, dtype=float)
-        XI = np.empty_like(fvalue, dtype=int)
-        YI = np.empty_like(fvalue, dtype=int)
+        T = np.full_like(f0value, pm.config['def_oob'], dtype=float)
+        d = np.full_like(f0value, pm.config['def_oob'], dtype=float)
+        TI = np.empty_like(f0value, dtype=int)
+        DI = np.empty_like(f0value, dtype=int)
+        Isat = np.zeros_like(f0value, dtype=bool)
+        Ioob = np.ones_like(f0value, dtype=bool)
         
-        for index in range(fvalue.size):
-            fv = fvalue.flat[index]
-            gv = gvalue.flat[index]
+        # Retrieve the T and d tabular arrays
+        Tdata = self._table['T']
+        ddata = self._table['d']
+        
+        # Keep a flag to indicate whether the user should be warned about
+        # out-of-bounds values
+        warn = pm.config['warning_verbose']
+        for index in range(f0value.size):
+            f0v = f0value.flat[index]
+            f1v = f1value.flat[index]
 
             # Generate a boolean array indicating candidate elements with a solution
             # Bulk element comparison seems expensive, but it is not on a 
             # system with vectorized processing.  Bulk comparisons like this
             # are remarkably cheap. 
-            fI = fv < fdata
-            gI = gv < gdata
-            I = crossing2(fI) * crossing2(gI)
-
-            fail = True
+            f0I = f0v < f0data
+            f1I = f1v < f1data
+            I = np.logical_and(crossing2(f0I), crossing2(f1I))
 
             # For each element that contains a crossing in both f and g
-            for xi,yi in zip(*np.nonzero(I)):
-                # Only continue if this candidate is still flagged
-                # Elements can be unflagged as the algorithm progresses if a neighbor
-                # has claimed a point on the border or in the corner.
-                # This conditional was removed when the code was modified to return the
-                # first solution discovered.  Uncomment and indent if the code needs to
-                # return multiple solutions.
-                #<<==>>
-                #if I[xi,yi]:
-                # Indices for the other four nodes in this element
-                xi1 = xi+1
-                yi1 = yi+1
+            for Ti,di in zip(*np.nonzero(I)):
+                Ti1 = Ti+1
+                di1 = di+1
                 # Identify the two f-edge crossings [(x,y), ...]
-                fc = []
-                # Track the indices of the neighboring elements in case the
-                # solution is very near to the element's boundary.  Only 
-                # the neighbors of the f-segment are tracked.
-                # This code
-                #<<==>>
-                #neighbor = []
+                f0cross = []
                 # Test each of the edges for a crossing of f()
                 # Bottom edge
-                if fI[xi,yi] != fI[xi1,yi]:
-                    xx = interp_scalar(fv, fdata[xi,yi], fdata[xi1,yi], xdata[xi], xdata[xi1])
-                    fc.append(np.array((xx,ydata[yi])))
-                    #<<==>>
-                    #neighbor.append((xi, yi-1))
+                if f0I[Ti,di] != f0I[Ti1,di]:
+                    TT = interp_scalar(f0v, f0data[Ti,di], f0data[Ti1,di], Tdata[Ti], Tdata[Ti1])
+                    f0cross.append(np.array((TT,ddata[di])))
                 # Left edge
-                if fI[xi,yi] != fI[xi,yi1]:
-                    yy = interp_scalar(fv, fdata[xi,yi], fdata[xi,yi1], ydata[yi], ydata[yi1])
-                    fc.append(np.array((xdata[xi], yy)))
-                    #<<==>>
-                    #neighbor.append((xi-1, yi))
+                if f0I[Ti,di] != f0I[Ti,di1]:
+                    dd = interp_scalar(f0v, f0data[Ti,di], f0data[Ti,di1], ddata[di], ddata[di1])
+                    f0cross.append(np.array((Tdata[Ti], dd)))
                 # Top edge
-                if fI[xi,yi1] != fI[xi1,yi1]:
-                    xx = interp_scalar(fv, fdata[xi,yi1], fdata[xi1,yi1], xdata[xi], xdata[xi1])
-                    fc.append(np.array((xx,ydata[yi1])))
-                    #<<==>>
-                    #neighbor.append((xi, yi+1))
+                if f0I[Ti,di1] != f0I[Ti1,di1]:
+                    TT = interp_scalar(f0v, f0data[Ti,di1], f0data[Ti1,di1], Tdata[Ti], Tdata[Ti1])
+                    f0cross.append(np.array((TT,ddata[di1])))
                 # Right edge
-                if fI[xi1,yi] != fI[xi1,yi1]:
-                    yy = interp_scalar(fv, fdata[xi1,yi], fdata[xi1,yi1], ydata[yi], ydata[yi1])
-                    fc.append(np.array((xdata[xi1], yy)))
-                    #<<==>>
-                    #neighbor.append((xi+1, yi))
+                if f0I[Ti1,di] != f0I[Ti1,di1]:
+                    dd = interp_scalar(f0v, f0data[Ti1,di], f0data[Ti1,di1], ddata[di], ddata[di1])
+                    f0cross.append(np.array((Tdata[Ti1], dd)))
                 # Identify the two g-edge crossings [(x,y), ...]
-                gc = []
+                f1cross = []
                 # Test each of the edges for a crossing of g()
                 # Bottom edge
-                if gI[xi,yi] != gI[xi1,yi]:
-                    xx = interp_scalar(gv, gdata[xi,yi], gdata[xi1,yi], xdata[xi], xdata[xi1])
-                    gc.append(np.array((xx,ydata[yi])))
+                if f1I[Ti,di] != f1I[Ti1,di]:
+                    TT = interp_scalar(f1v, f1data[Ti,di], f1data[Ti1,di], Tdata[Ti], Tdata[Ti1])
+                    f1cross.append(np.array((TT,ddata[di])))
                 # Left edge
-                if gI[xi,yi] != gI[xi,yi1]:
-                    yy = interp_scalar(gv, gdata[xi,yi], gdata[xi,yi1], ydata[yi], ydata[yi1])
-                    gc.append(np.array((xdata[xi], yy)))
+                if f1I[Ti,di] != f1I[Ti,di1]:
+                    dd = interp_scalar(f1v, f1data[Ti,di], f1data[Ti,di1], ddata[di], ddata[di1])
+                    f1cross.append(np.array((Tdata[Ti], dd)))
                 # Top edge
-                if gI[xi,yi1] != gI[xi1,yi1]:
-                    xx = interp_scalar(gv, gdata[xi,yi1], gdata[xi1,yi1], xdata[xi], xdata[xi1])
-                    gc.append(np.array((xx,ydata[yi1])))
+                if f1I[Ti,di1] != f1I[Ti1,di1]:
+                    TT = interp_scalar(f1v, f1data[Ti,di1], f1data[Ti1,di1], Tdata[Ti], Tdata[Ti1])
+                    f1cross.append(np.array((TT,ddata[di1])))
                 # Right edge
-                if gI[xi1,yi] != gI[xi1,yi1]:
-                    yy = interp_scalar(gv, gdata[xi1,yi], gdata[xi1,yi1], ydata[yi], ydata[yi1])
-                    gc.append(np.array((xdata[xi1], yy)))
-                # At this point, fc and gc list (x,y) coordinates for 
+                if f1I[Ti1,di] != f1I[Ti1,di1]:
+                    dd = interp_scalar(f1v, f1data[Ti1,di], f1data[Ti1,di1], ddata[di], ddata[di1])
+                    f1cross.append(np.array((Tdata[Ti1], dd)))
+                # At this point, f0cross and f1cross list (x,y) coordinates for 
                 # the points along the element edge where crossings occur
                 # Meanwhile, neighbor lists the (xi,yi) indices of the
                 # elements that share the edges where f() has a solution
@@ -1373,15 +1358,15 @@ SEE ALSO:
                 # very close to the edges.
                 
                 # Detect the saddle case
-                if len(fc) != 2 or len(gc) != 2:
+                if len(f0cross) != 2 or len(f1cross) != 2:
                     # For now, warn the user, and DO NOT append the case
                     pm.utility.print_warning('mp2._mapsearch2: Discarded a potential solution near a saddle point.  If you believe this was a legitimate solution, please report the code that generated this warning to the PYroMat GitHub issues page.')
                 # Two edges have intersections for each function
                 else:
-                    fx0 = fc[0]
-                    fdx = fc[1] - fc[0]
-                    gx0 = gc[0]
-                    gdx = gc[1] - gc[0]
+                    fx0 = f0cross[0]
+                    fdx = f0cross[1] - f0cross[0]
+                    gx0 = f1cross[0]
+                    gdx = f1cross[1] - f1cross[0]
                     #print('')
                     #print('xi,yi,x,y:', xi,yi,xdata[xi], ydata[yi])
                     #print('fdata values:', fdata[xi,yi], fdata[xi1,yi], fdata[xi,yi1], fdata[xi1,yi1])
@@ -1389,16 +1374,17 @@ SEE ALSO:
                     
                     # Check for a solution precisely at the corner
                     if (fdx == 0).all():
-                        if (gc[0] == fx0).all() or (gc[1] == fx0).all():
+                        if (f1cross[0] == fx0).all() or (f1cross[1] == fx0).all():
                             # When this code was modified to merely return the first solution discovered,
                             # these lines were commented out.  Return them if multiple solutions are 
                             # desired in the future.
                             #I[*neighbor[0]] = False
                             #I[*neighbor[1]] = False
-                            x.flat[index] = fx0[0]
-                            y.flat[index] = fx0[1]
-                            XI.flat[index] = xi
-                            YI.flat[index] = yi
+                            T.flat[index] = fx0[0]
+                            d.flat[index] = fx0[1]
+                            TI.flat[index] = Ti
+                            DI.flat[index] = di
+                            Ioob.flat[index] = False
                             break
                     # Ignore gdx == 0 cases - we'll catch corners with fdx == 0
                     elif not (gdx == 0).all():                        
@@ -1424,313 +1410,313 @@ SEE ALSO:
                             # solution.
                             if -small < s < 1+small:
                                 # Store the solution
-                                x.flat[index] = fx0[0] + s*fdx[0]
-                                y.flat[index] = fx0[1] + s*fdx[1]
-                                # If the solution is very near a boundary, remove
-                                # the neighbor element as a candidate to prevent
-                                # redundant solutions.
-                                # This was removed when the code was modified to only
-                                # return the first solution discovered.  Uncomment it
-                                # if multiple solutions are desired in the future
-                                #if -small < s < small:
-                                #    I[*neighbor[0]] = False
-                                #if 1-small < s < 1+small:
-                                #    I[*neighbor[1]] = False
-                                XI.flat[index] = xi
-                                YI.flat[index] = yi
+                                T.flat[index] = fx0[0] + s*fdx[0]
+                                d.flat[index] = fx0[1] + s*fdx[1]
+                                TI.flat[index] = Ti
+                                DI.flat[index] = di
+                                Ioob.flat[index] = False
                                 break
-        return x,y,XI,YI
+
+        # If operating verbosely, warn the user about out-of-bounds elements
+        if Ioob.any() and pm.config['warning_verbose']:
+            pm.utility.print_warning('mp2._mapsearch2: Failed to find value(s) in the table. Result is out-of-bounds.')
+        
+
+        # Identify any element indices under the dome
+        k = self._table['cI'][0] - TI
+        dLi = self._table['cI'][1] + k
+        dVi = self._table['cI'][1] - k
+        Isat = (TI>=0) * (k>0) * (dVi <= DI) * (DI < dLi)
+
+        return T,d,Isat,Ioob
 
 
-    def _mapsearch2x(self, xdata, ydata, fdata, yvalue, fvalue, indices=True):
-        r"""Search 2D map for inverse estimates (primative routine)
-    x, xi, yi = _mapsearch2x(xdata, ydata, fdata, yvalue, fvalue)
-        OR
-    x, xi, yi = _mapsearch2x(..., indices=False)
+    def _dmapsearch2(self, fdata, dvalue, fvalue):
+        r"""Constant-density 2D map search (primative routine)
+    T, Isat, Ioob = _dmapsearch2(fdata, dvalue, fvalue)
     
 Uses tabulated data to generate an estimate for x in the 2D inversion
 problem
-    f(x,yvalue) = fvalue
+    f(T,dvalue) = fvalue
 
 ARGUMENTS:
-xdata, ydata
-    One-dimensional array-like containing grid values for the x- and y-
-    coordinates.  The sizes of the x- and y-data arrays must match the 
-    fdata and gdata arrays (see below).
-    
 fdata
-    Two-dimensional array-like containing tabulated values for f(x,y).  
+    Two-dimensional array-like containing tabulated values for f(T,d).  
     The indices should be arranged so that
-        fdata[i,j] = f(xdata[i], ydata[j])
-        gdata[i,j] = g(xdata[i], ydata[j])
+        fdata[i,j] = f(T[i], d[j])
+    where T and d are the tabulated temperature and density values in 
+    the substance _table dict.
         
-yvalue
-    An array of y-values to interpolate from the table.  The dimensions
-    must match the dimensions of fvalue.
+dvalue
+    An array of density values to use when scanning the table.
     
 fvalue
     An array of f-values to interpolate from the table.  The dimensions
-    must match the dimensions of yvalue.
+    must match the dimensions of dvalue.
     
 RETURNS: 
-x
-    An array with the same dimensions as fvalue and yvalue approximating
-    the inversion solution based on interpolation of the data given.
+T
+    An array of temperatures that approximately solve the problem.
         
-xi, yi
-    Scalar integer indices of the element where the solution was 
-    discovered in the table.
 
+Isat
+    A boolean array of the same shape as the xvalue and yvalue arrays,
+    indicating states at which the estimated solution is either 
+    saturated or very nearly saturated.  If Isat is False, the state is
+    definiately NOT saturated.
+    
+Ioob
+    A boolean array of the same shape as the xvalue and yvalue arrays,
+    indicating states that are out-of-bounds of the substance data map.
+    
 DESCRIPTION:
 
-Similarly to _mapsearch2, _mapsearch2x looks for intersections of the
+Similarly to _mapsearch2, _dmapsearch2 looks for intersections of the
 curves implied by
-    f(x, y) = fvalue
-    y = yvalue
-cross.  Inside of elements, the f(x,y)=fvalue curve is interpolated 
+    f(T, d) = fvalue
+    d = dvalue
+cross.  Inside of elements, the f(T,d)=fvalue curve is interpolated 
 linearly between the points where it crosses along the element edges.
 
-Unlike _mapsearch2, _mapsearch2x does not need to search the entire 
+Unlike _mapsearch2, _dmapsearch2 does not need to search the entire 
 domain for solutions - it only performs operations on the row of 
-elements implied by the y-value.  As a result, it is faster.
+elements implied by the d-value.  As a result, it is faster.
 
 SEE ALSO:
-    _mapsearch1(), _mapsearch2(), _mapsearch2x(), _mapsearch2y()
+    _mapsearch1(), _mapsearch2(), _dmapsearch2(), _Tmapsearch2()
 """
         # Define an increment for small values
         # For most systems, eps is about 2.2e-16, so small will be about
         # 2.2e-12.  This is the number we use to detect dimensionless
         # proximity to the element boundary.
         small = np.finfo(float).eps * 1e4
+
+        # Get Tdata and ddata
+        Tdata = self._table['T']
+        ddata = self._table['d']
         # Initialize result arrays
-        x = np.empty_like(fvalue, dtype=float)
-        XI = np.empty_like(fvalue, dtype=int)
-        YI = np.searchsorted(ydata, yvalue, side='right')-1
+        T = np.full_like(fvalue, pm.config['def_oob'], dtype=float)
+        TI = np.full_like(fvalue, -1, dtype=int)
+        DI = np.searchsorted(ddata, dvalue, side='right')-1
+        Ioob = np.ones_like(fvalue, dtype=bool)
+        Isat = np.zeros_like(fvalue, dtype=bool)
+
         for index in range(fvalue.size):
-            yv = yvalue.flat[index]
+            # Scalar density and property values
+            dv = dvalue.flat[index]
             fv = fvalue.flat[index]
-            yi = YI.flat[index]
-            yi1 = yi + 1
-            # Compare the values of only the appropriate row
-            fI = fv < fdata[:, yi:yi+2]
-            # Detect elements with a crossing
-            I = crossing2(fI)
-            for xi in np.nonzero(I)[0]:
-                xi1 = xi+1
-                # Initialize some crossing parameters
-                fc = []
-                #neighbor = []
-                # Proceed only if the element is still flagged
-                #<<==>>
-                #if I[xi,0]:
-                # Detect the edges
-                # Bottom Edge
-                if fI[xi,0] != fI[xi1,0]:
-                    xx = interp_scalar(fv, fdata[xi,yi], fdata[xi1,yi], xdata[xi], xdata[xi1])
-                    fc.append(np.array([xx, ydata[yi]]))
-                    #<<==>>
-                    #neighbor.append(None)
-                # Left Edge
-                if fI[xi,0] != fI[xi,1]:
-                    yy = interp_scalar(fv, fdata[xi,yi], fdata[xi,yi1], ydata[yi], ydata[yi1])
-                    fc.append(np.array([xdata[xi], yy]))
-                    #<<==>>
-                    #neighbor.append((xi-1, 0))
-                # Top Edge
-                if fI[xi,1] != fI[xi1,1]:
-                    xx = interp_scalar(fv, fdata[xi,yi1], fdata[xi1,yi1], xdata[xi], xdata[xi1])
-                    fc.append(np.array([xx, ydata[yi1]]))
-                    #<<==>>
-                    #neighbor.append(None)
-                # Right Edge
-                if fI[xi1,0] != fI[xi1,1]:
-                    yy = interp_scalar(fv, fdata[xi1,yi], fdata[xi1,yi1], ydata[yi], ydata[yi1])
-                    fc.append(np.array([xdata[xi1], yy]))
-                    #<<==>>
-                    #neighbor.append((xi1, 0))
-                # Detect the saddle case
-                if len(fc) != 2:
-                    # For now, warn the user, and DO NOT append the case
-                    pm.utility.print_warning('mp2._mapsearch2x: Discarded a potential solution near a saddle point.  If you believe this was a legitimate solution, please report the code that generated this warning to the PYroMat GitHub issues page.')
-                # Two edges have intersections for each function
-                else:
-                    fx0 = fc[0]
-                    fdx = fc[1] - fc[0]
-                    # Detect precise equality at a corner
-                    if (fdx == 0).all() and fx0[1] == yv:
-                        x.flat[index] = fx0[0]
-                        XI.flat[index] = xi
-                        break
-                        #<<==>>
-                        #if neighbor[0] is not None:
-                        #    I[*neighbor[0]] = False
-                        #if neighbor[1] is not None:
-                        #    I[*neighbor[1]] = False
-                    else:
-                        # Calculate the distance along the f=0 curve to intersect 
-                        # Perform the calculations in two steps - leave the division
-                        # for last, so we can detect nearly singular problems
-                        s = yv - fx0[1]
-                        det = fdx[1]
-                        
-                        if 2*abs(det) > abs(s):
-                            s /= det
-                            if -small < s < 1+small:
-                                x.flat[index] = fx0[0] + fdx[0] * s
-                                XI.flat[index] = xi
-                                break
-                            # Clear the flag for a neighbor if the solution is very near an edge
-                            #<<==>>
-                            #if -small < s < small and neighbor[0] is not None:
-                            #    I[*neighbor[0]] = False
-                            #if 1-small < s < 1+small and neighbor[1] is not None:
-                            #    I[*neighbor[1]] = False
-        return x, XI, YI
-        
-    def _mapsearch2y(self, xdata, ydata, fdata, xvalue, fvalue):
-        r"""Search 2D map for inverse estimates (primative routine)
-    y, xi, yi = mapsearch2x(xdata, ydata, fdata, yvalue, fvalue)
-    
-Uses tabulated data to generate an estimate for y in the 2D inversion
-problem
-    f(xvalue,y) = fvalue
-
-ARGUMENTS:
-xdata, ydata
-    One-dimensional array-like containing grid values for the x- and y-
-    coordinates.  The sizes of the x- and y-data arrays must match the 
-    fdata and gdata arrays (see below).
-    
-fdata
-    Two-dimensional array-like containing tabulated values for f(x,y).  
-    The indices should be arranged so that
-        fdata[i,j] = f(xdata[i], ydata[j])
-        gdata[i,j] = g(xdata[i], ydata[j])
-        
-xvalue
-    The scalar value of x used to interpolate the table.
-    
-fvalue
-    The scalar value of f() for which we are searching.
-    
-RETURNS: 
-y
-    One-dimensional array, such that each y value represents a distinct 
-    estimated solution.  This implies that, for every entry in 
-    the y array,
-        f(xvalue,y) =approx= fvalue
-
-xi
-    Scalar integer index indicating the row in which xvalue was found.
-
-yi
-    One-dimensional array containing indices of the elements in which 
-    a solution was found.  
-
-DESCRIPTION:
-
-Similarly to _mapsearch2, _mapsearch2y looks for intersections of the
-curves implied by
-    f(x, y) = fvalue
-    x = xvalue
-cross.  Inside of elements, the f(x,y)=fvalue curve is interpolated 
-linearly between the points where it crosses along the element edges.
-
-Unlike _mapsearch2, _mapsearch2y does not need to search the entire 
-domain for solutions - it only performs operations on the column of 
-elements implied by the x-value.  As a result, it is faster.
-
-SEE ALSO:
-    _mapsearch1(), _mapsearch2(), _mapsearch2x(), _mapsearch2y()
-"""
-        # Define an increment for small values
-        # For most systems, eps is about 2.2e-16, so small will be about
-        # 2.2e-12.  This is the number we use to detect dimensionless
-        # proximity to the element boundary.
-        small = np.finfo(float).eps * 1e4
-        # Initialize result arrays
-        y = np.empty_like(fvalue, dtype=float)
-        YI = np.empty_like(fvalue, dtype=int)
-        XI = np.searchsorted(xdata, xvalue, side='right')
-        for index in range(fvalue.size):
-            fv = fvalue.flat[index]
-            xv = xvalue.flat[index]
-            xi1 = XI.flat[index]
-            xi = xi1 - 1
-            # Compare the values of only the appropriate row
-            fI = fv < fdata[xi:xi+2, :]
-            # Detect elements with a crossing
-            I = crossing2(fI)
-            for yi in np.nonzero(I)[1]:
-                yi1 = yi+1
-                # Initialize some crossing parameters
-                fc = []
-                #<<==>>
-                #neighbor = []
-                # Proceed only if the element is still flagged
-                if I[0,yi]:
+            # Halt if dv is out of range
+            if ddata[0] <= dv <= ddata[-1]:                    
+                # Scalar density index
+                di = DI.flat[index]
+                di1 = di + 1
+                # Compare the values of only the appropriate row
+                fI = fv < fdata[:, di:di+2]
+                # Detect elements with a crossing
+                I = crossing2(fI)
+                for Ti in np.nonzero(I)[0]:
+                    Ti1 = Ti+1
+                    # Initialize some crossing parameters
+                    fcross = []
                     # Detect the edges
                     # Bottom Edge
-                    if fI[0,yi] != fI[1,yi]:
-                        xx = interp_scalar(fv, fdata[xi,yi], fdata[xi1,yi], xdata[xi], xdata[xi1])
-                        fc.append(np.array([xx, ydata[yi]]))
-                        #<<==>>
-                        #neighbor.append((0,yi-1))
+                    if fI[Ti,0] != fI[Ti1,0]:
+                        TT = interp_scalar(fv, fdata[Ti,di], fdata[Ti1,di], Tdata[Ti], Tdata[di1])
+                        fcross.append(np.array([TT, ddata[di]]))
                     # Left Edge
-                    if fI[0,yi] != fI[0,yi1]:
-                        yy = interp_scalar(fv, fdata[xi,yi], fdata[xi,yi1], ydata[yi], ydata[yi1])
-                        fc.append(np.array([xdata[xi], yy]))
-                        #<<==>>
-                        #neighbor.append(None)
+                    if fI[Ti,0] != fI[Ti,1]:
+                        dd = interp_scalar(fv, fdata[Ti,di], fdata[Ti,di1], ddata[di], ddata[di1])
+                        fcross.append(np.array([Tdata[Ti], dd]))
                     # Top Edge
-                    if fI[0,yi1] != fI[1,yi1]:
-                        xx = interp_scalar(fv, fdata[xi,yi1], fdata[xi1,yi1], xdata[xi], xdata[xi1])
-                        fc.append(np.array([xx, ydata[yi1]]))
-                        #<<==>>
-                        #neighbor.append((0,yi1))
+                    if fI[Ti,1] != fI[Ti1,1]:
+                        TT = interp_scalar(fv, fdata[Ti,di1], fdata[Ti1,di1], Tdata[Ti], Tdata[Ti1])
+                        fcross.append(np.array([TT, ddata[di1]]))
                     # Right Edge
-                    if fI[1,yi] != fI[1,yi1]:
-                        yy = interp_scalar(fv, fdata[xi1,yi], fdata[xi1,yi1], ydata[yi], ydata[yi1])
-                        fc.append(np.array([xdata[xi1], yy]))
-                        #<<==>>
-                        #neighbor.append(None)
+                    if fI[Ti1,0] != fI[Ti1,1]:
+                        dd = interp_scalar(fv, fdata[Ti1,di], fdata[Ti1,di1], ddata[di], ddata[di1])
+                        fcross.append(np.array([Tdata[Ti1], dd]))
                     # Detect the saddle case
-                    if len(fc) != 2:
+                    if len(fcross) != 2:
                         # For now, warn the user, and DO NOT append the case
-                        pm.utility.print_warning('mp2._mapsearch2y: Discarded a potential solution near a saddle point.  If you believe this was a legitimate solution, please report the code that generated this warning to the PYroMat GitHub issues page.')
+                        pm.utility.print_warning('mp2._dmapsearch2: Discarded a potential solution near a saddle point.  If you believe this was a legitimate solution, please report the code that generated this warning to the PYroMat GitHub issues page.')
                     # Two edges have intersections for each function
                     else:
-                        fx0 = fc[0]
-                        fdx = fc[1] - fc[0]
+                        fx0 = fcross[0]
+                        fdx = fcross[1] - fcross[0]
                         # Detect precise equality at a corner
-                        if (fdx == 0).all() and fx0[0] == xv:
-                            y.flat[index] = fx0[1]
-                            YI.flat[index] = yi
+                        if (fdx == 0).all() and fx0[1] == dv:
+                            T.flat[index] = fx0[0]
+                            TI.flat[index] = Ti
+                            Ioob.flat[index] = False
                             break
-                            #if neighbor[0] is not None:
-                            #    I[*neighbor[0]] = False
-                            #if neighbor[1] is not None:
-                            #    I[*neighbor[1]] = False
                         else:
                             # Calculate the distance along the f=0 curve to intersect 
                             # Perform the calculations in two steps - leave the division
                             # for last, so we can detect nearly singular problems
-                            s = xv - fx0[0]
+                            s = dv - fx0[1]
+                            det = fdx[1]
+                            
+                            if 2*abs(det) > abs(s):
+                                s /= det
+                                if -small < s < 1+small:
+                                    T.flat[index] = fx0[0] + fdx[0] * s
+                                    TI.flat[index] = Ti
+                                    Ioob.flat[index] = False
+                                    break
+        
+        if pm.config['warning_verbose'] and Ioob.any():
+            pm.utility.print_warning('mp2._dmapsearch2: Property value(s) were out-of-bounds.')
+                    
+        # Identify any element indices under the dome
+        k = self._table['cI'][0] - TI
+        dLi = self._table['cI'][1] + k
+        dVi = self._table['cI'][1] - k
+        Isat = (TI>=0) * (k>0) * (dVi <= DI) * (DI < dLi)
+            
+        return T, Isat, Ioob
+        
+    def _Tmapsearch2(self, fdata, Tvalue, fvalue):
+        r"""Search 2D map for inverse estimates (primative routine)
+    d, Isat, Ioob = Tmapsearch2(fdata, Tvalue, fvalue)
+    
+Uses tabulated data to generate an estimate for y in the 2D inversion
+problem
+    f(T, d) = fvalue
+    T = Tvalue
+
+ARGUMENTS:
+fdata
+    Two-dimensional array-like containing tabulated values for f(T,d).  
+    The indices should be arranged so that
+        fdata[i,j] = f(T[i], d[j])
+    where T and d are the tabulated temperature and density values in 
+    the substance _table dict.
+        
+Tvalue
+    An array of temperature values to use when scanning the table.
+    
+fvalue
+    An array of f-values to interpolate from the table.  The dimensions
+    must match the dimensions of dvalue.
+    
+RETURNS: 
+T
+    An array of temperatures that approximately solve the problem.
+        
+
+Isat
+    A boolean array of the same shape as the xvalue and yvalue arrays,
+    indicating states at which the estimated solution is either 
+    saturated or very nearly saturated.  If Isat is False, the state is
+    definiately NOT saturated.
+    
+Ioob
+    A boolean array of the same shape as the xvalue and yvalue arrays,
+    indicating states that are out-of-bounds of the substance data map.
+    
+DESCRIPTION:
+
+Similarly to _mapsearch2, _dmapsearch2 looks for intersections of the
+curves implied by
+    f(T, d) = fvalue
+    T = Tvalue
+cross.  Inside of elements, the f(T,d)=fvalue curve is interpolated 
+linearly between the points where it crosses along the element edges.
+
+Unlike _mapsearch2, _Tmapsearch2 does not need to search the entire 
+domain for solutions - it only performs operations on the row of 
+elements implied by the d-value.  As a result, it is faster.
+
+SEE ALSO:
+    _mapsearch1(), _mapsearch2(), _dmapsearch2(), _Tmapsearch2()
+"""
+        # Define an increment for small values
+        # For most systems, eps is about 2.2e-16, so small will be about
+        # 2.2e-12.  This is the number we use to detect dimensionless
+        # proximity to the element boundary.
+        small = np.finfo(float).eps * 1e4
+        
+        # Get the temperature and density data
+        Tdata = self._table['T']
+        ddata = self._table['d']
+        
+        # Initialize result arrays
+        d = np.empty_like(fvalue, dtype=float)
+        DI = np.empty_like(fvalue, dtype=int)
+        TI = np.searchsorted(Tdata, Tvalue, side='right')
+        Isat = np.zeros_like(fvalue, dtype=bool)
+        Ioob = np.ones_like(fvalue, dtype=bool)
+        
+        for index in range(fvalue.size):
+            fv = fvalue.flat[index]
+            Tv = Tvalue.flat[index]
+            # Halt if the temeprature value is out-of-bounds
+            if Tdata[0] <= Tv <= Tdata[-1]:
+                Ti1 = TI.flat[index]
+                Ti = Ti1 - 1
+                # Compare the values of only the appropriate row
+                fI = fv < fdata[Ti:Ti+2, :]
+                # Detect elements with a crossing
+                I = crossing2(fI)
+                for di in np.nonzero(I)[1]:
+                    di1 = di+1
+                    # Initialize some crossing parameters
+                    fcross = []
+                    # Detect the edges
+                    # Bottom Edge
+                    if fI[0,di] != fI[1,di]:
+                        TT = interp_scalar(fv, fdata[Ti,di], fdata[Ti1,di], Tdata[Ti], Tdata[Ti1])
+                        fcross.append(np.array([TT, ddata[di]]))
+                    # Left Edge
+                    if fI[0,di] != fI[0,di1]:
+                        dd = interp_scalar(fv, fdata[Ti,di], fdata[Ti,di1], ddata[di], ddata[di1])
+                        fcross.append(np.array([Tdata[Ti], dd]))
+                    # Top Edge
+                    if fI[0,di1] != fI[1,di1]:
+                        TT = interp_scalar(fv, fdata[Ti,di1], fdata[Ti1,di1], Tdata[Ti], Tdata[Ti1])
+                        fcross.append(np.array([TT, ddata[di1]]))
+                    # Right Edge
+                    if fI[1,di] != fI[1,di1]:
+                        dd = interp_scalar(fv, fdata[Ti1,di], fdata[Ti1,di1], ddata[di], ddata[di1])
+                        fcross.append(np.array([Tdata[Ti1], dd]))
+                    # Detect the saddle case
+                    if len(fcross) != 2:
+                        # For now, warn the user, and DO NOT append the case
+                        pm.utility.print_warning('mp2._Tmapsearch2: Discarded a potential solution near a saddle point.  If you believe this was a legitimate solution, please report the code that generated this warning to the PYroMat GitHub issues page.')
+                    # Two edges have intersections for each function
+                    else:
+                        fx0 = fcross[0]
+                        fdx = fcross[1] - fcross[0]
+                        # Detect precise equality at a corner
+                        if (fdx == 0).all() and fx0[0] == Tv:
+                            d.flat[index] = fx0[1]
+                            DI.flat[index] = di
+                            Ioob.flat[index] = False
+                            break
+                        else:
+                            # Calculate the distance along the f=0 curve to intersect 
+                            # Perform the calculations in two steps - leave the division
+                            # for last, so we can detect nearly singular problems
+                            s = Tv - fx0[0]
                             det = fdx[0]
                             
                             if 2*abs(det) > abs(s):
                                 s /= det
                                 if -small < s < 1+small:
-                                    y.flat[index] = fx0[1] + fdx[1] * s
-                                    YI.flat[index] = yi
+                                    d.flat[index] = fx0[1] + fdx[1] * s
+                                    DI.flat[index] = di
+                                    Ioob.flat[index] = False
                                     break
-                                # Clear the flag for a neighbor if the solution is very near an edge
-                                #<<==>>
-                                #if -small < s < small and neighbor[0] is not None:
-                                #    I[*neighbor[0]] = False
-                                #if 1-small < s < 1+small and neighbor[1] is not None:
-                                #    I[*neighbor[1]] = False
-        return y, XI, YI
+        if pm.config['warning_verbose'] and Ioob.any():
+            pm.utility.print_warning('mp2._Tmapsearch2: Property value(s) were out-of-bounds.')
+                    
+        # Identify any element indices under the dome
+        k = self._table['cI'][0] - TI
+        dLi = self._table['cI'][1] + k
+        dVi = self._table['cI'][1] - k
+        Isat = (TI>=0) * (k>0) * (dVi <= DI) * (DI < dLi)
+        
+        return d, Isat, Ioob
 
 
 
@@ -2042,7 +2028,8 @@ ep          Fractional error allowed for convergence (def = 1e-6)
             dV[Ids] -= e[Ids,2,0]
             
             # Test for densities that have overshot the critical point
-            Ioob = (dV > self.data['dc']) + (dL < self.data['dc']) + (T > self.data['Tc'])
+            Ioob = np.zeros_like(Ids, dtype=bool)
+            Ioob[Ids] = (dV[Ids] > self.data['dc']) + (dL[Ids] < self.data['dc']) + (T[Ids] > self.data['Tc'])
             inner_count = 0
             while Ioob.any():
                 inner_count += 1
@@ -2077,7 +2064,7 @@ ep          Fractional error allowed for convergence (def = 1e-6)
 
     def _satiter2(self, T, p, dL, dV, x, fn0, fn1, f0value, f1value, Ids, Nmax=10, ep=1e-6, debug=False):
         """Two-property saturation iteration (primative routine)
-    _satiter2(self, T, dL, dV, x, fn0, fn1, f0value, f1value, Ids, Nmax=10, ep=1e-6)
+    _satiter2(self, T, p, dL, dV, x, fn0, fn1, f0value, f1value, Ids, Nmax=10, ep=1e-6)
 
 Iteratively calculates the two-phase mixture conditions where a pair of
 properties have the prescribed values.  
@@ -2176,6 +2163,96 @@ since pV == pL.  It is MUCH faster to use _psatiter instead.
             # Update convergence criteria
             Ids[Ids] = (delta[Ids,0,0] > TT*ep) + (delta[Ids,1,0] > DL*ep) + (delta[Ids,2,0] > DV*ep)
             
+            
+    def _dsatiter2(self, T, p, dL, dV, x, d, fn, fvalue, Ids, ep=1e-6, Nmax=20, debug=False):
+        """Iterate on saturation properties to achieve mix density and one inverse
+    _dsatiter2(T, p, dL, dV, x, d, fn, fvalue, Ids, ep=1e-6, Nmax=20)
+    
+T       Temperature array used as an initial guess
+p       Pressure array - overwritten
+dL      Saturated liquid array used as an initial guess
+dV      Saturated vapor array used as an initial guess
+x       Quality - overwritten
+d       Target density mixture array - not written to
+fn      The inverse property's method
+fvalue  The inverse property value array
+Ids     Boolean down-select array
+
+**DESCRIPTION**
+Solves the problem 
+    p(T,dV) = p(T,dL)
+    g(T,dV) = g(T,dV)
+    1/d = x/dV + (1-x)/dL
+    fvalue = x*fn(T,dV) + (1-x)*fn(T,dL)
+    
+Given a guess for T, dL, and dV, the quality required to respect the 
+density constraint can be calculated explicitly, leaving three nonlinear
+constraints.
+"""
+
+        E = np.empty(T.shape + (3,1), dtype=float)
+        J = np.empty(T.shape + (3,3), dtype=float)
+
+        count = 0
+        while Ids.any():
+            count += 1
+            if count > Nmax:
+                raise pm.utility.PMParamError(
+                        f'mp2._dsatiter2: Failed to converge after {Nmax} iterations.')
+            
+            TT = T[Ids]
+            DL = dL[Ids]
+            DV = dV[Ids]
+            # Evaluate the properties
+            pL,pLt,pLd = self._p(TT,DL,diff=1)
+            pV,pVt,pVd = self._p(TT,DV,diff=1)
+            gL,gLt,gLd = self._g(TT,DL,diff=1)
+            gV,gVt,gVd = self._g(TT,DV,diff=1)
+            fL,fLt,fLd = fn(TT,DL,diff=1)
+            fV,fVt,fVd = fn(TT,DV,diff=1)
+
+            # Calculate quality and its derivatives from density
+            dd = d[Ids]
+            den = DL/DV-1
+            xV = (DL/dd - 1)/den
+            xVL = 1./dd/den - xV/DV/den
+            xVV = xV*DL/DV/DV/den
+            xL = 1 - xV
+            xLL = -xVL
+            xLV = -xVV
+            x[Ids] = xV
+            
+            E[Ids, 0, 0] = pL - pV       # Maxwell, pressure
+            E[Ids, 1, 0] = gL - gV       # Maxwell, gibbs energy
+            E[Ids, 2, 0] = fvalue[Ids] - xV*fV - xL*fL
+            
+            J[Ids, 0, 0] = pVt - pLt
+            J[Ids, 0, 1] = -pLd
+            J[Ids, 0, 2] = pVd
+            
+            J[Ids, 1, 0] = gVt - gLt
+            J[Ids, 1, 1] = -gLd
+            J[Ids, 1, 2] = gVd
+            
+            J[Ids, 2, 0] = xV*fVt + xL*fLt
+            J[Ids, 2, 1] = xVL*fV + xLL*fL + xL*fLd
+            J[Ids, 2, 2] = xVV*fV + xV*fVd + xLV*fL
+            
+            delta = np.linalg.solve(J, E)
+            T[Ids] += delta[Ids,0,0]
+            dL[Ids] += delta[Ids,1,0]
+            dV[Ids] += delta[Ids,2,0]
+            p[Ids] = pV
+            
+            if debug:
+                print(f'**{count}**')
+                print('T:', TT)
+                print('dL:', DL)
+                print('dV:', DV)
+                print('delta:,', delta[Ids])
+            
+            # Update convergence criteria
+            Ids[Ids] = (delta[Ids,0,0] > TT*ep) + (delta[Ids,1,0] > DL*ep) + (delta[Ids,2,0] > DV*ep)
 
     def _Titer(self, T, d, fn, fvalue, Ids, Nmax=10, ep=1e-6):
         """Constant-temperature iteration (primative routine)
@@ -3476,7 +3553,7 @@ inverted to calculate T
         return T
         
         
-    def _sat_argparse(self, T=None, p=None, Nmax=20, ep=1e-6):
+    def _sat_argparse(self, T=None, p=None):
         """A standard argument parsing scheme for all user-layer saturation properties
     T,p,dL,dV = _sat_argparse(T=None, p=None)
     
@@ -3771,16 +3848,17 @@ other conditions, x<0 and d1 == d2.
                 if 'p' in kwarg:
                     T,p,x = np.broadcast_arrays(kwarg['T'], kwarg['p'], kwarg['x'])
                     I = (x >= 0)
-                    d1 = np.empty_like(T)
-                    d2 = np.empty_like(T)
+                    d1 = np.empty_like(T, dtype=float)
+                    d2 = np.empty_like(T, dtype=float)
                     # Check for out-of-bounds
                     TT = T[I]
                     Ioob = (TT < self.data['Tt']) + (self.data['Tc'] <= TT)
                     if Ioob.any():
-                        pm.utility.print_warning('mp2._argparse: Found (T,p,x) with T less than Tt or greater than Tc.')
+                        if pm.config['warning_verbose']:
+                            pm.utility.print_warning('mp2._argparse: Specified non-negative quality and temperatures out of [Tt,Tc].')
                         d1[I][Ioob] = pm.config['def_oob']
                         d2[I][Ioob] = pm.config['def_oob']
-                        I[I] = Ioob
+                        I[I][Ioob] = False
                         TT = T[I]
                     # Calculate densities for saturated states
                     if I.any():
@@ -3789,7 +3867,7 @@ other conditions, x<0 and d1 == d2.
                     Ids = np.logical_not(I)
                     if Ids.any():
                         # Calculate densities for non-saturated points
-                        d2[Ids],Ti,di = self._mapsearch2y(self._table['T'], self._table['d'], self._table['p'], T[Ids], p[Ids])
+                        d2[Ids],Isat,Ioob = self._Tmapsearch2(self._table['p'], T[Ids], p[Ids])
                         self._Titer(T, d2, self._p, p, Ids.copy())
                         d1[Ids] = d2[Ids]
                     return T, d1, d2, x, I
@@ -3804,7 +3882,8 @@ other conditions, x<0 and d1 == d2.
                     # Detect out-of-bounds
                     I = (T < self.data['Tt']) + (self.data['Tc'] <= T)
                     if I.any():
-                        pm.utility.print_warning('mp2._argparse: With (T,x) found temperatures below Tt or above Tc.')
+                        if pm.config['warning_verbose']:
+                            pm.utility.print_warning('mp2._argparse: With (T,x) found temperatures below Tt or above Tc.')
                         d1[I] = pm.config['def_oob']
                         d2[I] = pm.config['def_oob']
                     I = np.logical_not(I)
@@ -3839,67 +3918,71 @@ other conditions, x<0 and d1 == d2.
             fn1 = inverse_methods[f1str]
             f0value, f1value = np.broadcast_arrays(kwarg[f0str], kwarg[f1str])
             # Look up estimates for T and d in the property tables
-            T,d2,Ti,di = self._mapsearch2(self._table['T'], self._table['d'], self._table[f0str], self._table[f1str], f0value, f1value)
+            T,d2,Isat,Ioob = self._mapsearch2(self._table[f0str], self._table[f1str], f0value, f1value)
             x = np.full_like(T, -1.)
-            d1 = np.empty_like(d2)
-            # Test for entries under the dome
-            k = self._table['cI'][0] - Ti
-            diL = self._table['cI'][1] + k
-            diV = self._table['cI'][1] - k
-            I = (k>0) * (diV <= di) * (di < diL)
-            if I.any():
+            d1 = np.empty_like(d2, dtype=float)
+            if Isat.any():
                 # g,p iteration will fail under the dome
                 if args == {'g', 'p'}:
                     raise pm.utility.PMParamError(
                             'mp2._argparse: Received g and p in or very close to a two-phase mixture: numerically singular.')
                 # Obtain estimates for saturation densities
-                d1[I] = np.interp(T[I], self._sattable['T'], self._sattable['dL'])
-                d2[I] = np.interp(T[I], self._sattable['T'], self._sattable['dV'])
+                d1[Isat], d2[Isat] = interp_multiple(T[Isat], self._sattable['T'],
+                        self._sattable['dL'], self._sattable['dV'])
                 # Constant-pressure iteration under the dome is a special case
                 # Pressure gives us temperature and densities explicitly,
                 # Then x can be calculated from f1value
                 if f0str == 'p':
-                    self._psatiter(T, f0value, d1, d2, I.copy())
-                    f1L,_,_ = fn1(T[I], d1[I], diff=0)
-                    f1V,_,_ = fn1(T[I], d2[I], diff=0)
-                    x[I] = (f1value[I] - f1L)/(f1V - f1L)
+                    self._psatiter(T, f0value, d1, d2, Isat.copy())
+                    f1L,_,_ = fn1(T[Isat], d1[Isat], diff=0)
+                    f1V,_,_ = fn1(T[Isat], d2[Isat], diff=0)
+                    x[Isat] = (f1value[Isat] - f1L)/(f1V - f1L)
                 elif f1str == 'p':
-                    self._psatiter(T, f1value, d1, d2, I.copy())
-                    f0L,_,_ = fn0(T[I], d1[I], diff=0)
-                    f0V,_,_ = fn0(T[I], d2[I], diff=0)
-                    x[I] = (f0value[I] - f0L)/(f0V - f0L)
+                    self._psatiter(T, f1value, d1, d2, Isat.copy())
+                    f0L,_,_ = fn0(T[Isat], d1[Isat], diff=0)
+                    f0V,_,_ = fn0(T[Isat], d2[Isat], diff=0)
+                    x[Isat] = (f0value[Isat] - f0L)/(f0V - f0L)
                 # For other property combinations, it will be necessary to 
                 # iterate.
                 else:
-                    self._satiter2(T, np.empty_like(T), d1, d2, x, fn0, fn1, f0value, f1value, I.copy())
+                    self._satiter2(T, np.empty_like(T), d1, d2, x, fn0, fn1, f0value, f1value, Isat.copy())
             # Detect states that are not quite under the dome, but very
             # close.  These will have converged to out-of-bounds values
             # for x.
-            Ids = np.zeros_like(I, dtype=bool)
-            Ids[I] = (x[I] < 0)
+            Ids = np.zeros_like(Isat, dtype=bool)
+            Ids[Isat] = (x[Isat] < 0)
             if Ids.any():
                 d2[Ids] = d1[Ids]
-                I[Ids] = False
+                Isat[Ids] = False
                 x[Ids] = -1
-            Ids[I] = (x[I] > 1)
+            Ids[Isat] = (x[Isat] > 1)
             if Ids.any():
                 d1[Ids] = d2[Ids]
-                I[Ids] = False
+                Isat[Ids] = False
                 x[Ids] = -1
             
-            # All other states
-            Ids = np.logical_not(I)
+            # Transition to working on non-saturated states
+            Ids = np.logical_not(Isat)
+            
+            # Deal with out-of-bounds
+            if Ioob.any():
+                # T and d2 will already be set to def_oob by the mapsearch
+                # algorithm.  x can remain -1.  That just leaves d1
+                d1[Ioob] = pm.config['def_oob']
+                Ids[Ioob] = False
+            
             if Ids.any():
                 self._iter2(T, d2, fn0, fn1, f0value, f1value, Ids.copy())
                 d1[Ids] = d2[Ids]
-            return T,d1,d2,x,I
+                
+            return T,d1,d2,x,Isat
         # 7.3: T,?
         elif 'T' in kwarg:
             # 7.3.1: T,d
             if 'd' in kwarg:
                 # broadcast the arrays
                 T,d2 = np.broadcast_arrays(kwarg['T'],kwarg['d'])
-                x = np.full_like(T, -1)
+                x = np.full_like(T, -1.)
                 d1 = d2.copy()
                 # Identify sub-critical temperatures
                 I = (T < self.data['Tc'])
@@ -3908,31 +3991,111 @@ other conditions, x<0 and d1 == d2.
                     # Down-select to the densities that are under the dome
                     dd = d2[I]
                     # Of the down-selected states, which are actually 2-phase?
-                    Imix = (dV < dd) * (dd < dL)
+                    Imix = np.logical_and(dV < dd, dd < dL)
                     I[I] = Imix
                     if Imix.any():
                         # Down-select the vapor, liquid, and mixture densities
                         dV = dV[Imix]
                         dL = dL[Imix]
-                        dd = d2[Imix]
+                        dd = dd[Imix]
                         d1[I] = dL
                         d2[I] = dV
+                        # Calculate liquid volume
                         dL = 1./dL
+                        # Calculate quality
                         x[I] = (1./dd - dL) / (1./dV - dL)
                 return T,d1,d2,x,I
             # 7.3.2: T + inverse
             else:
+                # Isolate the inverse property and its method
                 args.remove('T')
                 fstr = args.pop()
                 fn = inverse_methods[fstr]
+                # Broadcast the arrays
                 T,fvalue = np.broadcast_arrays(kwarg['T'], kwarg[fstr])
-                d, Ti, di = self._mapsearch2y(self._table['T'], self._table['d'], self._table[fstr], T, fvalue)
-                # Test for two-phase mixtures
-                
+                # Search the table for a density to match
+                d2, Isat, Ioob = self._Tmapsearch2(self._table[fstr], T, fvalue)
+                # Initialize quality and d1
+                x = np.full_like(T, -1.)
+                d1 = np.empty_like(d2, dtype=float)
+                # Deal with states that are saturated or nearly saturated
+                if Isat.any():
+                    TT = T[Isat]
+                    # Calculate the saturation densities
+                    _, _, dL, dV = self._Tsat(TT)
+                    d1[Isat] = dL
+                    d2[Isat] = dV
+                    # Calculate the inverse property's saturation properties
+                    fL,_,_ = fn(TT,dL)
+                    fV,_,_ = fn(TT,dV)
+                    # Deduce quality from fvalue
+                    x[Isat] = (fvalue[Isat] - fL)/(fV - fL)
+                    # Some of these will be points that are merely near
+                    # the dome and not actually under it.  
+                    Ids = np.zeros_like(I, dtype=bool)
+                    # If out on the liquid side, use liquid density
+                    Ids[Isat] = x[Isat]<0
+                    if Ids.any():
+                        x[Ids] = -1
+                        Isat[Ids] = False
+                        d2[Ids] = d1[Ids]
+                    # If out on the vapor side, use vapor density
+                    Ids[Isat] = x[Isat]>1
+                    if Ids.any():
+                        x[Ids] = -1
+                        Isat[Ids] = False
+                        d1[Ids] = d2[Ids]
+                # On all non-saturated points, iterate
+                Ids = np.logical_not(Isat)
+                # Deal with any out-of-bounds points
+                if Ioob.any():
+                    Ids[Ioob] = False
+                    # d2 will already be set by the mapsearch algorithm
+                    d1[Ioob] = pm.config['def_oob']
+                    # Leave temperature as specified
+                self._Titer(T, d2, fn, fvalue, Ids.copy())
+                d1[Ids] = d2[Ids]
+                return T,d1,d2,x,Isat
         # 7.4: d + inverse
         else:
-            pass
-        
+            args.remove('d')
+            fstr = args.pop()
+            fn = inverse_methods[fstr]
+            # Broadcast to the appropriate dimensions
+            d,fvalue = np.broadcast_arrays(kwarg['d'], kwarg[fstr])
+            # Initialize d2, d1, and x
+            # For now, d, d2, and d1 are separate, because some d values
+            # can represent two-phase mixtures.  We'll dole out the d
+            # values appropriately once we know which are under the dome
+            d2 = np.empty_like(d, dtype=float)
+            d1 = np.empty_like(d, dtype=float)
+            x = np.full_like(d, -1.)
+            # Identify estimates for T
+            T,Isat,Ioob = self._dmapsearch2(self._table[fstr], d, fvalue)
+            # Investigate states that may be saturated
+            if Isat.any():
+                p = np.empty_like(d, dtype=float)
+                # Calculate saturated densities at our best guess for T
+                _, _, d1[Isat], d2[Isat] = self._Tsat(T[Isat])
+                self._dsatiter2(T, p, d1, d2, x, d, fn, fvalue, Isat.copy())
+                # Deselect states that aren't actually saturated
+                xx = x[Isat]
+                Isat[Isat] = np.logical_and(xx>=0, xx<=1)
+            # Down-select only points that are not saturated
+            Ids = np.logical_not(Isat)
+            # Check for out-of-bounds states
+            if Ioob.any():
+                Ids[Ioob] = False
+                # Temperature will already be set by the mapsearch
+                # Leave density as-specified.
+                d1[Ioob] = d[Ioob]
+                d2[Ioob] = d[Ioob]
+            
+            self._diter(T, d, fn, fvalue, Ids.copy())
+            d1[Ids] = d[Ids]
+            d2[Ids] = d[Ids]
+            return T, d1, d2, x, Isat
+            
         message = 'Please report a bug: Unhandled event [MASTER] in mp2._argparse with args:'
         prefix = ' '
         for name in args:
