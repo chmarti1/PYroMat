@@ -14,40 +14,6 @@ import os,sys
 # Helper Functions
 #
 
-def ndxgen(xc, N, r):
-    """Generate a 1D array of N values in [0,1] with density r about xc
-    x, ci = ndxgen(xc, N, r)
-    
-Constructs an array of N data increasing from 0 to 1 with a relative 
-density, r, at 0 < xc < 1.  The nominal density of data is N, so the 
-relative denstiy, r*N.  
-
-x   The array of values
-ci  The index corresponding precisely to xc.
-"""
-
-    # Construct a dimensionless piece-wise fit of two quadratics
-    # joined at the critical point (d-less, xc)
-    Nc = int(xc * N)
-    N1 = N-1
-    
-    A = np.matrix([[ 0, 0, 1],
-                   [ Nc*Nc, Nc, 1],
-                   [ 2*Nc, 1, 0]], dtype=float)
-    B = np.array([0, xc, 1./r/N1])
-    c1 = np.linalg.solve(A,B)
-
-    A = np.matrix([[N1*N1, N1, 1],
-                   [ Nc*Nc, Nc, 1],
-                   [ 2*Nc, 1, 0]], dtype=float)
-    B = np.array([1., xc, 1./r/N1])
-    c2 = np.linalg.solve(A,B)
-
-    # Generate the array
-    x = np.empty(N, dtype=float)
-    x[:Nc] = np.polyval(c1, np.arange(0,Nc))
-    x[Nc:] = np.polyval(c2, np.arange(Nc,N))
-    return x, Nc
 
 def interp_scalar(x, x0, x1, f0, f1):
     """Perform 1D linear interpolation between two explicitly provided points
@@ -90,7 +56,7 @@ the efficiency lost by performing the interpolation in uncompiled code
 is more than made up by stashing the search result.  Each additional
 dataset only costs about 9% of one call to interp().
 """
-    i1 = np.searchsorted(xdata, x)
+    i1 = np.minimum(np.searchsorted(xdata, x), len(xdata)-1)
     i0 = i1-1
     # Advanced indexing makes an array copy.  We need x0 more than once
     # so stash the copy for efficiency.  We'll overwrite it as soon as 
@@ -2824,9 +2790,10 @@ initially imported, it is treated as a tolerable cost.
 """
 
         Tt = self.data['Tt']
-        pc = self.data['pc']
         Tc = self.data['Tc']
         dc = self.data['dc']
+        # Calculate the critical pressure
+        pc = self._p(T=np.array([Tc]), d=np.array([dc]), diff=0)[0][0]
         
         # Initialize the outputs
         Ts_array = [Tc]
@@ -2853,7 +2820,7 @@ initially imported, it is treated as a tolerable cost.
         dL = np.array([dc])
         dV = np.array([dc])
         p = np.array([pc])
-        Ids = np.array([1],dtype=bool)
+        Ids = np.array([True],dtype=bool)
         # Create an initial perturbation of the densities
         # Do not perturb temperature
         dL += step * dc / 1.414
@@ -3104,7 +3071,6 @@ density.
         Tmin,Tmax = self.data['Tlim']
         dc = self.data['dc']
         dmin,dmax = self.data['dlim']
-        pc = self.data['pc']
         # The nominal temperature step - use to determine density values
         Tstep = (Tmax - Tmin)/NT
         # Generate a nominal density step
@@ -3307,9 +3273,7 @@ routines.
 """
         T, dL, dV = interp_multiple(p, self._sattable['p'], 
                 self._sattable['T'], self._sattable['dL'], self._sattable['dV'])
-
         I = np.ones_like(p, dtype=bool)
-        
         self._psatiter(T, p, dL, dV, I, debug=debug)
         return T, p, dL, dV
         
@@ -3407,193 +3371,9 @@ sub-critical densities to be either purely liquid or vapor.
         return p,pt,pd
         
         
-    def _d(self,T,p,debug=False):
-        """Density iterator - calculate density from T,p (inner routine)
-T and p MUST be ndarrays
-"""
-        # Benchmarking shows that calls to _p() with fewer than 100
-        # data points are all equivalently expensive; even when 
-        # utilizing only a single thread.  As a result, iterations must
-        # under no circumstances be conducted in series.  This bisection
-        # algorithm acts on all valid data in parallel.
-        
-        # Create a down-select array
-        I = np.ones_like(T, dtype=bool)
-        # And initialize a solution array
-        d = np.zeros_like(T, dtype=float)
-        # Initialize upper and lower iteration densities
-        da = np.zeros_like(T, dtype=float)
-        db = np.zeros_like(T, dtype=float)
-        
-        # Separate out sub-critical and super-critical values for 
-        # initial conditions.  For temperatures that are super-critical, 
-        # use the extreme density limits of the data set.
-        Itest = T>=self.data['Tc']
-        #da[Itest] = self.data['dlim'][0]
-        # Produce a minimum density from one tenth the ideal gas relationship
-        da[Itest] = 0.1 * p[Itest] / (self.data['R'] * T[Itest])
-        db[Itest] = self.data['dlim'][1]
-        #d[Itest] = 0.5*(self.data['dlim'][0] + self.data['dlim'][1])
-        # For temperatures that are sub-critical, detect whether the 
-        # state is liquid or gaseous.  Set Itest to sub-critical.  
-        Itest = np.logical_not(Itest)
-        if Itest.any():
-            # Now, isolate the vapor points; set the upper density to the
-            # saturated vapor density FORCE Istate to be an ndarray
-            Istate = np.zeros_like(T, dtype=bool)
-            Istate[Itest] = p[Itest] < self._ps(T[Itest], 0)[0]
-            #da[Istate] = self.data['dlim'][0]
-            # Produce a minimum density from half the ideal gas relationship
-            da[Istate] = 0.5 * p[Istate] / (self.data['R'] * T[Istate])
-            db[Istate] = self._dsv(T[Istate], 0)[0]
-            #d[Istate] = db[Istate] - da[Istate]
-            # Move the saturation bounds by 1%
-            db[Istate] *= 1.01
-            # Now, isolate the liquid points; set the lower density to the
-            # saturated liquid density
-            Istate[Itest] = np.logical_not(Istate[Itest])
-            da[Istate] = self._dsl(T[Istate], 0)[0]
-            db[Istate] = self.data['dlim'][1]
-            # Reduce the lower density by 1%
-            da[Istate] *= 0.99
-        
-        # Iteratively reduce da until all points are bracketed
-        Itest = self._p(T,da,0)[0] > p
-        while Itest.any():
-            da[Itest]/=2.
-            Itest[Itest] = self._p(T[Itest], da[Itest],0)[0] > p[Itest]
-        
-        # perform the iteration
-        #self._iter1(
-        self._hybrid1(
-                self._p,
-                'd',
-                p,
-                d,
-                I,
-                da,
-                db,
-                Nmax=50,
-                fx_index = 2,
-                param={'T':T},
-                verbose=debug)
-                
-        return d
-        
-        
-    def _T(self,d,p,sat=False):
-        """Temperature iterator - calculate temperature from d,p (inner routine)
-d and p MUST be ndarrays
-
-    T = _T(d,p,sat=False)
-
-Unlike _p(), _T() DOES handle cases where d is "under the dome."  These
-calculations are relatively expensive, but they are necessary to the _T
-inversion process.  When sat is set to True, these intermediate 
-calculations are returned to prevent redundent saturation property calls
-
-    T,dsL,dsV,Isat = _T(d,p,sat=True)
-    
-dsL and dsV are the saturation densities at p
-Isat is a boolean index array that is True at points where d is between
-    dsL and dsV.
-
-Calling _T() should be avoided when possible, since it is one of the
-more expensive iterators.  It requires iterative steps to calculate
-the saturation properties in terms of pressure AND the EOS has to be
-inverted to calculate T
-"""
-        # Benchmarking shows that calls to _p() with fewer than 100
-        # data points are all equivalently expensive; even when 
-        # utilizing only a single thread.  As a result, iterations must
-        # under no circumstances be conducted in series.  This bisection
-        # algorithm acts on all valid data in parallel.
-        
-        # Initialize a down-select array
-        I = np.ones_like(d, dtype=bool)
-        # Initialize a saturation index array
-        Isat = np.zeros_like(I, dtype=bool)
-        # Initialize a result array
-        T = np.zeros_like(d, dtype=float)
-        # Initialize upper and lower iteration densities
-        Ta = np.zeros_like(d, dtype=float)
-        Tb = np.zeros_like(d, dtype=float)
-        # Saturaiton density arrays
-        dsL = np.zeros_like(d, dtype=float)
-        dsV = np.zeros_like(d, dtype=float)
-        
-        # Separate out sub-critical and super-critical values for 
-        # initial conditions.  For pressures that are super-critical, 
-        # use the extreme temperature limits of the data set.
-        Itest = np.asarray(p>=self.data['pc'], dtype=bool)
-        Ta[Itest] = self.data['Tlim'][0]
-        Tb[Itest] = self.data['Tlim'][1]
-        
-        # For pressures that are sub-critical, detect whether the 
-        # state is liquid or gaseous.  Set Itest to sub-critical.  
-        Itest = np.logical_not(Itest)
-        if Itest.any():
-            # Now, identify the points in liquid, vapor, and mixed states
-            # First, we'll need the saturation temperatures... this is 
-            # a numerically expensive process since Ts() is iterative.
-            # Let Ta temporarily be the saturation temperature
-            Ta[Itest] = self._Ts(p[Itest])
-            dsL[Itest] = self._dsl(Ta[Itest], 0)[0]
-            dsV[Itest] = self._dsv(Ta[Itest], 0)[0]
-        
-            # Now, identify the liquid points
-            Isat[Itest] = d[Itest] > dsL[Itest]
-            # Shift the saturation temperature to Tb
-            Tb[Isat] = Ta[Isat]
-            Ta[Isat] = self.data['Tlim'][0]
-            # Grow the boundary by 1%
-            Tb[Isat] *= 1.01
-            
-            # Now, identify the vapor points
-            Isat[Itest] = d[Itest] < dsV[Itest]
-            # Leave Ta as the saturation temperature
-            Tb[Isat] = self.data['Tlim'][1]
-            # Grow the boundary by 1%
-            Ta[Isat] = np.maximum(0.99*Ta[Isat], self.data['Tlim'][0])
-            
-            # Now, get the saturated states
-            Isat[Itest] = np.logical_and(
-                    d[Itest] >= dsV[Itest],
-                    d[Itest] <= dsL[Itest])
-            # We now have the solution at these points.
-            # Assign the value to T
-            T[Isat] = Ta[Isat]
-            # Put safe values in Ta and Tb... just in case
-            Tb[Isat] = self.data['Tlim'][1]
-            Ta[Isat] = self.data['Tlim'][0]
-            # Eliminate these from the down-select array - no iteraiton required.
-            I[Isat] = False
-        
-        # Note from v2.2.0... It is necessary to use _tditer instead of
-        # using _p directly. Even when p is super-critical, when d is 
-        # under the dome, the lower temeprature guess reverts to a sub-
-        # critical state, and the _p() values diverge wildly there.  The
-        # ideal future fix would be to invert the dsL or dsV lines to 
-        # find the actual minimum T at the specified density, but for 
-        # v2.2.1, we will revert to _tditer().
-        self._hybrid1(
-                self._tditer,
-                'T',
-                p,
-                T,
-                I,
-                Ta,
-                Tb,
-                param={'d':d, 'fn':self._p})
-        
-        if sat:
-            return T, dsL, dsV, Isat
-        return T
-        
-        
     def _sat_argparse(self, T=None, p=None):
         """A standard argument parsing scheme for all user-layer saturation properties
-    T,dL,dV = _sat_argparse(T=None, p=None)
+    T,p,dL,dV = _sat_argparse(T=None, p=None)
     
 Enforces that all returned parameters are numpy arrays with at least one
 dimension.  Accepts T and p as scalars or array-like objects in 
@@ -3601,7 +3381,20 @@ dimension.  Accepts T and p as scalars or array-like objects in
     
 Returns
 T   the temperature in K
+p   the pressure in Pa
 dL and dV are the liquid and vapor densities in kg/m3
+
+** DESCRIPTION **
+Calls the _Tsat() or _psat() method based on the information provided, 
+while also asserting the correct units, array dimension, and out-of-
+bounds checking.
+
+The _argparse algorithm does not return pressure, because it is not 
+needed in all property calculations, and it is not always needed as a
+part of specifying the state, so there are many cases in which 
+calculating it is wasted effort.  However, pressure is always a 
+necessary calculation when iterating on the saturation state, so it is
+returned to prevent a potentially redundant calculation.
 """
         if p is None:
             if T is None:
@@ -3612,20 +3405,34 @@ dL and dV are the liquid and vapor densities in kg/m3
             if T.ndim==0:
                 T = np.reshape(T, (1,))
             
-            # Initialize results
-            p = np.full_like(T, pm.config['def_oob'])
-            dL = np.full_like(T, pm.config['def_oob'])
-            dV = np.full_like(T, pm.config['def_oob'])
-            
-            # Detect points that are precisely equal to the critical point
-            Ids = (T == self.data['Tc'])
-            p[Ids] = self.data['pc']
-            dL[Ids] = self.data['dc']
-            dV[Ids] = self.data['dc']
-            
-            # Detect points that are in-bounds            
-            Ids = np.logical_and(T >= self.data['Tt'], T < self.data['Tc'])
-            _,_,dL[Ids],dV[Ids] = self._Tsat(T[Ids])
+            # Check for values out-of-bounds
+            # For now, we'll also exclude the critical point, because 
+            # the sat algorithms can't accept it.
+            Ioob = np.logical_or(T < self.data['Tt'], T >= self.data['Tc'])
+            if Ioob.any():
+                # Initialize results
+                p = np.empty_like(T, dtype=float)
+                dL = np.empty_like(T, dtype=float)
+                dV = np.empty_like(T, dtype=float)
+                # Check for precise equality with the critical point
+                I = (T == self.data['Tc'])
+                if I.any():
+                    p[I] = self._sattable['p'][-1]
+                    dL[I] = self.data['dc']
+                    dV[I] = self.data['dc']
+                # Check for points out of bounds and not precisely critical
+                I = Ioob ^ I
+                if I.any():
+                    if pm.config['warning_verbose']:
+                        pm.utility.print_warning('_mp2._sat_argparse: Saturation properties are not available beyond the triple or critical points.')
+                    p[I] = pm.config['def_oob']
+                    dL[I] = pm.config['def_oob']
+                    dV[I] = pm.config['def_oob']
+                # Then, work on the in-bounds values
+                Ioob = np.logical_not(Ioob)
+                _,p[Ioob],dL[Ioob],dV[Ioob] = self._Tsat(T[Ioob])
+            else:
+                _,p,dL,dV = self._Tsat(T)
                 
         elif T is None:
             p = pm.units.pressure(
@@ -3634,26 +3441,39 @@ dL and dV are the liquid and vapor densities in kg/m3
             if p.ndim==0:
                 p = np.reshape(p, (1,))
 
-            # Initialize results
-            T = np.full_like(p, pm.config['def_oob'])
-            dL = np.full_like(p, pm.config['def_oob'])
-            dV = np.full_like(p, pm.config['def_oob'])
-            
-            # Detect points that are precisely equal to the critical point
-            Ids = (p == self.data['pc'])
-            T[Ids] = self.data['Tc']
-            dL[Ids] = self.data['dc']
-            dV[Ids] = self.data['dc']
-            
-            # Detect points that are in-bounds
-            Ids = np.logical_and(p >= self.data['pt'], p < self.data['pc'])
-            T[Ids],_,dL[Ids],dV[Ids] = self._psat(p[Ids])
-
+            # Check for values out-of-bounds
+            # For now, we'll also exclude the critical point, because 
+            # the sat algorithms can't accept it.
+            Ioob = np.logical_or(p < self._sattable['p'][0], p >= self._sattable['p'][-1])
+            if Ioob.any():
+                # Initialize results
+                T = np.empty_like(p, dtype=float)
+                dL = np.empty_like(p, dtype=float)
+                dV = np.empty_like(p, dtype=float)
+                # Check for precise equality with the critical point
+                I = (p == self._sattable['p'][-1])
+                if I.any():
+                    T[I] = self.data['Tc']
+                    dL[I] = self.data['dc']
+                    dV[I] = self.data['dc']
+                # Check for points out of bounds and not precisely critical
+                I = Ioob ^ I
+                if I.any():
+                    if pm.config['warning_verbose']:
+                        pm.utility.print_warning('_mp2._sat_argparse: Saturation properties are not available beyond the triple or critical points.')
+                    T[I] = pm.config['def_oob']
+                    dL[I] = pm.config['def_oob']
+                    dV[I] = pm.config['def_oob']
+                # Then, work on the in-bounds values
+                Ioob = np.logical_not(Ioob)
+                T[Ioob],_,dL[Ioob],dV[Ioob] = self._psat(p[Ioob])
+            else:
+                T,_,dL,dV = self._psat(p)
         else:
             raise pm.utility.PMParamError(
                 '_sat_argparse: Saturation temperature and pressure cannot be simultaneously specified')
 
-        return T, dL, dV
+        return T, p, dL, dV
         
         
     def _argparse(self, *varg, **kwarg):
@@ -3748,12 +3568,13 @@ Most property combinations are allowed, but some combinations are either
 numerically unstable, or they do not theoretically define a unique 
 state.
 (1) Density and specific volume may not be specified together - they are
-    redundant.
+    redundant expressions of the same property.
 (2) No two properties from the "energy" set may be specified together:
-    {'T', 'e', 'h', 'f', 'g'}.  There are many combinations that do not
-    specify a unique state, and in many cases, this very poorly defines
-    the state -- meaning that the resulting numerical inversion problem
-    is very nearly singular.
+    {'T', 'e', 'h', 'f', 'g'}.  These either fail to describe a unique
+    state (meaning that there are multiple states that can be found with
+    the same values of these properties) or the state is very poorly
+    defined (meaning that the resulting numerical inversion problem
+    is very nearly singular).
 (3) Quality may only be specified with temperature and/or pressure.  
     Specifying a entropy or an energy property (like enthalpy) with 
     quality does not define a unique state.  For example, there are 
@@ -3975,7 +3796,6 @@ other conditions, x<0 and d1 == d2.
             if (kwarg['x'] > 1).any() or (kwarg['x'] < -1).any():
                 raise pm.utility.PMParamError('Quality was found to be outside of the range -1,1.')
 
-        
         # 7: Case out the different property combinations
         # 7.1: x is specified
         if 'x' in kwarg:
@@ -4036,9 +3856,9 @@ other conditions, x<0 and d1 == d2.
                     raise pm.utility.PMParamError(
                         'Found x<0.  Only two-phase mixtures can be specified with p,x.  All values of x must be [0,1].')
                 # Detect out-of-bounds
-                I = (p < self.data['pt']) + (self.data['pc'] <= p)
+                I = (p < self.data['pt']) + (self._sattable['p'][-1] <= p)
                 if I.any():
-                    pm.utility.print_warning('mp2._argparse: With (p,x) found pressures below pt or above pc.')
+                    pm.utility.print_warning('mp2._argparse: With (p,x) found pressures beyond the triple or critical points.')
                     d1[I] = pm.config['def_oob']
                     d2[I] = pm.config['def_oob']
                     T[I] = pm.config['def_oob']
@@ -4601,11 +4421,12 @@ To also return the density, set the 'density' keyword to True
 Returns the critical temperature, pressure, and density in 
 [unit_temperature], [unit_pressure], [unit_matter/unit_volume]
 """
+        pc = self._sattable['p'][-1]
         if density:
             return  pm.units.temperature_scale( \
                         self.data['Tc'], from_units='K'),\
                     pm.units.pressure( \
-                        self.data['pc'], from_units='Pa'), \
+                        pc, from_units='Pa'), \
                     pm.units.volume(\
                         pm.units.matter( \
                             self.data['dc'], \
@@ -4616,7 +4437,7 @@ Returns the critical temperature, pressure, and density in
         return  pm.units.temperature_scale( \
                     self.data['Tc'], from_units='K'),\
                 pm.units.pressure( \
-                    self.data['pc'], from_units='Pa')
+                    pc, from_units='Pa')
         
         
     def triple(self):
@@ -4635,7 +4456,7 @@ Returns the triple temperature and pressure in a tuple pair in
     # Saturaiton properties #
     #                       #
     
-    def ps(self, T=None):
+    def ps(self, *varg, **kwarg):
         """Saturation pressure
     psat = ps(T)
     
@@ -4650,25 +4471,12 @@ Unlike the other saturation properties, ps() and Ts() only accept one
 argument and only return one value - each calculates the one in terms
 of the other.
 """
-        if T is None:
-            T = pm.config['def_T']
-
-        # Replace T with an array of the correct units
-        T = pm.units.temperature_scale(
-                np.asarray(T, dtype=float), 
-                to_units='K')
-        # Exclude points outside the triple-critical range
-        if np.logical_or( T<self.data['Tt'], T>self.data['Tc'] ).any():
-            raise pm.utility.PMParamError(
-                'Saturation properties are not ' +
-                'available above the critical point Tc=%f K or below the '%self.data['Tc'] +
-                'triple point Tt=%f K.'%self.data['Tt'] )
-
-        
-        return pm.units.pressure(self._Tsat(T)[1], from_units='Pa')
+        _,p,_,_ = self._sat_argparse(*varg, **kwarg)
+        pm.units.pressure(p, from_units='Pa', inplace=True)
+        return p
         
         
-    def Ts(self, p=None):
+    def Ts(self, *varg, **kwarg):
         """Saturation temperature
     Tsat = Ts(p)
     
@@ -4678,26 +4486,9 @@ Unlike the other saturation properties, ps() and Ts() only accept one
 argument and only return one value - each calculates the one in terms
 of the other.
 """
-        if p is None:
-            p = pm.config['def_p']
-
-        # Replace p with an array of the correct units
-        p = pm.units.pressure(
-                np.asarray(p, dtype=float), 
-                to_units='Pa')
-        # Force p to have at least 1 dimension
-        if p.ndim==0:
-            p = np.reshape(p, (1,))
-        
-        # Exclude points outside the triple-critical range
-        if np.logical_or( p<self.data['pt'], p>self.data['pc'] ).any():
-            raise pm.utility.PMParamError(
-                'Saturation properties are not ' +
-                'available above the critical point pc=%f bar or below the '%(self.data['pc']/1e5) +
-                'triple point pt=%f bar.'%(self.data['pt']/1e5) )
-        
-        return pm.units.temperature_scale( \
-            self._psat(p)[0], from_units='K')
+        T,_,_,_ = self._sat_argparse(*varg, **kwarg)
+        pm.units.temperature_scale(T, from_units='K', inplace=True)
+        return T
         
         
     def ds(self, *varg, **kwarg):
@@ -4712,7 +4503,7 @@ as temperature.  However, pressure can be specified as well
 Returns the liquid (dsL) and vapor (dsV) saturation density in units
 [unit_matter / unit_volume]
 """
-        _,dL,dV = self._sat_argparse(*varg, **kwarg)
+        _,_,dL,dV = self._sat_argparse(*varg, **kwarg)
         # Get a conversion factor
         conv = pm.units.matter(1., self.data['mw'],
                 from_units='kg')
@@ -4749,7 +4540,7 @@ as temperature.  However, pressure can be specified as well
 Returns the liquid (esL) and vapor (esV) saturation internal energy in
 units [unit_energy / unit_matter]
 """
-        T,dL,dV = self._sat_argparse(*varg, **kwarg)
+        T,_,dL,dV = self._sat_argparse(*varg, **kwarg)
         esL = self._e(T,dL,0)[0]
         esV = self._e(T,dV,0)[0]
         
@@ -4774,7 +4565,7 @@ as temperature.  However, pressure can be specified as well
 Returns the liquid (hsL) and vapor (hsV) saturation enthalpy in
 units [unit_energy / unit_matter]
 """
-        T,dL,dV = self._sat_argparse(*varg, **kwarg)
+        T,_,dL,dV = self._sat_argparse(*varg, **kwarg)
         hsL = self._h(T,dL,0)[0]
         hsV = self._h(T,dV,0)[0]
         
@@ -4799,7 +4590,7 @@ as temperature.  However, pressure can be specified as well
 Returns the liquid (ssL) and vapor (ssV) saturation entropy in
 units [unit_energy / unit_matter / unit_temperature]
 """
-        T,dL,dV = self._sat_argparse(*varg, **kwarg)
+        T,_,dL,dV = self._sat_argparse(*varg, **kwarg)
         ssL = self._s(T,dL,0)[0]
         ssV = self._s(T,dV,0)[0]
         
