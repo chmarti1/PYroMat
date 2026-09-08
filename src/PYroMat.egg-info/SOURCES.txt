@@ -1000,8 +1000,12 @@ src/pyromat/data/ig2/e.hpd
 src/pyromat/data/igmix/air.hpd
 src/pyromat/data/igmix/f5.hpd
 src/pyromat/data/igmix/h35.hpd
+src/pyromat/data/mp/Ar.hpd
 src/pyromat/data/mp/C2_H2_F4.hpd
+src/pyromat/data/mp/C3_H2_F4.hpd
 src/pyromat/data/mp/C3_H2_F4_1.hpd
+src/pyromat/data/mp/C3_H6_O.hpd
+src/pyromat/data/mp/C3_H8.hpd
 src/pyromat/data/mp/C_H4.hpd
 src/pyromat/data/mp/C_O2.hpd
 src/pyromat/data/mp/H2_O.hpd
@@ -1013,3 +1017,4 @@ src/pyromat/registry/ig.py
 src/pyromat/registry/ig2.py
 src/pyromat/registry/igmix.py
 src/pyromat/registry/mp1.py
+src/pyromat/registry/mp2.py

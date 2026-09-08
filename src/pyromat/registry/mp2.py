@@ -101,7 +101,7 @@ twice by _mapsearch2() -- once on fdata and once on gdata.
 
 
 
-class mp2(pm.reg.__basedata__):
+class mp2(pm.reg.PYroMatModel):
     """The PYroMat multi-phase generalist class 2
 
 ** PROPERTY METHODS **
@@ -109,10 +109,11 @@ MP2 provides property methods:
     a()     Speed of sound
     cp()    Isobaric specific heat
     cv()    Isochoric specific heat
-    gam()   Specific heat ratio
+    d()     Density
     e()     Internal energy
     f()     Free (Helmholtz) energy
     g()     Gibbs energy
+    gam()   Specific heat ratio
     h()     Enthalpy
     s()     Entropy
     T()     Temperature
@@ -247,8 +248,8 @@ arguments:
     saturation.  This allows access to metastable states, but it also
     allows users to naively query states that return utter nonsense.
 
---- PRIMATIVE ROUTINES ---
-Methods that have been labeled as primative routines should UNDER NO
+--- PRIMITIVE ROUTINES ---
+Methods that have been labeled as primitive routines should UNDER NO
 CIRCUMSTANCES be called by the user.  They accept non-dimensionalized
 arguments and return non-dimensional parameters.  These are encapsulated
 as independent methods either because they are complicated and need to 
@@ -263,86 +264,67 @@ various empirical fits.  Each group is a dictionary (within the
 dictionary) that defines the various parameters necessary for at least
 one of the inner methods.
 
+The Helmholtz free energy is nondimensionalized by RT, and calculated 
+from groups briefly summarized below in terms of dimensionless 
+temperature and density,
+    tt = Tc / T     <== INVERSE!
+    dd = d / dc
+
+Data dictionaries have sub-dictionaries with members listed below:
+-- Ideal Gas Group --
 IGgroup         Helmholtz free energy ideal gas group; a dict containing:
-    Tscale      Temperature scale for normalizing T
-    dscale      density scale for normalizing d
     logt        a scalar coefficient of a log(tt) term
-    coef0       a coefficient list to be passed to _poly1() to build p0 below
+    coef0       a coefficient list to be passed to _poly1() to build p0 
     coef1       a simple Nx2 coefficient list used to build q(tt) below
-If tt = Tscale/T    <=== INVERSE!
-and dd = d/dscale
-    ao = log(d) + LOGT*log(tt) + TLOGT*tt*log(tt) + p0(tt) + q(tt)
+
+The formula for the ideal gas portion of free energy is:
+    fo = log(d) + LOGT*log(tt) + TLOGT*tt*log(tt) + p0(tt) + q(tt)
         q(tt) = sum_k coef1[k,1] * log(1 - exp(-tt*coef[k,0]))
-    Ao = ao * R * T
+    Fo = fo * R * T
 where LOGT is the coefficient defined by the 'logt' parameter, and p is
 the polynomial defined by the coef list
 
+-- Residual Group --
 Rgroup          Helmholtz free energy residual group; a dict containing:
-    Tscale      Temperature scale for normalizing T
-    dscale      density scale for normalizing d
     coef0       a nested list of coefficient lists
     coef1       an optional nested list of coefficients
     coef2       an optional nested list of coefficients
 
-The Tscale and dscale are used to non-dimensionalize temperature and 
-density.
-tt = Tscale/T    <=== INVERSE!
-dd = d/dscale
-
 Each element of coef0 is, itself a coefficient list intended to be 
 passed to _poly2().  After the first element, each individual polynomial
 is multiplied by exp(-dd**k) where k is the index in the coef list.
-    ar0 = p0(tt,dd) + exp(-dd)*p1(tt,dd) + exp(-dd**2)*p2(tt,dd) + ...
-    Ar0 = ar0 * R * T
+    
+    fr0 
+   ----- = p0(tt,dd) + exp(-dd)*p1(tt,dd) + exp(-dd**2)*p2(tt,dd) + ...
+    R T
     
 coef1 is an optional list of lists of coefficients forming a matrix
 [...
     [ t, d, b, a, gam, ep, c ], ...
 ]
-    ar1 = c * dd**d * tt**t * exp(-a*(dd-ep)**2 - b*(tt-gam)**2) + ...
-    Ar1 = ar1 * R * T
+    fr1 
+   ----- = c * dd**d * tt**t * exp(-a*(dd-ep)**2 - b*(tt-gam)**2) + ...
+    R T
+    
 If coef1 is defined it will be combined with the other coefficients
 to form the residual.  If coef1 is not defined, it will be ignored.
 
-coef2 is an optional list of lists of coefficients forming a matrix
+coef2 is an optional list of lists of coefficients forming a 2D array
 [...
     [ a, b, m, A, B, C, D, c ], ...
 ]
+In the evaluation of coef2, there is an intermediate term, X
+
     X = ((1-tt) + A*((dd-1)**2)**(0.5/m))**2 + B*((dd-1)**2)**a
-    ar2 = c * X**b * d * exp(-C*(dd-1)**2 - D*(tt-1)**2) + ...
-    Ar2 = ar2 * R * T
+    
+used to calculate the dimensionless free energy
 
-There are optional tabular data elements that allow designers to 
-explicitly store tabular data.  If they are omitted, the data will be
-automatically generated from AOgroup and ARgroup.  The properties of
-the automatically generated table can also be specified.
+    fr2 
+   ----- = c * X**b * d * exp(-C*(dd-1)**2 - D*(tt-1)**2) + ...
+    R T
 
-Tdata           A 1D list with (m) elements specifying the temperatures 
-                of the table entries.  Units must be Kelvin.
-NT              An integer specifying the number of temperature data 
-                to automatically generate if 'Tdata' is absent. 
-                Defaults to 101 if absent.
-rT              The relative density of temperature data near the
-                critical point.  Defaults to 2 if absent.
-ddata           A 1D list with (n) elements specifying the densities 
-                for the table entries.  Units must be kg/m^3.
-Nd              An integer specifying the number of temperature data 
-                to automatically generate if 'Tdata' is absent. 
-                Defaults to 101 if absent.
-rd              The relative density of temperature data near the
-                critical point.  Defaults to 2 if absent.
-hdata           A 2D list with (m x n) entries of enthalpy evaluated at
-                h(Tdata, ddata).  hdata may not be specified if either
-                Tdata or ddata were not specified.  Units must be J/kg.
-sdata           A 2D list with (m x n) entries of entropy evaluated at
-                s(Tdata, ddata).  sdata may not be specified if either
-                Tdata or ddata were not specified.  Units must be J/kg/K.
-                
-Tsdata, psdata, dsLdata, dsVdata
-    1D lists specifying
-
-Additionally, there are a number of parameters that define global 
-properties (true at all states)
+Additionally, there are numerous parameters that define global 
+properties -- parameters that do not vary with state.
 
 Tlim            A two-element list of the upper and lower temperatures
                 for which the data set is valid.
@@ -351,13 +333,18 @@ plim            A two-element list of the upper and lower pressures for
 dlim            A two-element list the represent practical maximum and
                 minimum densities over the entire data set.  These are 
                 NOT guaranteed limits of validity.
-Tc, pc, dc      Critical temperature, pressure, and density
-Tt, pt          Triple-point temperature and pressure
-R               Ideal gas constant 8.314 / mw
+Tc, dc          Critical temperature and density
+Tt              Triple-point temperature
+R               (optional) Ideal gas constant in J/kg/K
 mw              Molecular weight
 atoms           A dictionary with a key for each atom and a value for 
                 its count in the molecule.  For example, CO2 would 
                 have atoms = {'C':1, 'O':2}
+                
+If the gas constant, R, is not provided, it will be calculated from 
+molecular weight and pm.units.const_Ru.  Providing it as a data value
+allows the model to be evaluated using precisely the same parameters 
+used by the authors of the original models.
                 
 There are also the typical mandatory PYroMat meta data elements:
 id              What substance is this?
@@ -365,11 +352,6 @@ doc             Where did it come from?
 class           What class should be used to evaluate the data?
 """
 
-    def __init__(self, *arg, **kwarg):
-        # Call the basedata class initializer
-        pm.reg.__basedata__.__init__(self, *arg, **kwarg)
-
-            
     def _test(self, tab, sattab, report=None, basic=False):
         """Test the MP1 class model
     _test(tab, sattab)     # Prints to stdout
@@ -689,9 +671,14 @@ Test criteria:
         return result
         
 
+    ########################
+    #                      #
+    #  Numerical Routines  #
+    #                      #
+    ########################
 
     def _poly2(self,x,y,pcoef,diff=2):    
-        """Polynomial evaluation (primative routine)
+        """Polynomial evaluation (primitive routine)
 (p, px, py, pxx, pxy, pyy) = _poly(x,y,pcoef,diff=2)
 
 Evaluates a polynomial on x and y and its derivatives.
@@ -947,7 +934,7 @@ the evaluation algorithm only operates on positive integers.
 
 
     def _poly1(self,x,pcoef,diff=2):    
-        """Polynomial evaluation (primative routine)
+        """Polynomial evaluation (primitive routine)
 (p, px, pxx) = _poly1(x,pcoef,diff=2)
 
 Evaluates a polynomial on x and y and its derivatives.
@@ -1093,7 +1080,7 @@ pcoef = {
 
 
     def _mapsearch1(self, xdata, fdata, fvalue=0):
-        """Search 1D map for an inverse estimates (primative routine)
+        """Search 1D map for an inverse estimates (primitive routine)
     x = mapsearch1(xdata, fdata)
         OR
     x = mapsearch1(xdata, fdata, fvalue)
@@ -1126,8 +1113,8 @@ SEE ALSO:
         x = xdata[xi] + (xdata[xi1] - xdata[xi]) * (fvalue - fdata[xi]) / (fdata[xi1] - fdata[xi])
         return x
 
-    def _mapsearch2(self, f0data, f1data, f0value, f1value):
-        r"""Search 2D map for inverse estimates (primative routine)
+    def _mapsearch2(self, f0data, f1data, f0value, f1value, zde0=0, zde1=0):
+        r"""Search 2D map for inverse estimates (primitive routine)
     T, d, Isat, Ioob = mapsearch2(f0data, f1data, f0value, f1value)
     
 Uses tabulated data to generate an estimates for x,y in the 2D inversion
@@ -1149,6 +1136,19 @@ f0value, f1value
     Numpy arrays with the same shape containing values for properties,
     f0data and f1data.
     
+zde0, zde1  (Default 0)
+    Zero-density extrapolation method -- an integer specifying how 
+    values found to line between density index 0 and 1 should be 
+    treated.  Enthalpy and internal energy converge to their ideal gas
+    values, but entropy and any property derived from it diverges like 
+    ln(d).  The following values are accepted:
+    0 - Use standard linear interpolation (default)
+            f(d) = f(d[1])-f(d[0]) * (d-d[0]) / (d[1]-d[0])
+    1 - Use entropy extrapolation: 
+            f(d) = f(d=d[1]) - R*ln(d/d[1])
+    2 - Use free energy extrapolation:
+            f(d) = f(d=d[1]) + T*R*ln(d/d[1])
+    
 RETURNS: 
 T,d
     Arrays of the same shape as fvalue and gvalue that approximate 
@@ -1168,21 +1168,21 @@ Ioob
 
 DESCRIPTION:
 
-The fdata and gdata are 2D arrays of tabulated values of f(x,y) and 
-g(x,y) in a rectangular grid of x and y values.  This is notably 
+The f0data and f1data are 2D arrays of tabulated values of f0(x,y) and 
+f1(x,y) in a rectangular grid of x and y values.  This is notably 
 distinct from 2D interpolation because the maps, fdata and gdata, do not
 need to be monotonically increasing.  The algorithm performs a global 
 search by explicitly comparing all node values:
-    fvalue < f_ij
-    gvalue < g_ij
+    f0value < f0_ij
+    f1value < f1_ij
 
 Grid elements containing potential solutions are identified as those 
-with at least one node above and below the target values for both f() 
-and g().  Then estimates are generated by finding the approximate 
-intersections of the paths in x,y implied by the f() and g() 
+with at least one node above and below the target values for both f0() 
+and f1().  Then estimates are generated by finding the approximate 
+intersections of the paths in x,y implied by the f0() and f1() 
 constraints inside the element.  First, the element's edges are 
-interpolated to find estimates for two points where f(x,y)==fvalue and
-g(x,y)==gvalue.  The intersection (if one exists) of the two resulting
+interpolated to find estimates for two points where f0(x,y)==f0value and
+f1(x,y)==f1value.  The intersection (if one exists) of the two resulting
 line segments is interpreted as the estimated solution.
 
     +--x----+           +---x---+
@@ -1220,13 +1220,13 @@ always bodes poorly for performance.  Most users seem to use PYroMat on
 datasets smaller than the back-end maps, so it is better to vectorize 
 the map search than to vectorize the value inputs. 
 
-ABOUT SOLUTION SEGMENT INTERPOLATION:
+ABOUT LINE SEGMENT INTERPOLATION:
 
-Solution segment interpolation was selected over the usual bilinear 
+Line segment interpolation was selected over the usual bilinear 
 interpolation because of its linearity.  Bilinear 2D element 
 interpolation is obnoxious to invert because of its nonlinear xy term,
 which can cause saddle points and other irritating issues.  However, 
-solution segment interpolation still suffers from problems, which are 
+line segment interpolation still suffers from problems, which are 
 mitigated in this algorithm:
 (1) When the solution lies precisely on a node, one line segment 
     vanishes, leading to a singular problem.  This is mitigated by 
@@ -1235,9 +1235,7 @@ mitigated in this algorithm:
     numerical errors can cause redundant estimates from neighboring
     elements or the estimate can be omitted altogether.  When estimates
     are a small distance from an element's edge (even if it is very 
-    slightly outside) it is included.  If the corresponding neighboring
-    element also appears as a candidate, it is deselected to prevent
-    redundant reporting.
+    slightly outside) it is included.  
 (3) When line segments are very nearly parallel, the intersection 
     problem  becomes singular.  The determinant of the 2x2 matrix is
     calculated in a separate step, and the process is halted if it is 
@@ -1249,14 +1247,14 @@ mitigated in this algorithm:
     the two implied solution path segments is ambiguous, the existence
     of a solution is uncertain, and it is likely to be very nearly 
     singular.  For the purposes of PYroMat's numerical problems, these
-    cases are detected and discarded.
+    cases are detected and discarded with a warning.
     
 A number of versions of _mapsearch2() were tested. This version simply 
 returns the first solution discovered.  Other versions faithfully 
-reported multiple candidate solutions if they were discovered.  Since
-the top layer of PYroMat does not currently permit reporting multiple
-solutions, this funcitonality was discarded.  It might be recovered in
-later versions if it is needed.
+reported multiple candidate solutions if they were discovered.  The 
+design intent is for _argparse() to weed out cases that might have 
+multiple solutions.  Still, some special cases (especially h,s) have
+strage edge cases where multiple solutions creep in.
 
 SEE ALSO:
     _mapsearch1(), _mapsearch2(), _mapsearch2x(), _mapsearch2y()
@@ -1277,6 +1275,7 @@ SEE ALSO:
         # Retrieve the T and d tabular arrays
         Tdata = self._table['T']
         ddata = self._table['d']
+        Tci, dci = self._table['cI']
         
         # Keep a flag to indicate whether the user should be warned about
         # out-of-bounds values
@@ -1297,44 +1296,11 @@ SEE ALSO:
             for Ti,di in zip(*np.nonzero(I)):
                 Ti1 = Ti+1
                 di1 = di+1
+
                 # Identify the two f-edge crossings [(x,y), ...]
-                f0cross = []
-                # Test each of the edges for a crossing of f()
-                # Bottom edge
-                if f0I[Ti,di] != f0I[Ti1,di]:
-                    TT = interp_scalar(f0v, f0data[Ti,di], f0data[Ti1,di], Tdata[Ti], Tdata[Ti1])
-                    f0cross.append(np.array((TT,ddata[di])))
-                # Left edge
-                if f0I[Ti,di] != f0I[Ti,di1]:
-                    dd = interp_scalar(f0v, f0data[Ti,di], f0data[Ti,di1], ddata[di], ddata[di1])
-                    f0cross.append(np.array((Tdata[Ti], dd)))
-                # Top edge
-                if f0I[Ti,di1] != f0I[Ti1,di1]:
-                    TT = interp_scalar(f0v, f0data[Ti,di1], f0data[Ti1,di1], Tdata[Ti], Tdata[Ti1])
-                    f0cross.append(np.array((TT,ddata[di1])))
-                # Right edge
-                if f0I[Ti1,di] != f0I[Ti1,di1]:
-                    dd = interp_scalar(f0v, f0data[Ti1,di], f0data[Ti1,di1], ddata[di], ddata[di1])
-                    f0cross.append(np.array((Tdata[Ti1], dd)))
+                f0cross = self._intersect(f0data, f0I, f0v, Ti, di, zde=zde0)
                 # Identify the two g-edge crossings [(x,y), ...]
-                f1cross = []
-                # Test each of the edges for a crossing of g()
-                # Bottom edge
-                if f1I[Ti,di] != f1I[Ti1,di]:
-                    TT = interp_scalar(f1v, f1data[Ti,di], f1data[Ti1,di], Tdata[Ti], Tdata[Ti1])
-                    f1cross.append(np.array((TT,ddata[di])))
-                # Left edge
-                if f1I[Ti,di] != f1I[Ti,di1]:
-                    dd = interp_scalar(f1v, f1data[Ti,di], f1data[Ti,di1], ddata[di], ddata[di1])
-                    f1cross.append(np.array((Tdata[Ti], dd)))
-                # Top edge
-                if f1I[Ti,di1] != f1I[Ti1,di1]:
-                    TT = interp_scalar(f1v, f1data[Ti,di1], f1data[Ti1,di1], Tdata[Ti], Tdata[Ti1])
-                    f1cross.append(np.array((TT,ddata[di1])))
-                # Right edge
-                if f1I[Ti1,di] != f1I[Ti1,di1]:
-                    dd = interp_scalar(f1v, f1data[Ti1,di], f1data[Ti1,di1], ddata[di], ddata[di1])
-                    f1cross.append(np.array((Tdata[Ti1], dd)))
+                f1cross = self._intersect(f1data, f1I, f1v, Ti, di, zde=zde1)
                 # At this point, f0cross and f1cross list (x,y) coordinates for 
                 # the points along the element edge where crossings occur
                 # Meanwhile, neighbor lists the (xi,yi) indices of the
@@ -1416,11 +1382,101 @@ SEE ALSO:
         return T,d,Isat,Ioob
 
 
-    def _dmapsearch2(self, fdata, dvalue, fvalue):
-        r"""Constant-density 2D map search (primative routine)
-    T, Isat, Ioob = _dmapsearch2(fdata, dvalue, fvalue)
+    def _intersect(self, fdata, fI, fvalue, Ti, di, zde=0):
+        r"""Helper method for the _mapsearch2() method (primitive routine)
+    [(T0,d0), (T1,d1)] = _intersect(fdata, fvalue, fI, Ti, di, zde=0)
     
-Uses tabulated data to generate an estimate for x in the 2D inversion
+Calculates the (T,d) coordinates of points on an element's edges where
+the specified property data interpolates to equal the scalar fvalue.
+
+          Ti,di+1
+            +--------+ Ti+1,di+1
+            |        o (T1,d1)
+    (T0,d0) o        |
+            |        |
+      Ti,di +--------+
+                     Ti+1,di
+
+_intersect() accepts arguments:
+
+fdata
+    The 2D property data array taken from the _table dictionary
+
+fI
+    A 2D array of boolean values indicating the result of the comparison
+    fI = fvalue < fdata.  _mapsearch2() has already performed this 
+    operation, so repeating it to determine which edges are crossed is
+    redundant.
+
+fvalue
+    The desired scalar value of the property.
+    
+Ti, di 
+    Temperature and density indices for the element being searched.  As
+    in the figure above, the element index corresponds to the indices
+    of the lower-left node in the rectangular element.
+    
+zde     (Default 0)
+    Zero-density extrapolation algorithm to use
+    0 - Use standard linear interpolation
+    1 - Use entropy extrapolation
+    2 - Use free-energy extrapolation
+
+Returns a list of two-element tuples.  If no intersections are found,
+the list is empty.  Two intersections are expected, but four are 
+possible in saddle node cases.
+"""
+        ddata = self._table['d']
+        Tdata = self._table['T']
+        R = self.data['R']
+        # Stash the upper indices
+        Ti1 = Ti + 1
+        di1 = di + 1
+        
+        # Initialize the result
+        fcross = []
+        # Test each of the edges for a crossing of f()
+        # Bottom edge
+        if fI[Ti,di] != fI[Ti1,di]:
+            # Bottom-edge intersection is not possible with zde enabled
+            # Never extrapolate.
+            TT = interp_scalar(fvalue, fdata[Ti,di], fdata[Ti1,di], Tdata[Ti], Tdata[Ti1])
+            fcross.append(np.array((TT,ddata[di])))
+        # Left edge
+        if fI[Ti,di] != fI[Ti,di1]:
+            # Entropy extrapolation
+            if di == 0 and zde == 1:
+                dd = ddata[1] * np.exp((fdata[Ti,1] - fvalue)/R)
+            # Free-energy extrapolation
+            elif di == 0 and zde == 2:
+                dd = ddata[1] * np.exp((fvalue - fdata[Ti,1])/R/Tdata[Ti])
+            else:
+                dd = interp_scalar(fvalue, fdata[Ti,di], fdata[Ti,di1], ddata[di], ddata[di1])
+            fcross.append(np.array((Tdata[Ti], dd)))
+        # Top edge
+        if fI[Ti,di1] != fI[Ti1,di1]:
+            # There is no need to perform extrapolation on the top edge under any circumstances
+            TT = interp_scalar(fvalue, fdata[Ti,di1], fdata[Ti1,di1], Tdata[Ti], Tdata[Ti1])
+            fcross.append(np.array((TT,ddata[di1])))
+        # Right edge
+        if fI[Ti1,di] != fI[Ti1,di1]:
+            # Entropy extrapolation
+            if di == 0 and zde == 1:
+                dd = ddata[1] * np.exp((fdata[Ti1,1] - fvalue)/R)
+            # Free-energy extrapolation
+            elif di == 0 and zde == 2:
+                dd = ddata[1] * np.exp((fvalue - fdata[Ti1,1])/R/Tdata[Ti1])
+            else:
+                dd = interp_scalar(fvalue, fdata[Ti1,di], fdata[Ti1,di1], ddata[di], ddata[di1])
+            
+            fcross.append(np.array((Tdata[Ti1], dd)))
+        return fcross
+
+    def _dmapsearch2(self, fdata, dvalue, fvalue, zde=0):
+        r"""Constant-density 2D map search (primitive routine)
+    T, Isat, Ioob = _dmapsearch2(fdata, dvalue, fvalue, zde=0)
+    
+Uses tabulated data to generate an estimate for T in the 2D inversion
 problem
     f(T,dvalue) = fvalue
 
@@ -1439,6 +1495,19 @@ fvalue
     An array of f-values to interpolate from the table.  The dimensions
     must match the dimensions of dvalue.
     
+zde     (0)
+    Zero-density extrapolation method -- an integer specifying how 
+    values found to line between density index 0 and 1 should be 
+    treated.  Enthalpy and internal energy converge to their ideal gas
+    values, but entropy and any property derived from it diverges like 
+    ln(d).  The following values are accepted:
+    0 - Use standard linear interpolation (default)
+            f(d) = f(d[1])-f(d[0]) * (d-d[0]) / (d[1]-d[0])
+    1 - Use entropy extrapolation: 
+            f(d) = f(d=d[1]) - R*ln(d/d[1])
+    2 - Use free energy extrapolation:
+            f(d) = f(d=d[1]) + T*R*ln(d/d[1])
+        
 RETURNS: 
 T
     An array of temperatures that approximately solve the problem.
@@ -1482,6 +1551,7 @@ SEE ALSO:
         # Initialize result arrays
         T = np.full_like(fvalue, pm.config['def_oob'], dtype=float)
         TI = np.full_like(fvalue, -1, dtype=int)
+        # Find indices for the density locations in the array
         DI = np.searchsorted(ddata, dvalue, side='right')-1
         Ioob = np.ones_like(fvalue, dtype=bool)
         Isat = np.zeros_like(fvalue, dtype=bool)
@@ -1490,11 +1560,50 @@ SEE ALSO:
             # Scalar density and property values
             dv = dvalue.flat[index]
             fv = fvalue.flat[index]
-            # Halt if dv is out of range
-            if ddata[0] <= dv <= ddata[-1]:                    
-                # Scalar density index
-                di = DI.flat[index]
-                di1 = di + 1
+            # Scalar density index
+            di = DI.flat[index]
+            di1 = di + 1
+            
+            # Case out the density location
+            # If it is out-of-bounds, do nothing
+            if dv < ddata[0] or dv > ddata[-1]:
+                pass
+            # If entropy zero-density extrapolation is selected
+            elif zde == 1 and di == 0:
+                # Extrapolate to form a function of temperature along
+                # the constant-density line
+                fex = fdata[:, 1] - self.data['R'] * np.log(dv / ddata[1])
+                # Test for crossings with the property value
+                fI = fv < fex
+                I = fI[:-1] != fI[1:]
+                Ti = np.nonzero(I)[0]
+                # If at least one crossing is identified, take the lowest
+                if len(Ti) > 0:
+                    Ti = Ti[0]
+                    Ti1 = Ti+1
+                    # Interpolate to identify the temperature estimate
+                    T.flat[index] = interp_scalar(fv, fex[Ti], fex[Ti1], Tdata[Ti], Tdata[Ti1])
+                    TI.flat[index] = Ti
+                    Ioob.flat[index] = False
+                # If there are no crossings, do nothing -- this is oob
+            # If free-energy zero-density-extrapolation is selected
+            elif zde == 2 and di == 0:
+                # Extrapolate to form a function of temperature along
+                # the constant-density line
+                fex = fdata[:, 1] + Tdata * self.data['R'] * np.log(dv / ddata[1])
+                # Test for crossings with the property value
+                I = np.diff(fv < fex)
+                Ti = np.nonzero(I)[0]
+                # If at least one crossing is identified, take the lowest
+                if len(Ti) > 0:
+                    Ti = Ti[0]
+                    Ti1 = Ti+1
+                    # Interpolate to identify the temperature estimate
+                    T.flat[index] = interp_scalar(fv, fex[Ti], fex[Ti1], Tdata[Ti], Tdata[Ti1])
+                    TI.flat[index] = Ti
+                    Ioob.flat[index] = False
+            # The standard linear interpolation algorithm
+            else:
                 # Compare the values of only the appropriate row
                 fI = fv < fdata[:, di:di+2]
                 # Detect elements with a crossing
@@ -1561,7 +1670,7 @@ SEE ALSO:
         return T, Isat, Ioob
         
     def _Tmapsearch2(self, fdata, Tvalue, fvalue):
-        r"""Search 2D map for inverse estimates (primative routine)
+        r"""Search 2D map for inverse estimates (primitive routine)
     d, Isat, Ioob = Tmapsearch2(fdata, Tvalue, fvalue)
     
 Uses tabulated data to generate an estimate for y in the 2D inversion
@@ -1582,7 +1691,7 @@ Tvalue
     
 fvalue
     An array of f-values to interpolate from the table.  The dimensions
-    must match the dimensions of dvalue.
+    must match the dimensions of Tvalue.
     
 RETURNS: 
 T
@@ -1693,7 +1802,7 @@ SEE ALSO:
                                     Ioob.flat[index] = False
                                     break
         if pm.config['warning_verbose'] and Ioob.any():
-            pm.utility.print_warning('mp2._Tmapsearch2: Property value(s) were out-of-bounds.')
+            pm.utility.print_warning('mp2._Tmapsearch2: Property value(s) were out-of-bounds.')\
                     
         # Identify any element indices under the dome
         k = self._table['cI'][0] - TI
@@ -1705,12 +1814,11 @@ SEE ALSO:
 
 
 
-    def _Tsatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6, debug=False):
-        """Iterates on Maxwell's criteria while holding T constant (primative routine)
-    _Tsatiter(T, p, dL, dV, Ids)
+    def _Tsatiter(self, T, dL, dV, Ids, Nmax=20, ep=1e-6, debug=False):
+        """Iterates on Maxwell's criteria while holding T constant (primitive routine)
+    _Tsatiter(T, dL, dV, Ids)
 
 T       Saturation temperature used to specify the state.
-p       Pressure.  These values are overwritten without being used.
 dL      Liquid density.
 dV      Vapor density.
 Ids     Downselect array.  This is an array of booleans the same size 
@@ -1725,39 +1833,41 @@ Optional keywords are:
 Nmax        Maximum number of iterations allowed. (def = 20)
 ep          Fractional error allowed for convergence (def = 1e-6)
 """
-        # Initialize an error vector and a jacobian matrix
-        e = np.empty(T.shape + (2,1), dtype=float)
-        J = np.empty(T.shape + (2,2), dtype=float)
-        fail = True
         for count in range(Nmax):
             # Create down-selected views
             T_ = T[Ids]
             dL_ = dL[Ids]
             dV_ = dV[Ids]
+            # Get the dimensionless 
+            argL = self._ff(T_, dL_, diff=2)
+            argV = self._ff(T_, dV_, diff=2)
             
-            gL,gLt,gLd = self._g(T_, dL_, diff=1)
-            gV,gVt,gVd = self._g(T_ ,dV_, diff=1)
-            pL,pLt,pLd = self._p(T_, dL_, diff=1)
-            p[Ids],pVt,pVd = self._p(T_, dV_, diff=1)
-            
+            gL,gLt,gLd = self._g(*argL, diff=1)
+            gV,gVt,gVd = self._g(*argV, diff=1)
+            pL,pLt,pLd = self._p(*argL, diff=1)
+            pV,pVt,pVd = self._p(*argV, diff=1)
+
+            # Initialize an error vector and a jacobian matrix
+            e = np.empty(T_.shape + (2,1), dtype=float)
+            J = np.empty(T_.shape + (2,2), dtype=float)            
             # Error vector
             # The vapor pressure is stored in p
-            e[Ids,0,0] = gL - gV
-            e[Ids,1,0] = pL - p[Ids]
+            e[:,0,0] = gL - gV
+            e[:,1,0] = pL - pV
             # Jacobian
-            J[Ids,0,0] = gLd
-            J[Ids,0,1] = -gVd
-            J[Ids,1,0] = pLd
-            J[Ids,1,1] = -pVd
+            J[:,0,0] = gLd
+            J[:,0,1] = -gVd
+            J[:,1,0] = pLd
+            J[:,1,1] = -pVd
             # Overwrite error with the perturbation to the estimates
-            e[Ids,:] = np.linalg.solve(J[Ids,:],e[Ids,:])
+            delta = np.linalg.solve(J,e)
             
             # Update unknowns
-            dL[Ids] -= e[Ids,0,0]
-            dV[Ids] -= e[Ids,1,0]
+            dL_ -= delta[:,0,0]
+            dV_ -= delta[:,1,0]
             
             # Test for densities that have overshot the critical point
-            Ioob = (dV > self.data['dc']) + (dL < self.data['dc'])
+            Ioob = (dV_ > self.data['dc']) + (dL_ < self.data['dc'])
             inner_count = 0
             while Ioob.any():
                 inner_count += 1
@@ -1766,35 +1876,35 @@ ep          Fractional error allowed for convergence (def = 1e-6)
                 if debug:
                     print(f'  Overstep correction {inner_count}')
                 e[Ioob,...] /= 2
-                dL[Ioob] += e[Ioob,0,0]
-                dV[Ioob] += e[Ioob,1,0]
-                Ioob = (dV > self.data['dc']) + (dL < self.data['dc'])
+                dL_[Ioob] += delta[Ioob,0,0]
+                dV_[Ioob] += e[Ioob,1,0]
+                Ioob = (dV_ > self.data['dc']) + (dL_ < self.data['dc'])
 
             if debug:
                 print(f'**{count}**')
                 print('dL:', dL_)
                 print('dV:', dV_)
-                print('delta:,', e[Ids])
+                print('delta:,', delta)
+            
+            # Update results
+            dV[Ids] = dV_
+            dL[Ids] = dL_
             
             # Detect convergence
-            Ids[Ids] = np.logical_or( np.abs(e[Ids,0,0]) > ep*dL[Ids],
-                    np.abs(e[Ids,1,0]) > ep*dV[Ids] )
+            Ids[Ids] = np.logical_or( np.abs(delta[:,0,0]) > ep*dL_,
+                    np.abs(delta[:,1,0]) > ep*dV_ )
             
             if not Ids.any():
-                fail = False
-                break;
+                return
 
-                                
-        if fail:
-            raise pm.utility.PMAnalysisError(f'_Tsatiter: Failed to converge in {Nmax} iterations.')
+        raise pm.utility.PMAnalysisError(f'_Tsatiter: Failed to converge in {Nmax} iterations.')
         
 
-    def _dVsatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6, debug=False):
-        """Iterates on Maxwell's criteria while holding dV constant (primative routine)
-    _dVsatiter(T, p, dL, dV, Ids)
+    def _dVsatiter(self, T, dL, dV, Ids, Nmax=20, ep=1e-6, debug=False):
+        """Iterates on Maxwell's criteria while holding dV constant (primitive routine)
+    _dVsatiter(T, dL, dV, Ids)
 
 T       Saturation temperature used to specify the state.
-p       Pressure.  These values are overwritten without being used.
 dL      Liquid density.
 dV      Vapor density.
 Ids     Downselect array.  This is an array of booleans the same size 
@@ -1809,10 +1919,6 @@ Optional keywords are:
 Nmax        Maximum number of iterations allowed. (def = 20)
 ep          Fractional error allowed for convergence (def = 1e-6)
 """
-        # Initialize arrays for the linear algebra
-        e = np.empty((Ids.size,) + (2,1), dtype=float)
-        J = np.empty((Ids.size,) + (2,2), dtype=float)
-        fail = True
         for count in range(Nmax):
             # Create down-selected views
             T_ = T[Ids]
@@ -1820,26 +1926,32 @@ ep          Fractional error allowed for convergence (def = 1e-6)
             dV_ = dV[Ids]
             
             # Evaluate the properties at the liquid and vapor lines
-            gL,gLt,gLd = self._g(T_, dL_,1)
-            gV,gVt,gVd = self._g(T_, dV_,1)
-            pL,pLt,pLd = self._p(T_ ,dL_ ,1)
-            p[Ids],pVt,pVd = self._p(T_ ,dV_ ,1)
+            argL = self._ff(T_, dL_, diff=2)
+            argV = self._ff(T_, dV_, diff=2)
             
+            gL,gLt,gLd = self._g(*argL, diff=1)
+            gV,gVt,gVd = self._g(*argV, diff=1)
+            pL,pLt,pLd = self._p(*argL ,diff=1)
+            pV,pVt,pVd = self._p(*argV ,diff=1)
+            
+            # Initialize arrays for the linear algebra
+            e = np.empty(T_.shape + (2,1), dtype=float)
+            J = np.empty(T_.shape + (2,2), dtype=float)            
             # Build the Jacobian on temperature and liquid density
-            J[Ids,0,0] = gLt-gVt
-            J[Ids,0,1] = gLd
-            J[Ids,1,0] = pLt-pVt
-            J[Ids,1,1] = pLd
+            J[:,0,0] = gLt-gVt
+            J[:,0,1] = gLd
+            J[:,1,0] = pLt-pVt
+            J[:,1,1] = pLd
             # Build the error vector
-            e[Ids,0,0] = gL-gV        # Gibbs error
-            e[Ids,1,0] = pL-p[Ids]    # Pressure error
+            e[:,0,0] = gL-gV        # Gibbs error
+            e[:,1,0] = pL-pV        # Pressure error
             # Solve.  Ovewrite error with the estimate perturbation
-            e[Ids,:] = np.linalg.solve(J[Ids,:],e[Ids,:])
+            delta = np.linalg.solve(J,e)
             # Update temperature and density
-            T[Ids] -= e[Ids,0,0]
-            dL[Ids] -= e[Ids,1,0]
+            T_ -= delta[:,0,0]
+            dL_ -= delta[:,1,0]
             # Test for densities that have overshot the critical point
-            Ioob = (dL < self.data['dc']) + (T > self.data['Tc'])
+            Ioob = (dL_ < self.data['dc']) + (T_ > self.data['Tc'])
             inner_count = 0
             while Ioob.any():
                 inner_count += 1
@@ -1847,30 +1959,32 @@ ep          Fractional error allowed for convergence (def = 1e-6)
                     raise pm.utility.PMAnalysisError(f'mp2._dVsatiter: Crossed the critical point, and failed to produce a valid estimate after {Nmax} divisions!')
                 if debug:
                     print(f'  Overstep correction {inner_count}')
-                e[Ioob,...] /= 2
-                T[Ioob] += e[Ioob,0,0]
-                dL[Ioob] += e[Ioob,1,0]
-                Ioob = (dL < self.data['dc']) + (T > self.data['Tc'])
-
+                delta[Ioob,...] /= 2
+                T_[Ioob] += delta[Ioob,0,0]
+                dL[Ioob] += delta[Ioob,1,0]
+                Ioob = (dL_ < self.data['dc']) + (T_ > self.data['Tc'])
             
             if debug:
                 print(f'**{count}**')
                 print('T:', T_)
                 print('dL:', dL_)
-                print('delta:,', e[Ids])
+                print('delta:,', delta)
+            
+            # Update the results
+            T[Ids] = T_
+            dL[Ids] = dL_
             
             # Test for convergence
-            Ids[Ids] = np.logical_or(np.abs(e[Ids,0,0]) > ep*T_, np.abs(e[Ids,1,0]) > ep*dL_)
+            Ids[Ids] = np.logical_or(np.abs(delta[:,0,0]) > ep*T_, np.abs(delta[:,1,0]) > ep*dL_)
             
             # If all points have converged
             if not Ids.any():
-                fail = False
-                break
-        if fail:
-            raise pm.utility.PMAnalysisError(f'_dVsatiter: Failed to converge in {Nmax} iterations.')
+                return
+        
+        raise pm.utility.PMAnalysisError(f'_dVsatiter: Failed to converge in {Nmax} iterations.')
 
     def _dLsatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6, debug=False):
-        """Iterates on Maxwell's criteria while holding dL constant (primative routine)
+        """Iterates on Maxwell's criteria while holding dL constant (primitive routine)
     _dLsatiter(T, p, dL, dV, Ids)
 
 T       Saturation temperature used to specify the state.
@@ -1889,10 +2003,6 @@ Optional keywords are:
 Nmax        Maximum number of iterations allowed. (def = 20)
 ep          Fractional error allowed for convergence (def = 1e-6)
 """
-        # Initialize arrays for the linear algebra
-        e = np.empty(T.shape + (2,1), dtype=float)
-        J = np.empty(T.shape + (2,2), dtype=float)
-        fail = True
         for count in range(Nmax):
             # Create down-selected views
             T_ = T[Ids]
@@ -1900,26 +2010,33 @@ ep          Fractional error allowed for convergence (def = 1e-6)
             dV_ = dV[Ids]
             
             # Evaluate the properties at the liquid and vapor lines
-            gL,gLt,gLd = self._g(T_, dL_,1)
-            gV,gVt,gVd = self._g(T_, dV_,1)
-            pL,pLt,pLd = self._p(T_ ,dL_ ,1)
-            p[Ids],pVt,pVd = self._p(T_ ,dV_ ,1)
+            argL = self._ff(T_, dL_, diff=2)
+            argV = self._ff(T_, dV_, diff=2)
+            
+            gL,gLt,gLd = self._g(*argL, diff=1)
+            gV,gVt,gVd = self._g(*argV, diff=1)
+            pL,pLt,pLd = self._p(*argL ,diff=1)
+            pV,pVt,pVd = self._p(*argV ,diff=1)
+            
+            # Initialize arrays for the linear algebra
+            e = np.empty(T.shape + (2,1), dtype=float)
+            J = np.empty(T.shape + (2,2), dtype=float)
             
             # Build the Jacobian on temperature and liquid density
-            J[Ids,0,0] = gLt-gVt
-            J[Ids,0,1] = -gVd
-            J[Ids,1,0] = pLt-pVt
-            J[Ids,1,1] = -pVd
+            J[:,0,0] = gLt-gVt
+            J[:,0,1] = -gVd
+            J[:,1,0] = pLt-pVt
+            J[:,1,1] = -pVd
             # Build the error vector
-            e[Ids,0,0] = gL-gV        # Gibbs error
-            e[Ids,1,0] = pL-p[Ids]    # Pressure error
+            e[:,0,0] = gL-gV        # Gibbs error
+            e[:,1,0] = pL-p[Ids]    # Pressure error
             # Solve.  Ovewrite error with the estimate perturbation
-            e[Ids,:] = np.linalg.solve(J[Ids,:],e[Ids,:])
+            delta = np.linalg.solve(J,e)
             # Update temperature and density
-            T[Ids] -= e[Ids,0,0]
-            dV[Ids] -= e[Ids,1,0]
+            T_ -= delta[:,0,0]
+            dV_ -= delta[:,1,0]
             # Test for densities that have overshot the critical point
-            Ioob = (dV > self.data['dc']) + (T > self.data['Tc'])
+            Ioob = (dV_ > self.data['dc']) + (T_ > self.data['Tc'])
             inner_count = 0
             while Ioob.any():
                 inner_count += 1
@@ -1928,9 +2045,9 @@ ep          Fractional error allowed for convergence (def = 1e-6)
                 if debug:
                     print(f'  Overstep correction {inner_count}')
                 e[Ioob,...] /= 2
-                T[Ioob] += e[Ioob,0,0]
-                dV[Ioob] += e[Ioob,1,0]
-                Ioob = (dV > self.data['dc']) + (T > self.data['Tc'])
+                T_[Ioob] += delta[Ioob,0,0]
+                dV_[Ioob] += delta[Ioob,1,0]
+                Ioob = (dV_ > self.data['dc']) + (T_ > self.data['Tc'])
             
             if debug:
                 print(f'**{count}**')
@@ -1939,24 +2056,23 @@ ep          Fractional error allowed for convergence (def = 1e-6)
                 print('delta:,', e[Ids])
             
             # Test for convergence
-            Ids[Ids] = np.logical_or(np.abs(e[Ids,0,0]) > ep*T_, np.abs(e[Ids,1,0]) > ep*dV_)
+            Ids[Ids] = np.logical_or(np.abs(delta[:,0,0]) > ep*T_, np.abs(delta[:,1,0]) > ep*dV_)
             
             # If all points have converged
             if not Ids.any():
-                fail = False
-                break
-        if fail:
-            raise pm.utility.PMAnalysisError(f'_dLsatiter: Failed to converge in {Nmax} iterations.')
+                return
+        
+        raise pm.utility.PMAnalysisError(f'_dLsatiter: Failed to converge in {Nmax} iterations.')
 
 
-    def _psatiter(self, T, p, dL, dV, Ids, Nmax=20, ep=1e-6, debug=False):
-        """Iterates on Maxwell's criteria while holding p constant (primative routine)
-    _psatiter(T, p, dL, dV, Ids)
+    def _psatiter(self, T, dL, dV, p, Ids, Nmax=20, ep=1e-6, debug=False):
+        """Iterates on Maxwell's criteria while holding p constant (primitive routine)
+    _psatiter(T, dL, dV, p, Ids)
 
 T       Saturation temperature.
-p       Pressure used to determine the saturation state.
 dL      Liquid density.
 dV      Vapor density.
+p       Pressure used to determine the saturation state.
 Ids     Downselect array.  This is an array of booleans the same size 
         and shape as the property arrays.  Iteration is only performed
         on the corresponding elements set to True.  As states converge,
@@ -1970,11 +2086,6 @@ Optional keywords are:
 Nmax        Maximum number of iterations allowed. (def = 20)
 ep          Fractional error allowed for convergence (def = 1e-6)
 """
-
-
-        # Initialize arrays for the linear algebra
-        e = np.empty(T.shape + (3,1), dtype=float)
-        J = np.empty(T.shape + (3,3), dtype=float)
         fail = True
         for count in range(Nmax):
             # Generate views of the updated down-selected variables
@@ -1983,38 +2094,45 @@ ep          Fractional error allowed for convergence (def = 1e-6)
             dV_ = dV[Ids]
             p_ = p[Ids]
             
-            gL,gLt,gLd = self._g(T[Ids],dL[Ids],diff=1)
-            gV,gVt,gVd = self._g(T[Ids],dV[Ids],diff=1)
-            pL,pLt,pLd = self._p(T[Ids],dL[Ids],diff=1)
-            pV,pVt,pVd = self._p(T[Ids],dV[Ids],diff=1)
+            # Evaluate the properties at the liquid and vapor lines
+            argL = self._ff(T_, dL_, diff=2)
+            argV = self._ff(T_, dV_, diff=2)
+            
+            gL,gLt,gLd = self._g(*argL, diff=1)
+            gV,gVt,gVd = self._g(*argV, diff=1)
+            pL,pLt,pLd = self._p(*argL ,diff=1)
+            pV,pVt,pVd = self._p(*argV ,diff=1)
+
+            # Initialize arrays for the linear algebra
+            e = np.empty(T_.shape + (3,1), dtype=float)
+            J = np.empty(T_.shape + (3,3), dtype=float)
             
             # Error vector
-            e[Ids,0,0] = gL - gV
-            e[Ids,1,0] = pL - p_
-            e[Ids,2,0] = pV - p_
+            e[:,0,0] = gL - gV
+            e[:,1,0] = pL - p_
+            e[:,2,0] = pV - p_
             # Jacobian
-            J[Ids,0,0] = gLt-gVt
-            J[Ids,0,1] = gLd
-            J[Ids,0,2] = -gVd
+            J[:,0,0] = gLt-gVt
+            J[:,0,1] = gLd
+            J[:,0,2] = -gVd
             
-            J[Ids,1,0] = pLt
-            J[Ids,1,1] = pLd
-            J[Ids,1,2] = 0.
+            J[:,1,0] = pLt
+            J[:,1,1] = pLd
+            J[:,1,2] = 0.
             
-            J[Ids,2,0] = pVt
-            J[Ids,2,1] = 0.
-            J[Ids,2,2] = pVd
-            # Overwrite error with the perturbation to the estimates
-            e[Ids,:] = np.linalg.solve(J[Ids,:],e[Ids,:])
+            J[:,2,0] = pVt
+            J[:,2,1] = 0.
+            J[:,2,2] = pVd
+            # Calculate change in the variables
+            delta = np.linalg.solve(J,e)
             
             # Update the variables
-            T[Ids] -= e[Ids,0,0]
-            dL[Ids] -= e[Ids,1,0]
-            dV[Ids] -= e[Ids,2,0]
+            T_ -= delta[:,0,0]
+            dL_ -= delta[:,1,0]
+            dV_ -= delta[:,2,0]
             
             # Test for densities that have overshot the critical point
-            Ioob = np.zeros_like(Ids, dtype=bool)
-            Ioob[Ids] = (dV[Ids] > self.data['dc']) + (dL[Ids] < self.data['dc']) + (T[Ids] > self.data['Tc'])
+            Ioob = (dV_ > self.data['dc']) + (dL_ < self.data['dc']) + (T_ > self.data['Tc'])
             inner_count = 0
             while Ioob.any():
                 inner_count += 1
@@ -2022,34 +2140,145 @@ ep          Fractional error allowed for convergence (def = 1e-6)
                     raise pm.utility.PMAnalysisError(f'mp2._psatiter: Crossed the critical point, and failed to produce a valid estimate after {Nmax} divisions!')
                 if debug:
                     print(f'  Overstep correction {inner_count}')
-                e[Ioob,...] /= 2
-                T[Ioob] += e[Ioob,0,0]
-                dL[Ioob] += e[Ioob,1,0]
-                dV[Ioob] += e[Ioob,2,0]
-                Ioob = (dV > self.data['dc']) + (dL < self.data['dc']) + (T > self.data['Tc'])
+                delta[Ioob,...] /= 2
+                T_[Ioob] += delta[Ioob,0,0]
+                dL_[Ioob] += delta[Ioob,1,0]
+                dV_[Ioob] += delta[Ioob,2,0]
+                Ioob = (dV_ > self.data['dc']) + (dL_ < self.data['dc']) + (T_ > self.data['Tc'])
             
             if debug:
                 print(f'**{count}**')
                 print('T:', T_)
                 print('dL:', dL_)
                 print('dV:', dV_)
-                print('delta:,', e[Ids])
+                print('delta:,', e)
+            
+            # Update the results
+            T[Ids] = T_
+            dL[Ids] = dL_
+            dV[Ids] = dV_
             
             # Detect convergence
-            Ids[Ids] = np.logical_or( np.abs(e[Ids,0,0]) > ep*T[Ids],
-                        np.logical_or( np.abs(e[Ids,1,0]) > ep*dL[Ids],
-                        np.abs(e[Ids,2,0]) > ep*dV[Ids]))
+            Ids[Ids] = np.logical_or( np.abs(e[:,0,0]) > ep*T_,
+                        np.logical_or( np.abs(e[:,1,0]) > ep*dL_,
+                        np.abs(e[:,2,0]) > ep*dV_))
+            if not Ids.any():
+                return
+            
+        raise pm.utility.PMAnalysisError(f'_psatiter: Failed to converge in {Nmax} iterations.')
+
+
+    def _gsatiter(self, T, dL, dV, g, Ids, Nmax=20, ep=1e-6, debug=False):
+        """Iterates on Maxwell's criteria while holding p constant (primitive routine)
+    _gsatiter(T, dL, dV, g, Ids)
+
+T       Saturation temperature.
+dL      Liquid density.
+dV      Vapor density.
+g       Gibbs energy used to determine the state
+Ids     Downselect array.  This is an array of booleans the same size 
+        and shape as the property arrays.  Iteration is only performed
+        on the corresponding elements set to True.  As states converge,
+        the corresponding values are set to False.
+
+T, dL, and dV hold initial guesses for the saturation properties, while
+the values in p are treated as a constraint.  Values in p are not 
+changed.
+
+Optional keywords are:
+Nmax        Maximum number of iterations allowed. (def = 20)
+ep          Fractional error allowed for convergence (def = 1e-6)
+"""
+        # Make a copy of the 
+        Istash = Ids.copy()
+        
+        fail = True
+        for count in range(Nmax):
+            # Generate views of the updated down-selected variables
+            T_ = T[Ids]
+            dL_ = dL[Ids]
+            dV_ = dV[Ids]
+            g_ = g[Ids]
+            
+            # Evaluate the properties at the liquid and vapor lines
+            argL = self._ff(T_, dL_, diff=2)
+            argV = self._ff(T_, dV_, diff=2)
+            
+            gL,gLt,gLd = self._g(*argL, diff=1)
+            gV,gVt,gVd = self._g(*argV, diff=1)
+            pL,pLt,pLd = self._p(*argL ,diff=1)
+            pV,pVt,pVd = self._p(*argV ,diff=1)
+
+            # Initialize arrays for the linear algebra
+            e = np.empty(T_.shape + (3,1), dtype=float)
+            J = np.empty(T_.shape + (3,3), dtype=float)
+            
+            # Error vector
+            e[:,0,0] = pL - pV
+            e[:,1,0] = gL - g_
+            e[:,2,0] = gV - g_
+            # Jacobian
+            J[:,0,0] = pLt-pVt
+            J[:,0,1] = pLd
+            J[:,0,2] = -pVd
+            
+            J[:,1,0] = gLt
+            J[:,1,1] = gLd
+            J[:,1,2] = 0.
+            
+            J[:,2,0] = gVt
+            J[:,2,1] = 0.
+            J[:,2,2] = gVd
+            # Calculate change in the variables
+            delta = np.linalg.solve(J,e)
+            
+            # Update the variables
+            T_ -= delta[:,0,0]
+            dL_ -= delta[:,1,0]
+            dV_ -= delta[:,2,0]
+            
+            # Test for densities that have overshot the critical point
+            Ioob = (dV_ > self.data['dc']) + (dL_ < self.data['dc']) + (T_ > self.data['Tc'])
+            inner_count = 0
+            while Ioob.any():
+                inner_count += 1
+                if inner_count > Nmax:
+                    raise pm.utility.PMAnalysisError(f'mp2._gsatiter: Crossed the critical point, and failed to produce a valid estimate after {Nmax} divisions!')
+                if debug:
+                    print(f'  Overstep correction {inner_count}')
+                delta[Ioob,...] /= 2
+                T_[Ioob] += delta[Ioob,0,0]
+                dL_[Ioob] += delta[Ioob,1,0]
+                dV_[Ioob] += delta[Ioob,2,0]
+                Ioob = (dV_ > self.data['dc']) + (dL_ < self.data['dc']) + (T_ > self.data['Tc'])
+            
+            if debug:
+                print(f'**{count}**')
+                print('T:', T_)
+                print('dL:', dL_)
+                print('dV:', dV_)
+                print('delta:,', e)
+            
+            # Update the results
+            # NOTE: This stores the pressure value PRIOR to applying the last delta
+            T[Ids] = T_
+            dL[Ids] = dL_
+            dV[Ids] = dV_
+            
+            # Detect convergence
+            Ids[Ids] = np.logical_or( np.abs(e[:,0,0]) > ep*T_,
+                        np.logical_or( np.abs(e[:,1,0]) > ep*dL_,
+                        np.abs(e[:,2,0]) > ep*dV_))
             
             if not Ids.any():
-                fail = False
-                break
+                return
             
-        if fail:
-            raise pm.utility.PMAnalysisError(f'_psatiter: Failed to converge in {Nmax} iterations.')
+        raise pm.utility.PMAnalysisError(f'_gsatiter: Failed to converge in {Nmax} iterations at {np.sum(Ids)} values.')
 
-    def _satiter2(self, T, p, dL, dV, x, fn0, fn1, f0value, f1value, Ids, Nmax=10, ep=1e-6, debug=False):
-        """Two-property saturation iteration (primative routine)
-    _satiter2(self, T, p, dL, dV, x, fn0, fn1, f0value, f1value, Ids, Nmax=10, ep=1e-6)
+
+    def _satiter2(self, T, dL, dV, fn0, fn1, f0value, f1value, Ids, Nmax=50, ep=1e-6, debug=False):
+        """Two-property saturation iteration (primitive routine)
+    _satiter2(self, T, dL, dV, fn0, fn1, f0value, f1value, Ids, Nmax=20, ep=1e-6)
 
 Iteratively calculates the two-phase mixture conditions where a pair of
 properties have the prescribed values.  
@@ -2086,28 +2315,29 @@ If pressure is one of the properties, it should never be passed as f1,
 since pV == pL.  It is MUCH faster to use _psatiter instead.
 """
 
-        E = np.empty(T.shape + (3,1), dtype=float)
-        J = np.empty(T.shape + (3,3), dtype=float)
-
         count = 0
         while Ids.any():
             count += 1
             if count > Nmax:
                 raise pm.utility.PMParamError(
-                        f'mp2._satiter2: Failed to converge after {Nmax} iterations.')
+                        f'mp2._satiter2: Failed to converge after {Nmax} iterations at {np.sum(Ids)} value(s).')
             
             TT = T[Ids]
             DL = dL[Ids]
             DV = dV[Ids]
+            
             # Evaluate the properties
-            pL,pLt,pLd = self._p(TT,DL,diff=1)
-            pV,pVt,pVd = self._p(TT,DV,diff=1)
-            gL,gLt,gLd = self._g(TT,DL,diff=1)
-            gV,gVt,gVd = self._g(TT,DV,diff=1)
-            f0L,f0Lt,f0Ld = fn0(TT,DL,diff=1)
-            f0V,f0Vt,f0Vd = fn0(TT,DV,diff=1)
-            f1L,f1Lt,f1Ld = fn1(TT,DL,diff=1)
-            f1V,f1Vt,f1Vd = fn1(TT,DV,diff=1)
+            argL = self._ff(TT, DL, diff=2)
+            argV = self._ff(TT, DV, diff=2)
+            
+            pL,pLt,pLd = self._p(*argL, diff=1)
+            pV,pVt,pVd = self._p(*argV, diff=1)
+            gL,gLt,gLd = self._g(*argL, diff=1)
+            gV,gVt,gVd = self._g(*argV, diff=1)
+            f0L,f0Lt,f0Ld = fn0(*argL, diff=1)
+            f0V,f0Vt,f0Vd = fn0(*argV, diff=1)
+            f1L,f1Lt,f1Ld = fn1(*argL, diff=1)
+            f1V,f1Vt,f1Vd = fn1(*argV, diff=1)
 
             # Property deltas across the dome
             df0 = f0V - f0L
@@ -2115,49 +2345,67 @@ since pV == pL.  It is MUCH faster to use _psatiter instead.
             df1 = f1V - f1L
             vf1 = f1value[Ids] - f1L
 
-            E[Ids, 0, 0] = pL - pV       # Maxwell, pressure
-            E[Ids, 1, 0] = gL - gV       # Maxwell, gibbs energy
-            E[Ids, 2, 0] = vf0*df1 - vf1*df0     # Quality constraint
+            E = np.empty(TT.shape + (3,1), dtype=float)
+            J = np.empty(TT.shape + (3,3), dtype=float)
+
+            E[:, 0, 0] = pV - pL       # Maxwell, pressure
+            E[:, 1, 0] = gV - gL       # Maxwell, gibbs energy
+            E[:, 2, 0] = vf0*df1 - vf1*df0     # Quality constraint
             
-            J[Ids, 0, 0] = pVt - pLt
-            J[Ids, 0, 1] = -pLd
-            J[Ids, 0, 2] = pVd
+            J[:, 0, 0] = pVt - pLt
+            J[:, 0, 1] = -pLd
+            J[:, 0, 2] = pVd
             
-            J[Ids, 1, 0] = gVt - gLt
-            J[Ids, 1, 1] = -gLd
-            J[Ids, 1, 2] = gVd
+            J[:, 1, 0] = gVt - gLt
+            J[:, 1, 1] = -gLd
+            J[:, 1, 2] = gVd
             
-            J[Ids, 2, 0] = -f1Lt*df0 + vf1*(f0Vt - f0Lt) + f0Lt*df1 - vf0*(f1Vt - f1Lt)
-            J[Ids, 2, 1] = -f1Ld*df0 + vf1*f0Ld + f0Ld*df1 + vf0*f1Ld
-            J[Ids, 2, 2] = vf1*f0Vd - vf0*f1Vd
+            J[:, 2, 0] = -f0Lt*df1 + vf0*(f1Vt - f1Lt) + f1Lt*df0 - vf1*(f0Vt - f0Lt)
+            J[:, 2, 1] = -f0Ld*df1 - vf0*f1Ld + f1Ld*df0 + vf1*f0Ld
+            J[:, 2, 2] = vf0*f1Vd - vf1*f0Vd
             
             delta = np.linalg.solve(J, E)
-            T[Ids] += delta[Ids,0,0]
-            dL[Ids] += delta[Ids,1,0]
-            dV[Ids] += delta[Ids,2,0]
-            p[Ids] = pV
-            x[Ids] = vf1/df1
+            TT -= delta[:,0,0]
+            DL -= delta[:,1,0]
+            DV -= delta[:,2,0]
+
+            # Test for densities that have overshot the critical point
+            Ioob = (DV > self.data['dc']) + (DL < self.data['dc']) + (TT > self.data['Tc'])
+            inner_count = 0
+            while Ioob.any():
+                inner_count += 1
+                if inner_count > Nmax:
+                    raise pm.utility.PMAnalysisError(f'mp2._satiter2: Crossed the critical point, and failed to produce a valid estimate after {Nmax} divisions!')
+                if debug:
+                    print(f'  Overstep correction {inner_count}')
+                delta[Ioob,...] /= 2
+                TT[Ioob] += delta[Ioob,0,0]
+                DL[Ioob] += delta[Ioob,1,0]
+                DV[Ioob] += delta[Ioob,2,0]
+                Ioob = (DV > self.data['dc']) + (DL < self.data['dc']) + (TT > self.data['Tc'])
             
             if debug:
                 print(f'**{count}**')
-                print('T:', T_)
-                print('dL:', dL_)
-                print('dV:', dV_)
-                print('delta:,', delta[Ids])
+                print('T:', TT)
+                print('dL:', DL)
+                print('dV:', DV)
+                print('delta:,', delta)
+            
+            T[Ids] = TT
+            dL[Ids] = DL
+            dV[Ids] = DV
             
             # Update convergence criteria
-            Ids[Ids] = (delta[Ids,0,0] > TT*ep) + (delta[Ids,1,0] > DL*ep) + (delta[Ids,2,0] > DV*ep)
+            Ids[Ids] = (delta[:,0,0] > TT*ep) + (delta[:,1,0] > DL*ep) + (delta[:,2,0] > DV*ep)
             
             
-    def _dsatiter2(self, T, p, dL, dV, x, d, fn, fvalue, Ids, ep=1e-6, Nmax=20, debug=False):
-        """Iterate on saturation properties to achieve mix density and one inverse
-    _dsatiter2(T, p, dL, dV, x, d, fn, fvalue, Ids, ep=1e-6, Nmax=20)
+    def _dsatiter2(self, T, dL, dV, d, fn, fvalue, Ids, ep=1e-6, Nmax=20, debug=False):
+        """Iterate on saturation properties to achieve mix density and one inverse (primitive routine)
+    _dsatiter2(T, dL, dV, x, d, fn, fvalue, Ids, ep=1e-6, Nmax=20)
     
 T       Temperature array used as an initial guess
-p       Pressure array - overwritten
 dL      Saturated liquid array used as an initial guess
 dV      Saturated vapor array used as an initial guess
-x       Quality - overwritten
 d       Target density mixture array - not written to
 fn      The inverse property's method
 fvalue  The inverse property value array
@@ -2175,9 +2423,6 @@ density constraint can be calculated explicitly, leaving three nonlinear
 constraints.
 """
 
-        E = np.empty(T.shape + (3,1), dtype=float)
-        J = np.empty(T.shape + (3,3), dtype=float)
-
         count = 0
         while Ids.any():
             count += 1
@@ -2189,12 +2434,16 @@ constraints.
             DL = dL[Ids]
             DV = dV[Ids]
             # Evaluate the properties
-            pL,pLt,pLd = self._p(TT,DL,diff=1)
-            pV,pVt,pVd = self._p(TT,DV,diff=1)
-            gL,gLt,gLd = self._g(TT,DL,diff=1)
-            gV,gVt,gVd = self._g(TT,DV,diff=1)
-            fL,fLt,fLd = fn(TT,DL,diff=1)
-            fV,fVt,fVd = fn(TT,DV,diff=1)
+            # Evaluate the properties
+            argL = self._ff(TT, DL, diff=2)
+            argV = self._ff(TT, DV, diff=2)
+            
+            pL,pLt,pLd = self._p(*argL, diff=1)
+            pV,pVt,pVd = self._p(*argV, diff=1)
+            gL,gLt,gLd = self._g(*argL, diff=1)
+            gV,gVt,gVd = self._g(*argV, diff=1)
+            fL,fLt,fLd = fn(*argL, diff=1)
+            fV,fVt,fVd = fn(*argV, diff=1)
 
             # Calculate quality and its derivatives from density
             dd = d[Ids]
@@ -2205,29 +2454,30 @@ constraints.
             xL = 1 - xV
             xLL = -xVL
             xLV = -xVV
-            x[Ids] = xV
             
-            E[Ids, 0, 0] = pL - pV       # Maxwell, pressure
-            E[Ids, 1, 0] = gL - gV       # Maxwell, gibbs energy
-            E[Ids, 2, 0] = fvalue[Ids] - xV*fV - xL*fL
+            E = np.empty(TT.shape + (3,1), dtype=float)
+            J = np.empty(TT.shape + (3,3), dtype=float)
             
-            J[Ids, 0, 0] = pVt - pLt
-            J[Ids, 0, 1] = -pLd
-            J[Ids, 0, 2] = pVd
+            E[:, 0, 0] = pL - pV       # Maxwell, pressure
+            E[:, 1, 0] = gL - gV       # Maxwell, gibbs energy
+            E[:, 2, 0] = fvalue[Ids] - xV*fV - xL*fL
             
-            J[Ids, 1, 0] = gVt - gLt
-            J[Ids, 1, 1] = -gLd
-            J[Ids, 1, 2] = gVd
+            J[:, 0, 0] = pVt - pLt
+            J[:, 0, 1] = -pLd
+            J[:, 0, 2] = pVd
             
-            J[Ids, 2, 0] = xV*fVt + xL*fLt
-            J[Ids, 2, 1] = xVL*fV + xLL*fL + xL*fLd
-            J[Ids, 2, 2] = xVV*fV + xV*fVd + xLV*fL
+            J[:, 1, 0] = gVt - gLt
+            J[:, 1, 1] = -gLd
+            J[:, 1, 2] = gVd
+            
+            J[:, 2, 0] = xV*fVt + xL*fLt
+            J[:, 2, 1] = xVL*fV + xLL*fL + xL*fLd
+            J[:, 2, 2] = xVV*fV + xV*fVd + xLV*fL
             
             delta = np.linalg.solve(J, E)
-            T[Ids] += delta[Ids,0,0]
-            dL[Ids] += delta[Ids,1,0]
-            dV[Ids] += delta[Ids,2,0]
-            p[Ids] = pV
+            T[Ids] += delta[:,0,0]
+            dL[Ids] += delta[:,1,0]
+            dV[Ids] += delta[:,2,0]
             
             if debug:
                 print(f'**{count}**')
@@ -2237,10 +2487,10 @@ constraints.
                 print('delta:,', delta[Ids])
             
             # Update convergence criteria
-            Ids[Ids] = (delta[Ids,0,0] > TT*ep) + (delta[Ids,1,0] > DL*ep) + (delta[Ids,2,0] > DV*ep)
+            Ids[Ids] = (delta[:,0,0] > TT*ep) + (delta[:,1,0] > DL*ep) + (delta[:,2,0] > DV*ep)
 
-    def _Titer(self, T, d, fn, fvalue, Ids, Nmax=10, ep=1e-6):
-        """Constant-temperature iteration (primative routine)
+    def _Titer(self, T, d, fn, fvalue, Ids, Nmax=20, ep=1e-6, debug=False):
+        """Constant-temperature iteration (primitive routine)
     _Titer(T, d, fn, fvalue, Ids)
 
 While holding temperature constant, iterates on density to match a 
@@ -2272,14 +2522,21 @@ have converged.
             DD = d[Ids]
             TT = T[Ids]
             
-            f,ft,fd = fn(T=TT, d=DD, diff=1)
+            arg = self._ff(TT,DD,diff=2)
+            f,ft,fd = fn(*arg, diff=1)
+            
             dd = (fvalue[Ids] - f) / fd
             d[Ids] += dd
+            if debug:
+                print(f'**{count}**')
+                print('d:', DD)
+                print('delta:', dd)
+            
             Ids[Ids] = np.abs(dd) > ep * DD
 
 
-    def _diter(self, T, d, fn, fvalue, Ids, Nmax=10, ep=1e-6):
-        """Constant-density iteration (primative routine)
+    def _diter(self, T, d, fn, fvalue, Ids, Nmax=20, ep=1e-6, debug=False):
+        """Constant-density iteration (primitive routine)
     _diter(T, d, fn, fvalue, Ids)
 
 While holding density constant, iterates on temperature to match a 
@@ -2311,14 +2568,21 @@ have converged.
             DD = d[Ids]
             TT = T[Ids]
             
-            f,ft,fd = fn(T=TT, d=DD, diff=1)
+            arg = self._ff(TT,DD,diff=2)
+            f,ft,fd = fn(*arg, diff=1)
+            
             dT = (fvalue[Ids] - f) / ft
             T[Ids] += dT
+            if debug:
+                print(f'**{count}**')
+                print('T:', TT)
+                print('delta:', dT)
+            
             Ids[Ids] = np.abs(dT) > ep * TT
 
 
-    def _iter2(self, T, d, f0, f1, f0value, f1value, Ids, Nmax=10, ep=1e-6):
-        """Constant-density iteration (primative routine)
+    def _iter2(self, T, d, f0, f1, f0value, f1value, Ids, Nmax=20, ep=1e-6, debug=False):
+        """Constant-density iteration (primitive routine)
     _iter2(T, d, f0, f1, f0value, f1value Ids)
 
 Iterate on both temperature and density to obtain a pair of property 
@@ -2347,14 +2611,15 @@ have converged.
             # Only permit Nmax iterations
             if count > Nmax:
                 raise pm.utility.PMParamError(
-                        f'mp2._iter2: Failed to converge after {Nmax} iterations.')
+                        f'mp2._iter2: Failed to converge after {Nmax} iterations at {np.sum(Ids)} value(s).')
             
             DD = d[Ids]
             TT = T[Ids]
             
             # We'll use f and g as placeholder function values
-            f,ft,fd = f0(T=TT, d=DD, diff=1)
-            g,gt,gd = f1(T=TT, d=DD, diff=1)
+            arg = self._ff(TT,DD, diff=2)
+            f,ft,fd = f0(*arg, diff=1)
+            g,gt,gd = f1(*arg, diff=1)
             
             # Calculate error arrays
             ef = f0value[Ids] - f
@@ -2367,15 +2632,23 @@ have converged.
             # Apply the changes
             T[Ids] += dT
             d[Ids] += dd
+            if debug:
+                print(f'**{count}**')
+                print('T:', T)
+                print('d:', d)
+                print('deltas:', dT, dd)
+            
             # Update the convergence tests
             Ids[Ids] = np.logical_and(np.abs(dT) > ep * TT, np.abs(dd) > ep * DD)
 
-
-        
-
+    ##############################
+    #                            #
+    # Fundamental Property Model #
+    #                            #
+    ##############################
 
     def _fo(self, tt, dd, diff=2):
-        """Dimensionless ideal gas helmholtz free energy (primative routine)
+        """Dimensionless ideal gas helmholtz free energy (primitive routine)
 Evaluates an ideal gas equation of the form
     a = log(dd) + logt*log(tt) + tlogt*tt*log(tt) + p(t) + ... 
             + c log(1-exp(-theta*tt)) + ...
@@ -2468,7 +2741,7 @@ nondimensionalized, and the returned values are non-dimensionalzied.
 
 
     def _fr(self, tt, dd, diff=2):
-        """Dimensionless residual helmhotz free energy (primative routine)
+        """Dimensionless residual helmhotz free energy (primitive routine)
 Each fit in the group is of the form
     f = exp(-dd**k) * pk(tt, dd)
     
@@ -2724,8 +2997,46 @@ nondimensionalized, and the returned values are non-dimensionalzied.
         return F,Ft,Fd,Ftt,Ftd,Fdd
 
 
-    def _build_sattab(self, step=0.02, ep=1e-6, verbose=False):
-        """Generate saturation table values (primative routine)
+    def _ff(self, T, d, diff=2):
+        """Wrapper function for the dimensionless free energy methods
+    tt,dd,a,at,ad,att,atd,add = _ff(T,d,diff=2)
+    
+Sums the free energy and its derivatives from the ideal gas and residual
+components.  See _fo() and _fr() for more information.
+
+Arguments
+T       Temperature array in Kelvin
+d       Density array in kg/m3
+
+Returns 
+tt, dd  -   Dimensionless temperature and density
+a,at,ad,att,atd,add - Dimensionless free energy and its derivatives
+
+The return signature is such that any property can be efficiently 
+evaluated by passing the returned tuple as its ordered-value argumnet.
+
+For example, this sequence calculates both enthalpy and internal energy
+with only one call to the dimensionless back-end.
+
+arg = _ff(T,d)
+h = _h(*arg)
+e = _e(*arg)
+"""
+        tt = self.data['Tc'] / T
+        dd = d / self.data['dc']
+        a,at,ad,att,atd,add = self._fo(tt,dd,diff=diff)
+        b,bt,bd,btt,btd,bdd = self._fr(tt,dd,diff=diff)
+        return tt, dd, a+b, at+bt, ad+bd, att+btt, atd+btd, add+bdd
+
+
+    ###################
+    #                 #
+    #  Build Methods  #
+    #                 #
+    ###################
+
+    def _build_sattab(self, step=0.02, ep=1e-6, verbose=False, debug=False):
+        """Generate saturation table values (primitive routine)
     sattab = _buil_sattab(step=0.02, epsilon=1e-6, verbose=False, aslist=False)
     
 Constructs a table of values for the temperature, liquid density, vapor
@@ -2789,22 +3100,23 @@ but relatively slow.  Because it is only called when a substance is
 initially imported, it is treated as a tolerable cost.
 """
 
-        Tt = self.data['Tt']
+        # We'll identify the lower temperature limit based on the triple
+        # point or the data limits -- whichever is higher
+        Tt = self.data['Tlim'][0]
+        if 'Tt' in self.data:
+            Tt = max(self.data['Tt'], Tt)
         Tc = self.data['Tc']
         dc = self.data['dc']
-        # Calculate the critical pressure
-        pc = self._p(T=np.array([Tc]), d=np.array([dc]), diff=0)[0][0]
         
         # Initialize the outputs
         Ts_array = [Tc]
         dsL_array = [dc]
         dsV_array = [dc]
-        ps_array = [pc]
         
         if verbose:
             print('T pc dL dV')
             print('Critical Point:')
-            print(f'{Tc:8.2f} {pc:12.4e} {dc:8.2f} {dc:12.4e}')
+            print(f'{Tc:8.2f} {dc:8.2f} {dc:12.4e}')
         
         # Perform the iteration in two steps.  Very close to the critical
         # point, the temperature is nearly constant, so we'll perturb in
@@ -2819,7 +3131,6 @@ initially imported, it is treated as a tolerable cost.
         T = np.array([Tc])
         dL = np.array([dc])
         dV = np.array([dc])
-        p = np.array([pc])
         Ids = np.array([True],dtype=bool)
         # Create an initial perturbation of the densities
         # Do not perturb temperature
@@ -2829,15 +3140,14 @@ initially imported, it is treated as a tolerable cost.
         for count in range(200):
             # Iterate with constant dV
             Ids[0] = True
-            self._dVsatiter(T, p, dL, dV, Ids)
+            self._dVsatiter(T, dL, dV, Ids, debug=debug)
             
             Ts_array.insert(0, T[0])
             dsL_array.insert(0, dL[0])
             dsV_array.insert(0, dV[0])
-            ps_array.insert(0, p[0])
             
             if verbose:
-                print(f'{T[0]:8.2f} {p[0]:12.4e} {dL[0]:8.2f} {dV[0]:12.4e}')
+                print(f'{T[0]:8.2f} {dL[0]:8.2f} {dV[0]:12.4e}')
             
             # Perturb the solution to the next interval
             # Assume a unity change in dV, calculate other changes
@@ -2845,10 +3155,12 @@ initially imported, it is treated as a tolerable cost.
             # Use the Maxwell criteria and its derivatives to construct
             # a Jacobian and a perturbation vector assuming a unity 
             # change in vapor density.
-            gL,gLt,gLd = self._g(T=T,d=dL,diff=1)
-            gV,gVt,gVd = self._g(T=T,d=dV,diff=1)
-            pL,pLt,pLd = self._p(T=T,d=dL,diff=1)
-            pV,pVt,pVd = self._p(T=T,d=dV,diff=1)
+            argL = self._ff(T=T, d=dL, diff=2)
+            argV = self._ff(T=T, d=dV, diff=2)
+            gL,gLt,gLd = self._g(*argL,diff=1)
+            gV,gVt,gVd = self._g(*argV,diff=1)
+            pL,pLt,pLd = self._p(*argL,diff=1)
+            pV,pVt,pVd = self._p(*argV,diff=1)
             J[0,0] = gLt[0] - gVt[0]
             J[0,1] = gLd[0]
             J[1,0] = pLt[0] - pVt[0]
@@ -2888,15 +3200,14 @@ initially imported, it is treated as a tolerable cost.
         for count in range(200):
             # Iterate with constant T
             Ids[0] = True
-            self._Tsatiter(T, p, dL, dV, Ids)
+            self._Tsatiter(T, dL, dV, Ids, debug=debug)
             
             Ts_array.insert(0, T[0])
             dsL_array.insert(0, dL[0])
             dsV_array.insert(0, dV[0])
-            ps_array.insert(0, p[0])
             
             if verbose:
-                print(f'{T[0]:8.2f} {p[0]:12.4e} {dL[0]:8.2f} {dV[0]:12.4e}')
+                print(f'{T[0]:8.2f} {dL[0]:8.2f} {dV[0]:12.4e}')
             
             # Perturb the solution to the next interval
             # Assume a unity change in dV, calculate other changes
@@ -2904,10 +3215,12 @@ initially imported, it is treated as a tolerable cost.
             # Use the Maxwell criteria and its derivatives to construct
             # a Jacobian and a perturbation vector assuming a unity 
             # change in vapor density.
-            gL,gLt,gLd = self._g(T=T,d=dL,diff=1)
-            gV,gVt,gVd = self._g(T=T,d=dV,diff=1)
-            pL,pLt,pLd = self._p(T=T,d=dL,diff=1)
-            pV,pVt,pVd = self._p(T=T,d=dV,diff=1)
+            argL = self._ff(T=T, d=dL, diff=2)
+            argV = self._ff(T=T, d=dV, diff=2)
+            gL,gLt,gLd = self._g(*argL,diff=1)
+            gV,gVt,gVd = self._g(*argV,diff=1)
+            pL,pLt,pLd = self._p(*argL,diff=1)
+            pV,pVt,pVd = self._p(*argV,diff=1)
             J[0,0] = gLd[0]
             J[0,1] = -gVd[0]
             J[1,0] = pLd[0]
@@ -2917,12 +3230,12 @@ initially imported, it is treated as a tolerable cost.
             # Solve for the corresponding changes in T and dL
             x = np.linalg.solve(J,B)
             ddL = x[0]
-            ddV = x[1]
+            dVV = -x[1]/dV/dV     # Near the triple point, we'll perterb vapor volume instead of density
             # Rescale the steps so that the metric T/Tc, d/dc is equal to step
-            scale = step / np.sqrt(dT*dT/Tc/Tc + (ddL*ddL + ddV*ddV)/dc/dc)
+            scale = step / np.sqrt(dT*dT/Tc/Tc + ddL*ddL/dc/dc)
             dT *= scale
             ddL *= scale
-            ddV *= scale
+            dVV *= scale
 
             # Detect the exit condition
             # If the next guess would be beyond the triple point, halt
@@ -2932,7 +3245,7 @@ initially imported, it is treated as a tolerable cost.
 
             T += dT
             dL += ddL
-            dV += ddV
+            dV = 1./(1./dV + dVV)   # Perterb volume rather than density
             
         if fail:
             pm.utility.print_error('This error should never appear in a release - please report this on the PYroMat Github Issues page.')
@@ -2940,23 +3253,22 @@ initially imported, it is treated as a tolerable cost.
         
         scale = (Tt - T[0]) / dT
         ddL *= scale
-        ddV *= scale
+        dVV *= scale
         
-        T[0] = Tt
+        T += dT
         dL += ddL
-        dV += ddV
+        dV = 1./(1./dV + dVV)
         Ids[0] = True
         
-        self._Tsatiter(T, p, dL, dV, Ids)
+        self._Tsatiter(T, dL, dV, Ids)
     
         if verbose:
             print('Triple Point:')
-            print(f'{T[0]:8.2f} {p[0]:12.4e} {dL[0]:8.2f} {dV[0]:12.4e}')
+            print(f'{T[0]:8.2f} {dL[0]:8.2f} {dV[0]:12.4e}')
         
         Ts_array.insert(0, T[0])
         dsL_array.insert(0, dL[0])
         dsV_array.insert(0, dV[0])
-        ps_array.insert(0, p[0])
         
         if verbose:
             print(f'Used {len(Ts_array)} points.')
@@ -2964,24 +3276,26 @@ initially imported, it is treated as a tolerable cost.
         
         # Convert to Numpy arrays
         Ts_array = np.array(Ts_array)
-        ps_array = np.array(ps_array)
         dsL_array = np.array(dsL_array)
         dsV_array = np.array(dsV_array)
         
+        argL = self._ff(Ts_array, dsL_array, diff=1)
+        argV = self._ff(Ts_array, dsV_array, diff=1)
+        
         self._sattable = {
             'T':Ts_array, 
-            'p':ps_array, 
+            'p':self._p(*argV, diff=0)[0], 
             'dL':dsL_array, 
             'dV':dsV_array,
-            'eL':self._e(T=Ts_array,d=dsL_array)[0],
-            'eV':self._e(T=Ts_array,d=dsV_array)[0],
-            'hL':self._h(T=Ts_array,d=dsL_array)[0],
-            'hV':self._h(T=Ts_array,d=dsV_array)[0],
-            'sL':self._s(T=Ts_array,d=dsL_array)[0],
-            'sV':self._s(T=Ts_array,d=dsV_array)[0],
-            'g':self._g(T=Ts_array,d=dsV_array)[0],
-            'fL':self._f(T=Ts_array,d=dsL_array)[0],
-            'fV':self._f(T=Ts_array,d=dsV_array)[0]
+            'eL':self._e(*argL, diff=0)[0],
+            'eV':self._e(*argV, diff=0)[0],
+            'hL':self._h(*argL, diff=0)[0],
+            'hV':self._h(*argV, diff=0)[0],
+            'sL':self._s(*argL, diff=0)[0],
+            'sV':self._s(*argV, diff=0)[0],
+            'g':self._g(*argV, diff=0)[0],
+            'fL':self._f(*argL, diff=0)[0],
+            'fV':self._f(*argV, diff=0)[0]
         }
         
         if verbose:
@@ -2989,7 +3303,7 @@ initially imported, it is treated as a tolerable cost.
 
 
     def _build_tab(self, NT=100, Nd=100, verbose=False):
-        """Generate lookup tables (primative routine)
+        """Generate lookup tables (primitive routine)
     _build_tab(NT=100, Nd=100)
 
 Accepts arguments, NT and Nd, which specify a nominal number of 
@@ -3005,8 +3319,6 @@ containing keyword member arrays:
     'e'     2D internal energy array
     'h'     2D enthalpy array
     's'     2D entropy array
-    'g'     2D Gibbs energy array
-    'f'     2D Helmholts energy array
     'cI'    A 2-tuple of integers indicating the indices of T and d
             containing precisely the critical point.
 
@@ -3033,7 +3345,7 @@ numerical routines.  To ensure good characterization of the surface, the
 T,d grid is chosen with the following rules:
 
 1) Density and temperature arrays must be in ascending order.
-2) No step between any two temperatyre or density values may be larger 
+2) No step between any two temperature or density values may be larger 
     than (Tmax-Tmin)/NT or (dmax-dmin)/Nd respectively.
 3) The critical point must be represented precisely as a node.
 4) For each temperature below the critical temperature, there must be a
@@ -3105,18 +3417,16 @@ density.
             print('Constant-temperature polishing far from the critical point...')
         # Generate liquid density values
         dsL = np.interp(Ts, self._sattable['T'], self._sattable['dL'])
-        # Create an empty psat array
-        ps = np.empty_like(Ts)
         # Polish with constant-temperature far from the critical point
         I = dsV < 0.5 * dc
         Ids = np.array(I)
-        self._Tsatiter(Ts, ps, dsL, dsV, Ids)
+        self._Tsatiter(Ts, dsL, dsV, Ids)
         # Polish with constant-density near the critical point
         if verbose:
             print('Constant-vapor-density polishing near the critical point...')
         Ids = np.logical_not(I)
         Ids[-1] = False     # Do not polish the critical point
-        self._dVsatiter(Ts, ps, dsL, dsV, Ids)
+        self._dVsatiter(Ts, dsL, dsV, Ids)
 
 
         # Build temperature and density arrays to flesh out the remainder
@@ -3144,12 +3454,11 @@ density.
         TT,dd = np.broadcast_arrays(*np.ix_(T,d))
 
         # Generate state data
-        p = self._p(T=TT, d=dd)[0]
-        e = self._e(T=TT, d=dd)[0]
-        h = self._h(T=TT, d=dd)[0]
-        s = self._s(T=TT, d=dd)[0]
-        g = self._g(T=TT, d=dd)[0]
-        f = self._f(T=TT, d=dd)[0]
+        arg = self._ff(T=TT, d=dd, diff=1)
+        p = self._p(*arg,diff=0)[0]
+        e = self._e(*arg,diff=0)[0]
+        h = self._h(*arg,diff=0)[0]
+        s = self._s(*arg,diff=0)[0]
         
         if verbose:
             print('Evaluating the zero-density limit...')
@@ -3167,8 +3476,6 @@ density.
         h[:,0] = (ft*tt + 1.)*R*T
         # s, g, and f diverge in reality.
         s[:,0] = float('inf')
-        g[:,0] = float('-inf')
-        f[:,0] = float('-inf')
         
         if verbose:
             print('Interpolating two-phase mixture data...')
@@ -3181,17 +3488,15 @@ density.
             dmix = d[iL+1:iV]
             xV = ((1./dmix)-(1./d[iL]))/((1./d[iV])-(1./d[iL]))
             xL = 1-xV
-            # First, broadcast the constant properties, p and g
+            # First, broadcast the constant properties, p
             p[iT, iL+1:iV] = p[iT,iV]
-            g[iT, iL+1:iV] = g[iT,iV]
             # Next, use quality to calculate the mixture properties
             e[iT, iL+1:iV] = e[iT, iL]*xL + e[iT, iV]*xV
             h[iT, iL+1:iV] = h[iT, iL]*xL + h[iT, iV]*xV
             s[iT, iL+1:iV] = s[iT, iL]*xL + s[iT, iV]*xV
-            f[iT, iL+1:iV] = f[iT, iL]*xL + f[iT, iV]*xV
         
         # Build the table dictionary
-        self._table = {'T':T, 'd':d, 'cI':(Tci, dci), 'p':p, 'e':e, 'h':h, 's':s, 'g':g, 'f':f}
+        self._table = {'T':T, 'd':d, 'cI':(Tci, dci), 'p':p, 'e':e, 'h':h, 's':s}
         if verbose:
             print('Done.')
 
@@ -3214,10 +3519,16 @@ True.
             if pm.config['dat_verbose']:
                 print(f'{self.sid()}: Done.')            
 
+    ##############################
+    #                            #
+    #  Inner Saturation Methods  #
+    #                            #
+    ##############################
+
 
     def _Tsat(self, T, debug=False):
         """Calculate saturation state from temperature (inner routine)
-    T, p, dL, dV = _Tsat(T)
+    T, dL, dV = _Tsat(T)
     
 Calculates saturation densities and their derivatives from temperature.  
     T       A numpy array of temperatures. All values must be between
@@ -3226,7 +3537,6 @@ Calculates saturation densities and their derivatives from temperature.
             result.
 Returns:
     T       The original T array
-    p       Saturation pressure
     dL      Saturated liquid density
     dV      Saturated vapor density
 
@@ -3237,22 +3547,50 @@ order are to preserve a standard call signature for all saturation
 routines.
 
 **SEE ALSO**
-    _Tsat(), _psat(), dLsat(), dVsat()
+    _Tsat(), _psat(), _gsat(), _dLsat(), _dVsat()
 """
         dL, dV = interp_multiple(T, self._sattable['T'], self._sattable['dL'], self._sattable['dV'])
-        p = np.empty_like(T)
 
         I = np.ones_like(T, dtype=bool)
-        self._Tsatiter(T, p, dL, dV, I, debug=debug)
-        return T, p, dL, dV
+        self._Tsatiter(T, dL, dV, I, debug=debug)
+        return T, dL, dV
         
         
     def _psat(self, p, debug=False):
         """Saturation state from pressure (inner routine)
-    T, p, dL, dV = _psat(p)
+    T, dL, dV = _psat(p)
     
 Calculates the saturation state from pressure
     p       A Numpy array of pressure values.  All values must be 
+            between the triple point and critical point.  For speed, 
+            this is not verified, so unexpected behaviors or failures 
+            will result.
+Returns:
+    T       The saturation temperature array
+    dL      Saturated liquid density array
+    dV      Saturated vapor density array
+
+**DESCRIPTION**
+Interpolates the _sattable data for initial guesses of the saturation 
+properties, then polishes with _psatiter().  The return values and their
+order are to preserve a standard call signature for all saturation 
+routines.
+
+**SEE ALSO**
+    _Tsat(), _psat(), _gsat(), _dLsat(), _dVsat()
+"""
+        T, dL, dV = interp_multiple(p, self._sattable['p'], 
+                self._sattable['T'], self._sattable['dL'], self._sattable['dV'])
+        I = np.ones_like(p, dtype=bool)
+        self._psatiter(T, dL, dV, p, I, debug=debug)
+        return T, dL, dV
+        
+    def _gsat(self, g, debug=False):
+        """Saturation state from Gibbs energy (inner routine)
+    T, dL, dV = _gsat(g)
+    
+Calculates the saturation state from Gibbs energy
+    g       A Numpy array of Gibbs energy values.  All values must be 
             between the triple point and critical point.  For speed, 
             this is not verified, so unexpected behaviors or failures 
             will result.
@@ -3264,22 +3602,22 @@ Returns:
 
 **DESCRIPTION**
 Interpolates the _sattable data for initial guesses of the saturation 
-properties, then polishes with _psatiter().  The return values and their
+properties, then polishes with _gsatiter().  The return values and their
 order are to preserve a standard call signature for all saturation 
 routines.
 
 **SEE ALSO**
-    _Tsat(), _psat(), dLsat(), dVsat()
+    _Tsat(), _psat(), _gsat(), _dLsat(), _dVsat()
 """
-        T, dL, dV = interp_multiple(p, self._sattable['p'], 
+        T, dL, dV = interp_multiple(g, self._sattable['g'], 
                 self._sattable['T'], self._sattable['dL'], self._sattable['dV'])
-        I = np.ones_like(p, dtype=bool)
-        self._psatiter(T, p, dL, dV, I, debug=debug)
-        return T, p, dL, dV
+        I = np.ones_like(g, dtype=bool)
+        self._gsatiter(T, dL, dV, g, I, debug=debug)
+        return T, dL, dV
         
     def _dLsat(self, dL, debug=False):
         """Saturation state from liquid density (inner routine)
-    T, p, dL, dV = _dLsat(dL)
+    T, dL, dV = _dLsat(dL)
     
 Calculates the saturation state from pressure
     dL      A Numpy array of saturated liquid density values.  All 
@@ -3288,7 +3626,6 @@ Calculates the saturation state from pressure
             unexpected behaviors or failures will result.
 Returns:
     T       The saturation temperature array
-    p       The saturation pressure array
     dL      The same saturated liquid array passed to _dLsat()
     dV      Saturated vapor density array
 
@@ -3299,21 +3636,19 @@ order are to preserve a standard call signature for all saturation
 routines.
 
 **SEE ALSO**
-    _Tsat(), _psat(), dLsat(), dVsat()
+    _Tsat(), _psat(), _gsat(), _dLsat(), _dVsat()
 """
         T, dV = interp_multiple(dL, np.flip(self._sattable['dL']), 
                 np.flip(self._sattable['T']), np.flip(self._sattable['dV']))
-        p = np.empty_like(dL)
 
         I = np.ones_like(dL, dtype=bool)
-        
-        self._dLsatiter(T, p, dL, dV, I, debug=debug)
-        return T, p, dL, dV
+        self._dLsatiter(T, dL, dV, I, debug=debug)
+        return T, dL, dV
 
 
     def _dVsat(self, dV, debug=False):
         """Saturation state from liquid density (inner routine)
-    T, p, dL, dV = _dVsat(dV)
+    T, dL, dV = _dVsat(dV)
     
 Calculates the saturation state from pressure
     dV      A Numpy array of saturated vapor density values.  All values
@@ -3322,7 +3657,6 @@ Calculates the saturation state from pressure
             behaviors or failures will result.
 Returns:
     T       The saturation temperature array
-    p       The saturation pressure array
     dL      The same saturated liquid array passed to _dLsat()
     dV      Saturated vapor density array
 
@@ -3333,55 +3667,395 @@ order are to preserve a standard call signature for all saturation
 routines.
 
 **SEE ALSO**
-    _Tsat(), _psat(), dLsat(), dVsat()
+    _Tsat(), _psat(), _gsat(), _dLsat(), _dVsat()
 """
         T, dL = interp_multiple(dV, self._sattable['dV'], self._sattable['T'], self._sattable['dL'])
-        p = np.empty_like(dV)
 
         I = np.ones_like(dV, dtype=bool)
-        
-        self._dVsatiter(T, p, dL, dV, I, debug=debug)
-        return T, p, dL, dV
+        self._dVsatiter(T, dL, dV, I, debug=debug)
+        return T, dL, dV
 
-        
-    def _p(self, T, d, diff=0):
-        """Calculate pressure from (T,d) (inner routine)
-    p, pt, pd = _p
+
+    ############################
+    #                          #
+    #  Inner Property Methods  #
+    #                          #
+    ############################
+
+
+    def _R(self):
+        """Obtain the ideal gas constant
+    R = _R()
     
-_p() does NOT handle cases where d is "under the dome."  _p() expects
-sub-critical densities to be either purely liquid or vapor.
+Returns the ideal gas constant in units J/kg/K.  
+
+Most published models explicitly provide a value for R that was used in 
+the model's development.  When specified along with the substance's 
+molecular weight, these can be in small numerical contradiction with the
+precise definition of the universal ideal gas constant (defined 
+precisely by Boltzmann's constant and Avagadro's number).  
+
+The theoretical relationship is always
+
+    R = Ru / mw
+
+When R is in J/kg/K, Ru is in J/kmol/K, and mw is in kg/kmol.
+
+If the data dictionary includes a value for R, it is returned verbatim.
+If not, R is calculated from the value in pm.units.const_Ru.
+"""
+        R = self.data.get('R')
+        if R is None:
+            R = 1000 * pm.units.const_Ru / self.data['mw']
+        return R
+        
+        
+    def _p(self,tt,dd,a,at,ad,att,atd,add, diff=0):
+        """Calculate pressure from (T,d) (inner routine)
+    p, pt, pd = _p(T, d, diff=0)
+    
+Accepts arguments:
+T   Temperature array in Kelvin
+d   Density array in kg/m3
+
+Returns:
+p   Pressure
+pt  Derivative with respect to temperature
+pd  Derivative with respect to density
 """
         p = 0.
         pt = 0.
         pd = 0.
 
-        Tscale = self.data['Rgroup']['Tscale']
-        dscale = self.data['Rgroup']['dscale']
-        R = self.data['R']
-        # Calculate dimensionless arrays
-        tt = Tscale/T
-        dd = d/dscale
-        # Calculate the Helmholtz free energy
-        _,_,ard,_,artd,ardd = self._fr(tt,dd,diff+1)
-        p = T*d*R*(1. + dd*ard)
+        R = self._R()
+        Tc = self.data['Tc']
+        dc = self.data['dc']
+
+        dd2 = dd*dd
+        p = (dd2*ad/tt) * (dc*R*Tc)
         if diff>0:
-            pt = R*d*(1 + dd*ard - tt*dd*artd)
-            pd = R*T*(1 + 2*dd*ard + dd*dd*ardd)
+            pt = dd2*(ad - tt*atd) * (dc*R)
+            pd = dd*(2*ad + dd*add)/tt * (R*Tc)
 
         return p,pt,pd
         
+
+    def _e(self,tt,dd,a,at,ad,att,atd,add, diff=0):
+        """Internal Energy (inner routine)
+    e,eT,ed = _e(tt,dd,a,at,ad,att,atd,add, diff=0)
+
+Calculates internal energy and its derivatives.  This inner routine 
+accepts dimensionless temperature, density, Helmholtz free energy, and
+its derivatives, but returns values that are rescaled to units J, K, kg.
+
+tt, dd
+    Dimensionless temperature and dimensionless density: Tc/T, d/dc.
+    
+a, at, ad, att, atd, add
+    Dimensionless Helmholtz free energy and its derivatives with respect
+    to dimensionless temperature and density.  These are the values as
+    returned by _fo() and _fr().  Written as "alpha" in the handbook.
+    
+diff    (default=0)
+    The highest derivative to calculate.  Inner routines must be either
+    0 or 1 -- 2 or higher is not accepted.  The value passed to _fo()
+    and _fr() must be one greater than the value passed here.
+    
+Returns
+e   [J/kg]      Internal energy
+eT  [J/kg/K]    Differential with respect to temperature
+ed  [J.m3/kg2]  Differential with respect to density
+"""
+        eT = None
+        ed = None
+        
+        R = self._R()
+        Tc = self.data['Tc']
+        dc = self.data['dc']
+        
+        e = at*R*Tc
+        if diff>0:
+            eT = -tt*tt*att*R
+            ed = atd*R*Tc/dc
+        
+        return e,eT,ed
+
+
+    def _h(self,tt,dd,a,at,ad,att,atd,add, diff=0):
+        """Enthalpy (inner routine)
+    h,hT,hd = _e(tt,dd,a,at,ad,att,atd,add, diff=0)
+
+Calculates enthalpy and its derivatives.  This inner routine 
+accepts dimensionless temperature, density, Helmholtz free energy, and
+its derivatives, but returns values that are rescaled to units J, K, kg.
+
+tt, dd
+    Dimensionless temperature and dimensionless density: Tc/T, d/dc.
+    
+a, at, ad, att, atd, add
+    Dimensionless Helmholtz free energy and its derivatives with respect
+    to dimensionless temperature and density.  These are the values as
+    returned by _fo() and _fr().  Written as "alpha" in the handbook.
+    
+diff    (default=0)
+    The highest derivative to calculate.  Inner routines must be either
+    0 or 1 -- 2 or higher is not accepted.  The value passed to _fo()
+    and _fr() must be one greater than the value passed here.
+    
+Returns
+h   [J/kg]      Enthalpy
+hT  [J/kg/K]    Differential with respect to temperature
+hd  [J.m3/kg2]  Differential with respect to density
+"""
+        hT = None
+        hd = None
+        
+        R = self._R()
+        Tc = self.data['Tc']
+        dc = self.data['dc']
+        
+        h = at + dd*ad/tt
+        h *= R*Tc
+        if diff>0:
+            hT = dd*ad - tt*(tt*att + dd*atd)
+            hT *= R
+            hd = (ad + dd*add)/tt + atd
+            hd *= R*Tc/dc
+        
+        return h,hT,hd
+
+    def _s(self,tt,dd,f,ft,fd,ftt,ftd,fdd, diff=0):
+        """Entropy (inner routine)
+    s,sT,sd = _s(tt,dd,f,ft,fd,ftt,ftd,fdd, diff=0)
+
+Calculates entropy and its derivatives.  This inner routine 
+accepts dimensionless temperature, density, Helmholtz free energy, and
+its derivatives, but returns values that are rescaled to units J, K, kg.
+
+tt, dd
+    Dimensionless temperature and dimensionless density: Tc/T, d/dc.
+    
+f, ft, fd, ftt, ftd, fdd
+    Dimensionless Helmholtz free energy and its derivatives with respect
+    to dimensionless temperature and density.  These are the values as
+    returned by _fo() and _fr().
+    
+diff    (default=0)
+    The highest derivative to calculate.  Inner routines must be either
+    0 or 1 -- 2 or higher is not accepted.  The value passed to _fo()
+    and _fr() must be one greater than the value passed here.
+    
+Returns
+s   [J/kg/K]    Entropy
+sT  [J/kg/K2]   Differential with respect to temperature
+sd  [J.m3/K/kg2] Differential with respect to density
+"""
+        sT = None
+        sd = None
+        
+        R = self._R()
+        Tc = self.data['Tc']
+        dc = self.data['dc']
+        
+        s = R*(tt*ft - f)
+        if diff>0:
+            sT = -tt*tt*tt*ftt*(R/Tc)
+            sd = (tt*ftd - fd)*(R/dc)
+        return s,sT,sd
+
+    def _f(self,tt,dd,a,at,ad,att,atd,add, diff=0):
+        """Free (Helmholtz) Energy (inner routine)
+    f,fT,fd = _f(tt,dd,a,at,ad,att,atd,add, diff=0)
+
+Calculates free energy and its derivatives.  This inner routine 
+accepts dimensionless temperature, density, Helmholtz free energy, and
+its derivatives, but returns values that are rescaled to units J, K, kg.
+
+tt, dd
+    Dimensionless temperature and dimensionless density: Tc/T, d/dc.
+    
+a, at, ad, att, atd, add
+    Dimensionless Helmholtz free energy and its derivatives with respect
+    to dimensionless temperature and density.  These are the values as
+    returned by _fo() and _fr().  Written as "alpha" in the handbook.
+    
+diff    (default=0)
+    The highest derivative to calculate.  Inner routines must be either
+    0 or 1 -- 2 or higher is not accepted.  The value passed to _fo()
+    and _fr() must be one greater than the value passed here.
+    
+Returns
+f   [J/kg]      Helmholtz free energy
+fT  [J/kg/K]    Differential with respect to temperature
+fd  [J.m3/kg2]  Differential with respect to density
+"""
+        fT = None
+        fd = None
+        
+        R = self._R()
+        Tc = self.data['Tc']
+        dc = self.data['dc']
+        
+        f = (a/tt) * (R*Tc)
+        if diff:
+            fT = (a - tt*at)*R
+            fd = (ad/tt)*(R*Tc/dc)
+        return f, fT, fd
+
+    def _g(self,tt,dd,a,at,ad,att,atd,add, diff=0):
+        """Free (Gibbs) Energy (inner routine)
+    g,gT,gd = _g(tt,dd,a,at,ad,att,atd,add, diff=0)
+
+Calculates Gibbs free energy and its derivatives.  This inner routine 
+accepts dimensionless temperature, density, Helmholtz free energy, and
+its derivatives, but returns values that are rescaled to units J, K, kg.
+
+tt, dd
+    Dimensionless temperature and dimensionless density: Tc/T, d/dc.
+    
+a, at, ad, att, atd, add
+    Dimensionless Helmholtz free energy and its derivatives with respect
+    to dimensionless temperature and density.  These are the values as
+    returned by _fo() and _fr().  Written as "alpha" in the handbook.
+    
+diff    (default=0)
+    The highest derivative to calculate.  Inner routines must be either
+    0 or 1 -- 2 or higher is not accepted.  The value passed to _fo()
+    and _fr() must be one greater than the value passed here.
+    
+Returns
+g   [J/kg]      Gibbs free energy
+gT  [J/kg/K]    Differential with respect to temperature
+gd  [J.m3/kg2]  Differential with respect to density
+"""
+        gT = None
+        gd = None
+        
+        R = self._R()
+        Tc = self.data['Tc']
+        dc = self.data['dc']
+
+        g = (a + dd*ad)/tt
+        g *= R*Tc
+        if diff:
+            gT = a + dd*ad - tt*at - tt*dd*atd
+            gT *= R
+            gd = (2*ad + dd*add)/tt
+            gd *= (R*Tc/dc)
+            
+        return g,gT,gd
+        
+    def _a(self,tt,dd,a,at,ad,att,atd,add):
+        """Speed of sound (inner routine)
+    A = _a(tt,dd,a,at,ad,att,atd,add)
+
+Calculates speed of sound.  This inner routine accepts dimensionless 
+temperature, density, Helmholtz free energy, and its derivatives, but 
+returns values that are rescaled to units J, K, kg.
+
+tt, dd
+    Dimensionless temperature and dimensionless density: Tc/T, d/dc.
+    
+a, at, ad, att, atd, add
+    Dimensionless Helmholtz free energy and its derivatives with respect
+    to dimensionless temperature and density.  These are the values as
+    returned by _fo() and _fr().  Written as "alpha" in the handbook.
+    
+*NOTE*
+This routine does not return the derivatives of speed of sound.  Always
+pass diff=2 to _fo() and _fr() when using this property.
+
+Returns
+A   [m/s]      Wave speed
+"""
+        R = self._R()
+        Tc = self.data['Tc']
+        dc = self.data['dc']
+
+        C = dd*ad
+        B = C - tt*dd*atd
+        A = 2*C + dd*dd*add - B*B/(tt*tt*att)
+        return np.sqrt(R * Tc * A / tt)
+
+        
+    def _cp(self,tt,dd,a,at,ad,att,atd,add):
+        """Constant-pressure specific heat (inner routine)
+    cp = _cp(tt,dd,a,at,ad,att,atd,add)
+
+Calculates constant-pressure specific heat.  This inner routine 
+accepts dimensionless temperature, density, Helmholtz free energy, and
+its derivatives, but returns values that are rescaled to units J, K, kg.
+
+tt, dd
+    Dimensionless temperature and dimensionless density: Tc/T, d/dc.
+    
+a, at, ad, att, atd, add
+    Dimensionless Helmholtz free energy and its derivatives with respect
+    to dimensionless temperature and density.  These are the values as
+    returned by _fo() and _fr().  Written as "alpha" in the handbook.
+    
+*NOTE*
+This routine does not return the derivatives of speed of sound.  Always
+pass diff=2 to _fo() and _fr() when using this property.
+
+Returns
+cp  [J/kg/K]    Constant-pressure specific heat
+"""
+        R = self._R()
+        Tc = self.data['Tc']
+        dc = self.data['dc']
+
+        C = dd*ad
+        B = C - tt*atd
+        cp = -tt*tt*att + B*B/(2*C + dd*dd*add)
+        return R*cp
+        
+        
+    def _cv(self,tt,dd,a,at,ad,att,atd,add):
+        """Constant-volume specific heat (inner routine)
+    cv = _cv(tt,dd,a,at,ad,att,atd,add)
+
+Calculates constant-volume specific heat.  This inner routine 
+accepts dimensionless temperature, density, Helmholtz free energy, and
+its derivatives, but returns values that are rescaled to units J, K, kg.
+
+tt, dd
+    Dimensionless temperature and dimensionless density: Tc/T, d/dc.
+    
+a, at, ad, att, atd, add
+    Dimensionless Helmholtz free energy and its derivatives with respect
+    to dimensionless temperature and density.  These are the values as
+    returned by _fo() and _fr().  Written as "alpha" in the handbook.
+    
+*NOTE*
+This routine does not return the derivatives of specific heat.  Always
+pass diff=2 to _fo() and _fr() when using this property.
+
+Returns
+cv  [J/kg/K]    Constant-volume specific heat
+"""
+        R = self._R()
+        Tc = self.data['Tc']
+        dc = self.data['dc']
+
+        return -R * tt*tt*att
+
+    #########################
+    #                       #
+    #  Argparse Algorithms  #
+    #                       #
+    #########################
         
     def _sat_argparse(self, T=None, p=None):
         """A standard argument parsing scheme for all user-layer saturation properties
-    T,p,dL,dV = _sat_argparse(T=None, p=None)
+    T,dL,dV = _sat_argparse(T=None, p=None)
     
 Enforces that all returned parameters are numpy arrays with at least one
-dimension.  Accepts T and p as scalars or array-like objects in 
+dimension.  Accepts T or p as scalars or array-like objects in 
 [unit_temperature] and [unit_pressure] respectively.
     
 Returns
 T   the temperature in K
-p   the pressure in Pa
 dL and dV are the liquid and vapor densities in kg/m3
 
 ** DESCRIPTION **
@@ -3411,13 +4085,11 @@ returned to prevent a potentially redundant calculation.
             Ioob = np.logical_or(T < self.data['Tt'], T >= self.data['Tc'])
             if Ioob.any():
                 # Initialize results
-                p = np.empty_like(T, dtype=float)
                 dL = np.empty_like(T, dtype=float)
                 dV = np.empty_like(T, dtype=float)
                 # Check for precise equality with the critical point
                 I = (T == self.data['Tc'])
                 if I.any():
-                    p[I] = self._sattable['p'][-1]
                     dL[I] = self.data['dc']
                     dV[I] = self.data['dc']
                 # Check for points out of bounds and not precisely critical
@@ -3425,14 +4097,13 @@ returned to prevent a potentially redundant calculation.
                 if I.any():
                     if pm.config['warning_verbose']:
                         pm.utility.print_warning('_mp2._sat_argparse: Saturation properties are not available beyond the triple or critical points.')
-                    p[I] = pm.config['def_oob']
                     dL[I] = pm.config['def_oob']
                     dV[I] = pm.config['def_oob']
                 # Then, work on the in-bounds values
                 Ioob = np.logical_not(Ioob)
-                _,p[Ioob],dL[Ioob],dV[Ioob] = self._Tsat(T[Ioob])
+                _,dL[Ioob],dV[Ioob] = self._Tsat(T[Ioob])
             else:
-                _,p,dL,dV = self._Tsat(T)
+                _,dL,dV = self._Tsat(T)
                 
         elif T is None:
             p = pm.units.pressure(
@@ -3466,17 +4137,17 @@ returned to prevent a potentially redundant calculation.
                     dV[I] = pm.config['def_oob']
                 # Then, work on the in-bounds values
                 Ioob = np.logical_not(Ioob)
-                T[Ioob],_,dL[Ioob],dV[Ioob] = self._psat(p[Ioob])
+                T[Ioob],dL[Ioob],dV[Ioob] = self._psat(p[Ioob])
             else:
-                T,_,dL,dV = self._psat(p)
+                T,dL,dV = self._psat(p)
         else:
             raise pm.utility.PMParamError(
                 '_sat_argparse: Saturation temperature and pressure cannot be simultaneously specified')
 
-        return T, p, dL, dV
+        return T, dL, dV
         
         
-    def _argparse(self, *varg, **kwarg):
+    def _argparse(self, *varg, debug=False, **kwarg):
         """Present a standard argument scheme for all user-layer property methods
     T,d1,d2,x,I = _argparse( .. property arguments ..)
 
@@ -3486,8 +4157,6 @@ properties.
 
 Below are the keyword arguments accepted and the corresponding :
     e   internal energy
-    f   free energy
-    g   Gibbs energy
     h   enthalpy
     s   entropy
     T   temperature
@@ -3570,15 +4239,19 @@ state.
 (1) Density and specific volume may not be specified together - they are
     redundant expressions of the same property.
 (2) No two properties from the "energy" set may be specified together:
-    {'T', 'e', 'h', 'f', 'g'}.  These either fail to describe a unique
-    state (meaning that there are multiple states that can be found with
-    the same values of these properties) or the state is very poorly
+    {'T', 'e', 'h'}.  These either fail to describe a unique state 
+    (meaning that there are multiple states that can be found with the 
+    same values of these properties) or the state is very poorly
     defined (meaning that the resulting numerical inversion problem
     is very nearly singular).
 (3) Quality may only be specified with temperature and/or pressure.  
     Specifying a entropy or an energy property (like enthalpy) with 
     quality does not define a unique state.  For example, there are 
     multiple states at which the same quality and enthalpy can be found.
+(4) All combinations with Gibbs energy (g) and free energy (f) are 
+    disallowed for specifying a state.  There is no combination with
+    other properties that forms a well defined state over the entire 
+    domain.
 
 **BACK END**
 The mp2 class back-end calculates properties exclusively in units
@@ -3611,6 +4284,8 @@ evaluated as independent arrays.  When the conditions are under the dome
 d1 and d2 represent the liquid and vapor densities respectively.  At all 
 other conditions, x<0 and d1 == d2.
 """
+        # Always make sure the tables have been built
+        self._build(force=False)
         
         # 1) Handle varg and kward and their defaults
         # 2) Apply the argument rules...
@@ -3625,16 +4300,24 @@ other conditions, x<0 and d1 == d2.
         # 5) Check for out-of-bounds on basic arguments
         # 6) Replace specific volume with density if it appears
         # 7) Case out the possible combinations
+        # Even though p and g are "standard" inverse properties, they
+        # they are treated as special cases, because their values are
+        # constant under the dome -- they behave differently in inverse
+        # calculations.
         #   7.1: x is specified
         #       7.1.1: x,T,p
         #       7.1.2: x,T
         #       7.1.3: x,p
-        #   7.2: Two inverse properties
-        #   7.3: T,?
-        #       7.3.1: T,d
-        #       7.3.2: T + inverse
-        #   7.4: d,?
-        #       7.4.1: d + inverse
+        #   7.2: T,?
+        #       7.2.1: T,d      <== Easiest case -- already primary properties
+        #       7.2.2: T,p      <== Special case because T,p is constant under the dome
+        #       7.2.3: T + inverse
+        #   7.3: d,?
+        #       d + inverse
+        #   7.4: p,?
+        #       p + inverse     <== Special case 
+        #   7.5: ?,?
+        #       Any two remaining inverse
         # 
         # 8) Broadcast the arrays appropriately
         # 9) Calculate T,d1,d2,x, and I
@@ -3680,7 +4363,7 @@ other conditions, x<0 and d1 == d2.
         # iteration and the inner method that calculates it.  Inverse 
         # args is a set of their names that will be used for argument 
         # parsing
-        inverse_methods = {'p':self._p, 'e':self._e, 'h':self._h, 's':self._s, 'f':self._f, 'g':self._g}
+        inverse_methods = {'p':self._p, 'e':self._e, 'h':self._h, 's':self._s}
         inverse_args = set(inverse_methods.keys())
         # basic_args are the remaining legal arguments that do not need
         # iteration (OK, p does, but it's special). 
@@ -3690,7 +4373,6 @@ other conditions, x<0 and d1 == d2.
         # Find the number of inverse arguments
         inverse_args &= args
         Ninv = len(inverse_args)
-        
         
         # 2.1: All arguments must be "legal" recognized arguments
         these_args = args - legal_args
@@ -3716,14 +4398,17 @@ other conditions, x<0 and d1 == d2.
         elif Nargs > 2:
             raise pm.utility.PMParamError(
                     'Specifying more than two simultaneous parameters is illegal (except x with T,p or g,p).')
-        # 2.4: T, e, h, f, and g may not be specified together
-        if len(args.intersection({'T', 'e', 'h', 'f', 'g'})) > 1:
+        # 2.4: T, e, and h may not be specified together
+        if len(args.intersection({'T', 'e', 'h'})) > 1:
             raise pm.utility.PMParamError(
                     'Energy parameters, T, e, h, f, or g, may not be specified as a pair.')
         # 2.5: Density and specific volume cannot be specified together
         if 'v' in args and 'd' in args:
             raise pm.utility.PMParamError('Density (d) and specific volume (v) cannot be specified together.')
-
+        # 2.6: p may not be specified with f or g
+        if 'p' in args:
+            if 'f' in args or 'g' in args:
+                raise pm.utility.PMParamError('Pressure (p) may not be specified with Gibbs energy (g) nor with free energy (f).')
         
         # 3) Convert all arguments to numpy arrays
         #    The asarray function does NOT copy the array if it is already
@@ -3745,28 +4430,8 @@ other conditions, x<0 and d1 == d2.
         # 6) Replace v with d if it appears
         if 'T' in kwarg:
             kwarg['T'] = pm.units.temperature_scale(kwarg['T'], to_units='K')
-            # Test for out-of-bounds
-            Ioob = np.logical_or(kwarg['T'] < self.data['Tlim'][0], 
-                    kwarg['T'] > self.data['Tlim'][1])
-            if Ioob.all():
-                pm.utility.print_warning('All of the temperature values are out-of-bounds for this substance.'
-                        'Legal values are between {:f} and {:f} Kelvin.'.format(*self.data['Tlim']))
-                raise pm.utility.PMParamError('_ARGPARSE: Temperature values were all out of range.')
-            elif Ioob.any():
-                kwarg['T'][Ioob] = pm.config['def_oob']
-                pm.utility.print_warning('Some temperature values were out-of-bounds for this substance.')
         if 'p' in kwarg:
             kwarg['p'] = pm.units.pressure(kwarg['p'], to_units='Pa')
-            # Test for out-of-bounds
-            Ioob = np.logical_or(kwarg['p'] < self.data['plim'][0], 
-                    kwarg['p'] > self.data['plim'][1])
-            if Ioob.all():
-                pm.utility.print_warning('All of the pressure values are out-of-bounds for this substance.'
-                        'Legal values are between {:f} and {:f} Pascals.'.format(*self.data['plim']))
-                raise pm.utility.PMParamError('_ARGPARSE: Pressure values were all out of range.')
-            elif Ioob.any():
-                kwarg['p'][Ioob] = pm.config['def_oob']
-                pm.utility.print_warning('Some pressure values were out-of-bounds for this substance.')
         if 'd' in kwarg:
             value = pm.units.volume(kwarg['d'], to_units='m3', exponent=-1)
             kwarg['d'] = pm.units.matter(value, self.data['mw'], to_units='kg')
@@ -3778,7 +4443,10 @@ other conditions, x<0 and d1 == d2.
             # substitution.
             args.add('d')
             basic_args.add('d')
-            # Keep v - it is sometimes useful
+            # Remove v --  it will be as if the user passed d instead
+            args.remove('v')
+            basic_args.remove('v')
+            del kwarg['v']
         for this in ['h', 'e', 'f', 'g']:
             if this in kwarg:
                 value = kwarg[this]
@@ -3819,7 +4487,7 @@ other conditions, x<0 and d1 == d2.
                         TT = T[I]
                     # Calculate densities for saturated states
                     if I.any():
-                        _, _, d1[I], d2[I] = self._Tsat(TT)
+                        _, d1[I], d2[I] = self._Tsat(TT)
                     # Calculate densities for non-saturated states
                     Ids = np.logical_not(I)
                     if Ids.any():
@@ -3835,16 +4503,16 @@ other conditions, x<0 and d1 == d2.
                     d2 = np.empty_like(T, dtype=float)
                     if (x<0).any():
                         raise pm.utility.PMParamError(
-                            'Found x<0.  Only two-phase mixtures can be specified with T,x.  All values of x must be [0,1].')
+                            'mp2._argparse(): Found x<0.  Only two-phase mixtures can be specified with T,x.  All values of x must be [0,1].')
                     # Detect out-of-bounds
                     I = (T < self.data['Tt']) + (self.data['Tc'] <= T)
                     if I.any():
                         if pm.config['warning_verbose']:
-                            pm.utility.print_warning('mp2._argparse: With (T,x) found temperatures below Tt or above Tc.')
+                            pm.utility.print_warning('mp2._argparse(): With (T,x) found temperatures below Tt or above Tc.')
                         d1[I] = pm.config['def_oob']
                         d2[I] = pm.config['def_oob']
                     I = np.logical_not(I)
-                    _, _, d1[I], d2[I] = self._Tsat(T[I])
+                    _, d1[I], d2[I] = self._Tsat(T[I])
                     return T, d1, d2, x, I
             # 7.1.3: p,x
             else:
@@ -3863,98 +4531,37 @@ other conditions, x<0 and d1 == d2.
                     d2[I] = pm.config['def_oob']
                     T[I] = pm.config['def_oob']
                 I = np.logical_not(I)
-                T[I], _, d1[I], d2[I] = self._psat(p[I])
+                T[I], d1[I], d2[I] = self._psat(p[I])
                 return T, d1, d2, x, I
-            
-        # 7.2: Two inverse properties
-        elif Ninv > 1:
-            # Isolate the property strings, their methods, and their value arrays
-            f0str = args.pop()
-            f1str = args.pop()
-            fn0 = inverse_methods[f0str]
-            fn1 = inverse_methods[f1str]
-            f0value, f1value = np.broadcast_arrays(kwarg[f0str], kwarg[f1str])
-            # Look up estimates for T and d in the property tables
-            T,d2,Isat,Ioob = self._mapsearch2(self._table[f0str], self._table[f1str], f0value, f1value)
-            x = np.full_like(T, -1.)
-            d1 = np.empty_like(d2, dtype=float)
-            if Isat.any():
-                # g,p iteration will fail under the dome
-                if args == {'g', 'p'}:
-                    raise pm.utility.PMParamError(
-                            'mp2._argparse: Received g and p in or very close to a two-phase mixture: numerically singular.')
-                # Obtain estimates for saturation densities
-                d1[Isat], d2[Isat] = interp_multiple(T[Isat], self._sattable['T'],
-                        self._sattable['dL'], self._sattable['dV'])
-                # Constant-pressure iteration under the dome is a special case
-                # Pressure gives us temperature and densities explicitly,
-                # Then x can be calculated from f1value
-                if f0str == 'p':
-                    self._psatiter(T, f0value, d1, d2, Isat.copy())
-                    f1L,_,_ = fn1(T[Isat], d1[Isat], diff=0)
-                    f1V,_,_ = fn1(T[Isat], d2[Isat], diff=0)
-                    x[Isat] = (f1value[Isat] - f1L)/(f1V - f1L)
-                elif f1str == 'p':
-                    self._psatiter(T, f1value, d1, d2, Isat.copy())
-                    f0L,_,_ = fn0(T[Isat], d1[Isat], diff=0)
-                    f0V,_,_ = fn0(T[Isat], d2[Isat], diff=0)
-                    x[Isat] = (f0value[Isat] - f0L)/(f0V - f0L)
-                # For other property combinations, it will be necessary to 
-                # iterate.
-                else:
-                    self._satiter2(T, np.empty_like(T), d1, d2, x, fn0, fn1, f0value, f1value, Isat.copy())
-            # Detect states that are not quite under the dome, but very
-            # close.  These will have converged to out-of-bounds values
-            # for x.
-            Ids = np.zeros_like(Isat, dtype=bool)
-            Ids[Isat] = (x[Isat] < 0)
-            if Ids.any():
-                d2[Ids] = d1[Ids]
-                Isat[Ids] = False
-                x[Ids] = -1
-            Ids[Isat] = (x[Isat] > 1)
-            if Ids.any():
-                d1[Ids] = d2[Ids]
-                Isat[Ids] = False
-                x[Ids] = -1
-            
-            # Transition to working on non-saturated states
-            Ids = np.logical_not(Isat)
-            
-            # Deal with out-of-bounds
-            if Ioob.any():
-                # T and d2 will already be set to def_oob by the mapsearch
-                # algorithm.  x can remain -1.  That just leaves d1
-                d1[Ioob] = pm.config['def_oob']
-                Ids[Ioob] = False
-            
-            if Ids.any():
-                self._iter2(T, d2, fn0, fn1, f0value, f1value, Ids.copy())
-                d1[Ids] = d2[Ids]
-                
-            return T,d1,d2,x,Isat
-        # 7.3: T,?
+        # 7.2: T,?
         elif 'T' in kwarg:
-            # 7.3.1: T,d
+            # 7.2.1: T,d
             if 'd' in kwarg:
                 # broadcast the arrays
-                T,d2 = np.broadcast_arrays(kwarg['T'],kwarg['d'])
+                T,d = np.broadcast_arrays(kwarg['T'],kwarg['d'])
                 x = np.full_like(T, -1.)
-                d1 = d2.copy()
+                # By default, d1 and d2 are merely pointers to d
+                # If there are 2-phase points, this behavior will be overridden
+                d1 = d
+                d2 = d
                 # Identify sub-critical temperatures
                 I = (T < self.data['Tc'])
                 if I.any():
-                    _,_,dL,dV = self._Tsat(T[I])
+                    _,dL,dV = self._Tsat(T[I])
                     # Down-select to the densities that are under the dome
-                    dd = d2[I]
+                    dd = d[I]
                     # Of the down-selected states, which are actually 2-phase?
-                    Imix = np.logical_and(dV < dd, dd < dL)
-                    I[I] = Imix
-                    if Imix.any():
+                    Isat = np.logical_and(dV < dd, dd < dL)
+                    I[I] = Isat
+                    # If there are any two-phase mixture points
+                    if Isat.any():
+                        # Make copies of the d array
+                        d1 = d.copy()
+                        d2 = d.copy()
                         # Down-select the vapor, liquid, and mixture densities
-                        dV = dV[Imix]
-                        dL = dL[Imix]
-                        dd = dd[Imix]
+                        dV = dV[Isat]
+                        dL = dL[Isat]
+                        dd = dd[Isat]
                         d1[I] = dL
                         d2[I] = dV
                         # Calculate liquid volume
@@ -3962,7 +4569,19 @@ other conditions, x<0 and d1 == d2.
                         # Calculate quality
                         x[I] = (1./dd - dL) / (1./dV - dL)
                 return T,d1,d2,x,I
-            # 7.3.2: T + inverse
+            # 7.2.2: T,p
+            elif 'p' in kwarg:
+                T,p = np.broadcast_arrays(kwarg['T'],kwarg['p'])
+                x = np.full_like(T, -1.)
+                # T,p cannot be used to specify a saturated state - no need to check
+                d2, _, I = self._Tmapsearch2(self._table['p'], T, p)
+                # Iterate only on states that are in-bounds
+                I = np.logical_not(I)
+                self._Titer(T, d2, self._p, p, I)
+                # All I values should now be False
+                d1 = np.copy(d2)
+                return T,d1,d2,x,I
+            # 7.2.3: T + inverse
             else:
                 # Isolate the inverse property and its method
                 args.remove('T')
@@ -3979,17 +4598,17 @@ other conditions, x<0 and d1 == d2.
                 if Isat.any():
                     TT = T[Isat]
                     # Calculate the saturation densities
-                    _, _, dL, dV = self._Tsat(TT)
+                    _, dL, dV = self._Tsat(TT)
                     d1[Isat] = dL
                     d2[Isat] = dV
                     # Calculate the inverse property's saturation properties
-                    fL,_,_ = fn(TT,dL)
-                    fV,_,_ = fn(TT,dV)
+                    fL,_,_ = fn(*self._ff(T=TT,d=dV,diff=1))
+                    fV,_,_ = fn(*self._ff(T=TT,d=dL,diff=1))
                     # Deduce quality from fvalue
                     x[Isat] = (fvalue[Isat] - fL)/(fV - fL)
                     # Some of these will be points that are merely near
                     # the dome and not actually under it.  
-                    Ids = np.zeros_like(I, dtype=bool)
+                    Ids = np.zeros_like(T, dtype=bool)
                     # If out on the liquid side, use liquid density
                     Ids[Isat] = x[Isat]<0
                     if Ids.any():
@@ -4006,6 +4625,8 @@ other conditions, x<0 and d1 == d2.
                 Ids = np.logical_not(Isat)
                 # Deal with any out-of-bounds points
                 if Ioob.any():
+                    if pm.config['warning_verbose']:
+                        pm.utility.print_warning('mp2._argparse(): Found T,? property combinations that were out-of-bounds.')
                     Ids[Ioob] = False
                     # d2 will already be set by the mapsearch algorithm
                     d1[Ioob] = pm.config['def_oob']
@@ -4013,8 +4634,8 @@ other conditions, x<0 and d1 == d2.
                 self._Titer(T, d2, fn, fvalue, Ids.copy())
                 d1[Ids] = d2[Ids]
                 return T,d1,d2,x,Isat
-        # 7.4: d + inverse
-        else:
+        # 7.3: d + inverse
+        elif 'd' in kwarg:
             args.remove('d')
             fstr = args.pop()
             fn = inverse_methods[fstr]
@@ -4028,20 +4649,34 @@ other conditions, x<0 and d1 == d2.
             d1 = np.empty_like(d, dtype=float)
             x = np.full_like(d, -1.)
             # Identify estimates for T
-            T,Isat,Ioob = self._dmapsearch2(self._table[fstr], d, fvalue)
+            # Use entropy extrapolation if property is s
+            if fstr == 's':
+                T, Isat, Ioob = self._dmapsearch2(self._table[fstr], d, fvalue, zde=1)
+            # Otherwise, keep normal extrapolation
+            else:
+                T,Isat,Ioob = self._dmapsearch2(self._table[fstr], d, fvalue)
             # Investigate states that may be saturated
             if Isat.any():
-                p = np.empty_like(d, dtype=float)
                 # Calculate saturated densities at our best guess for T
-                _, _, d1[Isat], d2[Isat] = self._Tsat(T[Isat])
-                self._dsatiter2(T, p, d1, d2, x, d, fn, fvalue, Isat.copy())
-                # Deselect states that aren't actually saturated
-                xx = x[Isat]
-                Isat[Isat] = np.logical_and(xx>=0, xx<=1)
+                _, d1[Isat], d2[Isat] = self._Tsat(T[Isat])
+                self._dsatiter2(T, d1, d2, d, fn, fvalue, Isat.copy())
+                # Calculate quality
+                xx = (d1[Isat]/d[Isat] - 1)/(d1[Isat]/d2[Isat] - 1)
+                # Points that were merely very close to saturated will
+                # converge with quality out of bounds
+                Ids = np.logical_or(xx<0, xx>1)
+                if Ids.any():
+                    xx[Ids] = -1
+                    x[Isat] = xx
+                    Isat[Isat] = np.logical_not(Ids)
+                else:
+                    x[Isat] = xx
+                
             # Down-select only points that are not saturated
             Ids = np.logical_not(Isat)
             # Check for out-of-bounds states
             if Ioob.any():
+                # Remove out-of-bounds points from iteration
                 Ids[Ioob] = False
                 # Temperature will already be set by the mapsearch
                 # Leave density as-specified.
@@ -4052,6 +4687,121 @@ other conditions, x<0 and d1 == d2.
             d1[Ids] = d[Ids]
             d2[Ids] = d[Ids]
             return T, d1, d2, x, Isat
+        # At this stage, there are two inverse properties
+        # 7.4: p + inverse
+        elif 'p' in kwarg:
+            # Isolate the other inverse property
+            args.remove('p')
+            fstr = args.pop()
+            fn = inverse_methods[fstr]
+            # Broadcast to the appropriate dimensions
+            p,fvalue = np.broadcast_arrays(kwarg['p'], kwarg[fstr])
+            # Initialize results
+            d1 = np.empty_like(p, dtype=float)
+            x = np.full_like(p, -1.)
+            # Find an initial guess for the state
+            zde1 = 1 if fstr == 's' else 0
+            T, d2, Isat, Ioob = self._mapsearch2(self._table['p'], self._table[fstr], p, fvalue, zde1=zde1)
+            if Isat.any():
+                # Establish the saturation states
+                TT,dL,dV = self._psat(p[Isat])
+                # Get the saturation values
+                argL = self._ff(T=TT, d=dL, diff=1)
+                argV = self._ff(T=TT, d=dV, diff=1)
+                fL = fn(*argL, diff=0)[0]
+                fV = fn(*argV, diff=0)[0]
+                # Deduce quality from fvalue
+                x[Isat] = (fvalue[Isat] - fL)/(fV - fL)
+                # Some of these will be points that are merely near
+                # the dome and not actually under it.  
+                Ids = np.zeros_like(T, dtype=bool)
+                # If out on the liquid side, use liquid density for the iteration
+                Ids[Isat] = x[Isat]<0
+                if Ids.any():
+                    x[Ids] = -1
+                    Isat[Ids] = False
+                    d2[Ids] = d1[Ids]
+                # If out on the vapor side, use vapor density for the iteration
+                Ids[Isat] = x[Isat]>1
+                if Ids.any():
+                    x[Ids] = -1
+                    Isat[Ids] = False
+                    d1[Ids] = d2[Ids]
+            # On all non-saturated points, iterate
+            Ids = np.logical_not(Isat)
+            # Deal with any out-of-bounds points
+            if Ioob.any():
+                if pm.config['warning_verbose']:
+                    pm.utility.print_warning('mp2._argparse(): Found p,? property combinations that were out-of-bounds.')
+                Ids[Ioob] = False
+                # d2 will already be set by the mapsearch algorithm
+                d1[Ioob] = pm.config['def_oob']
+                # Leave temperature as specified
+            self._iter2(T, d2, self._p, fn, p, fvalue, Ids.copy(), debug=True)
+            d1[Ids] = d2[Ids]
+            return T,d1,d2,x,Isat
+        # 7.5: Two inverse properties
+        else:
+            # Isolate the property strings, their methods, and their value arrays
+            f0str = args.pop()
+            f1str = args.pop()
+            fn0 = inverse_methods[f0str]
+            fn1 = inverse_methods[f1str]
+            f0value, f1value = np.broadcast_arrays(kwarg[f0str], kwarg[f1str])
+            # Look up estimates for T and d in the property tables
+            # Detect whether zero-density extrapolation is needed
+            zde0 = 1 if f0str == 's' else 0
+            zde1 = 1 if f1str == 's' else 0
+            T,d2,Isat,Ioob = self._mapsearch2(self._table[f0str], self._table[f1str], f0value, f1value, zde0=zde0, zde1=zde1)
+            print('mapsearch2:',T,d2,Isat,Ioob)
+            x = np.full_like(T, -1.)
+            d1 = np.empty_like(d2, dtype=float)
+            if Isat.any():
+                # Stash a copy of the original T-values so we can recover from failed iteration
+                # Obtain estimates for saturation densities using our best guess for T
+                _, d1[Isat], d2[Isat] = self._Tsat(T[Isat])
+                self._satiter2(T, d1, d2, fn0, fn1, f0value, f1value, Isat.copy(), debug=True)
+                # Calculate quality from the converged values
+                argL = self._ff(T=T[Isat], d=d1[Isat], diff=1)
+                argV = self._ff(T=T[Isat], d=d2[Isat], diff=1)
+                f0L = fn0(*argL, diff=0)[0]
+                f0V = fn0(*argV, diff=0)[0]
+                x[Isat] = (f0value[Isat] - f0L)/(f0V - f0L)
+                # Detect states that are not quite under the dome, but very
+                # close.  These will have converged to out-of-bounds values
+                # for x.
+                Ids = np.zeros_like(Isat, dtype=bool)
+                # On the vapor edge
+                Ids[Isat] = x[Isat] > 1
+                if Ids.any():
+                    # Use the vapor density
+                    d1[Ids] = d2[Ids]
+                    x[Ids] = -1
+                    Isat[Ids] = False
+                # On the liquid edge
+                Ids[Isat] = x[Isat] < 0
+                if Ids.any():
+                    # Use the liquid density
+                    d2[Ids] = d1[Ids]
+                    x[Ids] = -1
+                    Isat[Ids] = False
+            # Transition to working on non-saturated states
+            Ids = np.logical_not(Isat)
+            
+            # Deal with out-of-bounds
+            if Ioob.any():
+                T[Ioob] = pm.config['def_oob']
+                d1[Ioob] = pm.config['def_oob']
+                d2[Ioob] = pm.config['def_oob']
+                x[Ioob] = -1
+                Ids[Ioob] = False
+            # Finally, iterate on any non-saturated points
+            if Ids.any():
+                self._iter2(T, d2, fn0, fn1, f0value, f1value, Ids.copy(), debug=True)
+                print('iter2:', T, d2)
+                d1[Ids] = d2[Ids]
+                
+            return T,d1,d2,x,Isat
             
         message = 'Please report a bug: Unhandled event [MASTER] in mp2._argparse with args:'
         prefix = ' '
@@ -4060,282 +4810,11 @@ other conditions, x<0 and d1 == d2.
             prefix = ', '
         raise pm.utility.PMParamError(message)
 
-
-
-    def _e(self,T,d,diff=0):
-        """Internal energy (inner routine)
-    e,eT,ed = _e(T,d,diff=0)
-"""
-        eT = None
-        ed = None
-
-        # The IG part        
-        R = self.data['R']
-        Tscale = self.data['IGgroup']['Tscale']
-        dscale = self.data['IGgroup']['dscale']
-        tt = Tscale / T
-        dd = d / dscale
-        _,at,_,att,atd,_ = self._fo(tt,dd,diff+1)
-        
-        e = at
-        if diff>0:
-            eT = tt*tt*att
-            ed = atd/dscale
-        
-        # The residual part
-        Tscale = self.data['Rgroup']['Tscale']
-        dscale = self.data['Rgroup']['dscale']
-        tt = Tscale / T
-        dd = d / dscale
-        _,at,ad,att,atd,add = self._fr(tt,dd,diff+1)
-        e += at
-        e *= R*Tscale
-        if diff>0:
-            eT += tt*tt*att
-            eT *= -R
-            ed += atd/dscale
-            ed *= R*Tscale
-
-        return e,eT,ed
-
-
-    def _h(self,T,d,diff=0):
-        """enthalpy (inner routine)
-    h,hT,hd = _h(T,d,diff=0)
-"""
-        hT = None
-        hd = None
-
-        # The IG part        
-        R = self.data['R']
-        Tscale = self.data['IGgroup']['Tscale']
-        dscale = self.data['IGgroup']['dscale']
-        tt = Tscale / T
-        dd = d / dscale
-        _,at,_,att,atd,_ = self._fo(tt,dd,diff+1)
-        
-        h = 1. + tt*at
-        if diff>0:
-            hT = 1. - tt*tt*att
-            hd = tt*atd/dscale
-        
-        # The residual part
-        Tscale = self.data['Rgroup']['Tscale']
-        dscale = self.data['Rgroup']['dscale']
-        tt = Tscale / T
-        dd = d / dscale
-        _,at,ad,att,atd,add = self._fr(tt,dd,diff+1)
-        h += dd*ad + tt*at
-        h *= R*T
-        if diff>0:
-            hT += dd*ad - tt*(tt*att + dd*atd)
-            hT *= R
-            hd += (ad + dd*add + tt*atd)/dscale
-            hd *= R*T
-
-        return h,hT,hd
-
-    def _s(self,T,d,diff=0):
-        """entropy (inner routine)
-    s,sT,sd = _s(T,d,diff=0)
-"""
-        sT = None
-        sd = None
-
-        # The IG part        
-        R = self.data['R']
-        Tscale = self.data['IGgroup']['Tscale']
-        dscale = self.data['IGgroup']['dscale']
-        tt = Tscale / T
-        dd = d / dscale
-        a,at,ad,att,atd,_ = self._fo(tt,dd,diff+1)
-        
-        s = tt*at - a
-        if diff>0:
-            sT = tt*tt*att
-            sd = (tt*atd - ad)/dscale
-        
-        # The residual part
-        Tscale = self.data['Rgroup']['Tscale']
-        dscale = self.data['Rgroup']['dscale']
-        tt = Tscale / T
-        dd = d / dscale
-        a,at,ad,att,atd,_ = self._fr(tt,dd,diff+1)
-        s += tt*at - a
-        s *= R
-        if diff>0:
-            sT += tt*tt*att
-            sT *= -R/T
-            sd += (tt*atd - ad)/dscale
-            sd *= R
-
-        return s,sT,sd
-
-    def _f(self, T, d, diff=0):
-        """Free energy
-    f,ft,fd = _f(T,d,diff=0)
-    
-"""
-        # The IG part        
-        R = self.data['R']
-        Tscale = self.data['IGgroup']['Tscale']
-        dscale = self.data['IGgroup']['dscale']
-        tt = Tscale / T
-        dd = d / dscale
-        a,at,ad,_,_,_ = self._fo(tt,dd,diff)
-
-        f = a
-        ft = None
-        fd = None
-        if diff:
-            ft = a - tt*at
-            fd = ad/dscale
-        
-        # The residual part
-        Tscale = self.data['Rgroup']['Tscale']
-        dscale = self.data['Rgroup']['dscale']
-        tt = Tscale / T
-        dd = d / dscale
-        a,at,ad,_,_,_ = self._fr(tt,dd,diff)
-
-        f += a
-        f *= R*T
-        if diff:
-            ft += a - tt*at
-            ft *= R
-            fd += ad/dscale
-            fd *= R*T
-            
-        return f,ft,fd
-        
-
-
-    def _g(self, T, d, diff=0):
-        """Gibbs energy
-    g,gt,gd = _g(T,d,diff=0)
-    
-"""
-        # The IG part        
-        R = self.data['R']
-        Tscale = self.data['IGgroup']['Tscale']
-        dscale = self.data['IGgroup']['dscale']
-        tt = Tscale / T
-        dd = d / dscale
-        a,at,ad,_,atd,add = self._fo(tt,dd,diff+1)
-        
-        g = a + 1.
-        gt = None
-        gd = None
-        if diff:
-            gt = a + 1. - tt*at
-            gd = ad/dscale
-        
-        # The residual part
-        Tscale = self.data['Rgroup']['Tscale']
-        dscale = self.data['Rgroup']['dscale']
-        tt = Tscale / T
-        dd = d / dscale
-        a,at,ad,_,atd,add = self._fr(tt,dd,diff+1)
-
-        g += a + dd*ad
-        g *= R*T
-        if diff:
-            gt += a + dd*ad - tt*(at + dd*atd)
-            gt *= R
-            gd += (2*ad + dd*add)/dscale
-            gd *= R*T
-            
-        return g,gt,gd
-        
-    def _a(self,T,d):
-        """Speed of sound (inner routine)
-    a = _a(T,d)
-"""
-        R = self.data['R']
-        Tscale = self.data['IGgroup']['Tscale']
-        dscale = self.data['IGgroup']['dscale']
-        tt = Tscale / T
-        dd = d / dscale
-        _,_,_,att,_,_ = self._fo(tt,dd,2)
-
-        # We'll build this in three terms
-        # b - c*c/d
-        B = 1       # The IG portion of b and c are simple
-        C = 1
-        D = tt * tt * att
-        
-        # The residual part
-        Tscale = self.data['Rgroup']['Tscale']
-        dscale = self.data['Rgroup']['dscale']
-        tt = Tscale / T
-        dd = d / dscale
-        _,_,ad,att,atd,add = self._fr(tt,dd,2)
-        B += dd*(2*ad + dd*add)
-        C += dd*(ad - tt*atd)
-        D += tt * tt * att
-
-        return np.sqrt(R * T * (B - C*C/D))
-
-        
-    def _cp(self,T,d):
-        """Isobaric specific heat (inner routine)
-    cp = _cp(T,d)
-"""
-
-        # The IG part        
-        R = self.data['R']
-        Tscale = self.data['IGgroup']['Tscale']
-        dscale = self.data['IGgroup']['dscale']
-        tt = Tscale / T
-        dd = d / dscale
-        _,_,_,att,_,_ = self._fo(tt,dd,2)
-        
-        cp = -tt*tt*att
-        
-        # The residual part
-        Tscale = self.data['Rgroup']['Tscale']
-        dscale = self.data['Rgroup']['dscale']
-        tt = Tscale / T
-        dd = d / dscale
-        _,_,ad,att,atd,add = self._fr(tt,dd,2)
-
-        temp = 1.+dd*(ad-tt*atd)
-        cp += -tt*tt*att + temp*temp/(1.+dd*(2.*ad+dd*add))
-        cp *= R
-        return cp
-        
-        
-    def _cv(self,T,d):
-        """Isochoric specific heat (inner routine)
-    cv = _cv(T,d)
-"""
-
-        # The IG part        
-        R = self.data['R']
-        Tscale = self.data['IGgroup']['Tscale']
-        dscale = self.data['IGgroup']['dscale']
-        tt = Tscale / T
-        dd = d / dscale
-        _,_,_,att,_,_ = self._fo(tt,dd,2)
-        
-        cv = tt*tt*att
-        
-        # The residual part
-        Tscale = self.data['Rgroup']['Tscale']
-        dscale = self.data['Rgroup']['dscale']
-        tt = Tscale / T
-        dd = d / dscale
-        _,_,_,att,_,_ = self._fr(tt,dd,2)
-
-        cv += tt*tt*att
-        cv *= -R
-        return cv
-
-
-    #               #
-    # USER ROUTINES #
-    #               #
-    
+    ########################
+    #                      #
+    #  User-Layer Methods  #
+    #                      #
+    ########################
     
     #               #
     # Data limits   #
@@ -4401,7 +4880,7 @@ The value returned by R is based on the value stored in the species data,
 from which all other properties are constructed.
 """
         # R is stored in in J/kg/K
-        R = pm.units.energy(self.data['R'], from_units = 'J')
+        R = pm.units.energy(self._R(), from_units = 'J')
         R = pm.units.matter(R, self.data['mw'], from_units='kg', exponent=-1)
         R = pm.units.temperature(R, from_units='K', exponent=-1)
         return R
@@ -4447,10 +4926,16 @@ Returns the critical temperature, pressure, and density in
 Returns the triple temperature and pressure in a tuple pair in
 [unit_temperature], [unit_pressure]
 """
+        Tt = self.data.get('Tt')
+        if Tt is None or Tt < self.data['Tlim'][0]:
+            raise pm.utility.PMParamError('mp2.triple: This dataset does not include the triple point.')
+        # Always make sure the tables have been built
+        self._build(force=False)
+        pt = self._sattable['p'][0]
         return  pm.units.temperature_scale( \
-                    self.data['Tt'], from_units='K'),\
+                    Tt, from_units='K'),\
                 pm.units.pressure( \
-                    self.data['pt'], from_units='Pa')
+                    pt, from_units='Pa')
         
     #                       #
     # Saturaiton properties #
@@ -4459,19 +4944,22 @@ Returns the triple temperature and pressure in a tuple pair in
     def ps(self, *varg, **kwarg):
         """Saturation pressure
     psat = ps(T)
+        OR
+    psat = ps(p=p)
     
-Returns the saturaiton pressure in [unit_pressure]
+Saturation line properties accept either T or p as keyword arguments.  
 
-Calls to ps() are MUCH faster than calls to Ts(), so when given a choice,
-specifying saturation states with temperature should always be preferred.
-The MP1 class exposes ps() as an empirical relationship, while Ts() has 
-to perform iterative numerical inversion.
+The optional diff keyword argument is 0 by default.  When set to 1 or
+True, the temperature derivative of the saturation 
 
-Unlike the other saturation properties, ps() and Ts() only accept one
-argument and only return one value - each calculates the one in terms
-of the other.
+Returns:
+psat    The saturaiton pressure in [unit_pressure]
+pT      The derivative with respect to temperature in units
+        [unit_pressure / unit_temperature]
 """
-        _,p,_,_ = self._sat_argparse(*varg, **kwarg)
+        T,_,dV = self._sat_argparse(*varg, **kwarg)
+        arg = self._ff(T,dV,diff=1)
+        p,_,_ = self._p(*arg, diff=0)
         pm.units.pressure(p, from_units='Pa', inplace=True)
         return p
         
@@ -4486,7 +4974,7 @@ Unlike the other saturation properties, ps() and Ts() only accept one
 argument and only return one value - each calculates the one in terms
 of the other.
 """
-        T,_,_,_ = self._sat_argparse(*varg, **kwarg)
+        T,_,_ = self._sat_argparse(*varg, **kwarg)
         pm.units.temperature_scale(T, from_units='K', inplace=True)
         return T
         
@@ -4503,7 +4991,7 @@ as temperature.  However, pressure can be specified as well
 Returns the liquid (dsL) and vapor (dsV) saturation density in units
 [unit_matter / unit_volume]
 """
-        _,_,dL,dV = self._sat_argparse(*varg, **kwarg)
+        _,dL,dV = self._sat_argparse(*varg, **kwarg)
         # Get a conversion factor
         conv = pm.units.matter(1., self.data['mw'],
                 from_units='kg')
@@ -4540,9 +5028,12 @@ as temperature.  However, pressure can be specified as well
 Returns the liquid (esL) and vapor (esV) saturation internal energy in
 units [unit_energy / unit_matter]
 """
-        T,_,dL,dV = self._sat_argparse(*varg, **kwarg)
-        esL = self._e(T,dL,0)[0]
-        esV = self._e(T,dV,0)[0]
+        T,dL,dV = self._sat_argparse(*varg, **kwarg)
+        arg = self._ff(T,dL,diff=1)
+        esL = self._e(*arg,diff=0)[0]
+        
+        arg = self._ff(T,dV,diff=1)
+        esV = self._e(*arg,diff=0)[0]
         
         # Get a conversion factor
         conv = pm.units.energy(1., from_units='J')
@@ -4565,9 +5056,12 @@ as temperature.  However, pressure can be specified as well
 Returns the liquid (hsL) and vapor (hsV) saturation enthalpy in
 units [unit_energy / unit_matter]
 """
-        T,_,dL,dV = self._sat_argparse(*varg, **kwarg)
-        hsL = self._h(T,dL,0)[0]
-        hsV = self._h(T,dV,0)[0]
+        T,dL,dV = self._sat_argparse(*varg, **kwarg)
+        arg = self._ff(T,dL,diff=1)
+        hsL = self._h(*arg,diff=0)[0]
+        
+        arg = self._ff(T,dV,diff=1)
+        hsV = self._h(*arg,diff=0)[0]
         
         # Get a conversion factor
         conv = pm.units.energy(1., from_units='J')
@@ -4590,9 +5084,12 @@ as temperature.  However, pressure can be specified as well
 Returns the liquid (ssL) and vapor (ssV) saturation entropy in
 units [unit_energy / unit_matter / unit_temperature]
 """
-        T,_,dL,dV = self._sat_argparse(*varg, **kwarg)
-        ssL = self._s(T,dL,0)[0]
-        ssV = self._s(T,dV,0)[0]
+        T,dL,dV = self._sat_argparse(*varg, **kwarg)
+        arg = self._ff(T,dL,diff=1)
+        ssL = self._s(*arg,diff=0)[0]
+        
+        arg = self._ff(T,dV,diff=1)
+        ssV = self._s(*arg,diff=0)[0]
         
         # Get a conversion factor
         conv = pm.units.energy(1., from_units='J')
@@ -4630,7 +5127,8 @@ See also:
         # that small numerical errors cause huge pressure errors
         # The problem is solved when the vapor density is used instead.
         # In all other conditions d1=d2
-        p = self._p(T,d2,0)[0]
+        arg = self._ff(T,d2,diff=1)
+        p = self._p(*arg,diff=0)[0]
         
         p = pm.units.pressure(p, from_units='Pa')
         
@@ -4918,11 +5416,14 @@ See also:
     a, cp, cv, d, e, f, g, gam, h, mw, p, R, s, T, v, x, state
 """
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
-        e = self._e(T,d1,0)[0]
+        arg = self._ff(T,d2,diff=1)
+        e = self._e(*arg,diff=0)[0]
+        # If there are points under the dome
         if I.any():
             xx = x[I]
-            e[I] *= (1.-xx)
-            e[I] += self._e(T[I],d2[I],0)[0] * xx
+            e[I] *= xx
+            arg = self._ff(T[I], d1[I], diff=1)
+            e[I] += self._e(*arg, diff=0)[0] * (1-xx)
         # Convert the units back to user space
         pm.units.energy(e, from_units='J', inplace=True)
         pm.units.matter(e, self.data['mw'], 
@@ -4949,11 +5450,14 @@ See also:
     a, cp, cv, d, e, f, g, gam, h, mw, p, R, s, T, v, x, state
 """
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
-        f = self._f(T,d1,0)[0]
+        arg = self._ff(T,d2,diff=1)
+        f = self._f(*arg,diff=0)[0]
+        # If there are points under the dome
         if I.any():
             xx = x[I]
-            f[I] *= (1.-xx)
-            f[I] += self._f(T[I],d2[I],0)[0] * xx
+            f[I] *= xx
+            arg = self._ff(T[I], d1[I], diff=1)
+            f[I] += self._f(*arg, diff=0)[0] * (1-xx)
         # Convert the units back to user space
         pm.units.energy(f, from_units='J', inplace=True)
         pm.units.matter(f, self.data['mw'], 
@@ -4980,10 +5484,9 @@ See also:
     a, cp, cv, d, e, f, g, gam, h, mw, p, R, s, T, v, x, state
 """
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
-        g = self._g(T,d1,0)[0]
-        if I.any():
-            g[I] *= (1.-x[I])
-            g[I] += self._g(T[I],d2[I],0)[0] * x[I]
+        arg = self._ff(T,d2,diff=1)
+        g = self._g(*arg,diff=0)[0]
+        # Ignore points under the dome -- Gibbs energy is constant
         # Convert the units back to user space
         pm.units.energy(g, from_units='J', inplace=True)
         pm.units.matter(g, self.data['mw'], 
@@ -5010,10 +5513,14 @@ See also:
     a, cp, cv, d, e, f, g, gam, h, mw, p, R, s, T, v, x, state
 """
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
-        h = self._h(T,d1,0)[0]
+        arg = self._ff(T,d2,diff=1)
+        h = self._h(*arg,diff=0)[0]
+        # If there are points under the dome
         if I.any():
-            h[I] *= (1.-x[I])
-            h[I] += self._h(T[I],d2[I],0)[0] * x[I]
+            xx = x[I]
+            h[I] *= xx
+            arg = self._ff(T[I], d1[I], diff=1)
+            h[I] += self._h(*arg, diff=0)[0] * (1-xx)
         # Convert the units back to user space
         pm.units.energy(h, from_units='J', inplace=True)
         pm.units.matter(h, self.data['mw'], 
@@ -5048,11 +5555,14 @@ See also:
 """
             
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
-        s = self._s(T,d1,0)[0]
+        arg = self._ff(T,d2,diff=1)
+        s = self._s(*arg,diff=0)[0]
+        # If there are points under the dome
         if I.any():
             xx = x[I]
-            s[I] *= (1.-xx)
-            s[I] += self._s(T[I],d2[I],0)[0] * xx
+            s[I] *= xx
+            arg = self._ff(T[I], d1[I], diff=1)
+            s[I] += self._s(*arg, diff=0)[0] * (1-xx)
         # Convert the units back to user space
         pm.units.energy(s, from_units='J', inplace=True)
         pm.units.matter(s, self.data['mw'], 
@@ -5094,7 +5604,9 @@ See also:
 """
         
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
-        a = self._a(T,d1)
+        arg = self._ff(T,d2,diff=2)
+        a = self._a(*arg)
+        # Speed of sound is not well defined under the dome.
         if I.any():
             a[I] = pm.config['def_oob']
         # Convert the units back to user space
@@ -5130,7 +5642,9 @@ See also:
 """
             
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
-        cp = self._cp(T,d1)
+        arg = self._ff(T,d2,diff=2)
+        cp = self._cp(*arg)
+        # Constant-pressure specific heat is infinite under the dome
         if I.any():
             cp[I] = np.inf
         # Convert the units back to user space
@@ -5171,11 +5685,12 @@ See also:
 """
         
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
-        cv = self._cv(T,d1)
+        arg = self._ff(T,d2,diff=2)
+        cv = self._cv(*arg)
+        # Constant-volume specific heat is a bit complicated under the dome
         if I.any():
-            TT = T[I]
-            dL = d1[I]
-            dV = d2[I]
+            argL = self._ff(T[I], dL[I], diff=2)
+            argV = self._ff(T[I], dV[I], diff=2)
             xx = x[I]
             # We'll need to calculate the derivative of quality with
             # respect to temperature.  To do that, we'll differentiate
@@ -5186,10 +5701,10 @@ See also:
             #   (gLt-gVt)*dT = gLd*ddV - gVd*ddL
             #   (pLt-pVt)*dT = pLd*ddV - pVd*ddL
             # Matrix inversion gives ddV/dT and ddL/dT
-            _,gLt,gLd = self._g(TT,dL,1)
-            _,gVt,gVd = self._g(TT,dV,1)
-            _,pLt,pLd = self._p(TT,dL,1)
-            _,pVt,pVd = self._p(TT,dV,1)
+            _,gLt,gLd = self._g(*argL,1)
+            _,gVt,gVd = self._g(*argV,1)
+            _,pLt,pLd = self._p(*argL,1)
+            _,pVt,pVd = self._p(*argV,1)
             # This is only a 2x2, so we can do it "manually"
             temp = (gLd*pVd - pLd*gVd)
             gt = gLt - gVt
@@ -5206,8 +5721,8 @@ See also:
             temp = dL/dV
             xT = (dLT * (1-xx)/dL + dVT * xx*temp/dV) / (temp-1)
             # Grab the saturation sensitivities
-            eL,eLT,eLd = self._e(T[I],d1[I],diff=1)
-            eV,eVT,eVd = self._e(T[I],d2[I],diff=1)
+            eL,eLT,eLd = self._e(*argL,diff=1)
+            eV,eVT,eVd = self._e(*argV,diff=1)
             # Calculate the true isochoric specific heat for the
             # two-phase mixture
             cv[I] = (eLT+eLd*dLT)*(1-xx) + (eVT+eVd*dVT)*xx + (eV-eL)*xT
@@ -5247,8 +5762,9 @@ See also:
 """
             
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
-        cv = self._cv(T,d1)
-        cp = self._cp(T,d1)
+        arg = self._ff(T,d2,diff=2)
+        cp = self._cp(*arg)
+        cv = self._cv(*arg)
         if I.any():
             cp[I] = np.inf
         

@@ -6,7 +6,7 @@ import numpy as np
 ##                  ##
 ######################
 
-class igmix(pm.reg.__basedata__):
+class igmix(pm.reg.PYroMatModel):
     """IGMIX  Ideal gas mixture class
 
 The ideal gas mixture is comprised of components that are ideal gases.  
@@ -81,7 +81,7 @@ documentation using Python's built-in "help()" function.
         self._Tlim = [float('-inf'), float('inf')]
         
         
-    def _bootstrap(self):
+    def _build(self):
         """Calculates internal parameters that are essential for the property functions
 This operation cannot be completed by __init__ at load time because 
 there is no no way to ensure that all of the constituent species have
@@ -202,6 +202,8 @@ _argparse decides which to populate based on what is most efficient.
         # 8) Broadcast the arrays appropriately
         # 9) Calculate T,p,d
         
+        # Check to ensure that the static properties have been calculated
+        self._build()
 
         # Fancy tool for tracking iteration issues
         debug = False
@@ -704,7 +706,6 @@ entries.
 
 Returns density in unit_matter / unit_volume
 """
-        self._bootstrap()
         Ru = pm.units.const_Ru
         T,p,d = self._argparse(*varg, **kwarg)
         # Make sure we have both pressure and density
@@ -759,7 +760,6 @@ entries.
 
 Returns pressure in unit_pressure
 """
-        self._bootstrap()
         Ru = pm.units.const_Ru
         T,p,d = self._argparse(*varg, **kwarg)
         if p is None:
@@ -789,7 +789,6 @@ entries.
 
 Returns temperature in unit_temperature
 """
-        self._bootstrap()
         # T is a special case.  If there is only one parameter given, 
         # the default should not be T=def_T, so we need to override 
         # the behavior of _argparse. 
@@ -821,7 +820,6 @@ The properties are returned in a dictionary with keys:
 Like all of the other property functions, arguments may be any two of
 T, p, d, v, e, h, and s.  
 """
-        self._bootstrap()
         Ru = pm.units.const_Ru
         T,p,d = self._argparse(*varg, **kwarg)
         # Make sure we have both pressure and density
@@ -880,7 +878,6 @@ entries.
 
 Returns specific heat in unit_energy / unit_matter / unit_temperature
 """
-        self._bootstrap()
         # Parse the arguments to isolate temperature in K
         T,_,_ = self._argparse(*varg, **kwarg)
 
@@ -914,7 +911,6 @@ entries.
 
 Returns specific heat in unit_energy / unit_matter / unit_temperature
 """
-        self._bootstrap()
         # Parse the arguments to isolate temperature in K
         T,_,_ = self._argparse(*varg, **kwarg)
         
@@ -948,7 +944,6 @@ entries.
 
 Returns enthalpy in unit_energy / unit_matter
 """
-        self._bootstrap()
         T,_,_ = self._argparse(*varg, **kwarg)
         out = self._h(T)[0]
         
@@ -980,7 +975,6 @@ entries.
 
 Returns Gibbs energy in unit_energy / unit_matter
 """
-        self._bootstrap()
         T,p,d = self._argparse(*varg, **kwarg)
         if p is None:
             p = 1000 * pm.units.const_Ru * d * T
@@ -1011,7 +1005,6 @@ entries.
 
 Returns internal energy in unit_energy / unit_matter
 """
-        self._bootstrap()
         T,_,_ = self._argparse(*varg, **kwarg)
         out = self._e(T)[0]
         
@@ -1042,7 +1035,6 @@ entries.
 
 Returns free energy in unit_energy / unit_matter
 """
-        self._bootstrap()
         T,p,d = self._argparse(*varg, **kwarg)
         if p is None:
             p = 1000 * pm.units.const_Ru * d * T
@@ -1064,7 +1056,7 @@ and mass-based intensive properties.
 Accepts:    -
 Returns:    Molecular mass [unit_mass / unit_molar]
 """
-        self._bootstrap()
+        self._build()
         out = pm.units.mass(self._mw, from_units='kg')
         out = pm.units.molar(out, from_units='kmol', exponent=-1)
         return out
@@ -1077,7 +1069,7 @@ Returns:    Molecular mass [unit_mass / unit_molar]
 Ignores the arguments are returns the gas constant as
 unit_energy / unit_matter / unit_temperature
 """
-        self._bootstrap()
+        self._build()
         R = pm.units.energy(pm.units.const_Ru, from_units='J')
         R = pm.units.temperature(R, from_units='K', exponent=-1)
         R = pm.units.matter(R, self._mw, from_units='mol',
@@ -1106,7 +1098,6 @@ entries.
 
 Returns entropy in unit_energy / unit_matter / unit_temperature
 """
-        self._bootstrap()
         T,p,d = self._argparse(*varg, **kwarg)
         if p is None:
             p = 1000 * pm.units.const_Ru * d * T
@@ -1138,7 +1129,6 @@ entries.
 
 Returns ideal gas ratio, which is dimensionless.
 """
-        self._bootstrap()
         T,_,_ = self._argparse(*varg, **kwarg)
         out = self._cp(T)
         return out / (out - pm.units.const_Ru)
@@ -1151,7 +1141,7 @@ Returns ideal gas ratio, which is dimensionless.
 Where x is a dictionary with keys corresponding to the species in
 the mixture and values indicating their respective mole fraction
 in the mixture."""
-        self._bootstrap()
+        self._build()
         # Return the dictionary
         return self._x.copy()
 
@@ -1164,67 +1154,6 @@ in the mixture."""
 Where y is a dictionary with keys corresponding to the species in
 the mixture and values indicating their respective mass fraction
 in the mixture."""
-        self._bootstrap()
+        self._build()
         # Return the dictionary
         return self._y.copy()
-
-    def T_s(self,s,p=None, d=None):
-        """Temperature as a function of entropy
-** Deprecated - use T() **
-        
-    T = T_s(s)
-        or
-    T = T_s(s,p)
-
-Accepts unit_energy / unit_matter / unit_temperature
-        unit_pressure
-        unit_matter / unit_volume
-Returns unit_temperature
-"""
-        if p is not None:
-            return self.T(s=s, p=p)
-        elif d is not None:
-            return self.T(s=s, d=d)
-        return self.T(s=s)
-
-
-    def T_h(self,h, p=None, d=None):
-        """Temperature as a function of enthalpy
-** Deprecated - use T() **
-
-    T = T_h(h)
-        or
-    T = T_h(h,...)
-
-Returns the temperature as a function of enthalpy and pressure.  Ideal 
-gas enthalpy is not a function of pressure, so the p term is merely a
-placeholder.
-
-Accepts unit_energy / unit_matter / unit_temperature
-        unit_pressure
-Returns unit_temperature
-"""
-        if p is not None:
-            return self.T(h=h, p=p)
-        elif d is not None:
-            return self.T(h=h, d=d)
-        return self.T(h=h)
-
-
-    def p_s(self,s,T=None):
-        """Pressure as a function of entropy
-** Deprecated - use p() **
-        
-    p = ig_instance.p_s(s)
-        or
-    p = ig_instance.p_s(s,...)
-
-Returns the pressure as a function of entropy and temperature.
-
-Accepts unit_energy / unit_matter / unit_temperature
-        unit_temperature
-Returns unit_pressure
-"""
-        if T is not None:
-            return self.p(s=s,T=T)
-        return self.p(s=s)

@@ -9,7 +9,7 @@ import pyromat as pm
 import os,sys
 
 
-class mp1(pm.reg.__basedata__):
+class mp1(pm.reg.PYroMatModel):
     """The PYroMat multi-phase generalist class 1
 
 ** Available Property Methods **

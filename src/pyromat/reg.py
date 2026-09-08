@@ -10,14 +10,14 @@ When the PYroMat package is loaded, all *.py files in the 'reg'
 directory are run, and the definitions in them are incorporated
 into the registry dictionary.
 
-The __basedata__ class is the only truely 'built-in' class.  In 
+The PYroMatModel class is the only truely 'built-in' class.  In 
 addition to defining the constructor responsible for incorporating
 and checking data, it includes default definitions for all mandatory
 class members.  User definitions should always point back to the
-__basedata__ as a parent.  For ease of editing, '_example.py' shows
+PYroMatModel as a parent.  For ease of editing, '_example.py' shows
 an example of a user-defined data class.
 
-Chris Martin (c) 2015,2017,2021,2022
+Chris Martin (c) 2015,2017,2021,2022,2026
 """
 
 # bring in the root package
@@ -34,7 +34,7 @@ registry = {}
 #   Built in prototype data class   #
 #                                   #
 #####################################
-class __basedata__(object):
+class PYroMatModel(object):
     """This is the base PYroMat data class.
 This class is intended to be the basic building block for all PM 
 data classes.  While it is not intended to be used directly, it 
@@ -56,7 +56,7 @@ be used to interpret them.  In this way, the system is broadly
 expandable, and easily user-modified.
 
 There are a few requirements on these data classes:
-(1)  They must be children of the __basedata__ class
+(1)  They must be children of the PYroMatData class
 (2)  Their initializers must accept as their sole argument, the 
     dictionary result of the json.load() operation loading the species'
     data file.
@@ -67,17 +67,8 @@ There are a few requirements on these data classes:
 (5)  The data dictionary must contain a "doc" element, which describes
     the origins of the data.
 
-While PYroMat does not explicitly impose rules on species ID or the 
-call signatures of the property methods, there is a convention that 
-all species IDs will be of the form "collection.formula"  Collection 
-is a group of similar species who share basic assumptions or source 
-data (like "ig" for ideal gas).  The formula is usually (but not always)
-the chemical makeup of the species.  They element names should be in 
-one- or two-character groups with the first character always upper-case
-and the second (if present) always lower-case.  If the element is 
-followed by an integer, that integer indicates the quantity.  If the
-integer is omitted, 1 is implied.  For example, "CO2" indicates carbon
-dioxide and "Co2" represents diatomic cobalt.
+See the _test_basic() method documentation for the rules that are 
+enforced at initialization.
 """
 
 
@@ -90,7 +81,7 @@ dioxide and "Co2" represents diatomic cobalt.
 """
         #self.data = data.copy()
         self.data = data
-        self.__basetest__()
+        self._test_basic()
         self.__doc__ = self.data['doc']
         
         
@@ -98,15 +89,38 @@ dioxide and "Co2" represents diatomic cobalt.
         return '<' + self.data['class'] + ', ' + self.data['id'] + '>'
 
         
-    def __basetest__(self):
-        """Test the data struct for basic Pyro requirements
-Raises errors and prints meaningful messages if something important
-is missing from the data.  It also checks that the essential methods
-are present (see the basedata documentation for more 
-information).  This is intended to be a fundamental test applied to 
-all Pyro data classes.  For tests unique to each data class, 
-define a custom __test__() function.  See the __test__() 
-documentation for more details.
+    def _test_basic(self):
+        """Enforce the most basic requirements for PM data instances
+    _test_basic()
+    
+Raises an exception if the substance's data dictionary does not include
+required entries:
+    
+data['id']
+    Substance identifier string.  The id string is further checked: 
+    (1) Must have exactly 1 '.' character, and (2) the '.' may be 
+    neither the first nor the last character.  The intention is that the
+    id string will be of the format '<collection>.<identifier>' where 
+    <collection> identifies the model as belonging to a collection of 
+    models, while <identifier> names the specific substance (usually 
+    with Hill notation).
+
+data['class']
+    The class identifier string is used as the keyword argument to the 
+    pm.reg.registry dictionary to retrieve a child class of PYroMatData,
+    which provides methods for doing useful things with the data.
+
+data['doc']
+    A documentation string that describes the data's origins.  Usually,
+    this should include a citation of the original data sources, and it
+    may also include a longer description of the data.  This string will
+    be reformatted by algorithms like info() to fit in the terminal.
+    
+data['fromfile']
+    The path to the file from which this data model was loaded.  This 
+    should NOT be included in the original source data, but it is added 
+    by the dat.load() algorithm.  If it is missing, then something very
+    strange is going on.
 """
 
         raise_error = False
@@ -121,7 +135,8 @@ documentation for more details.
         for mh in self.mandatory:
             if not mh in self.data:
                 missing += mh + ' '
-        
+        # Print a detailed error message, including the file name so
+        # the user can take some corrective action.
         if missing:
             message = \
 'Mandatory entries are missing from a ' + repr(self.__class__) + ' file: '
@@ -129,7 +144,16 @@ documentation for more details.
                 message += self.data['fromfile']
             pm.utility.print_error(message)
             pm.utility.print_error(missing)
-            raise pm.utility.PMDataError()
+            raise pm.utility.PMDataError('_test_basic(): Incomplete or corrupt data file.')
+        # Finally, verify that the id string obeys the formatting rules
+        parts = self.data['id'].split('.')
+        if len(parts) != 2 or len(parts[0]) == 0 or len(parts[1]) == 0:
+            pm.utility.print_error(f'Illegal ID string in a {repr(self.__class__)} file: {self.data["filename"]}.  ID strings must be of the form "<collection>.<identifier>".')
+            pm.utility.print_error(f'Found: {self.data["id"]}')
+            raise pm.utility.PMDataError('_test_basic(): Illegal ID string.')
+
+    def _build(self):
+        pass
 
     def sid(self):
         """Returns the substance identifier string
@@ -165,11 +189,11 @@ is just a wrapper for subst.data['class'].
    
 The collection is just the portion of the substance identifier string
 preceeding the '.' character.  If a substance is encountered without a
-'.' character, then collection() will return an empty string.
+'.' character, then collection() raises a PMDataError.
 """
         parts = self.data['id'].split('.',1)
         if len(parts)==1:
-            return ''
+            raise pm.utility.PMDataError(f'collection(): Substance has no collection: {self.data["id"]}')
         return parts[0]
         
     def names(self):
@@ -362,7 +386,7 @@ pm.config parameters that affect the behavior of regload() are
                 # loop through all variables created in the file
                 valid = False
                 for new in temp:
-                    if isinstance(temp[new],type) and issubclass(temp[new],__basedata__):
+                    if isinstance(temp[new], type) and issubclass(temp[new], PYroMatModel):
                         valid = True
                         # if the class is already registered, either raise 
                         # an exception, or throw a warning

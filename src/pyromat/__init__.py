@@ -40,7 +40,7 @@ To search for species, see the info() funciton's other features
 # utility.load_config() checks this value to establish the read-only version
 # setup.py looks for this line to establish the version
 # MUST be unindented
-__version__ = "2.3.0"
+__version__ = "3.0.0"
 
 
 # loading the PYroMat utility functions
@@ -79,9 +79,8 @@ Returns a substance data class for the substance named.
     if out is None:
         utility.print_error('No substanced named "' + str(idstr) + '" was found in the loaded data.')
         raise utility.PMParamError('Invalid substance ID string')
-    # If the instance has a build method, call it
-    if hasattr(out, '_build'):
-        out._build()
+    # Call build
+    out._build()
     return out
     
 
