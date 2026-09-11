@@ -1,0 +1,164 @@
+{
+  "names": [
+    "isopentane",
+    "isoamylhydride",
+    "2-methylbutane",
+    "1,1,2-trimethylethane",
+    "1,1-dimethylpropane"
+  ],
+  "id": "mp.C5H12_1",
+  "class": "mp2",
+  "doc": "Isopentane is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
+  "inchi": "InChI=1S/C5H12/c1-4-5(2)3/h5H,4H2,1-3H3",
+  "cas": "78-78-4",
+  "atoms": {
+    "C": 5,
+    "H": 12
+  },
+  "Tlim": [
+    112.65,
+    500
+  ],
+  "plim": [
+    0.0,
+    1000000000.0
+  ],
+  "dlim": [
+    0.0,
+    1500.0
+  ],
+  "R": 115.24064578777353,
+  "Tc": 460.35,
+  "dc": 235.99865938,
+  "Tt": 112.65,
+  "mw": 72.14878,
+  "IGgroup": {
+    "logt": 3.0,
+    "group0": {
+      "coef": [
+        [
+          1,
+          1.1609103419
+        ],
+        [
+          0,
+          2.5822330405
+        ]
+      ]
+    },
+    "group1": [
+      [
+        0.9601390246551537,
+        7.4056
+      ],
+      [
+        2.4090366025849894,
+        9.5772
+      ],
+      [
+        4.494406429890301,
+        15.765
+      ],
+      [
+        9.108287172803301,
+        12.119
+      ]
+    ]
+  },
+  "Rgroup": {
+    "group0": [
+      {
+        "pre": [
+          0.125,
+          1
+        ],
+        "coef": [
+          [
+            12,
+            1,
+            1.0317
+          ],
+          [
+            11,
+            2,
+            -0.1541
+          ],
+          [
+            9,
+            1,
+            -3.0402
+          ],
+          [
+            7,
+            7,
+            0.00029809
+          ],
+          [
+            2,
+            3,
+            0.11535
+          ],
+          [
+            2,
+            1,
+            1.0963
+          ]
+        ]
+      },
+      {
+        "pre": [
+          0.125,
+          1
+        ],
+        "coef": [
+          [
+            14,
+            5,
+            -0.045881
+          ],
+          [
+            5,
+            2,
+            0.39571
+          ]
+        ]
+      },
+      {
+        "pre": [
+          0.125,
+          1
+        ],
+        "coef": [
+          [
+            29,
+            4,
+            -0.10107
+          ],
+          [
+            29,
+            1,
+            -0.35804
+          ]
+        ]
+      },
+      {
+        "pre": [
+          0.5,
+          1
+        ],
+        "coef": [
+          [
+            29,
+            3,
+            -0.035484
+          ],
+          [
+            24,
+            4,
+            0.018156
+          ]
+        ]
+      }
+    ]
+  }
+}

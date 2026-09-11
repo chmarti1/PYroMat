@@ -1,28 +1,22 @@
 {
-  "id": "mp.C3H6O",
   "names": [
     "acetone",
-    "2-propane",
-    "propanone",
-    "dimethyl keytone"
+    "2-propanone",
+    "propanone"
   ],
+  "id": "mp.C3H6O",
+  "class": "mp2",
+  "doc": "Acetone is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
+  "inchi": "InChI=1S/C10H22/c1-3-5-7-9-10-8-6-4-2/h3-10H2,1-2H3",
+  "cas": "67-64-1 ",
   "atoms": {
     "C": 3,
     "H": 6,
     "O": 1
   },
-  "inchi": "InChI=1S/C3H6O/c1-3(2)4/h1-2H3",
-  "cas": "67-64-1",
-  "class": "mp2",
-  "doc": "Acetone is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
-  "mw": 58.0714,
-  "dc": 272.93558,
-  "Tc": 508.1,
-  "Tt": 178.5,
-  "R": 143.1765484929456,
   "Tlim": [
     178.5,
-    550.0
+    550
   ],
   "plim": [
     0.0,
@@ -30,11 +24,14 @@
   ],
   "dlim": [
     0.0,
-    1360.0
+    1500.0
   ],
+  "R": 143.15762940015983,
+  "Tc": 508.1,
+  "dc": 272.97195800000003,
+  "Tt": 178.5,
+  "mw": 58.07914,
   "IGgroup": {
-    "Tscale": 508.1,
-    "dscale": 272.93558,
     "logt": 3.0,
     "group0": {
       "coef": [
@@ -64,8 +61,6 @@
     ]
   },
   "Rgroup": {
-    "Tscale": 508.1,
-    "dscale": 272.93558,
     "group0": [
       {
         "pre": [
@@ -147,20 +142,18 @@
         ]
       },
       {
-        "post": [
-          12.5,
-          0
+        "pre": [
+          0.5,
+          1
         ],
         "coef": [
           [
-            0,
+            25,
             2,
             -0.018166
           ]
         ]
       }
     ]
-  },
-  "fromfile": "/home/chris/Documents/pyromat/src/pyromat/data/mp/C3_H6_O.hpd",
-  "pt": 2.3264841570203303
+  }
 }

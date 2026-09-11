@@ -115,10 +115,9 @@ MP2 provides property methods:
     g()     Gibbs energy
     gam()   Specific heat ratio
     h()     Enthalpy
+    p()     Pressure
     s()     Entropy
     T()     Temperature
-    p()     Pressure
-    d()     Density
     v()     Specific volume
     x()     Quality
     state() Calculates most properties
@@ -2998,7 +2997,7 @@ nondimensionalized, and the returned values are non-dimensionalzied.
 
 
     def _ff(self, T, d, diff=2):
-        """Wrapper function for the dimensionless free energy methods
+        """Wrapper function for the dimensionless free energy methods (inner routine)
     tt,dd,a,at,ad,att,atd,add = _ff(T,d,diff=2)
     
 Sums the free energy and its derivatives from the ideal gas and residual
@@ -3230,12 +3229,12 @@ initially imported, it is treated as a tolerable cost.
             # Solve for the corresponding changes in T and dL
             x = np.linalg.solve(J,B)
             ddL = x[0]
-            dVV = -x[1]/dV/dV     # Near the triple point, we'll perterb vapor volume instead of density
+            dvV = -x[1]/dV/dV     # Near the triple point, we'll perterb vapor volume instead of density
             # Rescale the steps so that the metric T/Tc, d/dc is equal to step
             scale = step / np.sqrt(dT*dT/Tc/Tc + ddL*ddL/dc/dc)
             dT *= scale
             ddL *= scale
-            dVV *= scale
+            dvV *= scale
 
             # Detect the exit condition
             # If the next guess would be beyond the triple point, halt
@@ -3245,7 +3244,7 @@ initially imported, it is treated as a tolerable cost.
 
             T += dT
             dL += ddL
-            dV = 1./(1./dV + dVV)   # Perterb volume rather than density
+            dV = 1./(1./dV + dvV)   # Perterb volume rather than density
             
         if fail:
             pm.utility.print_error('This error should never appear in a release - please report this on the PYroMat Github Issues page.')
@@ -3253,11 +3252,11 @@ initially imported, it is treated as a tolerable cost.
         
         scale = (Tt - T[0]) / dT
         ddL *= scale
-        dVV *= scale
+        dvV *= scale
         
-        T += dT
+        T[0] = Tt
         dL += ddL
-        dV = 1./(1./dV + dVV)
+        dV = 1./(1./dV + dvV)
         Ids[0] = True
         
         self._Tsatiter(T, dL, dV, Ids)
@@ -3465,14 +3464,13 @@ density.
         # Restore the minimum density to zero
         d[0] = 0.
         # Override the minimum density values
-        R = self.data['R']
-        Tscale = self.data['IGgroup']['Tscale']
-        dscale = self.data['IGgroup']['dscale']
-        tt = Tscale / T
+        R = self._R()
+        Tc = self.data['Tc']
+        tt = Tc / T
         one = np.broadcast_to(np.array(1.), T.shape)
         _,ft,_,_,_,_ = self._fo(tt, one, 1)
         p[:,0] = 0.
-        e[:,0] = ft*(R*Tscale)
+        e[:,0] = ft*(R*Tc)
         h[:,0] = (ft*tt + 1.)*R*T
         # s, g, and f diverge in reality.
         s[:,0] = float('inf')
@@ -3675,6 +3673,47 @@ routines.
         self._dVsatiter(T, dL, dV, I, debug=debug)
         return T, dL, dV
 
+    def _satdiff(self, argL, argV):
+        """Saturation state derivatives
+    dLT, ddVT, p, pT = _satdiff(self, argL, argV)
+    
+Arguments:
+argL, argV
+    The liquid and vapor dimensionless argument tuples as returned by 
+    _ff().  All states must be genuine saturation states as returned
+    by one of the _XXsat() algorithms.
+    
+Returns:
+dLT     The derivative of liquid density with respect to temperature.
+dVT     The derivative of vapor density with respect to temperature.
+p       Saturation pressure
+pT      The derivative of pressure with respect to temperature.
+
+The saturation pressure is returned in addition to its derivative 
+because it is evaluated as an intermediate anyway, and it may be needed.
+It should be discarded if not needed.
+"""
+        # To obtain state derivatives, we'll differentiate the Maxwell
+        # criteria
+        #   g(T,dL) = g(T,dV)
+        #   p(T,dL) = p(T,dV)
+        # Leads to
+        #   (gLT-gVT)*dT = gLd*ddV - gVd*ddL
+        #   (pLT-pVT)*dT = pLd*ddV - pVd*ddL
+        # Matrix inversion gives ddV/dT and ddL/dT
+        _,gLT,gLd = self._g(*argL,1)
+        _,gVT,gVd = self._g(*argV,1)
+        _,pLT,pLd = self._p(*argL,1)
+        p,pVT,pVd = self._p(*argV,1)
+        # This is only a 2x2, so we can do it "manually"
+        det = (gLd*pVd - pLd*gVd)
+        g_T = gLT - gVT     # These aren't dg/dT and dp/dT; these are
+        p_T = pLT - pVT     # the partial derivatives of the maxwell eqns.
+        dLT = (-pVd*g_T + gVd*p_T)/det
+        dVT = (-pLd*g_T + gLd*p_T)/det
+        # Finally, calculate the pressure derivative
+        pT = pVT + pVd*dVT
+        return dLT, dVT, p, pT
 
     ############################
     #                          #
@@ -4006,7 +4045,7 @@ cp  [J/kg/K]    Constant-pressure specific heat
         dc = self.data['dc']
 
         C = dd*ad
-        B = C - tt*atd
+        B = C - tt*dd*atd
         cp = -tt*tt*att + B*B/(2*C + dd*dd*add)
         return R*cp
         
@@ -4039,6 +4078,7 @@ cv  [J/kg/K]    Constant-volume specific heat
         dc = self.data['dc']
 
         return -R * tt*tt*att
+
 
     #########################
     #                       #
@@ -4737,7 +4777,7 @@ other conditions, x<0 and d1 == d2.
                 # d2 will already be set by the mapsearch algorithm
                 d1[Ioob] = pm.config['def_oob']
                 # Leave temperature as specified
-            self._iter2(T, d2, self._p, fn, p, fvalue, Ids.copy(), debug=True)
+            self._iter2(T, d2, self._p, fn, p, fvalue, Ids.copy())
             d1[Ids] = d2[Ids]
             return T,d1,d2,x,Isat
         # 7.5: Two inverse properties
@@ -4753,14 +4793,13 @@ other conditions, x<0 and d1 == d2.
             zde0 = 1 if f0str == 's' else 0
             zde1 = 1 if f1str == 's' else 0
             T,d2,Isat,Ioob = self._mapsearch2(self._table[f0str], self._table[f1str], f0value, f1value, zde0=zde0, zde1=zde1)
-            print('mapsearch2:',T,d2,Isat,Ioob)
             x = np.full_like(T, -1.)
             d1 = np.empty_like(d2, dtype=float)
             if Isat.any():
                 # Stash a copy of the original T-values so we can recover from failed iteration
                 # Obtain estimates for saturation densities using our best guess for T
                 _, d1[Isat], d2[Isat] = self._Tsat(T[Isat])
-                self._satiter2(T, d1, d2, fn0, fn1, f0value, f1value, Isat.copy(), debug=True)
+                self._satiter2(T, d1, d2, fn0, fn1, f0value, f1value, Isat.copy())
                 # Calculate quality from the converged values
                 argL = self._ff(T=T[Isat], d=d1[Isat], diff=1)
                 argV = self._ff(T=T[Isat], d=d2[Isat], diff=1)
@@ -4797,8 +4836,7 @@ other conditions, x<0 and d1 == d2.
                 Ids[Ioob] = False
             # Finally, iterate on any non-saturated points
             if Ids.any():
-                self._iter2(T, d2, fn0, fn1, f0value, f1value, Ids.copy(), debug=True)
-                print('iter2:', T, d2)
+                self._iter2(T, d2, fn0, fn1, f0value, f1value, Ids.copy())
                 d1[Ids] = d2[Ids]
                 
             return T,d1,d2,x,Isat
@@ -4862,25 +4900,37 @@ Returns the molecular weight of the substance in
         mw = pm.units.molar(mw, from_units='kmol', exponent=-1)
         return mw
     
-    def R(self):
+    def R(self, universal=False):
         """Ideal gas constant
     R = R()
+        OR
+    R = R(universal=True)
     
 Returns the ideal gas constant in
     [unit_energy / unit_matter / unit_temperature]
     
-The mp1 data set includes a values for R lifted from the original data set.
-The gas constant can be independently calculated from the universal gas 
-constant or more precisely from the Boltzmann constant.  
+The mp2 data set includes a values for R that were used by the authors
+when generating the original data set.  In most cases, this value is
+not identical to the precise value that can be derived from Botlzmann's
+constant and the substance's molecular weight.  
+
+By default, R() returns the value used when creating the original data
+set, but calculating the precise value implied by Boltzmann's constant
+can be forced by setting universal=True.
+
     R = Ru / mw         # mw = molecular weight
         OR
-    R = k * Na / mw     # Na = avagadro's number
+    R = k * Na / mw     # Na = avagadro's number, k = Boltzmann const.
     
 The value returned by R is based on the value stored in the species data,
 from which all other properties are constructed.
 """
+        if universal:
+            R = 1000 * pm.units.const_Ru / self.data['mw']
+        else:
+            R = self._R()
         # R is stored in in J/kg/K
-        R = pm.units.energy(self._R(), from_units = 'J')
+        R = pm.units.energy(R, from_units = 'J')
         R = pm.units.matter(R, self.data['mw'], from_units='kg', exponent=-1)
         R = pm.units.temperature(R, from_units='K', exponent=-1)
         return R
@@ -4940,6 +4990,126 @@ Returns the triple temperature and pressure in a tuple pair in
     #                       #
     # Saturaiton properties #
     #                       #
+    
+    def satstate(self, *varg, **kwarg):
+        """Calculates most available saturation properties at once.
+        
+    sd = satstate(...)
+    
+Query the _argparse() method's documentation for a detailed description
+of the standard interface for specifying state.
+
+Returns a dictionary with the following keys that correspond to the 
+saturated liquid and vapor properties:
+
+    Liq.    Vap.        Property            Units*
+    ---------------------------------------------------
+    aL      aV          speed of sound      [L / t]
+    cpL     cpV         const. p sp. ht.    [E / M / T]
+    cvL     cvL         const. v sp. ht.    [E / M / T]
+    dL      dV          density             [M / V]
+    eL      eV          internal energy     [E / M]
+    fL      fV          free energy         [E / M]
+    hL      hV          enthalpy            [E / M]
+    gamL    gamV        sp. ht. ratio       dimensionless
+    sL      sV          entropy             [E / M / T]
+    vL      vV          specific volume     [V / M]
+    
+The following properties are the same for the liquid and vapor states:
+
+    Property                Units*
+    -------------------------------------------------
+    g   Gibbs energy        [E / M]
+    p   pressure            [P]
+    T   temperature         [T]
+    
+* Unit codes are
+    E   unit_energy
+    L   unit_length
+    M   unit_matter
+    P   unit_pressure
+    T   unit_temperature
+    t   unit_time
+    V   unit_volume
+
+Calling satstate() is faster than calling any two property methods, despite
+the number of properties calculated.
+
+The expensive part of the calculation is iterating to determine the 
+states from the user arguments and then evaluating the equation of state.
+Using the state to calculate the individual properties is comparatively 
+simple, so most users will find state() a useful tool -- especially for
+cycle modeling.
+
+See also: 
+    state()
+"""
+        # Parse the arguments
+        T,dL,dV = self._sat_argparse(*varg, **kwarg)
+        argL = self._ff(T=T, d=dL, diff=2)
+        argV = self._ff(T=T, d=dV, diff=2)
+        
+        out = {}
+        out['aL'] = self._a(*argL)
+        out['aV'] = self._a(*argV)
+        out['cpL'] = self._cp(*argL)
+        out['cpV'] = self._cp(*argV)
+        out['cvL'] = self._cv(*argL)
+        out['cvV'] = self._cv(*argV)
+        out['dL'] = dL
+        out['dV'] = dV
+        out['eL'] = self._e(*argL, diff=0)[0]
+        out['eV'] = self._e(*argV, diff=0)[0]
+        out['fL'] = self._f(*argL, diff=0)[0]
+        out['fV'] = self._f(*argV, diff=0)[0]
+        out['g'] = self._g(*argV, diff=0)[0]
+        out['gamL'] = out['cpL']/out['cvL']
+        out['gamV'] = out['cpV']/out['cvV']
+        out['hL'] = self._h(*argL, diff=0)[0]
+        out['hV'] = self._h(*argV, diff=0)[0]
+        out['p'] = self._p(*argV, diff=0)[0]
+        out['sL'] = self._s(*argL, diff=0)[0]
+        out['sV'] = self._s(*argV, diff=0)[0]
+        out['T'] = T
+        out['vL'] = 1./dL
+        out['vV'] = 1./dV
+        
+        # Finish with unit conversions
+        conv = pm.units.length(1., from_units='m')
+        conv = pm.units.time(conv, from_units='s', exponent=-1)
+        out['aL'] *= conv
+        out['aV'] *= conv
+        # Calculate a conversion factor for the energy properties
+        const = pm.units.energy(1., from_units='J')
+        const = pm.units.matter(const, self.data['mw'], from_units='kg', exponent=-1)
+        out['eL'] *= const
+        out['eV'] *= const
+        out['fL'] *= const
+        out['fV'] *= const
+        out['g'] *= const
+        out['hL'] *= const
+        out['hV'] *= const
+        # Calculate a conversion factor for entropy and specific heats
+        const = pm.units.temperature(const, from_units='K')
+        out['cpL'] *= const
+        out['cpV'] *= const
+        out['cvL'] *= const
+        out['cpV'] *= const
+        out['sL'] *= const
+        out['sV'] *= const
+        # Density and volume
+        const = pm.units.matter(1., self.data['mw'], from_units='kg')
+        const = pm.units.volume(const, from_units='m3', exponent=-1)
+        out['dL'] *= const
+        out['dV'] *= const
+        out['vL'] /= const
+        out['vV'] /= const
+        # Temperature
+        pm.units.temperature_scale(out['T'], from_units='K', inplace=True)
+        # Pressure
+        pm.units.pressure(out['p'], from_units='Pa', inplace=True)
+            
+        return out
     
     def ps(self, *varg, **kwarg):
         """Saturation pressure
@@ -5070,6 +5240,58 @@ units [unit_energy / unit_matter]
         hsL *= conv
         hsV *= conv
         return hsL, hsV
+        
+    def gs(self, *varg, **kwarg):
+        """Saturation Gibbs energy
+    gsat = gs(...)
+    
+If no keyword is specified, saturation properties interpret the argument
+as temperature.  However, pressure can be specified as well
+
+    gsat = gs(p=pvalue)
+
+Returns the saturation Gibbs energy.  Like pressure and Temperature,
+Gibbs energy is constant between the liquid and vapor states.
+units [unit_energy / unit_matter]
+"""
+        T,dL,dV = self._sat_argparse(*varg, **kwarg)
+        arg = self._ff(T,dL,diff=1)
+        gs = self._g(*arg,diff=0)[0]
+        
+        # Get a conversion factor
+        conv = pm.units.energy(1., from_units='J')
+        conv = pm.units.matter(conv, self.data['mw'],
+                from_units='kg', exponent=-1)
+        gs *= conv
+        return gs
+        
+    def fs(self, *varg, **kwarg):
+        """Saturation free (Helmholtz) energy
+    fsL, fsV = fs(...)
+    
+If no keyword is specified, saturation properties interpret the argument
+as temperature.  However, pressure can be specified as well
+
+    gsat = gs(p=pvalue)
+
+Returns the saturation Gibbs energy.  Like pressure and Temperature,
+Gibbs energy is constant between the liquid and vapor states.
+units [unit_energy / unit_matter]
+"""
+        T,dL,dV = self._sat_argparse(*varg, **kwarg)
+        arg = self._ff(T,dL,diff=1)
+        fsL = self._f(*arg,diff=0)[0]
+        
+        arg = self._ff(T,dV,diff=1)
+        fsV = self._f(*arg,diff=0)[0]
+        
+        # Get a conversion factor
+        conv = pm.units.energy(1., from_units='J')
+        conv = pm.units.matter(conv, self.data['mw'],
+                from_units='kg', exponent=-1)
+        fsL *= conv
+        fsV *= conv
+        return fsL, fsV
         
         
     def ss(self, *varg, **kwarg):
@@ -5241,7 +5463,7 @@ See also:
     #                    #
     
     def state(self, *varg, **kwarg):
-        """The state method calculates most available properties at once.
+        """Calculates most available properties at once.
         
     sd = state(...)
     
@@ -5249,151 +5471,126 @@ Query the _argparse() method's documentation for a detailed description
 of the standard interface for specifying state.
     
 The properties are returned in a dictionary with keys:
-    T   temperature         unit_temperature
-    p   pressure            unit_pressure
-    d   density             unit_matter / unit_volume
-    v   specific volume     unit_volume / unit_matter
-    x   quality             dimensionless
-    e   internal energy     unit_energy / unit_matter
-    f   free energy         unit_energy / unit_matter
-    g   gibbs energy        unit_energy / unit_matter
-    h   enthalpy            unit_energy / unit_matter
-    s   entropy             unit_energy / unit_matter / unit_temperature
+    a   speed of sound      unit_length / unit_time
     cp  const. p sp. ht.    unit_energy / unit_matter / unit_temperature
     cv  const. v sp. ht.    unit_energy / unit_matter / unit_temperature
-    
-Because calculating cv for saturation conditions is more computationally
-expensive, and because users rarely need this property, state() will
-return NaN for cv at saturated conditions.  This is a deliberate design
-decision to preserve the speed and simplicitly of the state() method.  
-For users who do want true constant-volume specific heat is still 
-available by calling the cv() method directly.
+    d   density             unit_matter / unit_volume
+    e   internal energy     unit_energy / unit_matter
+    f   free energy         unit_energy / unit_matter
+    g   Gibbs energy        unit_energy / unit_matter
+    gam sp. ht. ratio       dimensionless
+    h   enthalpy            unit_energy / unit_matter
+    p   pressure            unit_pressure
+    s   entropy             unit_energy / unit_matter / unit_temperature
+    T   temperature         unit_temperature
+    v   specific volume     unit_volume / unit_matter
+    x   quality             dimensionless
+
+Calling state() is faster than calling any two property methods, despite
+the number of properties calculated.
+
+The expensive part of the calculation is iterating to determine the 
+state from the user arguments and then evaluating the equation of state.
+Using the state to calculate the individual properties is comparatively 
+simple, so most users will find state() a useful tool -- especially for
+cycle modeling.
+
+See also: 
+    satstate()
 """
         
         # Parse the arguments
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
-        R = self.data['R']
+        arg2 = self._ff(T=T, d=d2, diff=2)
         
-        # Initialize the output
         out = {}
-        
-        # Start with the vapor (d2) half of the calculation
-        # In saturated cases, d2 should always be used to caluclate 
-        # pressure
-        # The IG part        
-        Tscale = self.data['IGgroup']['Tscale']
-        dscale = self.data['IGgroup']['dscale']
-        tt = Tscale / T
-        dd = d2 / dscale
-        a,at,ad,att,atd,add = self._fo(tt,dd,2)
-        
-        p = 1.
-        e = at
-        h = 1. + tt*at
-        s = tt*at - a
-        cp = -tt*tt*att
-        cv = tt*tt*att
-        
-        # The residual part
-        Tscale = self.data['Rgroup']['Tscale']
-        dscale = self.data['Rgroup']['dscale']
-        tt = Tscale / T
-        dd = d2 / dscale
-        a,at,ad,att,atd,add = self._fr(tt,dd,2)
-
-        p += dd*ad
-        p *= T*d2*R
-        e += at
-        e *= R*Tscale
-        h += dd*ad + tt*at
-        h *= R*T
-        s += tt*at - a
-        s *= R
-        temp = 1.+dd*(ad-tt*atd)
-        cp += -tt*tt*att + temp*temp/(1.+dd*(2.*ad+dd*add))
-        cp *= R
-        cv += tt*tt*att
-        cv *= -R
-        
-        # Before we go back and calculate the liquid properties,
-        # go ahead and store the vapor calculations
-        out['p'] = p
+        out['a'] = self._a(*arg2)
+        out['cp'] = self._cp(*arg2)
+        out['cv'] = self._cv(*arg2)
+        out['d'] = d2
+        out['e'] = self._e(*arg2, diff=0)[0]
+        out['f'] = self._f(*arg2, diff=0)[0]
+        out['g'] = self._g(*arg2, diff=0)[0]
+        out['gam'] = out['cp']/out['cv']
+        out['h'] = self._h(*arg2, diff=0)[0]
+        out['p'] = self._p(*arg2, diff=0)[0]
+        out['s'] = self._s(*arg2, diff=0)[0]
         out['T'] = T
-        out['d'] = d1
+        out['v'] = 1./d2
         out['x'] = x
-        out['e'] = e
-        out['f'] = e - T*s
-        out['g'] = h - T*s
-        out['h'] = h
-        out['s'] = s
-        out['cp'] = cp
-        out['cv'] = cv
-        
-        # Finish with the liquid (d1) half of the calculation
-        # The IG part        
-        Tscale = self.data['IGgroup']['Tscale']
-        dscale = self.data['IGgroup']['dscale']
-        tt = Tscale / T[I]
-        dd = d1[I] / dscale
-        a,at,ad,att,atd,add = self._fo(tt,dd,2)
-        
-        e = at
-        h = 1. + tt*at
-        s = tt*at - a
-        cp = -tt*tt*att
-        cv = tt*tt*att
-        
-        # The residual part
-        Tscale = self.data['Rgroup']['Tscale']
-        dscale = self.data['Rgroup']['dscale']
-        tt = Tscale / T[I]
-        dd = d1[I] / dscale
-        a,at,ad,att,atd,add = self._fr(tt,dd,2)
 
-        e += at
-        e *= R*Tscale
-        h += dd*ad + tt*at
-        h *= R*T[I]
-        s += tt*at - a
-        s *= R
-        temp = 1.+dd*(ad-tt*atd)
-        cp += -tt*tt*att + temp*temp/(1.+dd*(2.*ad+dd*add))
-        cp *= R
-        cv += tt*tt*att
-        cv *= -R
-        
-        # Finally, calculate the mixture properties with the appropriate
-        # quality.
-        out['cp'][I] = np.inf
-        out['cv'][I] = np.nan
-        out['e'][I] = out['e'][I]*(x[I]) + e*(1-x[I])
-        out['h'][I] = out['h'][I]*(x[I]) + h*(1-x[I])
-        out['s'][I] = out['s'][I]*(x[I]) + s*(1-x[I])
-        # Overwrite the helmholtz function with the mixture values
-        out['f'][I] = out['e'][I] - out['T'][I]*out['s'][I]
-        # Gibbs energy is constant across an equilibrium phase transition
-        # d is not weighted by x - v is.
-        out['d'][I] = 1./((1-x[I])/d1[I] + x[I]/d2[I])
-        
-        # Apply unit conversions
-        c1 = pm.units.energy(1., from_units='J')
-        c1 = pm.units.matter(c1, self.data['mw'], from_units='kg', exponent=-1)
-        out['e'] *= c1
-        out['h'] *= c1
-        out['f'] *= c1
-        out['g'] *= c1
-        c1 = pm.units.temperature(c1, from_units='K',exponent=-1)
-        out['s'] *= c1
-        out['cp'] *= c1
-        out['cv'] *= c1
-        out['gam'] = out['cp'] / out['cv']
-        out['gam'][I] = np.inf
-        out['p'] = pm.units.pressure(out['p'], from_units='Pa')
-        out['T'] = pm.units.temperature_scale(out['T'], from_units='K')
-        c1 = pm.units.volume(1., from_units='m3', exponent=-1)
-        c1 = pm.units.matter(c1, self.data['mw'], from_units='kg')
-        out['d'] *= c1
-        out['v'] = 1./out['d']
+        # Deal with two-phase mixtures
+        if I.any():
+            # Down-select to the saturated states in the arrays
+            dL = d1[I]
+            dV = d2[I]
+            argL = self._ff(T[I], dL, diff=2)       # Evaluate the liquid EOS
+            argV = tuple([this[I] for this in arg2])
+            xx = x[I]
+            
+            # cp is easy
+            out['cp'][I] = np.inf
+            
+            # cv is the tricky one
+            # We'll need to calculate the derivative of quality with
+            # respect to temperature.  To do that, we'll differentiate
+            # the Maxwell criteria
+            dLT, dVT, _, _ = self._satstate(argL, argV)
+
+            # How does x change with temperature?  The process is 
+            # constant volume, so the density is also constant.  Only
+            # the saturation densities change.
+            #     (dL/d ) - 1
+            # x = -----------
+            #     (dL/dV) - 1
+            temp = dL/dV
+            xT = (dLT * (1-xx)/dL + dVT * xx*temp/dV) / (temp-1)
+            # Grab the saturation sensitivities
+            eL,eLT,eLd = self._e(*argL,diff=1)
+            eV,eVT,eVd = self._e(*argV,diff=1)
+            # Calculate the true isochoric specific heat for the
+            # two-phase mixture
+            out['cv'][I] = (eLT+eLd*dLT)*(1-xx) + (eVT+eVd*dVT)*xx + (eV-eL)*xT
+            
+            # Density and volume
+            out['v'][I] = xx/dV + (1-xx)/dL
+            out['d'][I] = 1./out['v'][I]
+            
+            # Everything else
+            out['a'][I] = pm.config['def_oob']
+            out['e'][I] = out['e'][I]*xx + self._e(*argL, diff=0)[0]*(1-xx)
+            out['f'][I] = out['f'][I]*xx + self._f(*argL, diff=0)[0]*(1-xx)
+            # g is constant
+            out['gam'][I] = np.inf
+            out['h'][I] = out['h'][I]*xx + self._h(*argL, diff=0)[0]*(1-xx)
+            # p is constant
+            out['s'][I] = out['s'][I]*xx + self._s(*argL, diff=0)[0]*(1-xx)
+            
+        # Finish with unit conversions
+        pm.units.length(out['a'], from_units='m', inplace=True)
+        pm.units.time(out['a'], from_units='s', inplace=True, exponent=-1)
+        # Calculate a conversion factor for the energy properties
+        const = pm.units.energy(1., from_units='J')
+        const = pm.units.matter(const, self.data['mw'], from_units='kg', exponent=-1)
+        out['e'] *= const
+        out['f'] *= const
+        out['g'] *= const
+        out['h'] *= const
+        # Calculate a conversion factor for entropy and specific heats
+        const = pm.units.temperature(const, from_units='K')
+        out['cp'] *= const
+        out['cv'] *= const
+        out['s'] *= const
+        # Density and volume
+        const = pm.units.matter(1., self.data['mw'], from_units='kg')
+        const = pm.units.volume(const, from_units='m3', exponent=-1)
+        out['d'] *= const
+        out['v'] /= const
+        # Temperature
+        pm.units.temperature_scale(out['T'], from_units='K', inplace=True)
+        # Pressure
+        pm.units.pressure(out['p'], from_units='Pa', inplace=True)
+            
         return out
         
         
@@ -5553,7 +5750,6 @@ returned to save a redundant call to x().
 See also:
     a, cp, cv, d, e, f, g, gam, h, mw, p, R, s, T, v, x, state
 """
-            
         T,d1,d2,x,I = self._argparse(*varg, **kwarg)
         arg = self._ff(T,d2,diff=1)
         s = self._s(*arg,diff=0)[0]
@@ -5689,29 +5885,16 @@ See also:
         cv = self._cv(*arg)
         # Constant-volume specific heat is a bit complicated under the dome
         if I.any():
-            argL = self._ff(T[I], dL[I], diff=2)
-            argV = self._ff(T[I], dV[I], diff=2)
+            # Down-select to the saturated states in the arrays
+            dL = d1[I]
+            dV = d2[I]
+            argL = self._ff(T[I], dL, diff=2)
+            argV = tuple([this[I] for this in arg])
             xx = x[I]
-            # We'll need to calculate the derivative of quality with
-            # respect to temperature.  To do that, we'll differentiate
-            # the Maxwell criteria
-            #   g(T,dL) = g(T,dV)
-            #   p(T,dL) = p(T,dV)
-            # Leads to
-            #   (gLt-gVt)*dT = gLd*ddV - gVd*ddL
-            #   (pLt-pVt)*dT = pLd*ddV - pVd*ddL
-            # Matrix inversion gives ddV/dT and ddL/dT
-            _,gLt,gLd = self._g(*argL,1)
-            _,gVt,gVd = self._g(*argV,1)
-            _,pLt,pLd = self._p(*argL,1)
-            _,pVt,pVd = self._p(*argV,1)
-            # This is only a 2x2, so we can do it "manually"
-            temp = (gLd*pVd - pLd*gVd)
-            gt = gLt - gVt
-            pt = pLt - pVt
-            dLT = (-pVd*gt + gVd*pt)/temp
-            dVT = (-pLd*gt + gLd*pt)/temp
-
+            
+            # Find the derivatives of the saturation properties
+            dLT, dVT, _, _ = self._satdiff(argL, argV)
+            
             # How does x change with temperature?  The process is 
             # constant volume, so the density is also constant.  Only
             # the saturation densities change.

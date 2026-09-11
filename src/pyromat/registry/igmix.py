@@ -66,7 +66,7 @@ documentation using Python's built-in "help()" function.
         # Initialize the bootstrap flag
         # Initialization has to be split into two phases.  Calculation
         # of mean mixture properties cannot be completed until all other
-        # members of the collection have been loaded.  The _bootstrap()
+        # members of the collection have been loaded.  The _build()
         # method is responsible for completing the process, and the _bs
         # flag indicates whether it has already been completed.
         self._bs = False
@@ -81,11 +81,11 @@ documentation using Python's built-in "help()" function.
         self._Tlim = [float('-inf'), float('inf')]
         
         
-    def _build(self):
+    def _build(self, force=False):
         """Calculates internal parameters that are essential for the property functions
 This operation cannot be completed by __init__ at load time because 
 there is no no way to ensure that all of the constituent species have
-already been loaded.  Instead, _bootstrap() is called by the property
+already been loaded.  Instead, _build() is called by the property
 methods to be certain the relevant parameters have been calculated.  If
 the _bs member flag has already been set, this method returns 
 immediately.
@@ -99,7 +99,7 @@ _smix       The enthalpy of mixing
 _Tlim       Lower and upper temperature limits of the most restrictive
             constintuent gas data in Kelvin
 """
-        if self._bs:
+        if self._bs and not force:
             return
         
         self._bs = True
@@ -653,7 +653,7 @@ by the mixture composition by volume.  This results in atom quantities that
 are floating point instead of integer.  The number indicates the moles of
 each atom contained per mole of mixed gas.
 """
-        self._bootstrap()
+        self._build()
         atoms = {}
         for ss,x in self._x.items():
             spec = pm.dat.data.get(ss)
@@ -676,7 +676,7 @@ Returns the temperature limits on the ig data set.
 Accepts None
 Returns unit_temperature
 """
-        self._bootstrap()
+        self._build()
         T = np.array(self._Tlim, dtype=float)
         pm.units.temperature_scale(T, from_units='K', inplace=True)
         return tuple(T)

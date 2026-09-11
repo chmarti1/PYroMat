@@ -1,0 +1,163 @@
+{
+  "names": [
+    "decane",
+    "n-Decane",
+    "paraffin N 10",
+    "decyl hydride"
+  ],
+  "id": "mp.C12H22",
+  "class": "mp2",
+  "doc": "Decane is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
+  "inchi": "InChI=1S/C10H22/c1-3-5-7-9-10-8-6-4-2/h3-10H2,1-2H3",
+  "cas": "124-18-5",
+  "atoms": {
+    "C": 12,
+    "H": 22
+  },
+  "Tlim": [
+    243.5,
+    675
+  ],
+  "plim": [
+    0.0,
+    800000000.0
+  ],
+  "dlim": [
+    0.0,
+    1500.0
+  ],
+  "R": 58.436701056664496,
+  "Tc": 617.7,
+  "dc": 233.34195519999997,
+  "Tt": 243.5,
+  "mw": 142.28168,
+  "IGgroup": {
+    "logt": 18.109,
+    "group0": {
+      "coef": [
+        [
+          1,
+          -10.5265128286
+        ],
+        [
+          0,
+          13.9361966549
+        ]
+      ]
+    },
+    "group1": [
+      [
+        1.931358264529707,
+        25.685
+      ],
+      [
+        3.4644649506232796,
+        28.233
+      ],
+      [
+        7.710862878419944,
+        12.417
+      ],
+      [
+        17.584587987696292,
+        10.035
+      ]
+    ]
+  },
+  "Rgroup": {
+    "group0": [
+      {
+        "pre": [
+          0.125,
+          1
+        ],
+        "coef": [
+          [
+            12,
+            1,
+            0.74372
+          ],
+          [
+            11,
+            2,
+            -0.52579
+          ],
+          [
+            9,
+            1,
+            -2.4807
+          ],
+          [
+            7,
+            7,
+            0.00032865
+          ],
+          [
+            2,
+            3,
+            0.15315
+          ],
+          [
+            2,
+            1,
+            1.0461
+          ]
+        ]
+      },
+      {
+        "pre": [
+          0.125,
+          1
+        ],
+        "coef": [
+          [
+            14,
+            5,
+            0.055424
+          ],
+          [
+            5,
+            2,
+            0.84178
+          ]
+        ]
+      },
+      {
+        "pre": [
+          0.125,
+          1
+        ],
+        "coef": [
+          [
+            29,
+            4,
+            -0.18507
+          ],
+          [
+            29,
+            1,
+            -0.73555
+          ]
+        ]
+      },
+      {
+        "pre": [
+          0.5,
+          1
+        ],
+        "coef": [
+          [
+            29,
+            3,
+            -0.020775
+          ],
+          [
+            24,
+            4,
+            0.012335
+          ]
+        ]
+      }
+    ]
+  }
+}
