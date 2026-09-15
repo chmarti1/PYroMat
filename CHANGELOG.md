@@ -216,5 +216,8 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
     - Eliminates Tscale and dscale in favor of critical values in raw EOS data groups
     - Adds correct cv evaluation to `state()`
     - Adds `satstate()`
-    - Inner property methods now accept d-less free energy derivatives instead of T,d.  No more redundant EOS evaluations!
+    - Inner property methods now accept d-less free energy derivatives instead of T,d.  No more redundant EOS evaluations.
+- Added new optional-import modules for interfacing with high-level codes
+	- `cycle` Models thermodynamic cycles
+	- `isolines` Generate isoline property data
 
