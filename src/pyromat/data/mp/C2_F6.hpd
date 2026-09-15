@@ -1,67 +1,62 @@
 {
   "names": [
-    "isohexane",
-    "2-methylpentane",
-    "1,1-dimethylbutane",
-    "C6H14 isomer 1",
-    "C6H14"
+    "hexaflouroethane",
+    "1,1,1,2,2,2-hexafluoroethane",
+    "R-116",
+    "C2F6"
   ],
-  "id": "mp.C6H14_1",
+  "id": "mp.C2F6",
   "class": "mp2",
-  "doc": "Isohexane is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
-  "inchi": "InChI=1S/C6H14/c1-4-5-6(2)3/h6H,4-5H2,1-3H3",
-  "cas": "107-83-5",
+  "doc": "R-116 is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
+  "inchi": "InChI=1S/C2F6/c3-1(4,5)2(6,7)8",
+  "cas": "76-16-4",
   "atoms": {
-    "C": 6,
-    "H": 14
+    "C": 2,
+    "F": 6
   },
   "Tlim": [
-    119.6,
-    550
+    173.1,
+    425
   ],
   "plim": [
     0.0,
-    1000000000.0
+    50000000.0
   ],
   "dlim": [
     0.0,
-    1500.0
+    2000
   ],
-  "R": 96.4831710595697,
-  "Tc": 497.7,
-  "dc": 233.96610239999998,
-  "Tt": 119.6,
-  "mw": 86.17536,
+  "R": 60.24463701732214,
+  "Tc": 293.03,
+  "dc": 613.32452808,
+  "Tt": 173.1,
+  "mw": 138.01182,
   "IGgroup": {
     "logt": 3.0,
     "group0": {
       "coef": [
         [
           1,
-          -0.3128629679
+          8.9148979056
         ],
         [
           0,
-          6.9259123919
+          -10.7088650331
         ]
       ]
     },
     "group1": [
       [
-        0.6530038175607796,
-        7.9127
+        0.6483977749718459,
+        2.4818
       ],
       [
-        2.310628892907374,
-        16.871
+        2.1226495580657274,
+        7.0622
       ],
       [
-        4.816154309825196,
-        19.257
-      ],
-      [
-        11.840466144263614,
-        14.075
+        5.0165512063611235,
+        7.9951
       ]
     ]
   },
@@ -76,32 +71,32 @@
           [
             12,
             1,
-            1.0295
+            0.77202
           ],
           [
             11,
             2,
-            -0.21238
+            -0.14331
           ],
           [
             9,
             1,
-            -2.9699
+            -2.8123
           ],
           [
             7,
             7,
-            0.00027738
+            0.00024629
           ],
           [
             2,
             3,
-            0.11897
+            0.10227
           ],
           [
             2,
             1,
-            1.1027
+            1.1632
           ]
         ]
       },
@@ -114,12 +109,12 @@
           [
             14,
             5,
-            -0.034238
+            -0.028499
           ],
           [
             5,
             2,
-            0.40103
+            0.30893
           ]
         ]
       },
@@ -132,12 +127,12 @@
           [
             29,
             4,
-            -0.11693
+            -0.068793
           ],
           [
             29,
             1,
-            -0.43584
+            -0.30343
           ]
         ]
       },
@@ -150,12 +145,12 @@
           [
             29,
             3,
-            -0.019262
+            -0.027218
           ],
           [
             24,
             4,
-            0.0080783
+            0.010665
           ]
         ]
       }

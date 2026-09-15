@@ -1,0 +1,244 @@
+{
+  "names": [
+    "hydrogen",
+    "normal hydrogen",
+    "diatomic hydrogen",
+    "molecular hydrogen",
+    "wasserstoff",
+    "H2"
+  ],
+  "id": "mp.H2",
+  "class": "mp2",
+  "doc": "Normal hydrogen is a 3:1 blend of ortho- and parahydrogen (see mp.H2_1 and mp.H2_2).  The normal hydrogen model is adapted from [1].  Calculated values agree with tabulated values in the original work to within a rounding error; believed to be caused by the precise choice of molecular mass (not reported).\n\n[1] J. Leachman, R. Jacobsen, S. Penoncello, E. Lemmon, Fundamental equations of state for parahydrogen, normal hydrogen, and orthohydrogen, Journal of Physical and Chemical Reference Data, v38, pp721, 2009.  doi:10.1063/1.3160306",
+  "inchi": "InChI=1S/H2/h1H",
+  "cas": "1333-74-0",
+  "atoms": {
+    "H": 2
+  },
+  "Tlim": [
+    13.957,
+    1000.0
+  ],
+  "plim": [
+    0.0,
+    2000000000.0
+  ],
+  "dlim": [
+    0.0,
+    1200.0
+  ],
+  "R": 4124.487568704486,
+  "Tc": 33.145,
+  "dc": 31.26226704,
+  "Tt": 13.957,
+  "mw": 2.01588,
+  "IGgroup": {
+    "logt": 1.5,
+    "group0": {
+      "coef": [
+        [
+          1,
+          1.888076782
+        ],
+        [
+          0,
+          -1.4579856475
+        ]
+      ]
+    },
+    "group1": [
+      [
+        16.0205159149,
+        1.616
+      ],
+      [
+        22.6580178006,
+        -0.4117
+      ],
+      [
+        60.0090511389,
+        -0.792
+      ],
+      [
+        74.9434303817,
+        0.758
+      ],
+      [
+        206.9392065168,
+        1.217
+      ]
+    ]
+  },
+  "Rgroup": {
+    "group0": [
+      [
+        {
+          "pre": [
+            0.6844,
+            1
+          ],
+          "coef": [
+            [
+              1,
+              1,
+              -6.93643
+            ]
+          ]
+        },
+        {
+          "pre": [
+            1,
+            1
+          ],
+          "coef": [
+            [
+              1,
+              4,
+              0.01
+            ]
+          ]
+        },
+        {
+          "pre": [
+            0.989,
+            1
+          ],
+          "coef": [
+            [
+              1,
+              1,
+              2.1101
+            ]
+          ]
+        },
+        {
+          "pre": [
+            0.489,
+            1
+          ],
+          "coef": [
+            [
+              1,
+              1,
+              4.52059
+            ]
+          ]
+        },
+        {
+          "pre": [
+            0.803,
+            1
+          ],
+          "coef": [
+            [
+              1,
+              2,
+              0.732564
+            ]
+          ]
+        },
+        {
+          "pre": [
+            1.1444,
+            1
+          ],
+          "coef": [
+            [
+              1,
+              2,
+              -1.34086
+            ]
+          ]
+        },
+        {
+          "pre": [
+            1.409,
+            1
+          ],
+          "coef": [
+            [
+              1,
+              3,
+              0.130985
+            ]
+          ]
+        }
+      ],
+      [
+        {
+          "pre": [
+            1.754,
+            1
+          ],
+          "coef": [
+            [
+              1,
+              1,
+              -0.777414
+            ]
+          ]
+        },
+        {
+          "pre": [
+            1.311,
+            1
+          ],
+          "coef": [
+            [
+              1,
+              3,
+              0.351944
+            ]
+          ]
+        }
+      ]
+    ],
+    "group1": [
+      [
+        4.187,
+        2,
+        0.171,
+        1.685,
+        0.7164,
+        1.506,
+        -0.0211716
+      ],
+      [
+        5.646,
+        1,
+        0.2245,
+        0.489,
+        1.3444,
+        0.156,
+        0.0226312
+      ],
+      [
+        0.791,
+        3,
+        0.1304,
+        0.103,
+        1.4517,
+        1.736,
+        0.032187
+      ],
+      [
+        7.249,
+        1,
+        0.2785,
+        2.506,
+        0.7204,
+        0.67,
+        -0.0231752
+      ],
+      [
+        2.986,
+        1,
+        0.3967,
+        1.607,
+        1.5445,
+        1.662,
+        0.0557346
+      ]
+    ]
+  }
+}

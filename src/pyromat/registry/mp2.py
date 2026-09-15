@@ -1918,6 +1918,9 @@ Optional keywords are:
 Nmax        Maximum number of iterations allowed. (def = 20)
 ep          Fractional error allowed for convergence (def = 1e-6)
 """
+        if debug:
+            print('Initial guess:')
+            print(T, dL, dV)
         for count in range(Nmax):
             # Create down-selected views
             T_ = T[Ids]
@@ -1957,10 +1960,10 @@ ep          Fractional error allowed for convergence (def = 1e-6)
                 if inner_count > Nmax:
                     raise pm.utility.PMAnalysisError(f'mp2._dVsatiter: Crossed the critical point, and failed to produce a valid estimate after {Nmax} divisions!')
                 if debug:
-                    print(f'  Overstep correction {inner_count}')
+                    print(f'  Overstep correction {inner_count}: {T_}, {dL_}')
                 delta[Ioob,...] /= 2
                 T_[Ioob] += delta[Ioob,0,0]
-                dL[Ioob] += delta[Ioob,1,0]
+                dL_[Ioob] += delta[Ioob,1,0]
                 Ioob = (dL_ < self.data['dc']) + (T_ > self.data['Tc'])
             
             if debug:
@@ -3113,7 +3116,7 @@ initially imported, it is treated as a tolerable cost.
         dsV_array = [dc]
         
         if verbose:
-            print('T pc dL dV')
+            print('T dL dV')
             print('Critical Point:')
             print(f'{Tc:8.2f} {dc:8.2f} {dc:12.4e}')
         
@@ -3132,7 +3135,8 @@ initially imported, it is treated as a tolerable cost.
         dV = np.array([dc])
         Ids = np.array([True],dtype=bool)
         # Create an initial perturbation of the densities
-        # Do not perturb temperature
+        # Reduce temperature by 0.1%
+        T *= 0.999
         dL += step * dc / 1.414
         dV -= step * dc / 1.414
         fail = True
@@ -5094,7 +5098,7 @@ See also:
         out['cpL'] *= const
         out['cpV'] *= const
         out['cvL'] *= const
-        out['cpV'] *= const
+        out['cvV'] *= const
         out['sL'] *= const
         out['sV'] *= const
         # Density and volume
@@ -5535,7 +5539,7 @@ See also:
             # We'll need to calculate the derivative of quality with
             # respect to temperature.  To do that, we'll differentiate
             # the Maxwell criteria
-            dLT, dVT, _, _ = self._satstate(argL, argV)
+            dLT, dVT, _, _ = self._satdiff(argL, argV)
 
             # How does x change with temperature?  The process is 
             # constant volume, so the density is also constant.  Only

@@ -3,7 +3,8 @@
     "decane",
     "n-Decane",
     "paraffin N 10",
-    "decyl hydride"
+    "decyl hydride",
+    "C12H22"
   ],
   "id": "mp.C12H22",
   "class": "mp2",

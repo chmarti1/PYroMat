@@ -1,0 +1,249 @@
+{
+  "names": [
+    "orthohydrogen",
+    "hydrogen",
+    "H2"
+  ],
+  "id": "mp.H2_2",
+  "class": "mp2",
+  "doc": "Parahydrogen is a hypothetical hydrogen fluid comprised entirely of nuclei with antisymmetric quantum spin.  The parahydrogen model is adapted from [1].  Calculated values agree with tabulated values in the original work to within a rounding error; believed to be caused by the precise choice of molecular mass (not reported).\n\n[1] J. Leachman, R. Jacobsen, S. Penoncello, E. Lemmon, Fundamental equations of state for parahydrogen, normal hydrogen, and orthohydrogen, Journal of Physical and Chemical Reference Data, v38, pp721, 2009.  doi:10.1063/1.3160306",
+  "inchi": "InChI=1S/H2/h1H",
+  "cas": "1333-74-0",
+  "atoms": {
+    "H": 2
+  },
+  "Tlim": [
+    13.8033,
+    1000.0
+  ],
+  "plim": [
+    0.0,
+    2000000000.0
+  ],
+  "dlim": [
+    0.0,
+    1200.0
+  ],
+  "R": 4124.487568704486,
+  "Tc": 32.938,
+  "dc": 31.322743440000004,
+  "Tt": 13.8033,
+  "mw": 2.01588,
+  "IGgroup": {
+    "logt": 1.5,
+    "group0": {
+      "coef": [
+        [
+          1,
+          1.884521239
+        ],
+        [
+          0,
+          -1.4485891134
+        ]
+      ]
+    },
+    "group1": [
+      [
+        15.1496751472,
+        4.30256
+      ],
+      [
+        25.0925982148,
+        13.0289
+      ],
+      [
+        29.4735563787,
+        -47.7365
+      ],
+      [
+        35.4059141417,
+        50.0013
+      ],
+      [
+        40.724998482,
+        -18.6261
+      ],
+      [
+        163.7925799988,
+        0.993973
+      ],
+      [
+        309.2173173842,
+        0.536078
+      ]
+    ]
+  },
+  "Rgroup": {
+    "group0": [
+      [
+        {
+          "pre": [
+            0.6855,
+            1
+          ],
+          "coef": [
+            [
+              1,
+              1,
+              -7.33375
+            ]
+          ]
+        },
+        {
+          "pre": [
+            1,
+            1
+          ],
+          "coef": [
+            [
+              1,
+              4,
+              0.01
+            ]
+          ]
+        },
+        {
+          "pre": [
+            1,
+            1
+          ],
+          "coef": [
+            [
+              1,
+              1,
+              2.60375
+            ]
+          ]
+        },
+        {
+          "pre": [
+            0.489,
+            1
+          ],
+          "coef": [
+            [
+              1,
+              1,
+              4.66279
+            ]
+          ]
+        },
+        {
+          "pre": [
+            0.774,
+            1
+          ],
+          "coef": [
+            [
+              1,
+              2,
+              0.68239
+            ]
+          ]
+        },
+        {
+          "pre": [
+            1.133,
+            1
+          ],
+          "coef": [
+            [
+              1,
+              2,
+              -1.47078
+            ]
+          ]
+        },
+        {
+          "pre": [
+            1.386,
+            1
+          ],
+          "coef": [
+            [
+              1,
+              3,
+              0.135801
+            ]
+          ]
+        }
+      ],
+      [
+        {
+          "pre": [
+            1.619,
+            1
+          ],
+          "coef": [
+            [
+              1,
+              1,
+              -1.05327
+            ]
+          ]
+        },
+        {
+          "pre": [
+            1.162,
+            1
+          ],
+          "coef": [
+            [
+              1,
+              3,
+              0.328239
+            ]
+          ]
+        }
+      ]
+    ],
+    "group1": [
+      [
+        3.96,
+        2,
+        0.194,
+        1.7437,
+        0.8048,
+        1.5487,
+        -0.0577833
+      ],
+      [
+        5.276,
+        1,
+        0.2019,
+        0.5516,
+        1.5248,
+        0.1785,
+        0.0449743
+      ],
+      [
+        0.99,
+        3,
+        0.0301,
+        0.0634,
+        0.6648,
+        1.28,
+        0.0703464
+      ],
+      [
+        6.791,
+        1,
+        0.2383,
+        2.1341,
+        0.6832,
+        0.6319,
+        -0.0401766
+      ],
+      [
+        3.19,
+        1,
+        0.3253,
+        1.777,
+        1.493,
+        1.7104,
+        0.11951
+      ]
+    ]
+  }
+}

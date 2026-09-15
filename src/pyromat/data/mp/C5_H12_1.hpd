@@ -4,7 +4,9 @@
     "isoamylhydride",
     "2-methylbutane",
     "1,1,2-trimethylethane",
-    "1,1-dimethylpropane"
+    "1,1-dimethylpropane",
+    "C5H12 isomer 1",
+    "C5H12"
   ],
   "id": "mp.C5H12_1",
   "class": "mp2",

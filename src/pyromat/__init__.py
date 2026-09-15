@@ -291,7 +291,7 @@ there instead of standard out.
 
     if members is None:
         members = search(**kwarg)
-    elif isinstance(members, reg.__basedata__):
+    elif isinstance(members, reg.PYroMatModel):
         members = [members]
     elif isinstance(members, str):
         members = [get(members)]

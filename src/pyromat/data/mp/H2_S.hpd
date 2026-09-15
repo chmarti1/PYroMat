@@ -4,7 +4,9 @@
     "hydrosulfuric acide",
     "dihydrogen sulfide",
     "dihydrogen monosulfide",
-    "stink damp"
+    "stink damp",
+    "SH2",
+    "H2S"
   ],
   "id": "mp.H2S",
   "class": "mp2",

@@ -1,13 +1,18 @@
 {
     "id": "mp.Ar",
     "names": [
-        "Argon"
+        "argon",
+        "atomic argon",
+        "atmospheric argon",
+        "Ar"
     ],
     "atoms": {
         "Ar": 1
     },
-    "class": "mp1",
+    "class": "mp2",
     "doc": "The equation of state is implemented from\n  \nCh. Tegeler, R. Span, W. Wagner, A New Equation of State for Argon Covering the Fluid Region for Temperatures From the Melting Line to 700 K at Pressures up to 1000 MPa, Journal of Physical and Chemical Reference Data, v28, 779, 1999.\n doi: 10.1063/1.556037",
+    "inchi": "InChI=1S/Ar",
+    "cas": "7440-37-1",
     "mw": 39.948,
     "dc": 535.6,
     "Tc": 150.687,

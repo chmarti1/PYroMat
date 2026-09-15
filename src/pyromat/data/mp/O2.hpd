@@ -1,19 +1,18 @@
 {
     "id": "mp.O2",
     "names": [
-        "Oxygen",
-        "Molecular oxygen",
-        "Oxygen molecule",
-        "Pure oxygen",
-        "O2",
-        "Liquid oxygen",
+        "oxygen",
+        "molecular oxygen",
         "UN 1072",
         "UN 1073",
-        "Dioxygen"
+        "dioxygen",
+        "O2"
     ],
     "atoms": {
         "O": 2
     },
+    "inchi": "InChI=1S/O2/c1-2",
+    "cas": "7782-44-7",
     "class": "mp1",
     "doc": "The EOS model is taken from [1].  Note that the authors did NOT use the ITS-90 temperature scale.  It was adapted to PYroMat as-published presuming that the disimilarities in scales are smaller than the model uncertainty.\n\nThe paper [1] does not provide a derivation for the ideal gas portion of the Helholtz model from the specific heat model.  That and the inclusion of CODATA #28 reference values for enthalpy and entropy are original work.\n\n[1] Richard Stewart, Richard Jacobsen, W. Wagner, \"Thermodynamic Properties of Oxygen from the Triple Point to 300 K with Pressures to 80 MPa,\" Journal for Physical and Chemical Reference Data, v20, pp917, 1991.  doi:10.1063/1.555897'\n",
     "mw": 31.9988,

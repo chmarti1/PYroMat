@@ -1,63 +1,64 @@
 {
   "names": [
-    "acetone",
-    "2-propanone",
-    "propanone",
-    "C3H6O"
+    "dichlorofluoroethane",
+    "1,1-dichloro-1-fluoroethane",
+    "Freon-141",
+    "R-141b"
   ],
-  "id": "mp.C3H6O",
+  "id": "mp.C2H3Cl2F",
   "class": "mp2",
-  "doc": "Acetone is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
-  "inchi": "InChI=1S/C10H22/c1-3-5-7-9-10-8-6-4-2/h3-10H2,1-2H3",
-  "cas": "67-64-1 ",
+  "doc": "R-141b is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
+  "inchi": "InChI=1S/C2H3Cl2F/c1-2(3,4)5/h1H3",
+  "cas": "1717-00-6",
   "atoms": {
-    "C": 3,
-    "H": 6,
-    "O": 1
+    "C": 2,
+    "H": 3,
+    "Cl": 2,
+    "F": 1
   },
   "Tlim": [
-    178.5,
-    550
+    169.68,
+    500
   ],
   "plim": [
     0.0,
-    700000000.0
+    400000000.0
   ],
   "dlim": [
     0.0,
-    1500.0
+    1800.0
   ],
-  "R": 143.15762940015983,
-  "Tc": 508.1,
-  "dc": 272.97195800000003,
-  "Tt": 178.5,
-  "mw": 58.07914,
+  "R": 71.09447640787546,
+  "Tc": 477.5,
+  "dc": 458.55946001999996,
+  "Tt": 169.68,
+  "mw": 116.94962,
   "IGgroup": {
     "logt": 3.0,
     "group0": {
       "coef": [
         [
           1,
-          7.1422719708
+          9.1871858933
         ],
         [
           0,
-          -9.4883659997
+          -15.5074814985
         ]
       ]
     },
     "group1": [
       [
-        0.6101161188742373,
-        3.7072
+        1.0513089005235603,
+        6.8978
       ],
       [
-        6.849045463491438,
-        7.0675
+        3.2900523560209423,
+        7.8157
       ],
       [
-        3.1017516236961225,
-        11.012
+        9.63979057591623,
+        3.2039
       ]
     ]
   },
@@ -72,27 +73,27 @@
           [
             12,
             1,
-            -0.083409
+            1.3469
           ],
           [
             10,
             1,
-            -2.1267
+            -3.6799
           ],
           [
             7,
             7,
-            0.00016527
+            0.00025137
           ],
           [
             2,
             3,
-            0.065683
+            0.083329
           ],
           [
             2,
             1,
-            0.90041
+            1.1469
           ]
         ]
       },
@@ -105,17 +106,17 @@
           [
             19,
             1,
-            -0.039663
+            0.3272
           ],
           [
             17,
             5,
-            0.0092318
+            -0.029829
           ],
           [
             16,
             2,
-            0.72085
+            0.46946
           ]
         ]
       },
@@ -128,30 +129,30 @@
           [
             26,
             1,
-            -0.14961
+            -0.026219
           ],
           [
             19,
             4,
-            -0.076124
+            -0.078043
           ],
           [
             14,
             1,
-            -0.17217
+            -0.31621
           ]
         ]
       },
       {
         "pre": [
-          0.5,
+          12.5,
           1
         ],
         "coef": [
           [
-            25,
+            1,
             2,
-            -0.018166
+            -0.020498
           ]
         ]
       }
