@@ -206,3 +206,7 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
     - Eliminates the `_hybrid1()` method
     - Finally implements efficient and stable 2D inversion!
 - Added `_build()` to the `get()` algorithm to allow substances to dynamically construct themselves at load time.  This is a more elegant solution to the `igmix._bootstrap()` method, and it prevents `mp2` instances from wasting time and memory constructing their tables if they won't be needed.
+- Updated unit definitions to better align with NIST SP811
+    - Removed the amu in favor of the Dalton
+    - Changed the definition of `u` to be in terms of C12 instead of Na
+    - Added more force, energy, and volume units

@@ -49,3 +49,10 @@ code is implemented.
 The multiphase derivation of gibbs energy uses "a" when it should use 
 "f".
 
+BUGS:
+mp2._Xsatiter uses repeated divide-by-2 for "overstep" correction.  This fails
+when the state is "numerically" close to the critical point.  Need a better
+overstep protection method, or it may be prudent to revive hybrid iteration.
+
+
+

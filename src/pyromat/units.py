@@ -1,16 +1,18 @@
 """Unit conversion module for PYroMat
 
 To print a summary of all conversions supplied, call
->>> units.show()
-          force : lb lbf kN N oz kgf 
-         energy : BTU kJ J cal eV kcal BTU_ISO 
-    temperature : K R eV C F 
-       pressure : mmHg psi inHg MPa inH2O kPa Pa bar atm GPa torr mmH2O ksi 
-          molar : Ncum NL Nm3 kmol scf n mol sci Ncc lbmol 
-         volume : cumm cc mL L mm3 in3 gal UKgal cuin ft3 cuft USgal m3 cum 
-         length : ft nm cm mm m km um mile in 
-           mass : mg kg g oz lb lbm slug 
-           time : s ms min hr ns year day us 
+>>> pm.units.show()
+         length : km m cm mm um nm A in nmi ft yd mile mi 
+           time : ns us ms s min hr day year 
+           mass : mg g kg Mg T lbm u lb oz ton longton slug Da 
+          force : kN N mN dyne lb kgf lbf oz kip ton 
+          molar : kmol mol lbmol n Nm3 Ncum NL Ncc scf sci 
+    temperature : K C F R eV 
+         energy : mJ J kJ MJ cal kcal eV erg BTU 
+         volume : m3 mm3 cm3 in3 ft3 L mL uL cum cc cumm cuin cuft gal 
+                    USgal UKgal qt pt cup floz oz tbsp tsp 
+       pressure : Pa kPa MPa GPa bar atm Torr mmHg mmH2O psi psf ksi 
+                    inHg inH2O 
 
 To obtain a list for the units recognized by a particular conversion
 class, call the get() method,
@@ -184,12 +186,12 @@ be adjusted for operation at different points on the globe.
 
 The parameters and their defaults are defined as follows:
 Tstd = 273.15 Kelvin (0 degC)
-pstd = 1.01325 Bar (The US Standard atmosphere)
+pstd = 1.01325 Bar (The International Standard atmosphere)
 g = 9.80665 m/s^2 (Acceleration due to gravity at 45 deg latitude)
 dh2o = 999.9720 kg/m^3 (Density of water at 4 degC)
 dhg = 13595.1 kg/m^3 (Density of mercury at 0 degC)
 
-Changes to these values must remain in the units shown above.
+Changes to these values are always interpreted in the units shown above.
 
 This function writes constants,
 # Plank constant
@@ -197,6 +199,7 @@ const_h = 6.62607015e-34
 
 #Boltzman
 # Used to convert between eV and temperature
+# Also used to calculate the universal gas constant
 const_k = 1.38064852e-23 # J/K
 
 #Avagadro's number
@@ -301,31 +304,40 @@ unit conversion routines will be updated.
     }, 'unit_time')
 
     # Validated 11/18/2017
-    # Added u and amu, and changed to fundamental definition of lbm
-    #    7/5/2021
+    # 7/5/2021: Added u and amu, and changed to fundamental definition of lbm
+    # 8/2026: Removed amu, added Da, T, ton, longton, changed definition of u
     mass = Conversion({
-        'kg':1.,            # Kilogram
-        'g':1e-3,           # Gram
         'mg':1e-6,          # Milligram
+        'g':1e-3,           # Gram
+        'kg':1.,            # Kilogram
+        'Mg':1000.,         # Megagram
+        'T':1000.,          # Metric ton
         'lbm': 0.45359237,  # avoirdupois pound mass (precise by definition)
+        'u': 1.6605390689252e-27, # atomic mass unit defined as 1/12 of C12
     }, 'unit_mass')
     mass['lb'] = mass['lbm']        # pound-mass
     mass['oz'] = mass['lbm']/16.    # ounce-mass
+    mass['ton'] = 2000 * mass['lbm']
+    mass['longton'] = 2240. * mass['lbm']
     # The slug is one pound adjusted by gc
     mass['slug'] = mass['lb'] / (length['ft'] / (const_g * length['m']))
-    # Define the atomic unit based on avagadro's number
-    mass['u'] = 1./(const_Na * 1000)
-    mass['amu'] = mass['u']
+    # Define the Dalton as identical to the a.m.u.
+    mass['Da'] = mass['u']
 
     # Validated 11/18/2017
     force = Conversion({
-        'N':1.,             # Newton
         'kN':1000,          # Kilonewton
+        'N':1.,             # Newton
+        'mN':1e-3,          # millinewton
+        'dyne':1e-5,        # dyne (CGS)
         'lb': const_g * mass['lb'], # Pounds
         'kgf':const_g       # Kilogram-force
     }, 'unit_force')
     force['lbf'] = force['lb']
     force['oz'] = force['lb']/16.
+    force['kip'] = 1000.*force['lb']
+    force['ton'] = 2000.*force['lb']
+    
 
     # Define the molar to be consistently scaled with mass
     # This is essential for the matter function to operate correctly
@@ -355,12 +367,16 @@ unit conversion routines will be updated.
     }, 'unit_temperature')
 
     # Validated 11/18/2017
+    # 8/2026: Added mJ, MJ, erg
     energy = Conversion({
+        'mJ':1e-6,          # millijoule
         'J':1.,             # Joule
         'kJ':1000.,         # Kilojoule
+        'MJ':1e6,           # Megajoule
         'cal':4.184,        # Calorie (thermochemical)
         'kcal':4184.,       # Kilo Calorie (thermochemical)
-        'eV':const_q        # Electron-Volt
+        'eV':const_q,       # Electron-Volt
+        'erg':1e-7          # erg
     }, 'unit_energy')
     # Define the BTU as the energy 
     # British thermal unit (thermochemical)
@@ -382,11 +398,16 @@ unit conversion routines will be updated.
     volume['cumm'] = volume['mm3']
     volume['cuin'] = volume['in3']
     volume['cuft'] = volume['ft3']
-    volume['gal'] = volume['in3'] * 231.
+    volume['gal'] = volume['in3'] * 231.    # The US gallon
     volume['USgal'] = volume['gal']
     volume['UKgal'] = volume['L'] * 4.54609 # Imperial gallons
     volume['qt'] = volume['gal'] / 4        # US liquid quart
-    volume['pt'] = volume['gal'] / 8        # US liquid pint
+    volume['pt'] = volume['qt'] / 2         # US liquid pint
+    volume['cup'] = volume['qt'] / 4        # US customary cup
+    volume['floz'] = volume['cup'] / 8      # US customary fluid oz
+    volume['oz'] = volume['floz']
+    volume['tbsp'] = volume['floz'] / 2     # US customary tablespoon
+    volume['tsp'] = volume['tbsp'] / 3      # US customary teaspoon
     
     # Validated 11/18/2017
     pressure = Conversion({
@@ -401,7 +422,7 @@ unit conversion routines will be updated.
         'mmH2O':const_dh2o*const_g*length['mm'], # mm column height water
         'psi':(force['lb']/force['N']) * (length['m'] / length['in'])**2,
     }, 'unit_pressure')
-    pressure['psf'] = pressure['psi'] * (length['in'] / length['ft'])**2
+    pressure['psf'] = pressure['psi'] * 144.
     pressure['ksi'] = pressure['psi'] * 1000.   # kips per square inch
     pressure['inHg'] = pressure['mmHg'] * length['in'] / length['mm']  # in Mercury column height
     pressure['inH2O'] = pressure['mmH2O'] * length['in'] / length['mm'] # in water column height
