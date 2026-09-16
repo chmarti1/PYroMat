@@ -1,0 +1,163 @@
+{
+  "names": [
+    "carbon monoxide",
+    "carbon monooxide",
+    "carbonic oxide",
+    "carbon oxide",
+    "CO"
+  ],
+  "id": "mp.CO",
+  "class": "mp2",
+  "doc": "Carbon monoxide is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
+  "inchi": "InChI=1S/CO/c1-2",
+  "cas": "630-08-0",
+  "atoms": {
+    "C": 1,
+    "O": 1
+  },
+  "Tlim": [
+    68.16,
+    500
+  ],
+  "plim": [
+    0.0,
+    100000000.0
+  ],
+  "dlim": [
+    0.0,
+    1500.0
+  ],
+  "R": 296.83835473632723,
+  "Tc": 132.86,
+  "dc": 303.909585,
+  "Tt": 68.16,
+  "mw": 28.0101,
+  "IGgroup": {
+    "logt": 2.5,
+    "group0": [
+      {
+        "coef": [
+          [
+            1,
+            3.3683460039
+          ],
+          [
+            0,
+            -3.3728318564
+          ]
+        ]
+      },
+      {
+        "pre": -1.5,
+        "coef": [
+          [
+            1,
+            -9.111274701235156e-05
+          ]
+        ]
+      }
+    ],
+    "group1": [
+      [
+        23.250037633599273,
+        1.0128
+      ]
+    ]
+  },
+  "Rgroup": {
+    "group0": [
+      {
+        "pre": [
+          0.125,
+          1
+        ],
+        "coef": [
+          [
+            12,
+            1,
+            0.53149
+          ],
+          [
+            11,
+            2,
+            0.024173
+          ],
+          [
+            9,
+            1,
+            -2.4515
+          ],
+          [
+            7,
+            7,
+            0.00018818
+          ],
+          [
+            2,
+            3,
+            0.072156
+          ],
+          [
+            2,
+            1,
+            0.90554
+          ]
+        ]
+      },
+      {
+        "pre": [
+          0.125,
+          1
+        ],
+        "coef": [
+          [
+            14,
+            5,
+            -0.043268
+          ],
+          [
+            5,
+            2,
+            0.19405
+          ]
+        ]
+      },
+      {
+        "pre": [
+          0.125,
+          1
+        ],
+        "coef": [
+          [
+            29,
+            4,
+            -0.027896
+          ],
+          [
+            29,
+            1,
+            -0.12778
+          ]
+        ]
+      },
+      {
+        "pre": [
+          0.5,
+          1
+        ],
+        "coef": [
+          [
+            29,
+            3,
+            -0.034154
+          ],
+          [
+            24,
+            4,
+            0.016329
+          ]
+        ]
+      }
+    ]
+  }
+}

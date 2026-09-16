@@ -7,13 +7,14 @@
         "F": 4
     },
     "names": [
-        "R-134a",
+        "tetrafluoroethane (R-134a)",
+        "tetrafluoroethane",
         "1,1,1,2-tetrafluoroethane",
-        "Norfurane",
-        "CF3CH2F",
-        "Freon 134",
-        "HFA-134a",
-        "HFC-134a"
+        "norfurane",
+        "freon-134",
+        "R-134a",
+        "HFC-134a",
+        "CF3CH2F"
     ],
     "cas": "359-35-3",
     "inchi": "InChI=1S/C2H2F4/c3-1(4)2(5)6/h1-2H",

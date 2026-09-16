@@ -119,15 +119,17 @@
     "fromfile": "/home/chris/Documents/PYroMat/pyromat/data/mp/C_O2.hpd",
     "id": "mp.CO2",
     "names": [
-        "Carbon dioxide",
-        "Carbonic acid",
-        "Dry ice",
-        "Carbonic anhydride",
+        "carbon dioxide",
+        "carbonic acid",
+        "dry ice",
+        "carbonic anhydride",
         "UN 1013",
         "UN 1845",
         "UN 2187",
         "CO2"
     ],
+    "inchi": "InChI=1S/CO2/c2-1-3",
+    "cas": "124-38-9",
     "mw": 44.0098,
     "pc": 7377300.0,
     "plim": [

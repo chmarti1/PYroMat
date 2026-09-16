@@ -1,0 +1,171 @@
+{
+  "names": [
+    "toluene",
+    "methylbenzene",
+    "toluol",
+    "phenylmethane",
+    "methacide",
+    "menthylbenzol",
+    "antisal 1a",
+    "C7H8"
+  ],
+  "id": "mp.C7H8",
+  "class": "mp2",
+  "doc": "Toluene is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
+  "inchi": "InChI=1S/C7H8/c1-7-5-3-2-4-6-7/h2-6H,1H3",
+  "cas": "108-88-3",
+  "atoms": {
+    "C": 7,
+    "H": 8
+  },
+  "Tlim": [
+    178.0,
+    700
+  ],
+  "plim": [
+    0.0,
+    500000000.0
+  ],
+  "dlim": [
+    0.0,
+    1600
+  ],
+  "R": 90.23892530390688,
+  "Tc": 591.75,
+  "dc": 291.98665298,
+  "Tt": 178.0,
+  "mw": 92.13842,
+  "IGgroup": {
+    "logt": 3.0,
+    "group0": {
+      "coef": [
+        [
+          1,
+          1.1360823464
+        ],
+        [
+          0,
+          3.5241174832
+        ]
+      ]
+    },
+    "group1": [
+      [
+        0.32108153781157583,
+        1.6994
+      ],
+      [
+        1.3468525559780313,
+        8.0577
+      ],
+      [
+        2.7359526827207437,
+        17.059
+      ],
+      [
+        5.191381495564005,
+        8.4567
+      ],
+      [
+        13.375580904098014,
+        8.6423
+      ]
+    ]
+  },
+  "Rgroup": {
+    "group0": [
+      {
+        "pre": [
+          0.125,
+          1
+        ],
+        "coef": [
+          [
+            12,
+            1,
+            0.86712
+          ],
+          [
+            11,
+            2,
+            -0.1886
+          ],
+          [
+            9,
+            1,
+            -2.7855
+          ],
+          [
+            7,
+            7,
+            0.00025181
+          ],
+          [
+            2,
+            3,
+            0.11804
+          ],
+          [
+            2,
+            1,
+            0.96464
+          ]
+        ]
+      },
+      {
+        "pre": [
+          0.125,
+          1
+        ],
+        "coef": [
+          [
+            14,
+            5,
+            -0.029287
+          ],
+          [
+            5,
+            2,
+            0.57196
+          ]
+        ]
+      },
+      {
+        "pre": [
+          0.125,
+          1
+        ],
+        "coef": [
+          [
+            29,
+            4,
+            -0.1254
+          ],
+          [
+            29,
+            1,
+            -0.43351
+          ]
+        ]
+      },
+      {
+        "pre": [
+          0.5,
+          1
+        ],
+        "coef": [
+          [
+            29,
+            3,
+            -0.028207
+          ],
+          [
+            24,
+            4,
+            0.014076
+          ]
+        ]
+      }
+    ]
+  }
+}

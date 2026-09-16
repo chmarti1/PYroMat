@@ -1,8 +1,10 @@
-import pyromat as pyro
+import pyromat as pm
 import numpy as np
 
-class if97(pyro.reg.__basedata__):
+class if97(pm.reg.PYroMatModel):
     """The IF-97 class
+
+** DEPRECATED -- use MP1 or MP2 instead. **
 
 Based on the International Association for the Properties of Water and 
 Steam's 1997 Industrial Formulation (IF-97).
@@ -487,7 +489,7 @@ region 3 boundary with region 1 and region 2 with pressure p.
                     [[dpdn, dpdt],[dhdn, dhdt]], [-ptest, -htest])
                 n += dx[0]
                 t += dx[1]
-        raise pyro.utility.PMAnalysisError('Steam _th3 failed to converge. h=%f, p=%f'%(h,p))
+        raise pm.utility.PMAnalysisError('Steam _th3 failed to converge. h=%f, p=%f'%(h,p))
 
 
 
@@ -570,7 +572,7 @@ region 3 boundary with region 1 and region 2 with pressure p.
                     [[dpdn, dpdt],[dsdn, dsdt]], [-ptest, -stest])
                 n += dx[0]
                 t += dx[1]
-        raise pyro.utility.PMAnalysisError('Steam _ts3 failed to converge. s=%f, p=%f'%(s,p))
+        raise pm.utility.PMAnalysisError('Steam _ts3 failed to converge. s=%f, p=%f'%(s,p))
 
 
     def _g5(self,T,p,order=2):
@@ -630,7 +632,7 @@ region 5 boundary with region 2 with pressure p.
                 return Ts/t
             dhdt = gtt
             t -= htest/dhdt
-        raise pyro.utility.PMAnalysisError('Steam _th5() failed to converge.')
+        raise pm.utility.PMAnalysisError('Steam _th5() failed to converge.')
 
 
     def _ts5(self,s,p,Tinit):
@@ -663,7 +665,7 @@ region 5 boundary with region 2 with pressure p.
                 return Ts/t
             dsdt = t*gtt
             t -= stest/dsdt
-        raise pyro.utility.PMAnalysisError('Steam _ts5() failed to converge.')
+        raise pm.utility.PMAnalysisError('Steam _ts5() failed to converge.')
 
 
     def _b23(self,T=None,p=None):
@@ -805,17 +807,17 @@ Tmin is always the same value, regardless of p, so it will always be
 a scalar.
 """
         if p is None:
-            p = pyro.config['def_p']
+            p = pm.config['def_p']
         if not isinstance(p,np.ndarray):
             p = np.array(p)
-        p = pyro.units.pressure(p,to_units='bar')
+        p = pm.units.pressure(p,to_units='bar')
 
         # First, parse out the Tmax limit        
         # Test the range for each element of p
         RR = (p > 500.)
 
-        bigT = pyro.units.temperature_scale(2273.15, from_units='K')
-        smallT = pyro.units.temperature_scale(1073.15, from_units='K')
+        bigT = pm.units.temperature_scale(2273.15, from_units='K')
+        smallT = pm.units.temperature_scale(1073.15, from_units='K')
         # If all of the pressures are in one of the ranges, let Tmax be a scalar
         if RR.all():
             Tmax = smallT
@@ -837,7 +839,7 @@ a scalar.
 
             Tmax = it.operands[0]
         # Tmin is always the same regardless, so it is always a scalar
-        Tmin = pyro.units.temperature_scale(273.15, from_units='K')
+        Tmin = pm.units.temperature_scale(273.15, from_units='K')
         return Tmin, Tmax
 
 
@@ -853,17 +855,17 @@ pmin is always the same value, regardless of p, so it will always be
 a scalar.
 """
         if T is None:
-            T = pyro.config['def_T']
+            T = pm.config['def_T']
         if not isinstance(T,np.ndarray):
             T = np.array(T)
-        T = pyro.units.temperature_scale(T,to_units='K')
+        T = pm.units.temperature_scale(T,to_units='K')
 
         # First, parse out the Tmax limit        
         # Test the range for each element of p
         RR = (T > 1073.15)
 
-        bigp = pyro.units.pressure(1000., from_units='bar')
-        smallp = pyro.units.pressure(500., from_units='bar')
+        bigp = pm.units.pressure(1000., from_units='bar')
+        smallp = pm.units.pressure(500., from_units='bar')
         # If all of the pressures are in one of the ranges, let Tmax be a scalar
         if RR.all():
             pmax = smallp
@@ -885,7 +887,7 @@ a scalar.
 
             pmax = it.operands[0]
         # pmin is always the same regardless, so it is always a scalar
-        pmin = pyro.units.pressure(self.data['pt'], from_units='bar')
+        pmin = pm.units.pressure(self.data['pt'], from_units='bar')
         return pmin, pmax
 
 
@@ -896,8 +898,8 @@ a scalar.
 Accepts None
 Returns unit_temperature, unit_pressure
 """
-        T = pyro.units.temperature_scale(self.data['Tc'], from_units='K')
-        p = pyro.units.pressure(self.data['pc'], from_units='bar')
+        T = pm.units.temperature_scale(self.data['Tc'], from_units='K')
+        p = pm.units.pressure(self.data['pc'], from_units='bar')
         return T,p
 
 
@@ -909,8 +911,8 @@ Returns unit_temperature, unit_pressure
 Accepts None
 Returns unit_temperature, unit_pressure
 """
-        T = pyro.units.temperature_scale(self.data['Tt'], from_units='K')
-        p = pyro.units.pressure(self.data['pt'], from_units='bar')
+        T = pm.units.temperature_scale(self.data['Tt'], from_units='K')
+        p = pm.units.pressure(self.data['pt'], from_units='bar')
         return T,p
 
 
@@ -924,20 +926,20 @@ Accepts unit_temperature
 Returns unit_pressure
 """
         if T is None:
-            T = pyro.config['def_T']
+            T = pm.config['def_T']
         if not isinstance(T,np.ndarray):
             T = np.array(T)
 
-        T = pyro.units.temperature_scale(T, to_units='K')
+        T = pm.units.temperature_scale(T, to_units='K')
 
         if (T < self.data['Tt']).any():
-            raise pyro.utility.PMParamError(
+            raise pm.utility.PMParamError(
             'Saturation properties are not available below the triple point.')
         if (T > self.data['Tc']).any():
-            raise pyro.utility.PMParamError(
+            raise pm.utility.PMParamError(
             'Saturation properties are not available above the critical point.')
         
-        return pyro.units.pressure(self._ps(T), from_units='bar')
+        return pm.units.pressure(self._ps(T), from_units='bar')
 
 
 
@@ -950,21 +952,21 @@ Accepts unit_pressure
 Returns unit_temperature
 """
         if p is None:
-            p = pyro.config['def_p']
+            p = pm.config['def_p']
         if not isinstance(p,np.ndarray):
             p = np.array(p)
 
-        p = pyro.units.pressure(p, to_units='bar')
+        p = pm.units.pressure(p, to_units='bar')
 
         if (p < self.data['pt']).any():
-            raise pyro.utility.PMParamError(
+            raise pm.utility.PMParamError(
             'Saturation properties are not available below the triple point.')
         if (p > self.data['pc']).any():
-            raise pyro.utility.PMParamError(
+            raise pm.utility.PMParamError(
             'Saturation properties are not available above the critical point.')
 
         T = self._Ts(p)
-        return pyro.units.temperature_scale(T, from_units='K')
+        return pm.units.temperature_scale(T, from_units='K')
 
 
     def hs(self, T=None, p=None, tp=False):
@@ -996,39 +998,39 @@ Returns (unit_temperature)
         # ensure that one property is defined
         # use the default pressure when in doubt
         if T is None and p is None:
-            p = pyro.config['def_p']
+            p = pm.config['def_p']
 
         if T is not None:
-            TT = pyro.units.temperature_scale(T, to_units='K')
+            TT = pm.units.temperature_scale(T, to_units='K')
             if (TT < self.data['Tt']).any():
-                raise pyro.utility.PMParamError(
+                raise pm.utility.PMParamError(
                 'Saturation properties are not available below the triple point.')
             if (TT > self.data['Tc']).any():
-                raise pyro.utility.PMParamError(
+                raise pm.utility.PMParamError(
                 'Saturation properties are not available above the critical point.')
 
         if p is not None:
-            pp = pyro.units.pressure(p, to_units='bar')
+            pp = pm.units.pressure(p, to_units='bar')
             if (pp < self.data['pt']).any():
-                raise pyro.utility.PMParamError(
+                raise pm.utility.PMParamError(
                 'Saturation properties are not available below the triple point.')
             if (pp > self.data['pc']).any():
-                raise pyro.utility.PMParamError(
+                raise pm.utility.PMParamError(
                 'Saturation properties are not available above the critical point.')
         else:
             pp = self._ps(TT)
-            p = pyro.units.pressure(pp, from_units='bar')
+            p = pm.units.pressure(pp, from_units='bar')
 
         if T is None:
             TT = self._Ts(pp)
-            T = pyro.units.temperature_scale(TT, from_units='K')
+            T = pm.units.temperature_scale(TT, from_units='K')
 
         if (TT>623.15).any():
-            pyro.utility.print_warning(
+            pm.utility.print_warning(
     "Accuracy of steam saturation properties above 623.15K is reduced.")
 
-        scale = pyro.units.energy(from_units='kJ')
-        scale = pyro.units.matter(scale, self.data['mw'], from_units='kg', exponent=-1)
+        scale = pm.units.energy(from_units='kJ')
+        scale = pm.units.matter(scale, self.data['mw'], from_units='kg', exponent=-1)
 
         pi,t,_,_,gt,_,_,_ = self._g1(TT,pp,order=1)
         hL = scale * R * TT * t * gt
@@ -1069,39 +1071,39 @@ Returns (unit_temperature)
         # ensure that one property is defined
         # use the default pressure when in doubt
         if T is None and p is None:
-            p = pyro.config['def_p']
+            p = pm.config['def_p']
 
         if T is not None:
-            TT = pyro.units.temperature_scale(T, to_units='K')
+            TT = pm.units.temperature_scale(T, to_units='K')
             if (TT < self.data['Tt']).any():
-                raise pyro.utility.PMParamError(
+                raise pm.utility.PMParamError(
                 'Saturation properties are not available below the triple point.')
             if (TT > self.data['Tc']).any():
-                raise pyro.utility.PMParamError(
+                raise pm.utility.PMParamError(
                 'Saturation properties are not available above the critical point.')
 
         if p is not None:
-            pp = pyro.units.pressure(p, to_units='bar')
+            pp = pm.units.pressure(p, to_units='bar')
             if (pp < self.data['pt']).any():
-                raise pyro.utility.PMParamError(
+                raise pm.utility.PMParamError(
                 'Saturation properties are not available below the triple point.')
             if (pp > self.data['pc']).any():
-                raise pyro.utility.PMParamError(
+                raise pm.utility.PMParamError(
                 'Saturation properties are not available above the critical point.')
         else:
             pp = self._ps(TT)
-            p = pyro.units.pressure(pp, from_units='bar')
+            p = pm.units.pressure(pp, from_units='bar')
 
         if T is None:
             TT = self._Ts(pp)
-            T = pyro.units.temperature_scale(TT, from_units='K')
+            T = pm.units.temperature_scale(TT, from_units='K')
 
         if (TT>623.15).any():
-            pyro.utility.print_warning(
+            pm.utility.print_warning(
     "Accuracy of steam saturation properties above 623.15K is reduced.")
 
-        scale = pyro.units.energy(from_units='kJ')
-        scale = pyro.units.matter(scale, self.data['mw'], from_units='kg', exponent=-1)
+        scale = pm.units.energy(from_units='kJ')
+        scale = pm.units.matter(scale, self.data['mw'], from_units='kg', exponent=-1)
 
         pi,t,_,gp,gt,_,_,_ = self._g1(TT,pp,order=1)
         eL = scale * TT * R * (t*gt - pi*gp)
@@ -1143,39 +1145,39 @@ Returns (unit_temperature)
         # ensure that one property is defined
         # use the default pressure when in doubt
         if T is None and p is None:
-            p = pyro.config['def_p']
+            p = pm.config['def_p']
 
         if T is not None:
-            TT = pyro.units.temperature_scale(T, to_units='K')
+            TT = pm.units.temperature_scale(T, to_units='K')
             if (TT < self.data['Tt']).any():
-                raise pyro.utility.PMParamError(
+                raise pm.utility.PMParamError(
                 'Saturation properties are not available below the triple point.')
             if (TT > self.data['Tc']).any():
-                raise pyro.utility.PMParamError(
+                raise pm.utility.PMParamError(
                 'Saturation properties are not available above the critical point.')
 
         if p is not None:
-            pp = pyro.units.pressure(p, to_units='bar')
+            pp = pm.units.pressure(p, to_units='bar')
             if (pp < self.data['pt']).any():
-                raise pyro.utility.PMParamError(
+                raise pm.utility.PMParamError(
                 'Saturation properties are not available below the triple point.')
             if (pp > self.data['pc']).any():
-                raise pyro.utility.PMParamError(
+                raise pm.utility.PMParamError(
                 'Saturation properties are not available above the critical point.')
         else:
             pp = self._ps(TT)
-            p = pyro.units.pressure(pp, from_units='bar')
+            p = pm.units.pressure(pp, from_units='bar')
 
         if T is None:
             TT = self._Ts(pp)
-            T = pyro.units.temperature_scale(TT, from_units='K')
+            T = pm.units.temperature_scale(TT, from_units='K')
 
         if (TT>623.15).any():
-            pyro.utility.print_warning(
+            pm.utility.print_warning(
     "Accuracy of steam saturation properties above 623.15K is reduced.")
 
-        scale = pyro.units.volume(from_units='m3',exponent=-1)
-        scale = pyro.units.matter(scale, self.data['mw'], from_units='kg')
+        scale = pm.units.volume(from_units='m3',exponent=-1)
+        scale = pm.units.matter(scale, self.data['mw'], from_units='kg')
 
         pi,t,_,gp,_,_,_,_ = self._g1(TT,pp,order=1)
         dL = scale * pp * 100 / (R * TT * pi * gp)
@@ -1215,39 +1217,39 @@ Returns (unit_temperature)
         # ensure that one property is defined
         # use the default pressure when in doubt
         if T is None and p is None:
-            p = pyro.config['def_p']
+            p = pm.config['def_p']
 
         if T is not None:
-            TT = pyro.units.temperature_scale(T, to_units='K')
+            TT = pm.units.temperature_scale(T, to_units='K')
             if (TT < self.data['Tt']).any():
-                raise pyro.utility.PMParamError(
+                raise pm.utility.PMParamError(
                 'Saturation properties are not available below the triple point.')
             if (TT > self.data['Tc']).any():
-                raise pyro.utility.PMParamError(
+                raise pm.utility.PMParamError(
                 'Saturation properties are not available above the critical point.')
 
         if p is not None:
-            pp = pyro.units.pressure(p, to_units='bar')
+            pp = pm.units.pressure(p, to_units='bar')
             if (pp < self.data['pt']).any():
-                raise pyro.utility.PMParamError(
+                raise pm.utility.PMParamError(
                 'Saturation properties are not available below the triple point.')
             if (pp > self.data['pc']).any():
-                raise pyro.utility.PMParamError(
+                raise pm.utility.PMParamError(
                 'Saturation properties are not available above the critical point.')
         else:
             pp = self._ps(TT)
-            p = pyro.units.pressure(pp, from_units='bar')
+            p = pm.units.pressure(pp, from_units='bar')
 
         if T is None:
             TT = self._Ts(pp)
-            T = pyro.units.temperature_scale(TT, from_units='K')
+            T = pm.units.temperature_scale(TT, from_units='K')
 
         if (TT>623.15).any():
-            pyro.utility.print_warning(
+            pm.utility.print_warning(
     "Accuracy of steam saturation properties above 623.15K is reduced.")
 
-        scale = pyro.units.energy(from_units='kJ')
-        scale = pyro.units.matter(scale, self.data['mw'], from_units='kg', exponent=-1)
+        scale = pm.units.energy(from_units='kJ')
+        scale = pm.units.matter(scale, self.data['mw'], from_units='kg', exponent=-1)
 
         pi,t,g,_,gt,_,_,_ = self._g1(TT,pp,order=1)
         sL = scale * R * (t*gt - g)
@@ -1282,14 +1284,14 @@ Returns unit_energy / unit_matter
 """
         def_T = False
         if T is None:
-            T = pyro.config['def_T']
+            T = pm.config['def_T']
             def_T = True
 
         def_p = False
         if p is None:
-            p = pyro.config['def_p']
+            p = pm.config['def_p']
             def_p = True
-        pscale = pyro.units.pressure(to_units='bar')
+        pscale = pm.units.pressure(to_units='bar')
 
         if x is None:
             x = -1.
@@ -1302,7 +1304,7 @@ Returns unit_energy / unit_matter
 					op_dtypes='float')
 
         for h_,s_,d_,T_,p_,x_ in it:
-            TT = pyro.units.temperature_scale(T_, to_units='K')
+            TT = pm.units.temperature_scale(T_, to_units='K')
             pp = p_ * pscale
 
             # If x is unspecified
@@ -1332,7 +1334,7 @@ Returns unit_energy / unit_matter
                     s_[...] = R * (t*gt - g)
                     d_[...] = pp * 100 / (R * TT * pi * gp)
                 else:
-                    raise pyro.utility.PMParamError('Invalid property combination T=%f K, p=%f bar'%(TT,pp))
+                    raise pm.utility.PMParamError('Invalid property combination T=%f K, p=%f bar'%(TT,pp))
 
             else:
                 # If T was unspecified
@@ -1360,12 +1362,12 @@ Returns unit_energy / unit_matter
         h,s,d = it.operands[0:3]
 
         # Convert the results
-        hscale = pyro.units.energy(from_units='kJ')
-        hscale = pyro.units.matter(hscale,self.data['mw'],from_units='kg',exponent=-1)
+        hscale = pm.units.energy(from_units='kJ')
+        hscale = pm.units.matter(hscale,self.data['mw'],from_units='kg',exponent=-1)
         sscale = hscale
-        sscale = pyro.units.temperature(sscale,from_units='K')
-        dscale = pyro.units.volume(from_units='m3',exponent=-1)
-        dscale = pyro.units.matter(dscale, self.data['mw'], from_units='kg')
+        sscale = pm.units.temperature(sscale,from_units='K')
+        dscale = pm.units.volume(from_units='m3',exponent=-1)
+        dscale = pm.units.matter(dscale, self.data['mw'], from_units='kg')
         
         return hscale*h, sscale*s, dscale*d
 
@@ -1391,14 +1393,14 @@ Returns unit_energy / unit_matter
 """
         def_T = False
         if T is None:
-            T = pyro.config['def_T']
+            T = pm.config['def_T']
             def_T = True
 
         def_p = False
         if p is None:
-            p = pyro.config['def_p']
+            p = pm.config['def_p']
             def_p = True
-        pscale = pyro.units.pressure(to_units='bar')
+        pscale = pm.units.pressure(to_units='bar')
 
         if x is None:
             x = -1.
@@ -1410,7 +1412,7 @@ Returns unit_energy / unit_matter
                     ['readonly','copy'],['readonly','copy']], op_dtypes='float')
 
         for h_,T_,p_,x_ in it:
-            TT = pyro.units.temperature_scale(T_, to_units='K')
+            TT = pm.units.temperature_scale(T_, to_units='K')
             pp = p_ * pscale
 
             # If x is unspecified
@@ -1432,7 +1434,7 @@ Returns unit_energy / unit_matter
                     pi,t,g,gp,gt,_,_,_ = self._g5(TT,pp,order=1)
                     h_[...] = R*TT * t * gt
                 else:
-                    raise pyro.utility.PMParamError('Invalid property combination T=%f K, p=%f bar'%(TT,pp))
+                    raise pm.utility.PMParamError('Invalid property combination T=%f K, p=%f bar'%(TT,pp))
 
 
             else:
@@ -1455,8 +1457,8 @@ Returns unit_energy / unit_matter
         h = it.operands[0]
 
         # Convert the results
-        hscale = pyro.units.energy(from_units='kJ')
-        hscale = pyro.units.matter(hscale,self.data['mw'],from_units='kg',exponent=-1)
+        hscale = pm.units.energy(from_units='kJ')
+        hscale = pm.units.matter(hscale,self.data['mw'],from_units='kg',exponent=-1)
 
         return hscale*h
 
@@ -1483,14 +1485,14 @@ Returns unit_matter / unit_volume
 """
         def_T = False
         if T is None:
-            T = pyro.config['def_T']
+            T = pm.config['def_T']
             def_T = True
 
         def_p = False
         if p is None:
-            p = pyro.config['def_p']
+            p = pm.config['def_p']
             def_p = True
-        pscale = pyro.units.pressure(to_units='bar')
+        pscale = pm.units.pressure(to_units='bar')
 
         if x is None:
             x = -1.
@@ -1502,7 +1504,7 @@ Returns unit_matter / unit_volume
                     ['readonly','copy'],['readonly','copy']], op_dtypes='float')
 
         for d_,T_,p_,x_ in it:
-            TT = pyro.units.temperature_scale(T_, to_units='K')
+            TT = pm.units.temperature_scale(T_, to_units='K')
             pp = p_ * pscale
 
             # If x is unspecified
@@ -1524,7 +1526,7 @@ Returns unit_matter / unit_volume
                     pi,t,g,gp,gt,_,_,_ = self._g5(TT,pp,order=1)
                     d_[...] = pp * 100 / (R * TT * pi * gp)
                 else:
-                    raise pyro.utility.PMParamError('Invalid property combination T=%f K, p=%f bar'%(TT,pp))
+                    raise pm.utility.PMParamError('Invalid property combination T=%f K, p=%f bar'%(TT,pp))
 
 
             else:
@@ -1547,8 +1549,8 @@ Returns unit_matter / unit_volume
         d = it.operands[0]
 
         # Convert the results
-        dscale = pyro.units.volume(from_units='m3',exponent=-1)
-        dscale = pyro.units.matter(dscale, self.data['mw'], from_units='kg')
+        dscale = pm.units.volume(from_units='m3',exponent=-1)
+        dscale = pm.units.matter(dscale, self.data['mw'], from_units='kg')
         
         return dscale*d
 
@@ -1575,14 +1577,14 @@ Returns unit_energy / unit_matter / unit_temperature
 """
         def_T = False
         if T is None:
-            T = pyro.config['def_T']
+            T = pm.config['def_T']
             def_T = True
 
         def_p = False
         if p is None:
-            p = pyro.config['def_p']
+            p = pm.config['def_p']
             def_p = True
-        pscale = pyro.units.pressure(to_units='bar')
+        pscale = pm.units.pressure(to_units='bar')
 
         if x is None:
             x = -1.
@@ -1594,7 +1596,7 @@ Returns unit_energy / unit_matter / unit_temperature
                     ['readonly','copy'],['readonly','copy']], op_dtypes='float')
 
         for s_,T_,p_,x_ in it:
-            TT = pyro.units.temperature_scale(T_, to_units='K')
+            TT = pm.units.temperature_scale(T_, to_units='K')
             pp = p_ * pscale
 
             # If x is unspecified
@@ -1616,7 +1618,7 @@ Returns unit_energy / unit_matter / unit_temperature
                     pi,t,g,gp,gt,_,_,_ = self._g5(TT,pp,order=1)
                     s_[...] = R * (t*gt - g)
                 else:
-                    raise pyro.utility.PMParamError('Invalid property combination T=%f K, p=%f bar'%(TT,pp))
+                    raise pm.utility.PMParamError('Invalid property combination T=%f K, p=%f bar'%(TT,pp))
 
 
             else:
@@ -1639,9 +1641,9 @@ Returns unit_energy / unit_matter / unit_temperature
         s = it.operands[0]
 
         # Convert the results
-        sscale = pyro.units.energy(from_units='kJ')
-        sscale = pyro.units.matter(sscale,self.data['mw'],from_units='kg',exponent=-1)
-        sscale = pyro.units.temperature(sscale,from_units='K')
+        sscale = pm.units.energy(from_units='kJ')
+        sscale = pm.units.matter(sscale,self.data['mw'],from_units='kg',exponent=-1)
+        sscale = pm.units.temperature(sscale,from_units='K')
         
         return sscale*s
 
@@ -1668,14 +1670,14 @@ Returns unit_energy / unit_matter
 """
         def_T = False
         if T is None:
-            T = pyro.config['def_T']
+            T = pm.config['def_T']
             def_T = True
 
         def_p = False
         if p is None:
-            p = pyro.config['def_p']
+            p = pm.config['def_p']
             def_p = True
-        pscale = pyro.units.pressure(to_units='bar')
+        pscale = pm.units.pressure(to_units='bar')
 
         if x is None:
             x = -1.
@@ -1687,7 +1689,7 @@ Returns unit_energy / unit_matter
                     ['readonly','copy'],['readonly','copy']], op_dtypes='float')
 
         for e_,T_,p_,x_ in it:
-            TT = pyro.units.temperature_scale(T_,to_units='K')
+            TT = pm.units.temperature_scale(T_,to_units='K')
             pp = p_ * pscale
 
             # If x is unspecified
@@ -1709,7 +1711,7 @@ Returns unit_energy / unit_matter
                     pi,t,_,gp,gt,_,_,_ = self._g5(TT,pp,order=1)
                     e_[...] = TT * R * (t*gt - pi*gp)
                 else:
-                    raise pyro.utility.PMParamError('Invalid property combination T=%f K, p=%f bar'%(TT,pp))
+                    raise pm.utility.PMParamError('Invalid property combination T=%f K, p=%f bar'%(TT,pp))
 
 
             else:
@@ -1732,8 +1734,8 @@ Returns unit_energy / unit_matter
         e = it.operands[0]
 
         # Convert the results
-        scale = pyro.units.energy(from_units='kJ')
-        scale = pyro.units.matter(scale,self.data['mw'],from_units='kg',exponent=-1)
+        scale = pm.units.energy(from_units='kJ')
+        scale = pm.units.matter(scale,self.data['mw'],from_units='kg',exponent=-1)
 
         return e * scale
 
@@ -1760,14 +1762,14 @@ Returns unit_energy / unit_matter / unit_temperature
 """
         def_T = False
         if T is None:
-            T = pyro.config['def_T']
+            T = pm.config['def_T']
             def_T = True
 
         def_p = False
         if p is None:
-            p = pyro.config['def_p']
+            p = pm.config['def_p']
             def_p = True
-        pscale = pyro.units.pressure(to_units='bar')
+        pscale = pm.units.pressure(to_units='bar')
 
         if x is None:
             x = -1.
@@ -1779,7 +1781,7 @@ Returns unit_energy / unit_matter / unit_temperature
                     ['readonly','copy'],['readonly','copy']], op_dtypes='float')
 
         for cp_,T_,p_,x_ in it:
-            TT = pyro.units.temperature_scale(T_, to_units='K')
+            TT = pm.units.temperature_scale(T_, to_units='K')
             pp = p_ * pscale
             # If x is unspecified
             if x_<0.:
@@ -1802,7 +1804,7 @@ Returns unit_energy / unit_matter / unit_temperature
                     pi,t,_,_,_,_,_,gtt = self._g5(TT,pp,order=2)
                     cp_[...] = -R * t*t*gtt
                 else:
-                    raise pyro.utility.PMParamError('Invalid property combination T=%f K, p=%f bar'%(T_,pp))
+                    raise pm.utility.PMParamError('Invalid property combination T=%f K, p=%f bar'%(T_,pp))
 
 
             else:
@@ -1825,9 +1827,9 @@ Returns unit_energy / unit_matter / unit_temperature
         cp = it.operands[0]
 
         # Convert the results
-        scale = pyro.units.energy(from_units='kJ')
-        scale = pyro.units.matter(scale,self.data['mw'],from_units='kg',exponent=-1)
-        scale = pyro.units.temperature(scale,from_units='K',exponent=-1)
+        scale = pm.units.energy(from_units='kJ')
+        scale = pm.units.matter(scale,self.data['mw'],from_units='kg',exponent=-1)
+        scale = pm.units.temperature(scale,from_units='K',exponent=-1)
 
         return cp * scale
 
@@ -1854,14 +1856,14 @@ Returns unit_energy / unit_matter / unit_temperature
 """
         def_T = False
         if T is None:
-            T = pyro.config['def_T']
+            T = pm.config['def_T']
             def_T = True
 
         def_p = False
         if p is None:
-            p = pyro.config['def_p']
+            p = pm.config['def_p']
             def_p = True
-        pscale = pyro.units.pressure(to_units='bar')
+        pscale = pm.units.pressure(to_units='bar')
 
         if x is None:
             x = -1.
@@ -1873,7 +1875,7 @@ Returns unit_energy / unit_matter / unit_temperature
                     ['readonly','copy'],['readonly','copy']], op_dtypes='float')
 
         for cv_,T_,p_,x_ in it:
-            TT = pyro.units.temperature_scale(T_,to_units='K')
+            TT = pm.units.temperature_scale(T_,to_units='K')
             pp = p_ * pscale
 
             # If x is unspecified
@@ -1901,7 +1903,7 @@ Returns unit_energy / unit_matter / unit_temperature
                     temp = temp*temp/gpp
                     cv_[...] = R * (temp - t*t*gtt)
                 else:
-                    raise pyro.utility.PMParamError('Invalid property combination T=%f K, p=%f bar'%(T_,pp))
+                    raise pm.utility.PMParamError('Invalid property combination T=%f K, p=%f bar'%(T_,pp))
 
 
             else:
@@ -1928,9 +1930,9 @@ Returns unit_energy / unit_matter / unit_temperature
         cv = it.operands[0]
 
         # Convert the results
-        scale = pyro.units.energy(from_units='kJ')
-        scale = pyro.units.matter(scale,self.data['mw'],from_units='kg',exponent=-1)
-        scale = pyro.units.temperature(scale,from_units='K',exponent=-1)
+        scale = pm.units.energy(from_units='kJ')
+        scale = pm.units.matter(scale,self.data['mw'],from_units='kg',exponent=-1)
+        scale = pm.units.temperature(scale,from_units='K',exponent=-1)
 
         return cv * scale
 
@@ -1972,8 +1974,8 @@ Accepts unit_temperature
         dimensionless
 Returns unit_mass / unit_mol
 """
-        mw = pyro.units.mass(self.data['mw'],from_units='g')
-        mw = pyro.units.molar(mw,from_units='mol',exponent=-1)
+        mw = pm.units.mass(self.data['mw'],from_units='g')
+        mw = pm.units.molar(mw,from_units='mol',exponent=-1)
         return mw
         
 
@@ -2015,13 +2017,13 @@ Returns unit_temperature
 
         # Prepare h and p
         if p is None:
-            p = pyro.config['def_p']
+            p = pm.config['def_p']
         if not isinstance(p,np.ndarray):
             p = np.array(p)
-        pscale = pyro.units.pressure(to_units='bar')
+        pscale = pm.units.pressure(to_units='bar')
 
-        scale = pyro.units.energy(to_units='kJ')
-        scale = pyro.units.matter(scale,self.data['mw'],to_units='kg')
+        scale = pm.units.energy(to_units='kJ')
+        scale = pm.units.matter(scale,self.data['mw'],to_units='kg')
 		
         it = np.nditer((None,None,h,p),
                 op_flags=[['readwrite','allocate'],['readwrite','allocate'],
@@ -2061,7 +2063,7 @@ Returns unit_temperature
                         pi,t,g,gp,gt,_,_,_ = self._g5(T5max,p_,order=1)
                         h5 = R*T5max * t * gt
                         if hh>h5:
-                            raise pyro.utility.PMParamError(
+                            raise pm.utility.PMParamError(
                             'Steam T_h(): the state is not in the IF-97 domain.')
                         Tinit = T25 + (T5max-T25)*(hh-h25)/(h5-h25)
                         T_[...] = self._th5(h=hh, p=p_, Tinit=Tinit)
@@ -2082,7 +2084,7 @@ Returns unit_temperature
                         pi,t,g,gp,gt,_,_,_ = self._g5(T5max,p_,order=1)
                         h5 = R*T5max * t * gt
                         if hh>h5:
-                            raise pyro.utility.PMParamError(
+                            raise pm.utility.PMParamError(
                             'Steam T_h(): the state is not in the IF-97 domain.')
                         Tinit = T25 + (T5max-T25)*(hh-h25)/(h5-h25)
                         T_[...] = self._th5(h=hh, p=p_, Tinit=Tinit)
@@ -2118,19 +2120,19 @@ Returns unit_temperature
                             pi,t,g,gp,gt,_,_,_ = self._g5(T5max,p_,order=1)
                             h5 = R*T5max * t * gt
                             if hh>h5:
-                                raise pyro.utility.PMParamError(
+                                raise pm.utility.PMParamError(
                                 'Steam T_h(): the state is not in the IF-97 ' +
                                 'domain.')
                             Tinit = T25 + (T5max-T25)*(hh-h25)/(h5-h25)
                             T_[...] = self._th5(h=hh, p=p_, Tinit=Tinit)
                         else:
-                            raise pyro.utility.PMParamError(
+                            raise pm.utility.PMParamError(
                             'Steam T_h(): the state is not in the IF-97 domain.')
             else:
-                raise pyro.utility.PMParamError(
+                raise pm.utility.PMParamError(
                 'Steam T_h(): pressure is above the IF-97 maximum (1000bar)')
 
-            T_[...] = pyro.units.temperature_scale(T_,from_units='K')
+            T_[...] = pm.units.temperature_scale(T_,from_units='K')
   
         if quality:
             return it.operands[0:2]
@@ -2174,14 +2176,14 @@ Returns unit_temperature
 
         # Prepare s and p
         if p is None:
-            p = pyro.config['def_p']
+            p = pm.config['def_p']
         if not isinstance(p,np.ndarray):
             p = np.array(p)
-        p = pyro.units.pressure(p, to_units='bar')
+        p = pm.units.pressure(p, to_units='bar')
 
-        scale = pyro.units.energy(to_units='kJ')
-        scale = pyro.units.matter(scale,self.data['mw'],to_units='kg')
-        scale = pyro.units.temperature(scale,to_units='K')
+        scale = pm.units.energy(to_units='kJ')
+        scale = pm.units.matter(scale,self.data['mw'],to_units='kg')
+        scale = pm.units.temperature(scale,to_units='K')
 
         it = np.nditer((None,None,s,p),
 		            op_flags=[['readwrite','allocate'],['readwrite','allocate'],
@@ -2215,7 +2217,7 @@ Returns unit_temperature
                         # Region 5
                         s5 = self.s(T=T5max,p=p_)
                         if ss>s5:
-                            raise pyro.utility.PMParamError(
+                            raise pm.utility.PMParamError(
                             'Steam T_h(): the state is not in the IF-97 domain.')
                         Tinit = T25 + (T5max-T25)*(ss-s25)/(s5-s25)
                         T_[...] = self._ts5(s=ss, p=p_, Tinit=Tinit)
@@ -2231,7 +2233,7 @@ Returns unit_temperature
                         # Region 5
                         s5 = self.s(T=T5max,p=p_)
                         if ss>s5:
-                            raise pyro.utility.PMParamError(
+                            raise pm.utility.PMParamError(
                             'Steam T_h(): the state is not in the IF-97 domain.')
                         Tinit = T25 + (T5max-T25)*(ss-s25)/(s5-s25)
                         T_[...] = self._ts5(s=ss, p=p_, Tinit=Tinit)
@@ -2259,19 +2261,19 @@ Returns unit_temperature
                             # Region 5
                             s5 = self.s(T=T5max,p=p_)
                             if ss>s5:
-                                raise pyro.utility.PMParamError(
+                                raise pm.utility.PMParamError(
                                 'Steam T_s(): the state is not in the IF-97 ' +
                                 'domain.')
                             Tinit = T25 + (T5max-T25)*(ss-s25)/(s5-s25)
                             T_[...] = self._ts5(s=ss, p=p_, Tinit=Tinit)
                         else:
-                            raise pyro.utility.PMParamError(
+                            raise pm.utility.PMParamError(
                             '*Steam T_s(): the state is not in the IF-97 domain.')
             else:
-                raise pyro.utility.PMParamError(
+                raise pm.utility.PMParamError(
                 'Steam T_h(): pressure is above the IF-97 maximum (1000bar)')
 
-            T_[...] = pyro.units.temperature_scale(T_,from_units='K')
+            T_[...] = pm.units.temperature_scale(T_,from_units='K')
   
         if quality:
             return it.operands[0:2]

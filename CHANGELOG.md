@@ -192,7 +192,6 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 - Changed the `mp1` data model to make writing new models easier
 - Added mp.C3H2F4 (R1234yf) from the 2022 Lemmon and Akasaka model
 - Added polishing to improve the accuracy of saturation parameters (see github issue 89)
-- Added the `mp2` class, which uses a table to "look up" saturation states prior to polishing with the Maxwell criteria
 - Corrected a bug in `mp1._sat_argparse()` to honor the `def_T_unit` parameter (see issue 99).
 - Added the `astuple` keyword to the `casid()` method to reformat as an integer tuple
 - Added molecular weight searching to the `search()` function
@@ -200,13 +199,28 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 
 
 ## Version 3.0.1
-- Added the `mp2` class!
+- Modified the built-in base class
+    - Renamed from `__basedata__` to `PYroMatModel`
+    - Added a `_build()` method to support classes like `igmix` and `mp2` that have back-end jobs to do that need to wait until after the initial data load is done.
+    - Renamed `__basetest__()` to `_test_basic()`
+    - Added `<collection>.<formula>` id format requirement to the `_test_basic()` algorithm
+- Call `_build()` in the `get()` algorithm to allow substances to dynamically construct themselves at retrieval instead of load.  This is a more elegant solution to the `igmix._bootstrap()` method, and it prevents `mp2` instances from wasting time and memory constructing their tables if they won't be needed.
+- Added a call to `_build()` to the `get()` algorithm to allow substances to dynamically construct themselves at load time.  This is a more elegant solution to the `igmix._bootstrap()` method, and it prevents `mp2` instances from wasting time and memory constructing their tables if they won't be needed.
+- Modified `igmix` to use `_build()` instead of `_bootstrap()`
+- Added the `mp2` class.
     - Uses table lookups to quickly generate accurate initial guesses and indentify out-of-bounds states
-    - Extends state definition to most properties
-    - Eliminates the `_hybrid1()` method
-    - Finally implements efficient and stable 2D inversion!
-- Added `_build()` to the `get()` algorithm to allow substances to dynamically construct themselves at load time.  This is a more elegant solution to the `igmix._bootstrap()` method, and it prevents `mp2` instances from wasting time and memory constructing their tables if they won't be needed.
+    - Uses `_build()` to call `_build_sattab()` and `_build_tab()` to construct back-end lookup tables.
+    - Extends state definition to more property combinations.  Specifically, (s,h) and (s,e) are now included. 
+    - Eliminates the `_hybrid1()` method in favor of Newton-Rhapson.  The close initial guesses provided by the tables solve the numerical stability problem `_hybrid1()` was designed to address.
+    - Implements true 2D iteration without the stability problems thanks to good initial guesses provided by the `_XmapsearchN()` methods.
+    - Added the `_R()` method for a consistent algorithm for deciding between `pm.units.const_Ru` versus the substance data dictionary.
+    - Eliminates Tscale and dscale in favor of critical values in raw EOS data groups
+    - Adds correct cv evaluation to `state()`
+    - Adds `satstate()`
+    - Inner property methods now accept d-less free energy derivatives instead of T,d.  No more redundant EOS evaluations!
+
 - Updated unit definitions to better align with NIST SP811
     - Removed the amu in favor of the Dalton
-    - Changed the definition of `u` to be in terms of C12 instead of Na
+    - Changed the definition of `u` to be in terms of carbon-12 instead of `units.const_Na`
     - Added more force, energy, and volume units
+

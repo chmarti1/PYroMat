@@ -1,0 +1,143 @@
+{
+  "names": [
+    "krypton",
+    "atomic krypton",
+    "Kr"
+  ],
+  "id": "mp.Kr",
+  "class": "mp2",
+  "doc": "Krypton is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
+  "inchi": "InChI=1S/Kr",
+  "cas": "7439-90-9",
+  "atoms": {
+    "Kr": 1
+  },
+  "Tlim": [
+    115.77,
+    750
+  ],
+  "plim": [
+    0.0,
+    200000000.0
+  ],
+  "dlim": [
+    0.0,
+    2862.0
+  ],
+  "R": 99.22041098832908,
+  "Tc": 209.48,
+  "dc": 909.2083,
+  "Tt": 115.77,
+  "mw": 83.798,
+  "IGgroup": {
+    "logt": 1.5,
+    "group0": {
+      "coef": [
+        [
+          1,
+          3.7798018435
+        ],
+        [
+          0,
+          -3.7506412806
+        ]
+      ]
+    }
+  },
+  "Rgroup": {
+    "group0": [
+      {
+        "pre": [
+          0.125,
+          1
+        ],
+        "coef": [
+          [
+            12,
+            1,
+            0.54567
+          ],
+          [
+            11,
+            2,
+            0.014361
+          ],
+          [
+            9,
+            1,
+            -2.3725
+          ],
+          [
+            7,
+            7,
+            0.0001931
+          ],
+          [
+            2,
+            3,
+            0.066502
+          ],
+          [
+            2,
+            1,
+            0.83561
+          ]
+        ]
+      },
+      {
+        "pre": [
+          0.125,
+          1
+        ],
+        "coef": [
+          [
+            14,
+            5,
+            -0.033133
+          ],
+          [
+            5,
+            2,
+            0.16818
+          ]
+        ]
+      },
+      {
+        "pre": [
+          0.125,
+          1
+        ],
+        "coef": [
+          [
+            29,
+            4,
+            -0.022897
+          ],
+          [
+            29,
+            1,
+            -0.15008
+          ]
+        ]
+      },
+      {
+        "pre": [
+          0.5,
+          1
+        ],
+        "coef": [
+          [
+            29,
+            3,
+            -0.021454
+          ],
+          [
+            24,
+            4,
+            0.0069397
+          ]
+        ]
+      }
+    ]
+  }
+}

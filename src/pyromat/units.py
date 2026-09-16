@@ -1,6 +1,7 @@
 """Unit conversion module for PYroMat
 
 To print a summary of all conversions supplied, call
+<<<<<<< HEAD
 >>> pm.units.show()
          length : km m cm mm um nm A in nmi ft yd mile mi 
            time : ns us ms s min hr day year 
@@ -13,6 +14,27 @@ To print a summary of all conversions supplied, call
                     USgal UKgal qt pt cup floz oz tbsp tsp 
        pressure : Pa kPa MPa GPa bar atm Torr mmHg mmH2O psi psf ksi 
                     inHg inH2O 
+=======
+>>> units.show()
+         length : km m dm cm mm um nm A in nmi ft yd mile mi 
+           time : ns us ms s min hr day year 
+           mass : kg g mg lbm lb oz slug u amu 
+          force : N kN lb kgf lbf oz 
+          molar : kmol mol lbmol n Nm3 Ncum NL Ncc scf sci 
+    temperature : K C F R eV 
+         energy : J kJ cal kcal eV BTU 
+         volume : m3 dm3 mm3 cm3 in3 ft3 L mL uL cum cc cumm cuin cuft 
+                    gal USgal UKgal qt pt 
+       pressure : Pa kPa MPa GPa bar atm Torr mmHg mmH2O psi psf ksi 
+                    inHg inH2O 
+       
+See also...
+  abs_to_gauge()        Absolute to gauge pressure
+  gauge_to_abs()        Gauge to absolute pressure
+  matter()              Moles and mass conversions
+  temperature_scale()   Correct handling of non-absolute temperatures
+
+>>>>>>> 5f512ec9a407c126a9f290df8f0fee625baf6ccc
 
 To obtain a list for the units recognized by a particular conversion
 class, call the get() method,
@@ -276,13 +298,14 @@ unit conversion routines will be updated.
     # Validated 11/18/2017
     # Added angstroms 7/5/2021
     length = Conversion({
-        'km':1e3,          # Kilometer
+        'km':1e3,           # Kilometer
         'm':1.,             # Meter
-        'cm':.01,          # Centimeter
-        'mm':1e-3,         # Millimeter
-        'um':1e-6,           # Micrometer
-        'nm':1e-9,           # Nanometer
-        'A':1e-10,           # Angstrom
+        'dm':0.1,           # Decimeter
+        'cm':0.01,          # Centimeter
+        'mm':1e-3,          # Millimeter
+        'um':1e-6,          # Micrometer
+        'nm':1e-9,          # Nanometer
+        'A':1e-10,          # Angstrom
         'in':.0254,         # Inch
         'nmi':1852,         # Nautical Mile
     }, 'unit_length')
@@ -385,6 +408,7 @@ unit conversion routines will be updated.
     # Validated 11/18/2017
     volume = Conversion({
         'm3':length['m']**3,        # Cubic meters
+        'dm3':length['dm']**3,      # Cubic decimeters
         'mm3':length['mm']**3,      # Cubic millimeters
         'cm3':length['cm']**3,       # Cubic centimeter
         'in3':length['in']**3,      # Cubic inches

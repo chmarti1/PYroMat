@@ -1,0 +1,169 @@
+{
+  "names": [
+    "sulfur dioxide",
+    "sulfurous anhydride",
+    "sulfurous oxide",
+    "fermenicide liquid",
+    "schwefeldioxid",
+    "SO2",
+    "O2S"
+  ],
+  "id": "mp.O2S",
+  "class": "mp2",
+  "doc": "Sulfur dioxide is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
+  "inchi": "InChI=1S/O2S/c1-3-2",
+  "cas": "7446-09-5",
+  "atoms": {
+    "S": 1,
+    "O": 2
+  },
+  "Tlim": [
+    197.7,
+    525
+  ],
+  "plim": [
+    0.0,
+    35000000.0
+  ],
+  "dlim": [
+    0.0,
+    1600
+  ],
+  "R": 129.78424632944032,
+  "Tc": 430.64,
+  "dc": 525.002841,
+  "Tt": 197.7,
+  "mw": 64.0638,
+  "IGgroup": {
+    "logt": 3.0,
+    "group0": [
+      {
+        "coef": [
+          [
+            1,
+            4.4777967379
+          ],
+          [
+            0,
+            -4.5328346436
+          ]
+        ]
+      },
+      {
+        "pre": -1.0,
+        "coef": [
+          [
+            1,
+            -0.015600579960000001
+          ]
+        ]
+      }
+    ],
+    "group1": [
+      [
+        1.7996470369682334,
+        1.062
+      ],
+      [
+        4.2982537618428385,
+        1.9401
+      ]
+    ]
+  },
+  "Rgroup": {
+    "group0": [
+      {
+        "pre": [
+          0.125,
+          1
+        ],
+        "coef": [
+          [
+            12,
+            1,
+            -0.17467
+          ],
+          [
+            10,
+            1,
+            -1.9528
+          ],
+          [
+            7,
+            7,
+            0.00017711
+          ],
+          [
+            2,
+            3,
+            0.061524
+          ],
+          [
+            2,
+            1,
+            0.93061
+          ]
+        ]
+      },
+      {
+        "pre": [
+          0.125,
+          1
+        ],
+        "coef": [
+          [
+            19,
+            1,
+            0.21615
+          ],
+          [
+            17,
+            5,
+            0.010419
+          ],
+          [
+            16,
+            2,
+            0.51353
+          ]
+        ]
+      },
+      {
+        "pre": [
+          0.25,
+          1
+        ],
+        "coef": [
+          [
+            26,
+            1,
+            -0.05472
+          ],
+          [
+            19,
+            4,
+            -0.059856
+          ],
+          [
+            14,
+            1,
+            -0.25286
+          ]
+        ]
+      },
+      {
+        "pre": [
+          12.5,
+          1
+        ],
+        "coef": [
+          [
+            1,
+            2,
+            -0.016523
+          ]
+        ]
+      }
+    ]
+  }
+}

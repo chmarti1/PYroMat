@@ -12,22 +12,12 @@ import pyromat as pm
 utility = pm.utility
 reg = pm.reg
 
-
-
-
-
-
 ######################################
 ##
 ##  The master data dictionary
 ##
 ######################################
 data = {}
-
-
-
-
-
 
 #############################
 ##
@@ -166,7 +156,6 @@ data
 
         # if the data source is a file
         elif utility.os.path.isfile(datasource):
-
 
             # 
             # Load the data!

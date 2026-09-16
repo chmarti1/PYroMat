@@ -1,0 +1,162 @@
+{
+  "names": [
+    "hexaflouroethane (R-116)",
+    "hexaflouroethane",
+    "1,1,1,2,2,2-hexafluoroethane",
+    "freon-116",
+    "FC-116",
+    "R-116",
+    "C2F6"
+  ],
+  "id": "mp.C2F6",
+  "class": "mp2",
+  "doc": "R-116 is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
+  "inchi": "InChI=1S/C2F6/c3-1(4,5)2(6,7)8",
+  "cas": "76-16-4",
+  "atoms": {
+    "C": 2,
+    "F": 6
+  },
+  "Tlim": [
+    173.1,
+    425
+  ],
+  "plim": [
+    0.0,
+    50000000.0
+  ],
+  "dlim": [
+    0.0,
+    2000
+  ],
+  "R": 60.24463701732214,
+  "Tc": 293.03,
+  "dc": 613.32452808,
+  "Tt": 173.1,
+  "mw": 138.01182,
+  "IGgroup": {
+    "logt": 3.0,
+    "group0": {
+      "coef": [
+        [
+          1,
+          8.9148979056
+        ],
+        [
+          0,
+          -10.7088650331
+        ]
+      ]
+    },
+    "group1": [
+      [
+        0.6483977749718459,
+        2.4818
+      ],
+      [
+        2.1226495580657274,
+        7.0622
+      ],
+      [
+        5.0165512063611235,
+        7.9951
+      ]
+    ]
+  },
+  "Rgroup": {
+    "group0": [
+      {
+        "pre": [
+          0.125,
+          1
+        ],
+        "coef": [
+          [
+            12,
+            1,
+            0.77202
+          ],
+          [
+            11,
+            2,
+            -0.14331
+          ],
+          [
+            9,
+            1,
+            -2.8123
+          ],
+          [
+            7,
+            7,
+            0.00024629
+          ],
+          [
+            2,
+            3,
+            0.10227
+          ],
+          [
+            2,
+            1,
+            1.1632
+          ]
+        ]
+      },
+      {
+        "pre": [
+          0.125,
+          1
+        ],
+        "coef": [
+          [
+            14,
+            5,
+            -0.028499
+          ],
+          [
+            5,
+            2,
+            0.30893
+          ]
+        ]
+      },
+      {
+        "pre": [
+          0.125,
+          1
+        ],
+        "coef": [
+          [
+            29,
+            4,
+            -0.068793
+          ],
+          [
+            29,
+            1,
+            -0.30343
+          ]
+        ]
+      },
+      {
+        "pre": [
+          0.5,
+          1
+        ],
+        "coef": [
+          [
+            29,
+            3,
+            -0.027218
+          ],
+          [
+            24,
+            4,
+            0.010665
+          ]
+        ]
+      }
+    ]
+  }
+}

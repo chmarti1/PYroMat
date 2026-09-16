@@ -1,0 +1,164 @@
+{
+  "names": [
+    "nonane",
+    "n-nonane",
+    "ethyl-heptane",
+    "shellsol 140",
+    "C9H20"
+  ],
+  "id": "mp.C9H20",
+  "class": "mp2",
+  "doc": "Nonane is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
+  "inchi": "InChI=1S/C9H20/c1-3-5-7-9-8-6-4-2/h3-9H2,1-2H3",
+  "cas": "111-84-2",
+  "atoms": {
+    "C": 9,
+    "H": 20
+  },
+  "Tlim": [
+    219.7,
+    600
+  ],
+  "plim": [
+    0.0,
+    800000000.0
+  ],
+  "dlim": [
+    0.0,
+    1600
+  ],
+  "R": 64.82761309296862,
+  "Tc": 594.55,
+  "dc": 232.141731,
+  "Tt": 219.7,
+  "mw": 128.2551,
+  "IGgroup": {
+    "logt": 16.349,
+    "group0": {
+      "coef": [
+        [
+          1,
+          -8.2418318753
+        ],
+        [
+          0,
+          10.7927224829
+        ]
+      ]
+    },
+    "group1": [
+      [
+        2.053654024051804,
+        24.926
+      ],
+      [
+        3.7742830712303426,
+        24.842
+      ],
+      [
+        8.423177192834919,
+        11.188
+      ],
+      [
+        19.71911529728366,
+        17.483
+      ]
+    ]
+  },
+  "Rgroup": {
+    "group0": [
+      {
+        "pre": [
+          0.125,
+          1
+        ],
+        "coef": [
+          [
+            12,
+            1,
+            0.83416
+          ],
+          [
+            11,
+            2,
+            -0.38828
+          ],
+          [
+            9,
+            1,
+            -2.702
+          ],
+          [
+            7,
+            7,
+            0.00028185
+          ],
+          [
+            2,
+            3,
+            0.1376
+          ],
+          [
+            2,
+            1,
+            1.1151
+          ]
+        ]
+      },
+      {
+        "pre": [
+          0.125,
+          1
+        ],
+        "coef": [
+          [
+            14,
+            5,
+            0.015847
+          ],
+          [
+            5,
+            2,
+            0.62037
+          ]
+        ]
+      },
+      {
+        "pre": [
+          0.125,
+          1
+        ],
+        "coef": [
+          [
+            29,
+            4,
+            -0.15043
+          ],
+          [
+            29,
+            1,
+            -0.61726
+          ]
+        ]
+      },
+      {
+        "pre": [
+          0.5,
+          1
+        ],
+        "coef": [
+          [
+            29,
+            3,
+            -0.012982
+          ],
+          [
+            24,
+            4,
+            0.0044325
+          ]
+        ]
+      }
+    ]
+  }
+}
