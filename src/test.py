@@ -3,9 +3,10 @@
 import pyromat as pm
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 
 S = pm.get('mp.N2')
-Tmax,Tmin = S.Tlim()
+Tmin,Tmax = S.Tlim()
 T = np.random.random(10000) * (Tmax - Tmin) + Tmin
 d = np.random.random(10000) * S.data['dlim'][1]
 _,d1,d2,x,I = S._argparse(T=T,d=d)
@@ -13,6 +14,55 @@ s = S.s(T=T,d=d)
 h = S.h(T=T,d=d)
 p = S.p(T=T,d=d)
 e = S.e(T=T,d=d)
+
+def generate(subst, N=10000):
+    Tmin, Tmax = subst.Tlim()
+    _,pmax = S.plim()
+    dmax = S.d(T=Tmin, p=pmax)
+    T = np.random.random(N) * (Tmax - Tmin) + Tmin
+    d = np.random.random(N) * dmax
+    p = S.p(T=T, d=d)
+    I = p > pmax
+    if I.any():
+        dd = np.random.random(np.sum(I)) * dmax
+        d[I] = dd
+        p = S.p(T=T[I], d=dd)
+        I[I] = p > pmax
+        
+    return S.state(T=T, d=d)
+
+
+def benchmark(subst, N=10, **kwarg):
+    Targ = 0
+    Tstate = 0
+    for count in range(N):
+        print(count)
+        # Time argparse()
+        start = time.time()
+        subst._argparse(**kwarg)
+        this = time.time()-start
+        Targ += this
+        # Time the state method
+        start = time.time()
+        subst.state(**kwarg)
+        this = time.time()-start
+        Tstate += this
+    Targ /= N
+    Tstate /= N
+    Tstate -= Targ
+    return Targ, Tstate
+    
+def auto_benchmark(subst, prop1, prop2, N=[10,100,1000,10000,100000]):
+    Targ = []
+    Tstate = []
+    for n in N:
+        print('==>', n, '<==')
+        state = generate(subst, n)
+        args = {prop1:state[prop1], prop2:state[prop2]}
+        targ, tstate = benchmark(subst, **args)
+        Targ.append(targ)
+        Tstate.append(tstate)
+    return N, Targ, Tstate
 
 #   7.1: x is specified
 #       7.1.1: x,T,p        GOOD
@@ -31,8 +81,36 @@ e = S.e(T=T,d=d)
 #   7.6: ?,?
 #       Any two remaining inverse       CRASHES
 
-def test(**kwarg):
-    T_, d1_, d2_, x_, I_ = S._argparse(**kwarg)
+# In N2 (mp2)
+# T,s fails with density errors at
+#   T = array([102.81825492,  68.26282287, 124.10596799, 116.19912061,
+#        65.78497538,  70.76630062, 111.47735948, 119.10195956,
+#        64.57059443,  63.82274275,  68.36841309, 100.15429131])
+#
+#   d = array([ 670.21460783, 1412.02447294,  192.06767347,  557.63012107,
+#       1388.36018261, 1427.20265489,  593.52633612,  531.14823016,
+#       1347.30731445, 1425.08237224, 1408.20936518,   33.90313652])
+#
+#   Many, but not all of these are just inside the saturation lines
+#
+# Returns NaN at
+#   T = array([235.23916857, 508.33750322, 422.61591921, 271.01772851,
+#       897.81332402, 795.25444207, 859.71484276, 218.04179286,
+#       808.01503444,  64.57059443, 173.82498743, 567.49901943])
+#
+#   d = array([2.98554612e-02, 6.22414585e-01, 3.76361950e-01, 5.90958286e-02,
+#       3.66910658e-01, 2.42185323e-01, 1.49956315e-01, 5.56958150e-01,
+#       5.95917313e-01, 1.34730731e+03, 2.73194156e-01, 6.31602585e-01])
+#
+#   These are ALL of the points that use zero-density extrapolation
+
+
+
+def test(subst, state, p1, p2):
+    d = state['d']
+    T, d1, d2, x, I = subst._argparse(T=state['T'], d=d)
+    args = {p1:state[p1], p2:state[p2]}
+    T_, d1_, d2_, x_, I_ = subst._argparse(**args)
     eT = np.abs(T_ - T)
     e1 = np.abs(d1_ - d1)
     e2 = np.abs(d2_ - d2)
@@ -65,6 +143,8 @@ def test(**kwarg):
     ax.plot(d[I1], T[I1], 'bx', ms=3)
     ax.plot(d[I2], T[I2], 'ro', ms=2)
     ax.plot(d[IN], T[IN], 'ms', ms=3)
+    ax.plot(subst._sattable['dL'], subst._sattable['T'], 'k')
+    ax.plot(subst._sattable['dV'], subst._sattable['T'], 'k')
     
     plt.show()
     
