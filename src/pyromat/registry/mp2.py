@@ -1112,7 +1112,7 @@ SEE ALSO:
         x = xdata[xi] + (xdata[xi1] - xdata[xi]) * (fvalue - fdata[xi]) / (fdata[xi1] - fdata[xi])
         return x
 
-    def _mapsearch2(self, f0data, f1data, f0value, f1value, zde0=0, zde1=0):
+    def _mapsearch2(self, f0data, f1data, f0value, f1value, f0str=None, f1str=None):
         r"""Search 2D map for inverse estimates (primitive routine)
     T, d, Isat, Ioob = mapsearch2(f0data, f1data, f0value, f1value)
     
@@ -1135,17 +1135,18 @@ f0value, f1value
     Numpy arrays with the same shape containing values for properties,
     f0data and f1data.
     
-zde0, zde1  (Default 0)
-    Zero-density extrapolation method -- an integer specifying how 
-    values found to line between density index 0 and 1 should be 
-    treated.  Enthalpy and internal energy converge to their ideal gas
-    values, but entropy and any property derived from it diverges like 
-    ln(d).  The following values are accepted:
-    0 - Use standard linear interpolation (default)
+f0str, f1str    (None)
+    Property string to identify the correct zero-density extrapolation
+    method for f0 and f1 respectively.  If omitted, no zero-density 
+    extrapolation will be used.  Pressure, enthalpy and internal energy 
+    converge to their ideal gas values, but entropy and any property 
+    derived from it diverges like ln(d).  The following values are 
+    accepted:
+    Default - Use standard linear interpolation (default)
             f(d) = f(d[1])-f(d[0]) * (d-d[0]) / (d[1]-d[0])
-    1 - Use entropy extrapolation: 
+    's' - Use entropy extrapolation: 
             f(d) = f(d=d[1]) - R*ln(d/d[1])
-    2 - Use free energy extrapolation:
+    'f' or 'g' - Use free energy extrapolation:
             f(d) = f(d=d[1]) + T*R*ln(d/d[1])
     
 RETURNS: 
@@ -1297,9 +1298,9 @@ SEE ALSO:
                 di1 = di+1
 
                 # Identify the two f-edge crossings [(x,y), ...]
-                f0cross = self._intersect(f0data, f0I, f0v, Ti, di, zde=zde0)
+                f0cross = self._intersect(f0data, f0I, f0v, Ti, di, fstr=f0str)
                 # Identify the two g-edge crossings [(x,y), ...]
-                f1cross = self._intersect(f1data, f1I, f1v, Ti, di, zde=zde1)
+                f1cross = self._intersect(f1data, f1I, f1v, Ti, di, fstr=f1str)
                 # At this point, f0cross and f1cross list (x,y) coordinates for 
                 # the points along the element edge where crossings occur
                 # Meanwhile, neighbor lists the (xi,yi) indices of the
@@ -1381,9 +1382,9 @@ SEE ALSO:
         return T,d,Isat,Ioob
 
 
-    def _intersect(self, fdata, fI, fvalue, Ti, di, zde=0):
+    def _intersect(self, fdata, fI, fvalue, Ti, di, fstr=None):
         r"""Helper method for the _mapsearch2() method (primitive routine)
-    [(T0,d0), (T1,d1)] = _intersect(fdata, fvalue, fI, Ti, di, zde=0)
+    [(T0,d0), (T1,d1)] = _intersect(fdata, fvalue, fI, Ti, di, fstr=None)
     
 Calculates the (T,d) coordinates of points on an element's edges where
 the specified property data interpolates to equal the scalar fvalue.
@@ -1415,11 +1416,18 @@ Ti, di
     in the figure above, the element index corresponds to the indices
     of the lower-left node in the rectangular element.
     
-zde     (Default 0)
-    Zero-density extrapolation algorithm to use
-    0 - Use standard linear interpolation
-    1 - Use entropy extrapolation
-    2 - Use free-energy extrapolation
+fstr    (None)
+    Property string to identify the correct zero-density extrapolation
+    method.  If omitted, no zero-density extrapolation will be used.  
+    Pressure, enthalpy and internal energy converge to their ideal gas
+    values, but entropy and any property derived from it diverges like 
+    ln(d).  The following values are accepted:
+    Default - Use standard linear interpolation (default)
+            f(d) = f(d[1])-f(d[0]) * (d-d[0]) / (d[1]-d[0])
+    's' - Use entropy extrapolation: 
+            f(d) = f(d=d[1]) - R*ln(d/d[1])
+    'f' or 'g' - Use free energy extrapolation:
+            f(d) = f(d=d[1]) + T*R*ln(d/d[1])
 
 Returns a list of two-element tuples.  If no intersections are found,
 the list is empty.  Two intersections are expected, but four are 
@@ -1444,10 +1452,10 @@ possible in saddle node cases.
         # Left edge
         if fI[Ti,di] != fI[Ti,di1]:
             # Entropy extrapolation
-            if di == 0 and zde == 1:
+            if di == 0 and fstr == 's':
                 dd = ddata[1] * np.exp((fdata[Ti,1] - fvalue)/R)
             # Free-energy extrapolation
-            elif di == 0 and zde == 2:
+            elif di == 0 and fstr in {'f', 'g'}:
                 dd = ddata[1] * np.exp((fvalue - fdata[Ti,1])/R/Tdata[Ti])
             else:
                 dd = interp_scalar(fvalue, fdata[Ti,di], fdata[Ti,di1], ddata[di], ddata[di1])
@@ -1460,10 +1468,10 @@ possible in saddle node cases.
         # Right edge
         if fI[Ti1,di] != fI[Ti1,di1]:
             # Entropy extrapolation
-            if di == 0 and zde == 1:
+            if di == 0 and fstr == 's':
                 dd = ddata[1] * np.exp((fdata[Ti1,1] - fvalue)/R)
             # Free-energy extrapolation
-            elif di == 0 and zde == 2:
+            elif di == 0 and fstr in {'f', 'g'}:
                 dd = ddata[1] * np.exp((fvalue - fdata[Ti1,1])/R/Tdata[Ti1])
             else:
                 dd = interp_scalar(fvalue, fdata[Ti1,di], fdata[Ti1,di1], ddata[di], ddata[di1])
@@ -1471,9 +1479,9 @@ possible in saddle node cases.
             fcross.append(np.array((Tdata[Ti1], dd)))
         return fcross
 
-    def _dmapsearch2(self, fdata, dvalue, fvalue, zde=0):
+    def _dmapsearch2(self, fdata, dvalue, fvalue, fstr=None):
         r"""Constant-density 2D map search (primitive routine)
-    T, Isat, Ioob = _dmapsearch2(fdata, dvalue, fvalue, zde=0)
+    T, Isat, Ioob = _dmapsearch2(fdata, dvalue, fvalue, fstr=None)
     
 Uses tabulated data to generate an estimate for T in the 2D inversion
 problem
@@ -1494,17 +1502,17 @@ fvalue
     An array of f-values to interpolate from the table.  The dimensions
     must match the dimensions of dvalue.
     
-zde     (0)
-    Zero-density extrapolation method -- an integer specifying how 
-    values found to line between density index 0 and 1 should be 
-    treated.  Enthalpy and internal energy converge to their ideal gas
+fstr    (None)
+    Property string to identify the correct zero-density extrapolation
+    method.  If omitted, no zero-density extrapolation will be used.  
+    Pressure, enthalpy and internal energy converge to their ideal gas
     values, but entropy and any property derived from it diverges like 
     ln(d).  The following values are accepted:
-    0 - Use standard linear interpolation (default)
+    Default - Use standard linear interpolation (default)
             f(d) = f(d[1])-f(d[0]) * (d-d[0]) / (d[1]-d[0])
-    1 - Use entropy extrapolation: 
+    's' - Use entropy extrapolation: 
             f(d) = f(d=d[1]) - R*ln(d/d[1])
-    2 - Use free energy extrapolation:
+    'f' or 'g' - Use free energy extrapolation:
             f(d) = f(d=d[1]) + T*R*ln(d/d[1])
         
 RETURNS: 
@@ -1570,7 +1578,7 @@ SEE ALSO:
             if dv < ddata[0] or dv > ddata[-1]:
                 pass
             # If entropy zero-density extrapolation is selected
-            elif zde == 1 and di == 0:
+            elif di == 0 and fstr == 's':
                 # Extrapolate to form a function of temperature along
                 # the constant-density line
                 fex = fdata[:, 1] - R * np.log(dv / ddata[1])
@@ -1588,7 +1596,7 @@ SEE ALSO:
                     Ioob.flat[index] = False
                 # If there are no crossings, do nothing -- this is oob
             # If free-energy zero-density-extrapolation is selected
-            elif zde == 2 and di == 0:
+            elif di == 0 and fstr in {'f', 'g'}:
                 # Extrapolate to form a function of temperature along
                 # the constant-density line
                 fex = fdata[:, 1] + Tdata * R * np.log(dv / ddata[1])
@@ -1670,7 +1678,7 @@ SEE ALSO:
             
         return T, Isat, Ioob
         
-    def _Tmapsearch2(self, fdata, Tvalue, fvalue, zde=0):
+    def _Tmapsearch2(self, fdata, Tvalue, fvalue, fstr=None):
         r"""Search 2D map for inverse estimates (primitive routine)
     d, Isat, Ioob = Tmapsearch2(fdata, Tvalue, fvalue)
     
@@ -1694,17 +1702,17 @@ fvalue
     An array of f-values to interpolate from the table.  The dimensions
     must match the dimensions of Tvalue.
     
-zde     (0)
-    Zero-density extrapolation method -- an integer specifying how 
-    values found to line between density index 0 and 1 should be 
-    treated.  Enthalpy and internal energy converge to their ideal gas
+fstr    (None)
+    Property string to identify the correct zero-density extrapolation
+    method.  If omitted, no zero-density extrapolation will be used.  
+    Pressure, enthalpy and internal energy converge to their ideal gas
     values, but entropy and any property derived from it diverges like 
     ln(d).  The following values are accepted:
-    0 - Use standard linear interpolation (default)
+    Default - Use standard linear interpolation (default)
             f(d) = f(d[1])-f(d[0]) * (d-d[0]) / (d[1]-d[0])
-    1 - Use entropy extrapolation: 
+    's' - Use entropy extrapolation: 
             f(d) = f(d=d[1]) - R*ln(d/d[1])
-    2 - Use free energy extrapolation:
+    'f' or 'g' - Use free energy extrapolation:
             f(d) = f(d=d[1]) + T*R*ln(d/d[1])
     
 RETURNS: 
@@ -1776,7 +1784,7 @@ SEE ALSO:
                     # Initialize some crossing parameters
                     fcross = []
                     # If entropy zero-density extrapolation is selected
-                    if zde == 1 and di == 0:
+                    if di == 0 and fstr == 's':
                         # Detect the edges
                         # Bottom Edge is impossible
                         # Left Edge
@@ -1792,7 +1800,7 @@ SEE ALSO:
                             dd = ddata[1] * np.exp((fdata[Ti1,1] - fv)/R)
                             fcross.append(np.array([Tdata[Ti1], dd]))
                     # If free-energy zero-density extrapolation is selected
-                    elif zde == 2 and di == 0:
+                    elif di == 0 and fstr in {'f', 'g'}:
                         # Detect the edges
                         # Bottom Edge is impossible
                         # Left Edge
@@ -2490,7 +2498,6 @@ constraints.
             TT = T[Ids]
             DL = dL[Ids]
             DV = dV[Ids]
-            # Evaluate the properties
             # Evaluate the properties
             argL = self._ff(TT, DL, diff=2)
             argV = self._ff(TT, DV, diff=2)
@@ -4412,11 +4419,12 @@ other conditions, x<0 and d1 == d2.
         #       7.2.2: T,p      <== Special case because T,p is constant under the dome
         #       7.2.3: T + inverse
         #   7.3: d,?
-        #       d + inverse
+        #       7.3.1: d,p      <== Special case because p is constant under the dome
+        #       7.3.2: d + inverse
         #   7.4: p,?
-        #       p + inverse     <== Special case 
+        #       p + inverse     <== Special case because p is constant under the dome
         #   7.5: ?,?
-        #       Any two remaining inverse
+        #       Any two remaining inverse (one is necessarily entropy)
         # 
         # 8) Broadcast the arrays appropriately
         # 9) Calculate T,d1,d2,x, and I
@@ -4689,10 +4697,8 @@ other conditions, x<0 and d1 == d2.
                 # Broadcast the arrays
                 T,fvalue = np.broadcast_arrays(kwarg['T'], kwarg[fstr])
                             # Use entropy extrapolation if property is s
-                # Use entropy extrapolation if fstr is 's'
-                zde = 1 if fstr == 's' else 0
                 # Search the table for a density to match
-                d2, Isat, Ioob = self._Tmapsearch2(self._table[fstr], T, fvalue, zde=zde)
+                d2, Isat, Ioob = self._Tmapsearch2(self._table[fstr], T, fvalue, fstr)
                 # Initialize quality and d1
                 x = np.full_like(T, -1.)
                 d1 = np.empty_like(d2, dtype=float)
@@ -4736,56 +4742,97 @@ other conditions, x<0 and d1 == d2.
                 self._Titer(T, d2, fn, fvalue, Ids.copy())
                 d1[Ids] = d2[Ids]
                 return T,d1,d2,x,Isat
-        # 7.3: d + inverse
+        # 7.3: d,?
         elif 'd' in kwarg:
-            args.remove('d')
-            fstr = args.pop()
-            fn = inverse_methods[fstr]
-            # Broadcast to the appropriate dimensions
-            d,fvalue = np.broadcast_arrays(kwarg['d'], kwarg[fstr])
-            # Initialize d2, d1, and x
-            # For now, d, d2, and d1 are separate, because some d values
-            # can represent two-phase mixtures.  We'll dole out the d
-            # values appropriately once we know which are under the dome
-            d2 = np.empty_like(d, dtype=float)
-            d1 = np.empty_like(d, dtype=float)
-            x = np.full_like(d, -1.)
-            # Identify estimates for T
-            # Use entropy extrapolation if property is s
-            zde = 1 if fstr == 's' else 0
-            T, Isat, Ioob = self._dmapsearch2(self._table[fstr], d, fvalue, zde=zde)
-            # Investigate states that may be saturated
-            if Isat.any():
-                # Calculate saturated densities at our best guess for T
-                _, d1[Isat], d2[Isat] = self._Tsat(T[Isat])
-                self._dsatiter2(T, d1, d2, d, fn, fvalue, Isat.copy())
-                # Calculate quality
-                xx = (d1[Isat]/d[Isat] - 1)/(d1[Isat]/d2[Isat] - 1)
-                # Points that were merely very close to saturated will
-                # converge with quality out of bounds
-                Ids = np.logical_or(xx<0, xx>1)
+            # 7.3.1: d,p
+            if 'p' in kwarg:
+                d,p = np.broadcast_arrays(kwarg['d'], kwarg['p'])
+                # Initialize d2, d1, and x
+                # For now, d, d2, and d1 are separate, because some d values
+                # can represent two-phase mixtures.  We'll dole out the d
+                # values appropriately once we know which are under the dome
+                d2 = np.empty_like(d, dtype=float)
+                d1 = np.empty_like(d, dtype=float)
+                x = np.full_like(d, -1.)
+                # Identify estimates for T
+                T, Isat, Ioob = self._dmapsearch2(self._table['p'], d, p)
+                print('A', T, Isat, Ioob)
+                # Investigate states that may be saturated
+                if Isat.any():
+                    # Calculate saturated densities at p values that may be saturated
+                    Ts, d1[Isat], d2[Isat] = self._psat(p[Isat])
+                    print('B', Ts, d1, d2)
+                    # Test to verify that the densities are saturated
+                    Ids = (d1[Isat] > d[Isat]) * (d[Isat] > d2[Isat])
+                    # De-select saturation values that are outside of d1,d2
+                    Isat[Isat] = Ids
+                    T[Isat] = Ts[Ids]
+                    xx = (d1[Isat]/d[Isat] - 1)/(d1[Isat]/d2[Isat] - 1)
+                # Down-select only points that are not saturated
+                Ids = np.logical_not(Isat)
+                # Check for out-of-bounds states
+                if Ioob.any():
+                    # Remove out-of-bounds points from iteration
+                    Ids[Ioob] = False
+                    # Temperature will already be set by the mapsearch
+                    # Leave density as-specified.
+                    d1[Ioob] = d[Ioob]
+                    d2[Ioob] = d[Ioob]
                 if Ids.any():
-                    xx[Ids] = -1
-                    x[Isat] = xx
-                    Isat[Isat] = np.logical_not(Ids)
-                else:
-                    x[Isat] = xx
+                    print('C', Ts, d1, d2)
+                    self._diter(T, d, self._p, p, Ids.copy(), debug=debug)
+                    print('D', Ts, d1, d2)
+                    d1[Ids] = d[Ids]
+                    d2[Ids] = d[Ids]
+                return T, d1, d2, x, Isat
+            # 7.3.2: d + inverse
+            else:
+                args.remove('d')
+                fstr = args.pop()
+                fn = inverse_methods[fstr]
+                # Broadcast to the appropriate dimensions
+                d,fvalue = np.broadcast_arrays(kwarg['d'], kwarg[fstr])
+                # Initialize d2, d1, and x
+                # For now, d, d2, and d1 are separate, because some d values
+                # can represent two-phase mixtures.  We'll dole out the d
+                # values appropriately once we know which are under the dome
+                d2 = np.empty_like(d, dtype=float)
+                d1 = np.empty_like(d, dtype=float)
+                x = np.full_like(d, -1.)
+                # Identify estimates for T
+                T, Isat, Ioob = self._dmapsearch2(self._table[fstr], d, fvalue, fstr)
+                # Investigate states that may be saturated
+                if Isat.any():
+                    # Calculate saturated densities at our best guess for T
+                    _, d1[Isat], d2[Isat] = self._Tsat(T[Isat])
+                    self._dsatiter2(T, d1, d2, d, fn, fvalue, Isat.copy(), debug=debug)
+                    # Calculate quality
+                    xx = (d1[Isat]/d[Isat] - 1)/(d1[Isat]/d2[Isat] - 1)
+                    # Points that were merely very close to saturated will
+                    # converge with quality out of bounds
+                    Ids = np.logical_or(xx<0, xx>1)
+                    if Ids.any():
+                        xx[Ids] = -1
+                        x[Isat] = xx
+                        Isat[Isat] = np.logical_not(Ids)
+                    else:
+                        x[Isat] = xx
+                    
+                # Down-select only points that are not saturated
+                Ids = np.logical_not(Isat)
+                # Check for out-of-bounds states
+                if Ioob.any():
+                    # Remove out-of-bounds points from iteration
+                    Ids[Ioob] = False
+                    # Temperature will already be set by the mapsearch
+                    # Leave density as-specified.
+                    d1[Ioob] = d[Ioob]
+                    d2[Ioob] = d[Ioob]
                 
-            # Down-select only points that are not saturated
-            Ids = np.logical_not(Isat)
-            # Check for out-of-bounds states
-            if Ioob.any():
-                # Remove out-of-bounds points from iteration
-                Ids[Ioob] = False
-                # Temperature will already be set by the mapsearch
-                # Leave density as-specified.
-                d1[Ioob] = d[Ioob]
-                d2[Ioob] = d[Ioob]
-            
-            self._diter(T, d, fn, fvalue, Ids.copy())
-            d1[Ids] = d[Ids]
-            d2[Ids] = d[Ids]
-            return T, d1, d2, x, Isat
+                self._diter(T, d, fn, fvalue, Ids.copy(), debug=debug)
+                d1[Ids] = d[Ids]
+                d2[Ids] = d[Ids]
+                return T, d1, d2, x, Isat
         # At this stage, there are two inverse properties
         # 7.4: p + inverse
         elif 'p' in kwarg:
@@ -4799,8 +4846,7 @@ other conditions, x<0 and d1 == d2.
             d1 = np.empty_like(p, dtype=float)
             x = np.full_like(p, -1.)
             # Find an initial guess for the state
-            zde1 = 1 if fstr == 's' else 0
-            T, d2, Isat, Ioob = self._mapsearch2(self._table['p'], self._table[fstr], p, fvalue, zde1=zde1)
+            T, d2, Isat, Ioob = self._mapsearch2(self._table['p'], self._table[fstr], p, fvalue, f1str=fstr)
             if Isat.any():
                 # Establish the saturation states
                 TT,dL,dV = self._psat(p[Isat])
@@ -4848,10 +4894,7 @@ other conditions, x<0 and d1 == d2.
             fn1 = inverse_methods[f1str]
             f0value, f1value = np.broadcast_arrays(kwarg[f0str], kwarg[f1str])
             # Look up estimates for T and d in the property tables
-            # Detect whether zero-density extrapolation is needed
-            zde0 = 1 if f0str == 's' else 0
-            zde1 = 1 if f1str == 's' else 0
-            T,d2,Isat,Ioob = self._mapsearch2(self._table[f0str], self._table[f1str], f0value, f1value, zde0=zde0, zde1=zde1)
+            T,d2,Isat,Ioob = self._mapsearch2(self._table[f0str], self._table[f1str], f0value, f1value, f0str, f1str)
             x = np.full_like(T, -1.)
             d1 = np.empty_like(d2, dtype=float)
             if Isat.any():
