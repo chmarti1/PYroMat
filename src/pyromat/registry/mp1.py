@@ -3410,7 +3410,7 @@ argument and only return one value - each calculates the one in terms
 of the other.
 """
         if T is None:
-            T = pm.config['def_T']
+            T = pm.config.def_T()
 
         # Replace T with an array of the correct units
         T = pm.units.temperature_scale(
@@ -3437,7 +3437,7 @@ argument and only return one value - each calculates the one in terms
 of the other.
 """
         if p is None:
-            p = pm.config['def_p']
+            p = pm.config.def_p()
 
         # Replace p with an array of the correct units
         p = pm.units.pressure(
@@ -3838,8 +3838,6 @@ available by calling the cv() method directly.
         out['d'] = d1
         out['x'] = x
         out['e'] = e
-        out['f'] = e - T*s
-        out['g'] = h - T*s
         out['h'] = h
         out['s'] = s
         out['cp'] = cp
@@ -3885,9 +3883,9 @@ available by calling the cv() method directly.
         out['e'][I] = out['e'][I]*(x[I]) + e*(1-x[I])
         out['h'][I] = out['h'][I]*(x[I]) + h*(1-x[I])
         out['s'][I] = out['s'][I]*(x[I]) + s*(1-x[I])
-        # Overwrite the helmholtz function with the mixture values
-        out['f'][I] = out['e'][I] - out['T'][I]*out['s'][I]
-        # Gibbs energy is constant across an equilibrium phase transition
+        # Use e, h, s, and T values to calculate f and g at all points
+        out['f'] = out['e'] - out['T']*out['s']
+        out['g'] = out['f'] - out['e'] + out['h']
         # d is not weighted by x - v is.
         out['d'][I] = 1./((1-x[I])/d1[I] + x[I]/d2[I])
         
@@ -4157,107 +4155,6 @@ the saturation line.
         return a
 
 
-    def hsd(self, *varg, quality = False, **kwarg):
-        """Enthalpy, Entropy, Density
-** Deprecated - Use state() **
-        
-    h,s,d = hsd(...)
-        OR
-    h,s,d,x = hsd(..., quality=True)
-
-All properties accept two other properties as flexible inputs.
-Below are the recognized keywords, their meaning, and the config entries
-that determine their units.
-    T   temperature         unit_temperature
-    p   pressure            unit_pressure
-    d   density             unit_matter / unit_volume
-    v   specific volume     unit_volume / unit_matter
-    x   quality             dimensionless
-    e   internal energy     unit_energy / unit_matter
-    h   enthalpy            unit_energy / unit_matter
-    s   entropy             unit_energy / unit_matter / unit_temperature
-
-If no keywords are specified, the positional arguments are interpreted
-as (T,p).  To configure their defaults, use the def_T and def_p config
-entries.
-
-Additionally, if the optional keyword, "quality" is set to True, the 
-quality of the liquid/vapor mixture is also returned
-    e,x = e(..., quality=True)
-
-"""
-            
-        T,d1,d2,x,I = self._argparse(*varg, **kwarg)
-        
-        # There is no inner hsd funciton.  
-        # We have to do this the hard way.
-        
-        # The IG part        
-        R = self.data['R']
-        Tscale = self.data['IGgroup']['Tscale']
-        dscale = self.data['IGgroup']['dscale']
-        tt = Tscale / T
-        dd = d1 / dscale
-        a,at,_,_,_,_ = self._fo(tt,dd,1)
-        
-        h = 1. + tt*at
-        s = tt*at - a
-        
-        # The residual part
-        Tscale = self.data['Rgroup']['Tscale']
-        dscale = self.data['Rgroup']['dscale']
-        tt = Tscale / T
-        dd = d1 / dscale
-        a,at,ad,_,_,_ = self._fr(tt,dd,1)
-        h += dd*ad + tt*at
-        s += tt*at - a
-
-        # If there are data under the dome
-        if I.any():
-            temp = 1-x[I]
-            h[I] *= temp
-            s[I] *= temp
-            
-            # The IG part        
-            R = self.data['R']
-            Tscale = self.data['IGgroup']['Tscale']
-            dscale = self.data['IGgroup']['dscale']
-            tt = Tscale / T[I]
-            dd = d2[I] / dscale
-            a,at,_,_,_,_ = self._fo(tt,dd,1)
-            
-            h[I] += (1. + tt*at)*x[I]
-            s[I] += (tt*at - a)*x[I]
-            
-            # The residual part
-            Tscale = self.data['Rgroup']['Tscale']
-            dscale = self.data['Rgroup']['dscale']
-            tt = Tscale / T[I]
-            dd = d2[I] / dscale
-            a,at,ad,_,_,_ = self._fr(tt,dd,1)
-            h[I] += (dd*ad + tt*at)*x[I]
-            s[I] += (tt*at - a)*x[I]
-            # Modify density
-            d1[I] = temp/d1[I] 
-            d1[I] += x[I]/d2[I]
-            d1[I] = 1./d1[I]
-            
-        s *= R
-        h *= R*T
-        
-        conv = pm.units.energy(1.,from_units='J')
-        conv = pm.units.matter(conv, self.data['mw'], from_units='kg')
-        h*=conv
-        conv = pm.units.temperature(conv, from_units='K')
-        s*=conv
-        pm.units.matter(d1, self.data['mw'],from_units='kg',inplace=True)
-        pm.units.volume(d1, from_units='m3', exponent=-1, inplace=True)
-        
-        if quality:
-            return h,s,d1,x
-        return h,s,d1
-        
-
     def cp(self, *varg, quality=False, **kwarg):
         """Constant-pressure specific heat
     cp(...)
@@ -4403,69 +4300,3 @@ Returns specific heat ratio, which is dimensionless
             return cp/cv, x
         return cp/cv
 
-
-    def T_s(self, s, p=None, d=None, quality=False, debug=False):
-        """Temperature from entropy
-** Deprecated - use T() **
-
-    T = T_s(s, p=p)
-        OR
-    T = T_s(s, d=d)
-
-If neither pressure nor density is specified, the default pressure will be 
-used (config['def_p']).  
-
-The optional keyword flag, quality, will cause quality to be returned
-along with temperature.
-
-    T,x = T_s(s, p=p, quality=True)
-"""
-        if p is not None:
-            return self.T(s=s,p=p,quality=quality)
-        elif d is not None:
-            return self.T(s=s,d=d,quality=quality)
-        p = pm.config['def_p']
-        return self.T(s=s, p=p)
-
-
-    def d_s(self, s, T=None, quality=False, debug=False):
-        """Density from entropy
-** Deprecated - use d() **
-
-    d = d_s(s,T=T)
-    
-If temperature is not specified, the default temperature will be used 
-(config['def_T']).
-
-The optional keyword flag, quality, will cause quality to be returned along
-with pressure.
-"""
-        if T is not None:
-            return self.d(s=s, T=T, quality=quality)
-        return self.d(s=s, quality=quality)
-            
-
-
-
-    def T_h(self, h, p=None, d=None, quality=False, debug=False):
-        """Temperature from entropy
-** Deprecated - use T() **
-
-    T = T_s(s, p=p)
-        OR
-    T = T_s(s, d=d)
-
-If neither pressure nor density is specified, the default pressure will be 
-used (config['def_p']).  
-
-The optional keyword flag, quality, will cause quality to be returned
-along with temperature.
-
-    T,x = T_s(s, p=p, quality=True)
-"""
-        if p is not None:
-            return self.T(h=h,p=p,quality=quality)
-        elif d is not None:
-            return self.T(h=h,d=d,quality=quality)
-        p = pm.config['def_p']
-        return self.T(h=h, p=p)

@@ -186,7 +186,18 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
 - Added `a()` speed of sound method to all classes
 - Corrected the error in the R1234ze saturation line data (github issue 86)
 - Added Helmholtz (`f`) and Gibbs (`g`) energies to all classes
-- Wrote the `_ds()` precision inner saturation property method; fully functional, but not yet used.
+- Wrote the _ds() precision inner saturation property method; fully functional, but not yet used.
+
+## Version 2.2.6
+- Changed `mp1.state()` to adapt to small errors in the saturation properties (github issue 104).
+- Corrected crashes in some arithmetic combinations with `igtools.IgtMix` (github issue 103).
+- Added unhandled cases to `ig.f()`, `ig.g()`, `ig2.f()`, and `ig2.g()` when `_argparse` does not return `p` (github issue 100).
+- Forced `IgtMix.T()`, `IgtMix.p()`, and `IgtMix.d()` to convert views into copies (github issue 101).
+- Created `IgtMix._mw()` to handle internal calcualtions without unit conversions (github issue 108).
+- Added scalar division to the `IgtMix` class.
+- Corrected bugs and made minor improvements to `__basedata__.hill()` suggested by @allrob23.
+- Corrected bugs in `_mp1._sat_argparse()`, `Ts()`, and `ps()` that ignored the default state units (github issue 99).
+- Corrected a bug in `IgtMix.cv()` that gave incorrect values (github issue 102).
 
 ## Version 2.3.0
 - Changed the `mp1` data model to make writing new models easier
@@ -223,4 +234,5 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
     - Removed the amu in favor of the Dalton
     - Changed the definition of `u` to be in terms of carbon-12 instead of `units.const_Na`
     - Added more force, energy, and volume units
+- Corrected undocumented bug in `PYroMatModel.hill()`. Crashed when displaying ionization levels greater than 1.
 
