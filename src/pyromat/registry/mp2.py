@@ -1554,6 +1554,8 @@ SEE ALSO:
         DI = np.searchsorted(ddata, dvalue, side='right')-1
         Ioob = np.ones_like(fvalue, dtype=bool)
         Isat = np.zeros_like(fvalue, dtype=bool)
+        # Ready for use in zde cases
+        R = self._R()
 
         for index in range(fvalue.size):
             # Scalar density and property values
@@ -1571,7 +1573,7 @@ SEE ALSO:
             elif zde == 1 and di == 0:
                 # Extrapolate to form a function of temperature along
                 # the constant-density line
-                fex = fdata[:, 1] - self.data['R'] * np.log(dv / ddata[1])
+                fex = fdata[:, 1] - R * np.log(dv / ddata[1])
                 # Test for crossings with the property value
                 fI = fv < fex
                 I = fI[:-1] != fI[1:]
@@ -1589,7 +1591,7 @@ SEE ALSO:
             elif zde == 2 and di == 0:
                 # Extrapolate to form a function of temperature along
                 # the constant-density line
-                fex = fdata[:, 1] + Tdata * self.data['R'] * np.log(dv / ddata[1])
+                fex = fdata[:, 1] + Tdata * R * np.log(dv / ddata[1])
                 # Test for crossings with the property value
                 I = np.diff(fv < fex)
                 Ti = np.nonzero(I)[0]
@@ -1668,7 +1670,7 @@ SEE ALSO:
             
         return T, Isat, Ioob
         
-    def _Tmapsearch2(self, fdata, Tvalue, fvalue):
+    def _Tmapsearch2(self, fdata, Tvalue, fvalue, zde=0):
         r"""Search 2D map for inverse estimates (primitive routine)
     d, Isat, Ioob = Tmapsearch2(fdata, Tvalue, fvalue)
     
@@ -1691,6 +1693,19 @@ Tvalue
 fvalue
     An array of f-values to interpolate from the table.  The dimensions
     must match the dimensions of Tvalue.
+    
+zde     (0)
+    Zero-density extrapolation method -- an integer specifying how 
+    values found to line between density index 0 and 1 should be 
+    treated.  Enthalpy and internal energy converge to their ideal gas
+    values, but entropy and any property derived from it diverges like 
+    ln(d).  The following values are accepted:
+    0 - Use standard linear interpolation (default)
+            f(d) = f(d[1])-f(d[0]) * (d-d[0]) / (d[1]-d[0])
+    1 - Use entropy extrapolation: 
+            f(d) = f(d=d[1]) - R*ln(d/d[1])
+    2 - Use free energy extrapolation:
+            f(d) = f(d=d[1]) + T*R*ln(d/d[1])
     
 RETURNS: 
 T
@@ -1736,42 +1751,82 @@ SEE ALSO:
         # Initialize result arrays
         d = np.empty_like(fvalue, dtype=float)
         DI = np.empty_like(fvalue, dtype=int)
-        TI = np.searchsorted(Tdata, Tvalue, side='right')
+        TI = np.searchsorted(Tdata, Tvalue, side='right')-1
         Isat = np.zeros_like(fvalue, dtype=bool)
         Ioob = np.ones_like(fvalue, dtype=bool)
+        
+        # Make R available for zero-density extrapolation
+        R = self._R()
         
         for index in range(fvalue.size):
             fv = fvalue.flat[index]
             Tv = Tvalue.flat[index]
-            # Halt if the temeprature value is out-of-bounds
+            # Only go on if Tv is in-bounds
             if Tdata[0] <= Tv <= Tdata[-1]:
-                Ti1 = TI.flat[index]
-                Ti = Ti1 - 1
+                # Establish the temperature index
+                Ti = TI.flat[index]
+                Ti1 = Ti + 1
                 # Compare the values of only the appropriate row
                 fI = fv < fdata[Ti:Ti+2, :]
                 # Detect elements with a crossing
                 I = crossing2(fI)
+                
                 for di in np.nonzero(I)[1]:
-                    di1 = di+1
+                    di1 = di + 1
                     # Initialize some crossing parameters
                     fcross = []
-                    # Detect the edges
-                    # Bottom Edge
-                    if fI[0,di] != fI[1,di]:
-                        TT = interp_scalar(fv, fdata[Ti,di], fdata[Ti1,di], Tdata[Ti], Tdata[Ti1])
-                        fcross.append(np.array([TT, ddata[di]]))
-                    # Left Edge
-                    if fI[0,di] != fI[0,di1]:
-                        dd = interp_scalar(fv, fdata[Ti,di], fdata[Ti,di1], ddata[di], ddata[di1])
-                        fcross.append(np.array([Tdata[Ti], dd]))
-                    # Top Edge
-                    if fI[0,di1] != fI[1,di1]:
-                        TT = interp_scalar(fv, fdata[Ti,di1], fdata[Ti1,di1], Tdata[Ti], Tdata[Ti1])
-                        fcross.append(np.array([TT, ddata[di1]]))
-                    # Right Edge
-                    if fI[1,di] != fI[1,di1]:
-                        dd = interp_scalar(fv, fdata[Ti1,di], fdata[Ti1,di1], ddata[di], ddata[di1])
-                        fcross.append(np.array([Tdata[Ti1], dd]))
+                    # If entropy zero-density extrapolation is selected
+                    if zde == 1 and di == 0:
+                        # Detect the edges
+                        # Bottom Edge is impossible
+                        # Left Edge
+                        if fI[0,di] != fI[0,di1]:
+                            dd = ddata[1] * np.exp((fdata[Ti,1] - fv)/R)
+                            fcross.append(np.array([Tdata[Ti], dd]))
+                        # Top Edge
+                        if fI[0,di1] != fI[1,di1]:
+                            TT = interp_scalar(fv, fdata[Ti,di1], fdata[Ti1,di1], Tdata[Ti], Tdata[Ti1])
+                            fcross.append(np.array([TT, ddata[di1]]))
+                        # Right Edge
+                        if fI[1,di] != fI[1,di1]:
+                            dd = ddata[1] * np.exp((fdata[Ti1,1] - fv)/R)
+                            fcross.append(np.array([Tdata[Ti1], dd]))
+                    # If free-energy zero-density extrapolation is selected
+                    elif zde == 2 and di == 0:
+                        # Detect the edges
+                        # Bottom Edge is impossible
+                        # Left Edge
+                        if fI[0,di] != fI[0,di1]:
+                            dd = ddata[1] * np.exp((fv-fdata[Ti,1])/R/Tv)
+                            fcross.append(np.array([Tdata[Ti], dd]))
+                        # Top Edge
+                        if fI[0,di1] != fI[1,di1]:
+                            TT = interp_scalar(fv, fdata[Ti,di1], fdata[Ti1,di1], Tdata[Ti], Tdata[Ti1])
+                            fcross.append(np.array([TT, ddata[di1]]))
+                        # Right Edge
+                        if fI[1,di] != fI[1,di1]:
+                            dd = ddata[1] * np.exp((fv-fdata[Ti1,1])/R/Tv)
+                            fcross.append(np.array([Tdata[Ti1], dd]))                        
+                    # If zero density does not require extrapolation
+                    else:
+                        # Detect the edges
+                        # Bottom Edge
+                        if fI[0,di] != fI[1,di]:
+                            TT = interp_scalar(fv, fdata[Ti,di], fdata[Ti1,di], Tdata[Ti], Tdata[Ti1])
+                            fcross.append(np.array([TT, ddata[di]]))
+                        # Left Edge
+                        if fI[0,di] != fI[0,di1]:
+                            dd = interp_scalar(fv, fdata[Ti,di], fdata[Ti,di1], ddata[di], ddata[di1])
+                            fcross.append(np.array([Tdata[Ti], dd]))
+                        # Top Edge
+                        if fI[0,di1] != fI[1,di1]:
+                            TT = interp_scalar(fv, fdata[Ti,di1], fdata[Ti1,di1], Tdata[Ti], Tdata[Ti1])
+                            fcross.append(np.array([TT, ddata[di1]]))
+                        # Right Edge
+                        if fI[1,di] != fI[1,di1]:
+                            dd = interp_scalar(fv, fdata[Ti1,di], fdata[Ti1,di1], ddata[di], ddata[di1])
+                            fcross.append(np.array([Tdata[Ti1], dd]))
+                    # Analyze the crossing points to detect a solution
                     # Detect the saddle case
                     if len(fcross) != 2:
                         # For now, warn the user, and DO NOT append the case
@@ -4633,8 +4688,11 @@ other conditions, x<0 and d1 == d2.
                 fn = inverse_methods[fstr]
                 # Broadcast the arrays
                 T,fvalue = np.broadcast_arrays(kwarg['T'], kwarg[fstr])
+                            # Use entropy extrapolation if property is s
+                # Use entropy extrapolation if fstr is 's'
+                zde = 1 if fstr == 's' else 0
                 # Search the table for a density to match
-                d2, Isat, Ioob = self._Tmapsearch2(self._table[fstr], T, fvalue)
+                d2, Isat, Ioob = self._Tmapsearch2(self._table[fstr], T, fvalue, zde=zde)
                 # Initialize quality and d1
                 x = np.full_like(T, -1.)
                 d1 = np.empty_like(d2, dtype=float)
@@ -4646,8 +4704,8 @@ other conditions, x<0 and d1 == d2.
                     d1[Isat] = dL
                     d2[Isat] = dV
                     # Calculate the inverse property's saturation properties
-                    fL,_,_ = fn(*self._ff(T=TT,d=dV,diff=1))
-                    fV,_,_ = fn(*self._ff(T=TT,d=dL,diff=1))
+                    fL,_,_ = fn(*self._ff(T=TT,d=dL,diff=1))
+                    fV,_,_ = fn(*self._ff(T=TT,d=dV,diff=1))
                     # Deduce quality from fvalue
                     x[Isat] = (fvalue[Isat] - fL)/(fV - fL)
                     # Some of these will be points that are merely near
@@ -4694,11 +4752,8 @@ other conditions, x<0 and d1 == d2.
             x = np.full_like(d, -1.)
             # Identify estimates for T
             # Use entropy extrapolation if property is s
-            if fstr == 's':
-                T, Isat, Ioob = self._dmapsearch2(self._table[fstr], d, fvalue, zde=1)
-            # Otherwise, keep normal extrapolation
-            else:
-                T,Isat,Ioob = self._dmapsearch2(self._table[fstr], d, fvalue)
+            zde = 1 if fstr == 's' else 0
+            T, Isat, Ioob = self._dmapsearch2(self._table[fstr], d, fvalue, zde=zde)
             # Investigate states that may be saturated
             if Isat.any():
                 # Calculate saturated densities at our best guess for T

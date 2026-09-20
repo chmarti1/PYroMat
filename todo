@@ -50,9 +50,6 @@ The multiphase derivation of gibbs energy uses "a" when it should use
 "f".
 
 BUGS:
-mp2._Xsatiter uses repeated divide-by-2 for "overstep" correction.  This fails
-when the state is "numerically" close to the critical point.  Need a better
-overstep protection method, or it may be prudent to revive hybrid iteration.
-
-
+- extend zde to the rest of the mapsearch() algorithms.
+- mapsearch algorithms have inconsistent behavior near saturation lines (check index +/-1 errors)
 
