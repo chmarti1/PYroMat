@@ -38,7 +38,9 @@ To get up and running quickly, see the [Introductory Tutorial](http://www.pyroma
 
 ## Contributing
 
-As an open source project, PYroMat appreciates the participation and engagement of community members.   
+**Consider supporting us** by visiting [pyromat.org/support](http://pyromat.org/support), to see ways you can chip in.
+
+As an open source project, PYroMat is better for the participation and engagement of community members.   
 
 **If you think you've found a bug,** please first search in [Issues](https://github.com/chmarti1/PYroMat/issues). If you can't find your bug, feel free to open a new issue where we will discuss how to resolve the problem.
 
@@ -57,7 +59,7 @@ Please be aware:
 
 
 ## License
-Copyright (c) 2015-2024 Christopher R. Martin
+Copyright (c) 2015-2026 Christopher R. Martin
 
 PYroMat is released under the GNU [General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0.en.html).
 

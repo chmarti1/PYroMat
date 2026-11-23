@@ -1,8 +1,12 @@
 """PYroMat    Thermodynamic property calculator for Python
 
-PYroMat is an open-source Python-based software platform for retrieving
+PYroMat is an open-source Python-based software platform for calculating
 the physical properties of substances.  For complete documentation, 
-visit "pyromat.org"
+visit 
+    pyromat.org
+
+To help us keep doing what we do, please consider supporting the project.
+    pyromat.org/support
 
 Chris Martin (c) 2015-2026
 Released under the GNU General Publice License v3.0
@@ -40,7 +44,7 @@ To search for species, see the info() funciton's other features
 # utility.load_config() checks this value to establish the read-only version
 # setup.py looks for this line to establish the version
 # MUST be unindented
-__version__ = "3.0.0"
+__version__ = "3.0.1"
 
 
 # loading the PYroMat utility functions
@@ -72,7 +76,15 @@ def get( idstr ):
     """Return an object for a substance
     get( 'name' )
 
-Returns a substance data class for the substance named.
+Returns a substance data class for the substance named.  See the 
+search() and info() functions for ways to discover substances.  Also,
+come check out the full documentation at 
+    
+    pyromat.org
+    
+If you value what we do, please consider supporting the project.
+
+    pyromat.org/support
 """
     # If accessing by the id string
     out = dat.data.get(idstr)
@@ -371,6 +383,7 @@ there instead of standard out.
         # Print a version summary
         target.write('  PYroMat\nThermodynamic computational tools for Python\n')
         target.write('version: ' + str(config['version']) + '\n')
+        target.write('  pyromat.org\n')
 
         # Generate a table of existing data
         # Print the ID string, the date modified, and the file path
