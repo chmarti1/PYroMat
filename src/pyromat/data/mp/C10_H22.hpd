@@ -1,0 +1,165 @@
+{
+    "IGgroup": {
+        "group0": {
+            "coef": [
+                [
+                    1,
+                    -10.5265128286
+                ],
+                [
+                    0,
+                    13.9361966549
+                ]
+            ]
+        },
+        "group1": [
+            [
+                1.931358264529707,
+                25.685
+            ],
+            [
+                3.4644649506232796,
+                28.233
+            ],
+            [
+                7.710862878419944,
+                12.417
+            ],
+            [
+                17.584587987696292,
+                10.035
+            ]
+        ],
+        "logt": 18.109
+    },
+    "R": 58.436701056664496,
+    "Rgroup": {
+        "group0": [
+            {
+                "coef": [
+                    [
+                        12,
+                        1,
+                        0.74372
+                    ],
+                    [
+                        11,
+                        2,
+                        -0.52579
+                    ],
+                    [
+                        9,
+                        1,
+                        -2.4807
+                    ],
+                    [
+                        7,
+                        7,
+                        0.00032865
+                    ],
+                    [
+                        2,
+                        3,
+                        0.15315
+                    ],
+                    [
+                        2,
+                        1,
+                        1.0461
+                    ]
+                ],
+                "pre": [
+                    0.125,
+                    1
+                ]
+            },
+            {
+                "coef": [
+                    [
+                        14,
+                        5,
+                        0.055424
+                    ],
+                    [
+                        5,
+                        2,
+                        0.84178
+                    ]
+                ],
+                "pre": [
+                    0.125,
+                    1
+                ]
+            },
+            {
+                "coef": [
+                    [
+                        29,
+                        4,
+                        -0.18507
+                    ],
+                    [
+                        29,
+                        1,
+                        -0.73555
+                    ]
+                ],
+                "pre": [
+                    0.125,
+                    1
+                ]
+            },
+            {
+                "coef": [
+                    [
+                        29,
+                        3,
+                        -0.020775
+                    ],
+                    [
+                        24,
+                        4,
+                        0.012335
+                    ]
+                ],
+                "pre": [
+                    0.5,
+                    1
+                ]
+            }
+        ]
+    },
+    "Tc": 617.7,
+    "Tlim": [
+        243.5,
+        675
+    ],
+    "Tt": 243.5,
+    "atoms": {
+        "C": 10,
+        "H": 22
+    },
+    "cas": "124-18-5",
+    "class": "mp2",
+    "dc": 233.34195519999997,
+    "dlim": [
+        0.0,
+        940.0
+    ],
+    "doc": "Decane is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
+    "fromfile": "/home/chris/Documents/pyromat-dev/pyromat/src/pyromat/data/mp/C12_H22.hpd",
+    "id": "mp.C10H22",
+    "inchi": "InChI=1S/C10H22/c1-3-5-7-9-10-8-6-4-2/h3-10H2,1-2H3",
+    "mw": 142.28168,
+    "names": [
+        "decane",
+        "n-Decane",
+        "paraffin N 10",
+        "decyl hydride",
+        "C12H22"
+    ],
+    "plim": [
+        0.0,
+        800000000.0
+    ]
+}

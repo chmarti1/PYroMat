@@ -18,7 +18,7 @@ import time
 def generate(subst, N=10000):
     Tmin, Tmax = subst.Tlim()
     _,pmax = subst.plim()
-    dmax = subst.d(T=Tmin, p=pmax)
+    dmax = subst.d(p=pmax,T=Tmin)
     T = np.random.random(N) * (Tmax - Tmin) + Tmin
     d = np.random.random(N) * dmax
     p = subst.p(T=T, d=d)
@@ -28,7 +28,7 @@ def generate(subst, N=10000):
         print('Adjusting densities:', N)
         dd = np.random.random(N) * dmax
         d[I] = dd
-        p = S.p(T=T[I], d=dd)
+        p = subst.p(T=T[I], d=dd)
         I[I] = p > pmax
         
     return subst.state(T=T, d=d)
@@ -148,6 +148,29 @@ def test(subst, state, p1, p2):
     
     return out
 
+
+def autotest(subst, state):
+    schedule = [
+        ('T', 'p'),
+        ('T', 's'),
+        ('d', 'p'),
+        ('d', 'h'),
+        ('d', 'e'),
+        ('d', 's'),
+        ('p', 'h'),
+        ('p', 'e'),
+        ('p', 's'),
+        ('h', 's'),
+        ('e', 's')]
+    for p1,p2 in schedule:
+        print('***')
+        print('===> Testing', p1, p2)
+        try:
+            test(subst,state,p1,p2)
+        except Exception as ex:
+            print(ex)
+            
+        
 
 
 def failsearch(subst, state, p1, p2):

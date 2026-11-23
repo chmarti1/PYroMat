@@ -1,164 +1,165 @@
 {
-  "names": [
-    "nitrous oxide",
-    "laughing gas",
-    "dinitrogen oxide",
-    "factitious air",
-    "stickdioxyd",
-    "nitrogen hypoxide",
-    "diazooxidane",
-    "N2O",
-    "ON2"
-  ],
-  "id": "mp.ON2",
-  "class": "mp2",
-  "doc": "Nitrous oxide is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
-  "inchi": "InChI=1S/N2O/c1-2-3",
-  "cas": "10024-97-2",
-  "atoms": {
-    "N": 2,
-    "O": 1
-  },
-  "Tlim": [
-    182.33,
-    525.0
-  ],
-  "plim": [
-    0.0,
-    50000000.0
-  ],
-  "dlim": [
-    0.0,
-    1600
-  ],
-  "R": 188.9103169986913,
-  "Tc": 309.52,
-  "dc": 452.01145599999995,
-  "Tt": 182.33,
-  "mw": 44.0128,
-  "IGgroup": {
-    "logt": 2.5,
-    "group0": {
-      "coef": [
-        [
-          1,
-          4.3120475243
+    "IGgroup": {
+        "group0": {
+            "coef": [
+                [
+                    1,
+                    4.3120475243
+                ],
+                [
+                    0,
+                    -4.4262736272
+                ]
+            ]
+        },
+        "group1": [
+            [
+                2.839881106229,
+                2.1769
+            ],
+            [
+                7.663478935125356,
+                1.6145
+            ],
+            [
+                17.598216593434998,
+                0.48393
+            ]
         ],
-        [
-          0,
-          -4.4262736272
-        ]
-      ]
+        "logt": 2.5
     },
-    "group1": [
-      [
-        2.839881106229,
-        2.1769
-      ],
-      [
-        7.663478935125356,
-        1.6145
-      ],
-      [
-        17.598216593434998,
-        0.48393
-      ]
+    "R": 188.9103169986913,
+    "Rgroup": {
+        "group0": [
+            {
+                "coef": [
+                    [
+                        12,
+                        1,
+                        0.38237
+                    ],
+                    [
+                        10,
+                        1,
+                        -2.4235
+                    ],
+                    [
+                        7,
+                        7,
+                        0.00020367
+                    ],
+                    [
+                        2,
+                        3,
+                        0.068917
+                    ],
+                    [
+                        2,
+                        1,
+                        0.88045
+                    ]
+                ],
+                "pre": [
+                    0.125,
+                    1
+                ]
+            },
+            {
+                "coef": [
+                    [
+                        19,
+                        1,
+                        0.13122
+                    ],
+                    [
+                        17,
+                        5,
+                        -0.0036985
+                    ],
+                    [
+                        16,
+                        2,
+                        0.46032
+                    ]
+                ],
+                "pre": [
+                    0.125,
+                    1
+                ]
+            },
+            {
+                "coef": [
+                    [
+                        26,
+                        1,
+                        -0.00042859
+                    ],
+                    [
+                        19,
+                        4,
+                        -0.04281
+                    ],
+                    [
+                        14,
+                        1,
+                        -0.23263
+                    ]
+                ],
+                "pre": [
+                    0.25,
+                    1
+                ]
+            },
+            {
+                "coef": [
+                    [
+                        1,
+                        2,
+                        -0.023038
+                    ]
+                ],
+                "pre": [
+                    12.5,
+                    1
+                ]
+            }
+        ]
+    },
+    "Tc": 309.52,
+    "Tlim": [
+        182.33,
+        525.0
+    ],
+    "Tt": 182.33,
+    "atoms": {
+        "N": 2,
+        "O": 1
+    },
+    "cas": "10024-97-2",
+    "class": "mp2",
+    "dc": 452.01145599999995,
+    "dlim": [
+        0.0,
+        1293.0
+    ],
+    "doc": "Nitrous oxide is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
+    "fromfile": "/home/chris/Documents/pyromat-dev/pyromat/src/pyromat/data/mp/O_N2.hpd",
+    "id": "mp.ON2",
+    "inchi": "InChI=1S/N2O/c1-2-3",
+    "mw": 44.0128,
+    "names": [
+        "nitrous oxide",
+        "laughing gas",
+        "dinitrogen oxide",
+        "factitious air",
+        "stickdioxyd",
+        "nitrogen hypoxide",
+        "diazooxidane",
+        "N2O",
+        "ON2"
+    ],
+    "plim": [
+        0.0,
+        50000000.0
     ]
-  },
-  "Rgroup": {
-    "group0": [
-      {
-        "pre": [
-          0.125,
-          1
-        ],
-        "coef": [
-          [
-            12,
-            1,
-            0.38237
-          ],
-          [
-            10,
-            1,
-            -2.4235
-          ],
-          [
-            7,
-            7,
-            0.00020367
-          ],
-          [
-            2,
-            3,
-            0.068917
-          ],
-          [
-            2,
-            1,
-            0.88045
-          ]
-        ]
-      },
-      {
-        "pre": [
-          0.125,
-          1
-        ],
-        "coef": [
-          [
-            19,
-            1,
-            0.13122
-          ],
-          [
-            17,
-            5,
-            -0.0036985
-          ],
-          [
-            16,
-            2,
-            0.46032
-          ]
-        ]
-      },
-      {
-        "pre": [
-          0.25,
-          1
-        ],
-        "coef": [
-          [
-            26,
-            1,
-            -0.00042859
-          ],
-          [
-            19,
-            4,
-            -0.04281
-          ],
-          [
-            14,
-            1,
-            -0.23263
-          ]
-        ]
-      },
-      {
-        "pre": [
-          12.5,
-          1
-        ],
-        "coef": [
-          [
-            1,
-            2,
-            -0.023038
-          ]
-        ]
-      }
-    ]
-  }
 }

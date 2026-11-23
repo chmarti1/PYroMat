@@ -1,163 +1,164 @@
 {
-  "names": [
-    "octafluoropropane (R-218)",
-    "perfluoropropane",
-    "octafluoropropane",
-    "1,1,1,2,2,3,3,3-octafluoropropane",
-    "freon-218",
-    "HFC-218",
-    "R-218",
-    "C3F8"
-  ],
-  "id": "mp.C3F8",
-  "class": "mp2",
-  "doc": "R-218 is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
-  "inchi": "InChI=1S/C3F8/c4-1(5,2(6,7)8)3(9,10)11",
-  "cas": "76-19-7",
-  "atoms": {
-    "C": 3,
-    "F": 8
-  },
-  "Tlim": [
-    125.45,
-    440
-  ],
-  "plim": [
-    0.0,
-    20000000.0
-  ],
-  "dlim": [
-    0.0,
-    2000.0
-  ],
-  "R": 44.221368090185194,
-  "Tc": 345.02,
-  "dc": 627.9845621999999,
-  "Tt": 125.45,
-  "mw": 188.01933,
-  "IGgroup": {
-    "logt": 3.0,
-    "group0": {
-      "coef": [
-        [
-          1,
-          11.4531412796
+    "IGgroup": {
+        "group0": {
+            "coef": [
+                [
+                    1,
+                    11.4531412796
+                ],
+                [
+                    0,
+                    -15.6587335175
+                ]
+            ]
+        },
+        "group1": [
+            [
+                0.9448727609993625,
+                7.2198
+            ],
+            [
+                1.724537707958959,
+                7.2692
+            ],
+            [
+                4.315691843951075,
+                11.599
+            ]
         ],
-        [
-          0,
-          -15.6587335175
-        ]
-      ]
+        "logt": 3.0
     },
-    "group1": [
-      [
-        0.9448727609993625,
-        7.2198
-      ],
-      [
-        1.724537707958959,
-        7.2692
-      ],
-      [
-        4.315691843951075,
-        11.599
-      ]
+    "R": 44.221368090185194,
+    "Rgroup": {
+        "group0": [
+            {
+                "coef": [
+                    [
+                        12,
+                        1,
+                        0.922
+                    ],
+                    [
+                        10,
+                        1,
+                        -3.8433
+                    ],
+                    [
+                        7,
+                        7,
+                        0.00036195
+                    ],
+                    [
+                        2,
+                        3,
+                        0.1136
+                    ],
+                    [
+                        2,
+                        1,
+                        1.327
+                    ]
+                ],
+                "pre": [
+                    0.125,
+                    1
+                ]
+            },
+            {
+                "coef": [
+                    [
+                        19,
+                        1,
+                        1.1001
+                    ],
+                    [
+                        17,
+                        5,
+                        -0.025147
+                    ],
+                    [
+                        16,
+                        2,
+                        1.1896
+                    ]
+                ],
+                "pre": [
+                    0.125,
+                    1
+                ]
+            },
+            {
+                "coef": [
+                    [
+                        26,
+                        1,
+                        -0.027969
+                    ],
+                    [
+                        19,
+                        4,
+                        -0.1833
+                    ],
+                    [
+                        14,
+                        1,
+                        -0.65923
+                    ]
+                ],
+                "pre": [
+                    0.25,
+                    1
+                ]
+            },
+            {
+                "coef": [
+                    [
+                        1,
+                        2,
+                        -0.02163
+                    ]
+                ],
+                "pre": [
+                    12.5,
+                    1
+                ]
+            }
+        ]
+    },
+    "Tc": 345.02,
+    "Tlim": [
+        125.45,
+        440
+    ],
+    "Tt": 125.45,
+    "atoms": {
+        "C": 3,
+        "F": 8
+    },
+    "cas": "76-19-7",
+    "class": "mp2",
+    "dc": 627.9845621999999,
+    "dlim": [
+        0.0,
+        2034.0
+    ],
+    "doc": "R-218 is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
+    "fromfile": "/home/chris/Documents/pyromat-dev/pyromat/src/pyromat/data/mp/C3_F8.hpd",
+    "id": "mp.C3F8",
+    "inchi": "InChI=1S/C3F8/c4-1(5,2(6,7)8)3(9,10)11",
+    "mw": 188.01933,
+    "names": [
+        "octafluoropropane (R-218)",
+        "perfluoropropane",
+        "octafluoropropane",
+        "1,1,1,2,2,3,3,3-octafluoropropane",
+        "freon-218",
+        "HFC-218",
+        "R-218",
+        "C3F8"
+    ],
+    "plim": [
+        0.0,
+        20000000.0
     ]
-  },
-  "Rgroup": {
-    "group0": [
-      {
-        "pre": [
-          0.125,
-          1
-        ],
-        "coef": [
-          [
-            12,
-            1,
-            0.922
-          ],
-          [
-            10,
-            1,
-            -3.8433
-          ],
-          [
-            7,
-            7,
-            0.00036195
-          ],
-          [
-            2,
-            3,
-            0.1136
-          ],
-          [
-            2,
-            1,
-            1.327
-          ]
-        ]
-      },
-      {
-        "pre": [
-          0.125,
-          1
-        ],
-        "coef": [
-          [
-            19,
-            1,
-            1.1001
-          ],
-          [
-            17,
-            5,
-            -0.025147
-          ],
-          [
-            16,
-            2,
-            1.1896
-          ]
-        ]
-      },
-      {
-        "pre": [
-          0.25,
-          1
-        ],
-        "coef": [
-          [
-            26,
-            1,
-            -0.027969
-          ],
-          [
-            19,
-            4,
-            -0.1833
-          ],
-          [
-            14,
-            1,
-            -0.65923
-          ]
-        ]
-      },
-      {
-        "pre": [
-          12.5,
-          1
-        ],
-        "coef": [
-          [
-            1,
-            2,
-            -0.02163
-          ]
-        ]
-      }
-    ]
-  }
 }

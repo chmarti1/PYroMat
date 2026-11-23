@@ -1,160 +1,161 @@
 {
-  "names": [
-    "acetone",
-    "2-propanone",
-    "propanone",
-    "C3H6O"
-  ],
-  "id": "mp.C3H6O",
-  "class": "mp2",
-  "doc": "Acetone is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
-  "inchi": "InChI=1S/C10H22/c1-3-5-7-9-10-8-6-4-2/h3-10H2,1-2H3",
-  "cas": "67-64-1 ",
-  "atoms": {
-    "C": 3,
-    "H": 6,
-    "O": 1
-  },
-  "Tlim": [
-    178.5,
-    550
-  ],
-  "plim": [
-    0.0,
-    700000000.0
-  ],
-  "dlim": [
-    0.0,
-    1500.0
-  ],
-  "R": 143.15762940015983,
-  "Tc": 508.1,
-  "dc": 272.97195800000003,
-  "Tt": 178.5,
-  "mw": 58.07914,
-  "IGgroup": {
-    "logt": 3.0,
-    "group0": {
-      "coef": [
-        [
-          1,
-          7.1422719708
+    "IGgroup": {
+        "group0": {
+            "coef": [
+                [
+                    1,
+                    7.1422719708
+                ],
+                [
+                    0,
+                    -9.4883659997
+                ]
+            ]
+        },
+        "group1": [
+            [
+                0.6101161188742373,
+                3.7072
+            ],
+            [
+                6.849045463491438,
+                7.0675
+            ],
+            [
+                3.1017516236961225,
+                11.012
+            ]
         ],
-        [
-          0,
-          -9.4883659997
-        ]
-      ]
+        "logt": 3.0
     },
-    "group1": [
-      [
-        0.6101161188742373,
-        3.7072
-      ],
-      [
-        6.849045463491438,
-        7.0675
-      ],
-      [
-        3.1017516236961225,
-        11.012
-      ]
+    "R": 143.15762940015983,
+    "Rgroup": {
+        "group0": [
+            {
+                "coef": [
+                    [
+                        12,
+                        1,
+                        -0.083409
+                    ],
+                    [
+                        10,
+                        1,
+                        -2.1267
+                    ],
+                    [
+                        7,
+                        7,
+                        0.00016527
+                    ],
+                    [
+                        2,
+                        3,
+                        0.065683
+                    ],
+                    [
+                        2,
+                        1,
+                        0.90041
+                    ]
+                ],
+                "pre": [
+                    0.125,
+                    1
+                ]
+            },
+            {
+                "coef": [
+                    [
+                        19,
+                        1,
+                        -0.039663
+                    ],
+                    [
+                        17,
+                        5,
+                        0.0092318
+                    ],
+                    [
+                        16,
+                        2,
+                        0.72085
+                    ]
+                ],
+                "pre": [
+                    0.125,
+                    1
+                ]
+            },
+            {
+                "coef": [
+                    [
+                        26,
+                        1,
+                        -0.14961
+                    ],
+                    [
+                        19,
+                        4,
+                        -0.076124
+                    ],
+                    [
+                        14,
+                        1,
+                        -0.17217
+                    ]
+                ],
+                "pre": [
+                    0.25,
+                    1
+                ]
+            },
+            {
+                "coef": [
+                    [
+                        25,
+                        2,
+                        -0.018166
+                    ]
+                ],
+                "pre": [
+                    0.5,
+                    1
+                ]
+            }
+        ]
+    },
+    "Tc": 508.1,
+    "Tlim": [
+        178.5,
+        550
+    ],
+    "Tt": 178.5,
+    "atoms": {
+        "C": 3,
+        "H": 6,
+        "O": 1
+    },
+    "cas": "67-64-1 ",
+    "class": "mp2",
+    "dc": 272.97195800000003,
+    "dlim": [
+        0.0,
+        1062.0
+    ],
+    "doc": "Acetone is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
+    "fromfile": "/home/chris/Documents/pyromat-dev/pyromat/src/pyromat/data/mp/C3_H6_O.hpd",
+    "id": "mp.C3H6O",
+    "inchi": "InChI=1S/C10H22/c1-3-5-7-9-10-8-6-4-2/h3-10H2,1-2H3",
+    "mw": 58.07914,
+    "names": [
+        "acetone",
+        "2-propanone",
+        "propanone",
+        "C3H6O"
+    ],
+    "plim": [
+        0.0,
+        700000000.0
     ]
-  },
-  "Rgroup": {
-    "group0": [
-      {
-        "pre": [
-          0.125,
-          1
-        ],
-        "coef": [
-          [
-            12,
-            1,
-            -0.083409
-          ],
-          [
-            10,
-            1,
-            -2.1267
-          ],
-          [
-            7,
-            7,
-            0.00016527
-          ],
-          [
-            2,
-            3,
-            0.065683
-          ],
-          [
-            2,
-            1,
-            0.90041
-          ]
-        ]
-      },
-      {
-        "pre": [
-          0.125,
-          1
-        ],
-        "coef": [
-          [
-            19,
-            1,
-            -0.039663
-          ],
-          [
-            17,
-            5,
-            0.0092318
-          ],
-          [
-            16,
-            2,
-            0.72085
-          ]
-        ]
-      },
-      {
-        "pre": [
-          0.25,
-          1
-        ],
-        "coef": [
-          [
-            26,
-            1,
-            -0.14961
-          ],
-          [
-            19,
-            4,
-            -0.076124
-          ],
-          [
-            14,
-            1,
-            -0.17217
-          ]
-        ]
-      },
-      {
-        "pre": [
-          0.5,
-          1
-        ],
-        "coef": [
-          [
-            25,
-            2,
-            -0.018166
-          ]
-        ]
-      }
-    ]
-  }
 }

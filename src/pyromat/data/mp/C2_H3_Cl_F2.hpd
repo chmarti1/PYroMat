@@ -1,168 +1,169 @@
 {
-  "names": [
-    "monochlorodifluoroethane (R-142b)",
-    "monochlorodifluoroethane",
-    "1-chloro-1,1-difluoroethane",
-    "freon-142b",
-    "CFC-142b",
-    "R-142b",
-    "C2H3ClF2"
-  ],
-  "id": "mp.C2H3ClF2",
-  "class": "mp2",
-  "doc": "R-141b is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
-  "inchi": "InChI=1S/C2H3ClF2/c1-2(3,4)5/h1H3",
-  "cas": "75-68-3",
-  "atoms": {
-    "C": 2,
-    "H": 3,
-    "Cl": 1,
-    "F": 2
-  },
-  "Tlim": [
-    142.72,
-    470
-  ],
-  "plim": [
-    0.0,
-    60000000.0
-  ],
-  "dlim": [
-    0.0,
-    1600.0
-  ],
-  "R": 82.73515615647858,
-  "Tc": 410.26,
-  "dc": 445.99694314,
-  "Tt": 142.72,
-  "mw": 100.49503,
-  "IGgroup": {
-    "logt": 3.0,
-    "group0": {
-      "coef": [
-        [
-          1,
-          8.3160183265
+    "IGgroup": {
+        "group0": {
+            "coef": [
+                [
+                    1,
+                    8.3160183265
+                ],
+                [
+                    0,
+                    -12.6016527149
+                ]
+            ]
+        },
+        "group1": [
+            [
+                1.152927411885146,
+                5.0385
+            ],
+            [
+                3.061473212109394,
+                6.8356
+            ],
+            [
+                6.0863842441378635,
+                4.0591
+            ],
+            [
+                16.672354116901477,
+                2.8136
+            ]
         ],
-        [
-          0,
-          -12.6016527149
-        ]
-      ]
+        "logt": 3.0
     },
-    "group1": [
-      [
-        1.152927411885146,
-        5.0385
-      ],
-      [
-        3.061473212109394,
-        6.8356
-      ],
-      [
-        6.0863842441378635,
-        4.0591
-      ],
-      [
-        16.672354116901477,
-        2.8136
-      ]
+    "R": 82.73515615647858,
+    "Rgroup": {
+        "group0": [
+            {
+                "coef": [
+                    [
+                        12,
+                        1,
+                        0.42921
+                    ],
+                    [
+                        10,
+                        1,
+                        -2.7662
+                    ],
+                    [
+                        7,
+                        7,
+                        0.00024174
+                    ],
+                    [
+                        2,
+                        3,
+                        0.081363
+                    ],
+                    [
+                        2,
+                        1,
+                        1.0038
+                    ]
+                ],
+                "pre": [
+                    0.125,
+                    1
+                ]
+            },
+            {
+                "coef": [
+                    [
+                        19,
+                        1,
+                        0.48246
+                    ],
+                    [
+                        17,
+                        5,
+                        -0.00743
+                    ],
+                    [
+                        16,
+                        2,
+                        0.75542
+                    ]
+                ],
+                "pre": [
+                    0.125,
+                    1
+                ]
+            },
+            {
+                "coef": [
+                    [
+                        26,
+                        1,
+                        -0.016558
+                    ],
+                    [
+                        19,
+                        4,
+                        -0.10644
+                    ],
+                    [
+                        14,
+                        1,
+                        -0.4146
+                    ]
+                ],
+                "pre": [
+                    0.25,
+                    1
+                ]
+            },
+            {
+                "coef": [
+                    [
+                        1,
+                        2,
+                        -0.021704
+                    ]
+                ],
+                "pre": [
+                    12.5,
+                    1
+                ]
+            }
+        ]
+    },
+    "Tc": 410.26,
+    "Tlim": [
+        142.72,
+        470
+    ],
+    "Tt": 142.72,
+    "atoms": {
+        "C": 2,
+        "Cl": 1,
+        "F": 2,
+        "H": 3
+    },
+    "cas": "75-68-3",
+    "class": "mp2",
+    "dc": 445.99694314,
+    "dlim": [
+        0.0,
+        1492.0
+    ],
+    "doc": "R-141b is one of twenty substance models published in [1]. Because all these models use a common formulation, there is a lower standard of accuracy than in other models.\n \n[1] E. Lemmon, R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\" Journal of Chemical Engineering Data, v51, 785-850, 2006.",
+    "fromfile": "/home/chris/Documents/pyromat-dev/pyromat/src/pyromat/data/mp/C2_H3_Cl_F2.hpd",
+    "id": "mp.C2H3ClF2",
+    "inchi": "InChI=1S/C2H3ClF2/c1-2(3,4)5/h1H3",
+    "mw": 100.49503,
+    "names": [
+        "monochlorodifluoroethane (R-142b)",
+        "monochlorodifluoroethane",
+        "1-chloro-1,1-difluoroethane",
+        "freon-142b",
+        "CFC-142b",
+        "R-142b",
+        "C2H3ClF2"
+    ],
+    "plim": [
+        0.0,
+        60000000.0
     ]
-  },
-  "Rgroup": {
-    "group0": [
-      {
-        "pre": [
-          0.125,
-          1
-        ],
-        "coef": [
-          [
-            12,
-            1,
-            0.42921
-          ],
-          [
-            10,
-            1,
-            -2.7662
-          ],
-          [
-            7,
-            7,
-            0.00024174
-          ],
-          [
-            2,
-            3,
-            0.081363
-          ],
-          [
-            2,
-            1,
-            1.0038
-          ]
-        ]
-      },
-      {
-        "pre": [
-          0.125,
-          1
-        ],
-        "coef": [
-          [
-            19,
-            1,
-            0.48246
-          ],
-          [
-            17,
-            5,
-            -0.00743
-          ],
-          [
-            16,
-            2,
-            0.75542
-          ]
-        ]
-      },
-      {
-        "pre": [
-          0.25,
-          1
-        ],
-        "coef": [
-          [
-            26,
-            1,
-            -0.016558
-          ],
-          [
-            19,
-            4,
-            -0.10644
-          ],
-          [
-            14,
-            1,
-            -0.4146
-          ]
-        ]
-      },
-      {
-        "pre": [
-          12.5,
-          1
-        ],
-        "coef": [
-          [
-            1,
-            2,
-            -0.021704
-          ]
-        ]
-      }
-    ]
-  }
 }

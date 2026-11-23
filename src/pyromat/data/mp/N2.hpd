@@ -1,74 +1,8 @@
 {
-    "id": "mp.N2",
-    "class": "mp2",
-    "atoms": {
-        "N": 2
-    },
-    "doc": "The equation of state is adapted from\n \nRoland Span, Eric Lemon, Richard Jacobsen, Wolfgang Wagner, Akimichi Yokozeki, \"Reference Equation of State for Thermodynamic Properties of Nitrogen for Temperatures from 63.151 to 1000 K and Pressures to 2200 MPa,\" Journal of Physical and Chemical Reference Data v29, pp1361, 2000. doi:10.1063/1.1349047",
-    "names": [
-        "nitrogen",
-        "diatomic nitrogen",
-        "dinitrogen",
-        "atmospheric nitrogen",
-        "stickstoff",
-        "UN 1066",
-        "UN 1977",
-        "molecular nitrogen",
-        "nitrogen-14",
-        "N2"
-    ],
-    "cas": "7727-37-9",
-    "inchi": "InChI=1S/N2/c1-2",
-    "mw": 28.01348,
-    "dc": 313.299958972,
-    "Tc": 126.192,
-    "pc": 3395800.0,
-    "Tt": 63.151,
-    "pt": 12523.0,
-    "R": 296.80220444419047,
-    "Tlim": [
-        63.151,
-        1000.0
-    ],
-    "plim": [
-        0.0,
-        2200000000.0
-    ],
-    "dlim": [
-        0.0,
-        1450.0
-    ],
-    "PSgroup": {
-        "fn": 3,
-        "Tscale": 126.192,
-        "pscale": 3395800.0,
-        "poly": {
-            "coef": [
-                [
-                    8,
-                    -1.77570564
-                ],
-                [
-                    3,
-                    -0.765910082
-                ],
-                [
-                    1,
-                    1.2632722
-                ],
-                [
-                    0,
-                    -6.12445284
-                ]
-            ],
-            "pre": 0.5,
-            "post": 1
-        }
-    },
     "DSLgroup": {
-        "fn": 2,
         "Tscale": 126.192,
         "dscale": 313.299958972,
+        "fn": 2,
         "poly": [
             {
                 "coef": [
@@ -99,9 +33,9 @@
         ]
     },
     "DSVgroup": {
-        "fn": 3,
         "Tscale": 126.192,
         "dscale": 313.299958972,
+        "fn": 3,
         "poly": [
             {
                 "coef": [
@@ -138,7 +72,6 @@
     "IGgroup": {
         "Tscale": 126.192,
         "dscale": 313.299958972,
-        "logt": 2.5,
         "group0": {
             "coef": [
                 [
@@ -169,8 +102,37 @@
                 26.65788,
                 1.012941
             ]
-        ]
+        ],
+        "logt": 2.5
     },
+    "PSgroup": {
+        "Tscale": 126.192,
+        "fn": 3,
+        "poly": {
+            "coef": [
+                [
+                    8,
+                    -1.77570564
+                ],
+                [
+                    3,
+                    -0.765910082
+                ],
+                [
+                    1,
+                    1.2632722
+                ],
+                [
+                    0,
+                    -6.12445284
+                ]
+            ],
+            "post": 1,
+            "pre": 0.5
+        },
+        "pscale": 3395800.0
+    },
+    "R": 296.80220444419047,
     "Rgroup": {
         "Tscale": 126.192,
         "dscale": 313.299958972,
@@ -402,5 +364,44 @@
                 2627.67566274
             ]
         ]
-    }
+    },
+    "Tc": 126.192,
+    "Tlim": [
+        63.151,
+        1000.0
+    ],
+    "Tt": 63.151,
+    "atoms": {
+        "N": 2
+    },
+    "cas": "7727-37-9",
+    "class": "mp2",
+    "dc": 313.299958972,
+    "dlim": [
+        0.0,
+        1431.0
+    ],
+    "doc": "The equation of state is adapted from\n \nRoland Span, Eric Lemon, Richard Jacobsen, Wolfgang Wagner, Akimichi Yokozeki, \"Reference Equation of State for Thermodynamic Properties of Nitrogen for Temperatures from 63.151 to 1000 K and Pressures to 2200 MPa,\" Journal of Physical and Chemical Reference Data v29, pp1361, 2000. doi:10.1063/1.1349047",
+    "fromfile": "/home/chris/Documents/pyromat-dev/pyromat/src/pyromat/data/mp/N2.hpd",
+    "id": "mp.N2",
+    "inchi": "InChI=1S/N2/c1-2",
+    "mw": 28.01348,
+    "names": [
+        "nitrogen",
+        "diatomic nitrogen",
+        "dinitrogen",
+        "atmospheric nitrogen",
+        "stickstoff",
+        "UN 1066",
+        "UN 1977",
+        "molecular nitrogen",
+        "nitrogen-14",
+        "N2"
+    ],
+    "pc": 3395800.0,
+    "plim": [
+        0.0,
+        2200000000.0
+    ],
+    "pt": 12523.0
 }

@@ -1,264 +1,265 @@
 {
-  "id": "mp.C3H2F4",
-  "class": "mp2",
-  "cas": "754-12-1",
-  "inchi": "InChI=1S/C3H2F4/c1-2(4)3(5,6)7/h1H2",
-  "names": [
-    "tetrafluoropropene (R-1234yf)",
-    "tetrafluoropropene",
-    "2,3,3,3-tetrafluoropropene",
-    "2,3,3,3-tetrafluoroprop-1-ene",
-    "HFO-1234yf",
-    "R-1234yf",
-    "C3H2F4"
-  ],
-  "atoms": {
-    "C": 3,
-    "H": 2,
-    "F": 4
-  },
-  "doc": "Equations of state are adapted from:\n\nE. Lemmon, R. Akasaka, An International Standard Formulation for 2,3,3,3-Tetrafuoroprop-1-ene (R1234yf) Covering Temperatures from the Triple Point Temperature to 410 K and Pressures up to 100 MPa, International Journal of Thermophysics, v43, 119, 2022.\n\nMeta information adapted from:\n\nNational Center for Biotechnology Information, PubChem Compound Summary for CID 2776731, 2,3,3,3-Tetrafluoropropene. Retrieved October 3, 2024 from https://pubchem.ncbi.nlm.nih.gov/compound/2_3_3_3-Tetrafluoropropene.\n",
-  "mw": 114.0416,
-  "dc": 476.69388799999996,
-  "Tc": 367.85,
-  "Tt": 169.0,
-  "R": 72.90727785299399,
-  "Tlim": [
-    169.0,
-    410.0
-  ],
-  "plim": [
-    0,
-    100000000.0
-  ],
-  "dlim": [
-    0.0,
-    1600.0
-  ],
-  "IGgroup": {
-    "group0": {
-      "coef": [
-        [
-          1,
-          8.52896238365
-        ],
-        [
-          0,
-          -12.081525543189
-        ]
-      ]
-    },
-    "logt": 3.0,
-    "group1": [
-      [
-        1.3918716868288703,
-        8.65
-      ],
-      [
-        4.268044039690091,
-        9.75
-      ],
-      [
-        12.233247247519369,
-        2.11
-      ]
-    ]
-  },
-  "Rgroup": {
-    "group0": [
-      [
-        {
-          "pre": [
-            0.5,
-            1
-          ],
-          "coef": [
+    "IGgroup": {
+        "group0": {
+            "coef": [
+                [
+                    1,
+                    8.52896238365
+                ],
+                [
+                    0,
+                    -12.081525543189
+                ]
+            ]
+        },
+        "group1": [
             [
-              2,
-              4,
-              0.0340387
+                1.3918716868288703,
+                8.65
             ],
             [
-              1,
-              3,
-              0.2288282
-            ]
-          ]
-        },
-        {
-          "pre": [
-            0.222,
-            1
-          ],
-          "coef": [
+                4.268044039690091,
+                9.75
+            ],
             [
-              1,
-              1,
-              1.912859
+                12.233247247519369,
+                2.11
             ]
-          ]
-        },
-        {
-          "pre": [
-            1.122,
-            1
-          ],
-          "coef": [
+        ],
+        "logt": 3.0
+    },
+    "R": 72.90727785299399,
+    "Rgroup": {
+        "group0": [
             [
-              1,
-              2,
-              -0.8147645305033
-            ]
-          ]
-        },
-        {
-          "pre": [
-            0.61,
-            1
-          ],
-          "coef": [
+                {
+                    "coef": [
+                        [
+                            2,
+                            4,
+                            0.0340387
+                        ],
+                        [
+                            1,
+                            3,
+                            0.2288282
+                        ]
+                    ],
+                    "pre": [
+                        0.5,
+                        1
+                    ]
+                },
+                {
+                    "coef": [
+                        [
+                            1,
+                            1,
+                            1.912859
+                        ]
+                    ],
+                    "pre": [
+                        0.222,
+                        1
+                    ]
+                },
+                {
+                    "coef": [
+                        [
+                            1,
+                            2,
+                            -0.8147645305033
+                        ]
+                    ],
+                    "pre": [
+                        1.122,
+                        1
+                    ]
+                },
+                {
+                    "coef": [
+                        [
+                            1,
+                            1,
+                            -2.1984719881617
+                        ]
+                    ],
+                    "pre": [
+                        0.61,
+                        1
+                    ]
+                }
+            ],
             [
-              1,
-              1,
-              -2.1984719881617
-            ]
-          ]
-        }
-      ],
-      [
-        {
-          "pre": [
-            1.05,
-            1
-          ],
-          "coef": [
+                {
+                    "coef": [
+                        [
+                            1,
+                            2,
+                            0.5961722
+                        ]
+                    ],
+                    "pre": [
+                        1.05,
+                        1
+                    ]
+                },
+                {
+                    "coef": [
+                        [
+                            1,
+                            7,
+                            -0.0180069
+                        ]
+                    ],
+                    "pre": [
+                        0.778,
+                        1
+                    ]
+                }
+            ],
             [
-              1,
-              2,
-              0.5961722
+                {
+                    "coef": [
+                        [
+                            1,
+                            1,
+                            -1.65436
+                        ]
+                    ],
+                    "pre": [
+                        2.14,
+                        1
+                    ]
+                },
+                {
+                    "coef": [
+                        [
+                            1,
+                            3,
+                            -1.446628
+                        ]
+                    ],
+                    "pre": [
+                        2.284,
+                        1
+                    ]
+                },
+                {
+                    "coef": [
+                        [
+                            1,
+                            2,
+                            -0.6148209
+                        ]
+                    ],
+                    "pre": [
+                        2.33,
+                        1
+                    ]
+                }
             ]
-          ]
-        },
-        {
-          "pre": [
-            0.778,
-            1
-          ],
-          "coef": [
+        ],
+        "group1": [
             [
-              1,
-              7,
-              -0.0180069
-            ]
-          ]
-        }
-      ],
-      [
-        {
-          "pre": [
-            2.14,
-            1
-          ],
-          "coef": [
+                1.0,
+                1,
+                1016.0,
+                28.1,
+                1.061,
+                0.96,
+                0.2845275
+            ],
             [
-              1,
-              1,
-              -1.65436
-            ]
-          ]
-        },
-        {
-          "pre": [
-            2.284,
-            1
-          ],
-          "coef": [
+                2.0,
+                1,
+                1000.0,
+                28.0,
+                1.062,
+                0.96,
+                -0.3050809
+            ],
             [
-              1,
-              3,
-              -1.446628
-            ]
-          ]
-        },
-        {
-          "pre": [
-            2.33,
-            1
-          ],
-          "coef": [
+                1.236,
+                1,
+                1.16,
+                1.307,
+                1.3,
+                0.853,
+                2.198935
+            ],
             [
-              1,
-              2,
-              -0.6148209
+                1.6,
+                1,
+                1.2,
+                1.96,
+                1.04,
+                1.15,
+                -0.4270329
+            ],
+            [
+                1.85,
+                1,
+                1.26,
+                1.25,
+                1.0,
+                1.3,
+                -0.4015581
+            ],
+            [
+                0.7,
+                1,
+                1.6,
+                1.0,
+                1.14,
+                1.5,
+                0.1179587
+            ],
+            [
+                1.75,
+                1,
+                0.87,
+                2.2,
+                1.1,
+                0.762,
+                -0.3141002
             ]
-          ]
-        }
-      ]
+        ]
+    },
+    "Tc": 367.85,
+    "Tlim": [
+        169.0,
+        410.0
     ],
-    "group1": [
-      [
-        1.0,
-        1,
-        1016.0,
-        28.1,
-        1.061,
-        0.96,
-        0.2845275
-      ],
-      [
-        2.0,
-        1,
-        1000.0,
-        28.0,
-        1.062,
-        0.96,
-        -0.3050809
-      ],
-      [
-        1.236,
-        1,
-        1.16,
-        1.307,
-        1.3,
-        0.853,
-        2.198935
-      ],
-      [
-        1.6,
-        1,
-        1.2,
-        1.96,
-        1.04,
-        1.15,
-        -0.4270329
-      ],
-      [
-        1.85,
-        1,
-        1.26,
-        1.25,
-        1.0,
-        1.3,
-        -0.4015581
-      ],
-      [
-        0.7,
-        1,
-        1.6,
-        1.0,
-        1.14,
-        1.5,
-        0.1179587
-      ],
-      [
-        1.75,
-        1,
-        0.87,
-        2.2,
-        1.1,
-        0.762,
-        -0.3141002
-      ]
+    "Tt": 169.0,
+    "atoms": {
+        "C": 3,
+        "F": 4,
+        "H": 2
+    },
+    "cas": "754-12-1",
+    "class": "mp2",
+    "dc": 476.69388799999996,
+    "dlim": [
+        0.0,
+        1559.0
+    ],
+    "doc": "Equations of state are adapted from:\n\nE. Lemmon, R. Akasaka, An International Standard Formulation for 2,3,3,3-Tetrafuoroprop-1-ene (R1234yf) Covering Temperatures from the Triple Point Temperature to 410 K and Pressures up to 100 MPa, International Journal of Thermophysics, v43, 119, 2022.\n\nMeta information adapted from:\n\nNational Center for Biotechnology Information, PubChem Compound Summary for CID 2776731, 2,3,3,3-Tetrafluoropropene. Retrieved October 3, 2024 from https://pubchem.ncbi.nlm.nih.gov/compound/2_3_3_3-Tetrafluoropropene.\n",
+    "fromfile": "/home/chris/Documents/pyromat-dev/pyromat/src/pyromat/data/mp/C3_H2_F4.hpd",
+    "id": "mp.C3H2F4",
+    "inchi": "InChI=1S/C3H2F4/c1-2(4)3(5,6)7/h1H2",
+    "mw": 114.0416,
+    "names": [
+        "tetrafluoropropene (R-1234yf)",
+        "tetrafluoropropene",
+        "2,3,3,3-tetrafluoropropene",
+        "2,3,3,3-tetrafluoroprop-1-ene",
+        "HFO-1234yf",
+        "R-1234yf",
+        "C3H2F4"
+    ],
+    "plim": [
+        0,
+        100000000.0
     ]
-  }
 }
