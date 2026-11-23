@@ -344,331 +344,372 @@ If the gas constant, R, is not provided, it will be calculated from
 molecular weight and pm.units.const_Ru.  Providing it as a data value
 allows the model to be evaluated using precisely the same parameters 
 used by the authors of the original models.
-                
+
 There are also the typical mandatory PYroMat meta data elements:
 id              What substance is this?
 doc             Where did it come from?
 class           What class should be used to evaluate the data?
 """
 
-    def _test(self, tab, sattab, report=None, basic=False):
-        """Test the MP1 class model
-    _test(tab, sattab)     # Prints to stdout
-        OR
-    _test(tab, sattab, report_file='/path/to/report')  # Prints to a file
-        OR
-    _test(tab, sattab, report_file=open_file_descriptor)   # Prints to a file
-    
-tab and sattab are nested lists or 2D numpy arrays forming tables of "truth"
-data used for validation of the core data and property methods.
+    def _test(self, tab=None, sattab=None, N=10000, report=None, ep=1e-6):
+        """Test the MP2 class model
+    result = _test(...)
 
-If the optional "basic" keyword is set to True, only the data integrity checks
-are completed (see below).
+The test can run with no validation data, or can be run against user-
+specified validation data.
 
-** tab **
-The TAB table is used to test the core properties, and should have columns 
-and units
-
-    T (K)   p (Pa)  d (kg/m3)   cp (kJ/kg/K)    s (kJ/kg/K)     h (kJ/kg)
-
-The units are selected to match those typically used in the publication of
-so-called Span and Wagner equations of state.
-
-** sattab **
-The SATTAB table is used to test the saturation property functions, and should
-have columns and units
-
-    T (K)   p (Pa)  dL (kg/m3)  dV (kg/m3)
-
-where dL and dV are the liquid and vapor densities respectively.
-
-Test criteria:
-(0) Data Integrity
-    0.1 AOgroup must contain positive scalars, Tscale, dscale
-    0.2 AOgroup's logt parameter must be a scalar
-    0.2 AOgroup's coef0 parameter must be a legal poly1 group
-    0.4 AOgroup's coef1 parameter must be a table with two columns
-    0.5 ARgroup must contain Tscale, dscale
-    0.6 ARgroup's coef0 must be a list of legal poly2 groups
-    0.7 ARgroup's coef1 must be a table with seven columns
-    0.8 ARgroup's coef2 must be a table with eight columns
-    0.9 PSgroup must contain positive scalars Tscale, pscale and integer, fn
-    0.10 PSgroup's coef must be a legal poly1 group
-    0.11 DSLgroup must contain positive scalars Tscale, dscale and integer, fn
-    0.12 DSLgroup's coef must be a legal poly1 group
-    0.13 DSVgroup must contain positive scalars Tscale, dscale and integer, fn
-    0.14 DSVgroup's coef must be a legal poly1 group
-(1) Saturation 
-    1.1 Saturation pressure agrees to within 0.01%
-    1.2 Liquid saturation density agrees to within 0.01%
-    1.3 Vapor saturation density agrees to within 0.01%
-(2) Inverse Saturation
-    2.1 Saturation temperature agrees to within 0.01%
-(3) Equation of State
-    3.1 Density must agree to within 0.01%
-    3.2 Pressure must agree to within 0.01%
-    3.3 Temperature must agree to within 0.01%
-(4) Core Properties
-    4.1 Specific heat (cp) must agree to within 0.01%
-    4.2 Entropy must agree to within 0.01%
-    4.3 Enthalpy must agree to within 0.01%
-(5) Inverse Properties
-    5.1 Temperature from entropy and pressure must agree to within 0.01%
-    5.2 Temperature from entropy and density must agree to within 0.01%
-    5.3 Density from entropy and temperature must agree to within 0.01%
-    5.4 Temperature from enthalpy and pressure must agree to within 0.01%
-    5.5 Temperature from enthalpy and density must agree to within 0.01%
-
+1. The basic json data must be correctly formatted
+    1.1 The data dict includes scalars: Tc, dc, Tt, mw
+    1.2 The data dict includes limits: Tlim, plim, dlim; correctly ordered
+    1.3 plim[0] == dlim[0] == 0
+2. The IGgroup data are correctly formatted:
+    2.1 logt and tlogt are optional scalars
+    2.2 group0 is a valid 1D polynomial group
+    2.3 group1 is a list of positive scalar pairs
+3. The Rgroup is correctly formatted:
+    3.1 group0 is a list of valid 2D polynomial groups
+    3.2 group1 is a list of 7 coefficients
+    3.3 group2 is a list of 8 coefficients
+4. build() must execute correctly... this actually verifies quite a bit.
+5. The density limit is above the pressure limit (requires _build())
+    1.1*plim[1] > p(Tlim[1], dlim[1]) > plim[1]
+6. The sattab data supplied is consistent with the model
+    6.1 
+7. The tab data supplied is consistent with the model
+    7.1
 """
+        def _polytest(_p, D=None, NP=0, NN=0):
+            """Test polynomial data
+    D, NP, NN, E, M = _polytest(_p)
+    
+D   Dimension of the polynomial
+NP  Number of sub-polynomials
+NN  Total number of terms
+E   error boolean
+M   error message
+"""
+            if isinstance(_p, list):
+                NP = len(_p)
+                for count,this in enumerate(_p):
+                    D, _, NN, E, M = _polytest(this, D=D, NP=count, NN=NN)
+                    if E:
+                        return D, NP, NN, E, M
+                return D, NP, NN, E, M
+            elif isinstance(_p, dict):
+                E = False
+                if 'coef' in _p and isinstance(_p['coef'], list):
+                    last = None
+                    for count, row in enumerate(_p['coef']):
+                        NN += 1
+                        # If nothing has specified the order, detect it now.
+                        if D is None:
+                            D = len(row)-1
+                        # If this does not match the order, report it
+                        elif len(row)-1 != D:
+                            E = True
+                            M = f"Row {count} in sub-polynomial {NP} does not match dimension {D}."
+                        elif last and row >= last:
+                            E = True
+                            M = f"Row {count} in sub-polynomail {NP} is out of order."
+                        last = row
+                        if E:
+                            return D, NP, NN, E, M
+                else:
+                    M = f"Sub-polynomial {NP} has no coef list"
+                    E = True
+                    return D, NP, NN, E, M
+                if 'pre' in _p:
+                    if np.isscalar(_p['pre']):
+                        if D != 1:
+                            E = True
+                            M = f"Illegal pre in sub-polynomial {NP}."
+                    elif len(_p['pre']) != D:
+                            E = True
+                            M = f"Illegal pre in sub-polynomail {NP}."
+                    if E:
+                        return D, NP, NN, E, M
+                if 'post' in _p:
+                    if np.isscalar(_p['post']):
+                        if D != 1:
+                            E = True
+                            M = f"Illegal post in sub-polynomial {NP}."
+                    elif len(_p['post']) != D:
+                            E = True
+                            M = f"Illegal post in sub-polynomail {NP}."
+                    if E:
+                        return D, NP, NN, E, M
+                return D, NP, NN, E, ''
+            else:
+                return D, NP, NN, True, 'Could not pare the polynomial data.'
+            
+            
         # Recurse with a fresh file descriptor if the file is a string
         if isinstance(report, str):
             with open(report, 'w') as ff:
-                return self._test(report=ff)
+                return self._test(tab=tab, sattab=sattab, N=N, report=ff, ep=ep)
         elif report is None:
             report = sys.stdout
-            
-        result = True
-        
-        report.write('PYroMat version: ' + pm.config['version'] + '\n')
-        report.write('Species: ' + self.data['id'] + '\n')
-        
-        # CRITERION 0
-        # Basic Data integrity
-        def _check_poly1(coef):
-            # Loop through the coefficient groups
-            for cgi,cc in enumerate(coef):
-                if not isinstance(cc, (list,tuple)):
-                    return True, f'Coef. group {cgi} was neither a list nor a tuple.'
-                # Check pre- and post-exponents
-                pre = cc[0]
-                post = cc[1]
-                if not isinstance(pre, (int,float)):
-                    return True, f'In coef. group {cgi} pre-exponent must be scalar. Found: {pre}'
-                if not isinstance(post, (int,float)):
-                    return True, f'In coef. group {cgi} post-exponent must be scalar. Found: {post}'
-                for ti, term in enumerate(cc[2:]):
-                    if not isinstance(term,(list,tuple)):
-                        return True, f'In coef. group {cgi}, the {ti} term is neither a list nor a tuple: {term}'
-                    if len(term) != 2:
-                        return True, f'In coef. group {cgi}, the {ti} term should have 2 elements.  Found: {term}'
-                    if not isinstance(term[0], int) or term[0] <0:
-                        return True, f'In coef. group {cgi}, the {ti} term exponent was not a non-negative integer.  {term}'
 
-            return False, ''
+        # Report summary
+        report.write('MP2 Self test\n')
+        report.write('  Substance: ' + self.data['id'] + '\n')
+        report.write('  PyroMat Version: ' + pm.config['version'] + '\n\n')
+        
+        # 1. The data dictionary is correctly formatted
+        # 1.1 Tc, dc, Tt, mw
+        report.write('1. The data dictionary is correctly formatted.\n')
+        report.write('  1.1 Tc, dc, Tt, and mw are defined as scalars. ')
+        success = True
+        message = ''
+        for this in ['Tc', 'dc', 'Tt', 'mw']:
+            if this not in self.data:
+                success = False
+                message += f'    {this} not defined.\n'
+            elif not np.isscalar(self.data[this]):
+                success = False
+                message += f'    {this} is not a scalar.\n'
+        if success:
+            report.write('[passed]\n')
+        else:
+            report.write('[FAILED]\n')
+            report.write(message)
+        # 1.2 Temperature, pressure, and density limits
+        report.write('  1.2 Tlim, plim and dlim are correctly defined. ')
+        success = True
+        message = ''
+        for this in ['Tlim', 'plim', 'dlim']:
+            if this not in self.data:
+                success = False
+                message += f'    {this} not defined.\n'
+            elif not isinstance(self.data[this], (list, tuple)) or len(self.data[this]) != 2:
+                success = False
+                message += f'    {this} is not a 2-element list.\n'
+            elif self.data[this][1] <= self.data[this][0]:
+                success = False
+                message += f'    Wrong limit order: {this}[1] > {this}[0]\n'
+        if success:
+            report.write('[passed]\n')
+        else:
+            report.write('[FAILED]\n')
+            report.write(message)
             
-        def _check_poly2(coef):
-            # Loop through the coefficient groups
-            for cgi,cc in enumerate(coef):
-                if not isinstance(cc, (list,tuple)):
-                    return True, f'Coef. group {cgi} was neither a list nor a tuple.'
-                # Check pre- and post-exponents
-                pre = cc[0]
-                post = cc[1]
-                if not isinstance(pre, list) or len(pre) != 2:
-                    return True, f'In coef. group {cgi} pre-exponent must be a two-element list. Found: {pre}'
-                if not isinstance(post, list) or len(post) != 2:
-                    return True, f'In coef. group {cgi} post-exponent must be a two-element list. Found: {post}'
-                prex,prey = pre
-                postx,posty = post
-                if not isinstance(prex, (int,float)) or not isinstance(prey, (int,float)) or not isinstance(postx, (int,float)) or not isinstance(posty, (int,float)):
-                    return True, f'In coef. group {cgi}, pre- and post-exponents must be scalars.  Pre: {pre}, Post: {post}'
+        report.write('  1.3 Lower pressure and density limits are zero. ')
+        success = True
+        message = ''
+        for this in ['plim', 'dlim']:
+            if self.data[this][0] != 0:
+                success = False
+                message += f'    Lower {this} is not zero.\n'
+        if success:
+            report.write('[passed]\n')
+        else:
+            report.write('[FAILED]\n')
+            report.write(message)
+
+        # 2.0 IGgroup tests
+        report.write('2. IGgroup data is correctly formatted.')
+        if 'IGgroup' not in self.data:
+            report.write(' [FAILED]\n')
+            report.write('  FATAL: IGgroup not found in data.\n')
+        else:
+            group = self.data['IGgroup']
+            
+            # 2.1 logt and tlogt are optional scalars
+            report.write('  2.1 logt and tlogt are oprtional scalars. ')
+            message = ''
+            success = True
+            if 'logt' in group and not np.isscalar(group['logt']):
+                success = False
+                message += '    logt is not a scalar.\n'
+            if 'tlogt' in group and not np.isscalar(group['tlogt']):
+                success = False
+                message += '    tlogt is not a scalar.\n'
+            if success:
+                report.write('[passed]\n')
+            else:
+                report.write('[FAILED]\n')
+                report.write(message)
                 
-                for ti, term in enumerate(cc[2:]):
-                    if not isinstance(term,(list,tuple)):
-                        return True, f'In coef. group {cgi}, the {ti} term is neither a list nor a tuple: {term}'
-                    if len(term) != 3:
-                        return True, f'In coef. group {cgi}, the {ti} term should have 3 elements.  Found: {term}'
-                    if not isinstance(term[0], int) or term[0] <0:
-                        return True, f'In coef. group {cgi}, the {ti} term exponent was not a non-negative integer.  {term}'
-
-            return False, ''
-
-        #0.1 AOgroup must contain positive scalars, Tscale, dscale
-        error = False
-        for test in ['Tscale', 'dscale']:
-            if test in self.data['IGgroup']:
-                pass
-            elif self.data['IGgroup'][test] > 0:
-                pass
+            # 2.2 group0 is a valid 1D polynomial
+            report.write('  2.2 If defined, group0 is a valid 1D polynomial. ')
+            if 'group0' in group:
+                D, NP, NN, E, M = _polytest(group['group0'])
+                if E:
+                    report.write('[FAILED]\n')
+                    report.write('  ' + message + '\n')
+                elif D != 1:
+                    report.write('[FAILED]\n')
+                    report.write(f'    Found a {D}-D polynomial; require 1-D.\n')
+                else:
+                    report.write('[passed]\n')
+                    report.write(f'    Found {NP} sub-polynomials containing {NN} terms.\n')
             else:
-                error = True
-                break
-        if error:
-            report.write('[FAILED]    0.1 AOgroup must contain positive scalars, Tscale, dscale\n')
-            report.write('            ' + test + ' = ' + repr(self.data['IGgroup'][test]) + '\n')
-            result = False
+                report.write('[passed]\n')
+                report.write('    Warning: No group0 defined.\n')
+                
+            # 2.3 group1 is a list of 2-element lists
+            report.write('  2.3 If defined, group1 is a valid list of coefficient pairs. ')
+            if 'group1' in group:
+                if isinstance(group['group1'], list):
+                    success = True
+                    message = ''
+                    for count, row in enumerate(group['group1']):
+                        if not isinstance(row, list) or len(row) != 2:
+                            success = False
+                            message += f'    Row {count} is not a 2-element list.\n'
+                    if success:
+                        report.write('[passed]\n')
+                    else:
+                        report.write('[FAILED]\n')
+                        report.write(message)
+                else:
+                    report.write('[FAILED]\n')
+                    report.write('    group1 is not a list.\n')
+            else:
+                report.write('[passed]\n')
+                report.write('    Warning: No group1 defined.\n')
+                
+        # 3.0 Rgroup tests
+        report.write('3. Rgroup is correctly formatted\n')
+        if 'Rgroup' not in self.data:
+            report.write(' [FAILED]\n')
+            report.write('  FATAL: Rgroup not found in data.\n')            
         else:
-            report.write('[passed]    0.1 AOgroup must contain positive scalars, Tscale, dscale\n')
+            group = self.data['Rgroup']
+            # 3.1 group0 is a list of valid 2D polynomials
+            report.write('  3.1 group0 is a list of valid 2D polynomials. ')
+            success = True
+            message = ''
+            if isinstance(group['group0'], list):
+                NT = len(group['group0'])
+                for count, term in enumerate(group['group0']):
+                    D, NP, NN, E, M = _polytest(term)
+                    if E:
+                        success = False
+                        message += '    ' + f'In term {count}, found failure:\n'
+                        message += '    ' + M + '\n'
+                    else:
+                        message += '    ' + f'Term {count} contains {NP} sub-polynomials with {NN} individual terms.\n'
+                if success:
+                    report.write('[passed]\n')
+                    report.write(message)
+                else:
+                    report.write('[FAILED]\n')
+                    report.write(message)
+            else:
+                report.write('[FAILED]\n')
+                report.write('    group0 is not a list.\n')
+            # 3.2 group1 is a list of seven coefficients
+            report.write('  3.2 If defined, group1 is a list of 7-element lists. ')
+            if 'group1' in group:
+                if isinstance(group['group1'], list):
+                    NT = len(group['group1'])
+                    message = ''
+                    success = True
+                    for count, row in enumerate(group['group1']):
+                        if len(row) != 7:
+                            message += f'    Row {count} does not contain 7 coefficients.\n'
+                            success = False
+                    if success:
+                        report.write('[passed]\n')
+                        report.write(f'    Found {NT} group1 terms.\n')
+                    else:
+                        report.write('[FAILED]\n')
+                        report.write(message)
+            # 3.2 group2 is a list of eight coefficients
+            report.write('  3.2 If defined, group2 is a list of 8-element lists. ')
+            if 'group2' in group:
+                if isinstance(group['group2'], list):
+                    NT = len(group['group2'])
+                    message = ''
+                    success = True
+                    for count, row in enumerate(group['group2']):
+                        if len(row) != 8:
+                            message += f'    Row {count} does not contain 8 coefficients.\n'
+                            success = False
+                    if success:
+                        report.write('[passed]\n')
+                        report.write(f'    Found {NT} group2 terms.\n')
+                    else:
+                        report.write('[FAILED]\n')
+                        report.write(message)
+            else:
+                report.write('[passed]\n')
+                report.write('    Warning: No group2 in Rgroup.\n')
+        # 4. Build succeeds
+        report.write('4. build() succeeds. ')
+        try:
+            self._build(force=True)
+        except Exception as err:
+            report.write('[FAILED]\n')
+            report.write(f'  FATAL: {type(err)}\n')
+            report.write('  ' + str(err) + '\n')
+            # Time to stop
+            return
+        else:
+            report.write('[passed]\n')
             
-        #0.2 AOgroup's logt parameter must be a scalar
-        if 'logt' in self.data['IGgroup'] and not isinstance(self.data['IGgroup']['logt'], (float,int)):
-            report.write('[FAILED]    0.2 AOgroup logt parameter must be a scalar\n')
-            report.write('            logt = ' + repr(self.data['IGgroup']['logt']) + '\n')
-            result = False
+        # 5. Test the density limit for consistency with pressure
+        report.write('5. dlim extends beyond the pressure limit. ')
+        try:
+            p,_,_ = self._p( *self._ff(
+                    np.array([self.data['Tlim'][0]]), 
+                    np.array([self.data['dlim'][1]]), diff=1), diff=0)
+        except Exception as err:
+            report.write('[FAILED]\n')
+            report.write(f'  FATAL: {type(err)}\n')
+            report.write('  ' + str(err) + '\n')
+            # Time to stop
+            return
         else:
-            report.write('[passed]    0.2 AOgroup logt parameter must be a scalar\n')
-        
-        #0.3 AOgroup's coef0 parameter must be a legal poly1 group
-        error = False
-        if 'coef0' in self.data['IGgroup']:
-            error,message = _check_poly1(self.data['IGgroup']['coef0'])
-        if error:
-            report.write('[FAILED]    0.3 AOgroup coef0 parameter must be a legal poly1 group\n')
-            report.write('            ' + message + '\n')
-            result = False
-        else:
-            report.write('[passed]    0.3 AOgroup coef0 parameter must be a legal poly1 group\n')
-        
-        #0.4 AOgroup's coef1 parameter must be a table with two columns
-        error = False
-        if 'coef1' in self.data['IGgroup']:
-            if not isinstance(self.data['IGgroup']['coef1'], (list,tuple)):
-                error = True
-                message = 'coef1 was not iterable.'
+            if p > self.data['plim'][1]:
+                report.write('[passed]\n')
+                if p / self.data['plim'][1] > 1.1:
+                    report.write('    WARNING: dlim extends significantly past the pressure limit.\n')
+                    report.write(f'    plim[1] = {self.data['plim'][1]},  p(Tlim,dlim) = {p}\n')
             else:
-                for row in self.data['IGgroup']['coef1']:
-                    if not isinstance(row, (list,tuple)) or len(row) != 2:
-                        error = True
-                        message = 'coef1 has at least one row without 2 columns'
-        if error:
-            report.write('[FAILED]    0.4 AOgroup coef1 parameter must be a table with two columns\n')
-            report.write('            ' + message + '\n')
-            result = False
-        else:
-            report.write('[passed]    0.4 AOgroup coef1 parameter must be a table with two columns\n')            
-            
-        #0.5 ARgroup must contain Tscale, dscale
-        error = False
-        for test in ['Tscale', 'dscale']:
-            if test in self.data['Rgroup']:
-                pass
-            elif self.data['Rgroup'][test] > 0:
-                pass
+                report.write('[FAILED]\n')
+                report.write(f'    plim[1] = {self.data['plim'][1]},  p(Tlim,dlim) = {p}\n')
+        
+        # 6. Self-consistency checks
+        report.write('6. Model self-consistency checks. ')
+        
+        # Generate the data set
+        Tmin,Tmax = self.Tlim()
+        # There is no dlim method, so we'll convert manually
+        dmax = pm.units.matter(self.data['dlim'][1], mw=self.data['mw'], from_units='kg')
+        dmax = pm.units.volume(dmax, from_units='m3', exponent=-1)
+        
+        T = (Tmax-Tmin)*np.random.random(N) + Tmin
+        d = dmax * np.random.random(N)
+        state = self.state(T=T, d=d)
+        
+        schedule = [
+                ('T', 'd', False),
+                ('T', 'p', True),
+                ('T', 's', False),
+                ('d', 'p', False),
+                ('d', 'e', False),
+                ('d', 'h', False),
+                ('d', 's', False),
+                ('e', 'p', False),
+                ('e', 's', False),
+                ('h', 'p', False),
+                ('h', 's', False),
+                ('p', 's', False)]
+        count = 0
+        for p1, p2, nosat in schedule:
+            count += 1
+            if nosat:
+                report.write(f'  6.{count} {p1},{p2} Non-saturated equivalence. ')
             else:
-                error = True
-                break
-        if error:
-            report.write('[FAILED]    0.5 ARgroup must contain positive scalars, Tscale, dscale\n')
-            report.write('            ' + test + ' = ' + repr(self.data['Rgroup'][test]) + '\n')
-            result = False
-        else:
-            report.write('[passed]    0.5 ARgroup must contain positive scalars, Tscale, dscale\n')
-            
-        #0.6 ARgroup's coef0 must be a list of legal poly2 groups
-        error = False
-        message = ''
-        if 'coef0' in self.data['Rgroup']:
-            if not isinstance(self.data['Rgroup']['coef0'], (list,tuple)):
-                error = True
-                message = 'coef0 was not iterable.'
+                report.write(f'  6.{count} {p1},{p2} Equivalence. ')
+            out = _selftest(self, state, p1, p2, nosat)
+            if out['error']:
+                report.write('[FAILED]\n')
+                report.write(out['message'])
             else:
-                for cgi,cg in enumerate(self.data['Rgroup']['coef0']):
-                    error,message = _check_poly2(cg)
-                    if error:
-                        message = 'Error in term number ' + str(cgi) + '\n            ' + message
-                        break
-        if error:
-            result = False
-            report.write('[FAILED]    ARgroup coef0 must be a list of legal poly2 groups\n')
-            report.write('            ' + message + '\n')
-        else:
-            report.write('[passed]    ARgroup coef0 must be a list of legal poly2 groups\n')
-            
-        #0.7 ARgroup's coef1 must be a table with seven columns
-        error = False
-        message = ''
-        if 'coef1' in self.data['Rgroup']:
-            if not isinstance(self.data['Rgroup']['coef1'], (list,tuple)):
-                error = True
-                message = 'coef1 was not iterable.'
-            else:
-                for row in self.data['Rgroup']['coef1']:
-                    if len(row) != 7:
-                        error = True
-                        message = 'coef1 has at least one row without 7 columns'
-        if error:
-            result = False
-            report.write('[FAILED]    ARgroup coef1 must be a table with seven columns\n')
-            report.write('            ' + message + '\n')
-        else:
-            report.write('[passed]    ARgroup coef1 must be a table with seven columns\n')
-            
-        #0.8 ARgroup's coef2 must be a table with eight columns
-        error = False
-        message = ''
-        if 'coef2' in self.data['Rgroup']:
-            if not isinstance(self.data['Rgroup']['coef2'], (list,tuple)):
-                error = True
-                message = 'coef2 was not iterable.'
-            else:
-                for row in self.data['Rgroup']['coef2']:
-                    if len(row) != 8:
-                        error = True
-                        message = 'coef2 has at least one row without 8 columns'
-        if error:
-            result = False
-            report.write('[FAILED]    ARgroup coef2 must be a table with eight columns\n')
-            report.write('            ' + message + '\n')
-        else:
-            report.write('[passed]    ARgroup coef2 must be a table with eight columns\n')
-        
-        #0.9 PSgroup must contain positive scalars Tscale, pscale and integer, fn
-        #0.10 PSgroup's coef must be a legal poly1 group
-        #0.11 DSLgroup must contain positive scalars Tscale, dscale and integer, fn
-        #0.12 DSLgroup's coef must be a legal poly1 group
-        #0.13 DSVgroup must contain positive scalars Tscale, dscale and integer, fn
-        #0.14 DSVgroup's coef must be a legal poly1 group
-        
-        if basic:
-            return result
-        
-        # First, extract the sattab columns
-        sattab = np.asarray(sattab, dtype=float)
-        T = pm.units.temperature_scale(sattab[:,0], from_units='K')
-        p = pm.units.pressure(sattab[:,1], from_units='Pa')
-        dL = pm.units.matter(self.data['mw'], sattab[:,2], from_units='kg')
-        pm.units.volume(dL, from_units='m3', inplace=True)
-        dV = pm.units.matter(self.data['mw'], sattab[:,3], from_units='kg')
-        pm.units.volume(dV, from_units='m3', inplace=True)
-        
-        # CRITERION 1
-        # Saturation numerical integrity
-        report.write('\n1. Saturation Properties\n')
-        result = pm.utility.proptest(self.ps, {'T':T}, truth=p, ep=.0001, 
-                text='1.1 Saturation pressure must agree to within .01%', 
-                report=report) or result
-        result = pm.utility.proptest(self.ds, {'T':T}, truth=dL, ep=.0001, 
-                text='1.2 Liquid saturation density must agree to within .01%', 
-                report=report, findex=0) or result
-        result = pm.utility.proptest(self.ds, {'T':T}, truth=dV, ep=.0001, 
-                text='1.3 Vapor saturation density must agree to within .01%', 
-                report=report, findex=1) or result
-        # CRITERION 2
-        # Inverse saturation
-        report.write('2. Inverse Saturation Properties\n')
-        result = pm.utility.proptest(self.Ts, {'p':p}, truth=T, ep=.0001, 
-                text='2.1 Saturation temperature must agree to within .01%', 
-                report=report, findex=1) or result
-        # Throw away the saturation table values; we're done with those
-        # Switch to the core property table
-        T = pm.units.temperature_scale(tab[:,0], from_units='K')
-        p = pm.units.pressure(tab[:,1], from_units='Pa')
-        d = pm.units.matter(self.data['mw'], tab[:,2], from_units='kg')
-        pm.units.volume(d, from_units='m3', exponent=-1, inplace=True)
-        cp = pm.units.energy(tab[:,3], from_units='kJ')
-        pm.units.temperature(cp, from_units='K', exponent=-1, inplace=True)
-        pm.units.matter(self.data['mw'], cp, from_units='kg', exponent=-1, inplace=True)
-        s = pm.units.energy(tab[:,4], from_units='kJ')
-        pm.units.temperature(s, from_units='K', exponent=-1, inplace=True)
-        pm.units.matter(self.data['mw'], s, from_units='kg', exponent=-1, inplace=True)
-        h = pm.units.energy(tab[:,5], from_units='kJ')
-        pm.units.matter(self.data['mw'], h, from_units='kg', exponent=-1, inplace=True)
-        
-        # CRITERION 3
-        # Equation of state
-        
-        return result
-        
+                report.write('[passed]\n')
 
     ########################
     #                      #
@@ -1112,7 +1153,7 @@ SEE ALSO:
         x = xdata[xi] + (xdata[xi1] - xdata[xi]) * (fvalue - fdata[xi]) / (fdata[xi1] - fdata[xi])
         return x
 
-    def _mapsearch2(self, f0data, f1data, f0value, f1value, f0str=None, f1str=None):
+    def _mapsearch2(self, f0data, f1data, f0value, f1value, f0str=None, f1str=None, debug=False):
         r"""Search 2D map for inverse estimates (primitive routine)
     T, d, Isat, Ioob = mapsearch2(f0data, f1data, f0value, f1value)
     
@@ -1296,7 +1337,7 @@ SEE ALSO:
             for Ti,di in zip(*np.nonzero(I)):
                 Ti1 = Ti+1
                 di1 = di+1
-
+            
                 # Identify the two f-edge crossings [(x,y), ...]
                 f0cross = self._intersect(f0data, f0I, f0v, Ti, di, fstr=f0str)
                 # Identify the two g-edge crossings [(x,y), ...]
@@ -1366,6 +1407,14 @@ SEE ALSO:
                                 TI.flat[index] = Ti
                                 DI.flat[index] = di
                                 Ioob.flat[index] = False
+                                if debug:
+                                    print(f'f0v = {f0v}, f1v = {f1v}')
+                                    print(f'  Ti = {Ti}, di = {di}')
+                                    print(f'  fx0 = {fx0}')
+                                    print(f'  gx0 = {gx0}')
+                                    print(f'  fdx = {fdx}')
+                                    print(f'  gdx = {gdx}')
+                                    print(f'  s = {s}')
                                 break
 
         # If operating verbosely, warn the user about out-of-bounds elements
@@ -1478,6 +1527,7 @@ possible in saddle node cases.
             
             fcross.append(np.array((Tdata[Ti1], dd)))
         return fcross
+
 
     def _dmapsearch2(self, fdata, dvalue, fvalue, fstr=None):
         r"""Constant-density 2D map search (primitive routine)
@@ -2645,7 +2695,7 @@ have converged.
             Ids[Ids] = np.abs(dT) > ep * TT
 
 
-    def _iter2(self, T, d, f0, f1, f0value, f1value, Ids, Nmax=20, ep=1e-6, debug=False):
+    def _iter2(self, T, d, f0, f1, f0value, f1value, Ids, Nmax=50, ep=1e-6, debug=False):
         """Constant-density iteration (primitive routine)
     _iter2(T, d, f0, f1, f0value, f1value Ids)
 
@@ -2736,21 +2786,22 @@ nondimensionalized, and the returned values are non-dimensionalzied.
         # Start with the logarithmic terms
         # Log of density is easy - no coefficients needed
         F = np.log(dd)
-        Ft = 0.
-        Fd = 0.
-        Ftt = 0.
-        Ftd = 0.
-        Fdd = 0.
+        Ft = None
+        Fd = None
+        Ftt = None
+        Ftd = None
+        Fdd = None
         
         IGgroup = self.data['IGgroup']
         
         if diff>0:
-            Ft = 0
             Fd = 1./dd
+            Ft = np.zeros_like(dd)
             if diff>1:
+                Ftt = np.zeros_like(dd)
+                Ftd = np.zeros_like(dd)
                 Fdd = -Fd/dd
-                Ftt = 0.
-                Ftd = 0.
+                
         # The logt term does not appear in all models, but it does in many
         logt = None
         coef = IGgroup.get('logt')
@@ -2899,11 +2950,15 @@ nondimensionalized, and the returned values are non-dimensionalzied.
         
         gr = Rgroup.get('group2')
         if gr is not None:
-            for a,b,m,AA,BB,CC,DD,c in gr:
+            for a,b,beta,AA,BB,CC,DD,c in gr:
                 ddm1 = dd-1
                 ttm1 = tt-1
-                # The model uses 1/m.  We will invert it only once.
-                m = 1./m
+                # Detect precise critical points
+                Id = (ddm1 != 0)        # Density 
+                Itd = np.logical_or(Id, ttm1 != 0) # Density AND temperature
+                
+                # The model uses 1/beta.  We will invert it only once.
+                m = 1./beta
                 
                 # Construct the distance function terms inside-out.
                 # This method allows the derivatives to be efficiently
@@ -2912,36 +2967,19 @@ nondimensionalized, and the returned values are non-dimensionalzied.
                 # Start with the inner-most term, and borrow p as the
                 # temporary variable for construction
                 
-                # So long as m > 0, this will be fine, even when ddm1==0
-                # For all data examined so far, m > 0
-                # p = A(dd-1)**m
+                # J = A(dd-1)**m
+                # Use p to hold J
                 p = AA*(ddm1*ddm1)**(0.5*m)
                 
                 if diff>0:
-                    # Detect indices where ddm1 is zero.  If any elements
-                    # of ddm1 are small, then we will use a different 
-                    # method for calculating derivatives of this term.
-                    Ismall = (np.abs(ddm1) < 1e-6).any()
-                    
-                    # Case out the nearly singular densities
-                    # When ddm1 is very small, we can't use the trick of
-                    # dividing by it to prevent repeated calls to **
-                    # c'est la vie
-                    if Ismall:
-                        # if m < 1, there is an irreconcilable singularity!
-                        if m < 1:
-                            pm.utility.print_warning('_ar():: m<1 in the ar2 term. This causes signularities in derivatives near critical density.')
-                        pd = AA * m * (ddm1*ddm1)**(0.5*m-0.5)
-                        if diff>1:
-                            if m < 2:
-                                pm.utility.print_warning('_ar():: m<2 in the ar2 term. This causes signularities in second derivatives near critical density.')
-                            pdd = AA * m * (m-1) * (ddm1*ddm1)**(0.5*m-1)
-                    else:
-                        pd = m * p / ddm1
-                        if diff>1:
-                            pdd = pd * (m-1)/ddm1
+                    pd = m*p
+                    pd[Id] /= ddm1[Id]
+                    if diff>1:
+                        pdd = (m-1)*pd
+                        pdd[Id] /= ddm1[Id]
                         
-                # p = (1-tt) + A(dd-1)**m
+                # f = (1-tt) + A(dd-1)**m
+                # Store f in p
                 p -= ttm1
                 if diff>0:
                     # It's OK to use a scalar here.  We're going to 
@@ -2955,76 +2993,47 @@ nondimensionalized, and the returned values are non-dimensionalzied.
                         #ptd = np.zeros_like(p)
                 
                 # Now, square the whole term
-                # p = [(1-tt) + A(dd-1)**m]**2
+                # f^2 = [(1-tt) + A(dd-1)**m]**2
+                # Store the intermediate in p
                 if diff>0:
                     if diff>1:
-                        ptt = 2*pt*pt # + 2*p*ptt (but ptt=0)
+                        ptt = 2
                         ptd = 2*pt*pd # + 2*p*ptd (but ptd=0)
                         pdd = 2*pd*pd + 2*p*pdd
                     pt = 2*p*pt
                     pd = 2*p*pd
                 p = p*p
                 
-                # p = [(1-tt) + A(dd-1)**m]**2 + B(dd-1)**2a
+                # Delta = [(1-tt) + A(dd-1)**m]**2 + B(dd-1)**2a
                 # borrow e for the new term
+                # h = B(dd-1)**2a
                 e = BB*(ddm1*ddm1)**a
                 p += e
                 if diff>0:
-                    # This term can have a singularity from ddm1 near 0 too
-                    if Ismall:
-                        # If a is small, then this can be singular!
-                        if a < 0.5:
-                            pm.utility.print_warning('_ar():: a<0.5 in the ar2 term. This causes singularities in derivatives near critical density.')
-                        
-                        pd += BB*2*a*(ddm1*ddm1)**(a-0.5)
-                        if diff>1:
-                            if a < 1.:
-                                pm.utility.print_warning('_ar():: a<1 in the ar2 term. This causes singularities in second derivatives near critical density.')
-                            pdd += BB*2*a*(2*a-1)*(ddm1*ddm1)**(a-1)
-                    else:
-                        ed = 2*a*e/ddm1
-                        pd += ed
-                        if diff>1:
-                            edd = (2*a-1)*ed/ddm1
-                            pdd += edd
-
+                    ed = 2*a*e
+                    ed[Id] /= ddm1[Id]
+                    pd += ed
+                    if diff>1:
+                        edd = (2*a-1)*ed
+                        edd[Id] /= ddm1[Id]
+                        pdd += edd
+                
                 # e = {[(1-tt) + A(dd-1)**m]**2 + B(dd-1)**2a}**b
                 # borrow e for the new term
                 # p is now Delta, raise it to the b power.
                 e = p**b
                 if diff>0:
-                    # We're done with Ismall, so repurpose it to detect
-                    # small values of delta.
-                    Ismall = (np.abs(p)<1e-6).any()
-                    if Ismall:
-                        if b<1:
-                            pm.utility.print_warning('_ar():: b<1 in the ar2 term. This causes singularities in derivatives very close to the critical point.')
-                        # Use a temporary to hold this expensive intermediate
-                        temp = b*p**(b-1)
-                        et = temp*pt
-                        ed = temp*pd
-                    else:
-                        et = b*e*pt/p
-                        ed = b*e*pd/p
-                        
-                    if diff>1:
-                        if Ismall:
-                            if b<2:
-                                pm.utility.print_warning('_ar():: b<2 in the ar2 term. This causes singularities in second derivatives very close to the critical point.')
-                            # First, borrow temp, which is currently holding b*p**(b-1)
-                            ett = temp*ptt
-                            etd = temp*ptd 
-                            edd = temp*pdd
-                            
-                            # Now, calculate the second terms
-                            temp = b*(b-1)*p**(b-2)
-                            ett += temp*pt*pt
-                            etd += temp*pt*pd
-                            edd += temp*pd*pd 
-                        else:
-                            ett = ((b-1)*et*pt + b*e*ptt)/p
-                            etd = ((b-1)*et*pd + b*e*ptt)/p
-                            edd = ((b-1)*ed*pd + b*e*pdd)/p
+                    ed = b * e * pd
+                    et = b * e * pt
+                    ed[Itd] = ed[Itd]/p[Itd]
+                    et[Itd] = et[Itd]/p[Itd]
+                    if diff>0:
+                        ett = (b-1)*et*pt + b*e*ptt
+                        ett[Itd] /= p[Itd]
+                        etd = (b-1)*et*pd + b*e*ptd
+                        etd[Itd] /= p[Itd]
+                        edd = (b-1)*ed*pd + b*e*pdd
+                        edd[Itd] /= p[Itd]
                 
                 # p = c * dd * {[(1-tt) + A(dd-1)**m]**2 + B(dd-1)**2a}**b
                 # This moves the intermediate value in e back into p
@@ -3037,7 +3046,7 @@ nondimensionalized, and the returned values are non-dimensionalzied.
                         ptd = c*(et + dd*etd)
                         pdd = c*(2*ed + dd*edd)
                 
-                # Finally, construct the exponential
+                # Finally, construct the gaussian exponential
                 # e = exp(-C*(dd-1)**2 - D*(tt-1)**2)
                 e = np.exp(-CC*ddm1**2 - DD*ttm1**2)
                 if diff>0:
@@ -3088,9 +3097,47 @@ e = _e(*arg)
 """
         tt = self.data['Tc'] / T
         dd = d / self.data['dc']
-        a,at,ad,att,atd,add = self._fo(tt,dd,diff=diff)
-        b,bt,bd,btt,btd,bdd = self._fr(tt,dd,diff=diff)
-        return tt, dd, a+b, at+bt, ad+bd, att+btt, atd+btd, add+bdd
+        # If dd == 0, the residual portion is necessarily zero, but it
+        # can cause singularities in intermediate values
+        I = (dd == 0)
+        # If there aren't any zero-density points
+        if not I.any():
+            a,at,ad,att,atd,add = self._fo(tt,dd,diff=diff)
+            b,bt,bd,btt,btd,bdd = self._fr(tt,dd,diff=diff)
+            a += b
+            if diff>0:
+                at += bt
+                ad += bd
+                if diff>1:
+                    att += btt
+                    atd += btd
+                    add += bdd
+        # If there are some zero-density states
+        # We'll down-select for the non-zero density states
+        else:
+            # Override zero-values of dd to be 1
+            dd[I] = 1.
+            a,at,ad,att,atd,add = self._fo(tt,dd,diff=diff)
+            dd[I] = 0.  # Change it back
+            # Override the zero-density values
+            a[I] = -np.inf
+            if diff>0:
+                ad[I] = np.inf
+                if diff>1:
+                    add[I] = -np.inf
+            # Transition to working only on the non-zero values
+            I = np.logical_not(I)
+            b,bt,bd,btt,btd,bdd = self._fr(tt[I], dd[I], diff=diff)        
+            a[I] += b
+            if diff>0:
+                at[I] += bt
+                ad[I] += bd
+                if diff>1:
+                    att[I] += btt
+                    atd[I] += btd
+                    add[I] += bdd
+            
+        return tt, dd, a, at, ad, att, atd, add
 
 
     ###################
@@ -3504,7 +3551,7 @@ density.
         Tci = len(Ts)-1
         
         d = np.concatenate((
-                [dsV[0]],       # d=0 is the lowest valid density, but will generate singularities  We'll override it later.
+                [0.],           # d=0 is the lowest valid density, but will generate singularities  We'll override it later.
                 dsV,            # saturated vapor points
                 np.flip(dsL[:-1]), # Reverse the liquid densities to be in ascending order and leave off the critical point
                 np.linspace(dsL[0], dmax, 1+int(np.ceil((dmax-dsL[0])/dstep)))[1:]    # Use even space throughout the remainder
@@ -3528,18 +3575,18 @@ density.
         if verbose:
             print('Evaluating the zero-density limit...')
         # Restore the minimum density to zero
-        d[0] = 0.
+        #d[0] = 0.
         # Override the minimum density values
-        R = self._R()
-        Tc = self.data['Tc']
-        tt = Tc / T
-        one = np.broadcast_to(np.array(1.), T.shape)
-        _,ft,_,_,_,_ = self._fo(tt, one, 1)
-        p[:,0] = 0.
-        e[:,0] = ft*(R*Tc)
-        h[:,0] = (ft*tt + 1.)*R*T
+        #R = self._R()
+        #Tc = self.data['Tc']
+        #tt = Tc / T
+        #one = np.broadcast_to(np.array(1.), T.shape)
+        #_,ft,_,_,_,_ = self._fo(tt, one, 1)
+        #p[:,0] = 0.
+        #e[:,0] = ft*(R*Tc)
+        #h[:,0] = (ft*tt + 1.)*R*T
         # s, g, and f diverge in reality.
-        s[:,0] = float('inf')
+        #s[:,0] = float('inf')
         
         if verbose:
             print('Interpolating two-phase mixture data...')
@@ -3829,19 +3876,36 @@ pt  Derivative with respect to temperature
 pd  Derivative with respect to density
 """
         p = 0.
-        pt = 0.
-        pd = 0.
+        pt = None
+        pd = None
 
         R = self._R()
         Tc = self.data['Tc']
         dc = self.data['dc']
-
-        dd2 = dd*dd
-        p = (dd2*ad/tt) * (dc*R*Tc)
-        if diff>0:
-            pt = dd2*(ad - tt*atd) * (dc*R)
-            pd = dd*(2*ad + dd*add)/tt * (R*Tc)
-
+        
+        
+        # Detect zero-density values
+        I = (dd == 0)
+        if I.any():
+            p = np.zeros_like(dd)
+            if diff>0:
+                pt = np.zeros_like(dd)
+                pd = np.empty_like(dd)
+                pd[I] = R*Tc/tt[I]
+            I = np.logical_not(I)
+            # Recurse to an operation with no zero values
+            if diff>0:
+                p[I],pt[I],pd[I] = self._p(tt[I],dd[I],a[I],at[I],ad[I],att[I],atd[I],add[I],diff)
+            else:
+                p[I],_,_ = self._p(tt[I],dd[I],a[I],at[I],ad[I],None,None,None,diff)
+        else:
+            dd2 = dd*dd
+            p = dd2*ad/tt * (dc*R*Tc)
+            # Calculate derivatives
+            if diff>0:
+                pt = dd2*(ad - tt*atd) * (dc*R)
+                pd = dd*(2*ad + dd*add)/tt * (R*Tc)
+        
         return p,pt,pd
         
 
@@ -3919,14 +3983,29 @@ hd  [J.m3/kg2]  Differential with respect to density
         Tc = self.data['Tc']
         dc = self.data['dc']
         
-        h = at + dd*ad/tt
-        h *= R*Tc
-        if diff>0:
-            hT = dd*ad - tt*(tt*att + dd*atd)
-            hT *= R
-            hd = (ad + dd*add)/tt + atd
-            hd *= R*Tc/dc
-        
+        I = (dd==0)
+        if I.any():
+            h = np.empty_like(dd)
+            h[I] = (at[I] + 1/tt[I])*R*Tc
+            if diff>0:
+                hT = np.empty_like(dd)
+                hd = np.empty_like(dd)
+                hT[I] = (1 - tt[I]*tt[I]*att[I])*R
+                hd[I] = 0.
+            # Transition to operating on the non-zero density states
+            I = np.logical_not(I)
+            if diff > 0:
+                h[I], hT[I], hd[I] = self._h(tt[I], dd[I], a[I], at[I], ad[I], att[I], atd[I], add[I], diff)
+            else:
+                h[I], _, _ = self._h(tt[I], dd[I], a[I], at[I], ad[I], None, None, None, diff)
+        else:
+            h = (at + dd*ad/tt)*R*Tc        
+            if diff>0:
+                hT = dd*ad - tt*(tt*att + dd*atd)
+                hT *= R
+                hd = (ad + dd*add)/tt + atd
+                hd *= R*Tc/dc
+                
         return h,hT,hd
 
     def _s(self,tt,dd,f,ft,fd,ftt,ftd,fdd, diff=0):
@@ -4040,13 +4119,29 @@ gd  [J.m3/kg2]  Differential with respect to density
         Tc = self.data['Tc']
         dc = self.data['dc']
 
-        g = (a + dd*ad)/tt
-        g *= R*Tc
-        if diff:
-            gT = a + dd*ad - tt*at - tt*dd*atd
-            gT *= R
-            gd = (2*ad + dd*add)/tt
-            gd *= (R*Tc/dc)
+        # Detect zero-density states
+        I = (dd==0)
+        if I.any():
+            g = np.empty_like(dd)
+            g[I] = -np.inf
+            if diff:
+                gT = np.empty_like(dd)
+                gd = np.empty_like(dd)
+                gT[I] = -np.inf
+                gd[I] = np.inf
+                I = np.logical_not(I)
+                g[I],gT[I],gd[I] = self._g(tt[I], dd[I], a[I], at[I], ad[I], att[I], atd[I], add[I], diff)
+            else:
+                I = np.logical_not(I)
+                g[I],_,_ = self._g(tt[I], dd[I], a[I], at[I], ad[I], att[I], atd[I], add[I], diff)
+        else:
+            g = (a + dd*ad)/tt
+            g *= R*Tc
+            if diff:
+                gT = a + dd*ad - tt*at - tt*dd*atd
+                gT *= R
+                gd = (2*ad + dd*add)/tt
+                gd *= (R*Tc/dc)
             
         return g,gT,gd
         
@@ -4077,10 +4172,18 @@ A   [m/s]      Wave speed
         Tc = self.data['Tc']
         dc = self.data['dc']
 
-        C = dd*ad
-        B = C - tt*dd*atd
-        A = 2*C + dd*dd*add - B*B/(tt*tt*att)
-        return np.sqrt(R * Tc * A / tt)
+        I = (dd==0)
+        if I.any():
+            A = np.empty_like(dd)
+            A[I] = np.sqrt(1 - 1/(tt[I]*tt[I]*att[I]))
+            I = np.logical_not(I)
+            A[I] = self._a(tt[I], dd[I], a[I], at[I], ad[I], att[I], atd[I], add[I])
+        else:
+            C = dd*ad
+            B = C - tt*dd*atd
+            A = 2*C + dd*dd*add - B*B/(tt*tt*att)
+            A = np.sqrt(A)
+        return A
 
         
     def _cp(self,tt,dd,a,at,ad,att,atd,add):
@@ -4110,10 +4213,17 @@ cp  [J/kg/K]    Constant-pressure specific heat
         Tc = self.data['Tc']
         dc = self.data['dc']
 
-        C = dd*ad
-        B = C - tt*dd*atd
-        cp = -tt*tt*att + B*B/(2*C + dd*dd*add)
-        return R*cp
+        I = (dd==0)
+        if I.any():
+            cp = np.empty_like(dd)
+            cp[I] = 1 - tt[I]*tt[I]*att[I]
+            I = np.logical_not(I)
+            cp[I] = self._cp(tt[I], dd[I], a[I], at[I], ad[I], att[I], atd[I], add[I])
+        else:
+            C = dd*ad
+            B = C - tt*dd*atd
+            cp = -tt*tt*att + B*B/(2*C + dd*dd*add)
+        return cp
         
         
     def _cv(self,tt,dd,a,at,ad,att,atd,add):
@@ -4756,18 +4866,16 @@ other conditions, x<0 and d1 == d2.
                 x = np.full_like(d, -1.)
                 # Identify estimates for T
                 T, Isat, Ioob = self._dmapsearch2(self._table['p'], d, p)
-                print('A', T, Isat, Ioob)
                 # Investigate states that may be saturated
                 if Isat.any():
                     # Calculate saturated densities at p values that may be saturated
                     Ts, d1[Isat], d2[Isat] = self._psat(p[Isat])
-                    print('B', Ts, d1, d2)
                     # Test to verify that the densities are saturated
                     Ids = (d1[Isat] > d[Isat]) * (d[Isat] > d2[Isat])
                     # De-select saturation values that are outside of d1,d2
                     Isat[Isat] = Ids
                     T[Isat] = Ts[Ids]
-                    xx = (d1[Isat]/d[Isat] - 1)/(d1[Isat]/d2[Isat] - 1)
+                    x[Isat] = (d1[Isat]/d[Isat] - 1)/(d1[Isat]/d2[Isat] - 1)
                 # Down-select only points that are not saturated
                 Ids = np.logical_not(Isat)
                 # Check for out-of-bounds states
@@ -4779,9 +4887,7 @@ other conditions, x<0 and d1 == d2.
                     d1[Ioob] = d[Ioob]
                     d2[Ioob] = d[Ioob]
                 if Ids.any():
-                    print('C', Ts, d1, d2)
                     self._diter(T, d, self._p, p, Ids.copy(), debug=debug)
-                    print('D', Ts, d1, d2)
                     d1[Ids] = d[Ids]
                     d2[Ids] = d[Ids]
                 return T, d1, d2, x, Isat
@@ -4846,7 +4952,9 @@ other conditions, x<0 and d1 == d2.
             d1 = np.empty_like(p, dtype=float)
             x = np.full_like(p, -1.)
             # Find an initial guess for the state
-            T, d2, Isat, Ioob = self._mapsearch2(self._table['p'], self._table[fstr], p, fvalue, f1str=fstr)
+            T, d2, Isat, Ioob = self._mapsearch2(self._table['p'], self._table[fstr], p, fvalue, f1str=fstr, debug=debug)
+            # De-select any points above the critical pressure
+            Isat[Isat] = p[Isat] < self._table['p'][*self._table['cI']]
             if Isat.any():
                 # Establish the saturation states
                 TT,dL,dV = self._psat(p[Isat])
@@ -4855,8 +4963,11 @@ other conditions, x<0 and d1 == d2.
                 argV = self._ff(T=TT, d=dV, diff=1)
                 fL = fn(*argL, diff=0)[0]
                 fV = fn(*argV, diff=0)[0]
-                # Deduce quality from fvalue
+                # Deduce quality from fvalue and stash the T,d1,d2 values
                 x[Isat] = (fvalue[Isat] - fL)/(fV - fL)
+                d1[Isat] = dL
+                d2[Isat] = dV
+                T[Isat] = TT
                 # Some of these will be points that are merely near
                 # the dome and not actually under it.  
                 Ids = np.zeros_like(T, dtype=bool)
@@ -4882,7 +4993,7 @@ other conditions, x<0 and d1 == d2.
                 # d2 will already be set by the mapsearch algorithm
                 d1[Ioob] = pm.config['def_oob']
                 # Leave temperature as specified
-            self._iter2(T, d2, self._p, fn, p, fvalue, Ids.copy())
+            self._iter2(T, d2, self._p, fn, p, fvalue, Ids.copy(), debug=debug)
             d1[Ids] = d2[Ids]
             return T,d1,d2,x,Isat
         # 7.5: Two inverse properties
@@ -5513,9 +5624,17 @@ See also:
     a, cp, cv, d, e, f, g, gam, h, mw, p, R, s, T, v, x, state
 """
         d,x = self.d(*varg, quality=True, **kwarg)
+        I = (d==0)
+        if I.any():
+            v = np.empty_like(d)
+            v[I] = np.inf
+            I = np.logical_not(I)
+            v[I] = 1./d[I]
+        else:
+            v = 1./d
         if quality:
-            return 1./d, x
-        return 1./d
+            return v, x
+        return v
         
     def T(self, *varg, quality=False, **kwarg):
         """Temperature
@@ -5618,8 +5737,16 @@ See also:
         out['p'] = self._p(*arg2, diff=0)[0]
         out['s'] = self._s(*arg2, diff=0)[0]
         out['T'] = T
-        out['v'] = 1./d2
         out['x'] = x
+        # Deal with volume specially, because d=0 is legal
+        II = (d2==0)
+        if II.any():
+            out['v'] = np.empty_like(d2)
+            out['v'][II] = np.inf
+            II = np.logical_not(II)
+            out['v'][II] = 1./d2[II]
+        else:
+            out['v'] = 1./d2
 
         # Deal with two-phase mixtures
         if I.any():
@@ -5629,6 +5756,7 @@ See also:
             argL = self._ff(T[I], dL, diff=2)       # Evaluate the liquid EOS
             argV = tuple([this[I] for this in arg2])
             xx = x[I]
+            xx1 = 1-xx
             
             # cp is easy
             out['cp'][I] = np.inf
@@ -5646,27 +5774,27 @@ See also:
             # x = -----------
             #     (dL/dV) - 1
             temp = dL/dV
-            xT = (dLT * (1-xx)/dL + dVT * xx*temp/dV) / (temp-1)
+            xT = (dLT *xx1/dL + dVT*xx*temp/dV) / (temp-1)
             # Grab the saturation sensitivities
             eL,eLT,eLd = self._e(*argL,diff=1)
             eV,eVT,eVd = self._e(*argV,diff=1)
             # Calculate the true isochoric specific heat for the
             # two-phase mixture
-            out['cv'][I] = (eLT+eLd*dLT)*(1-xx) + (eVT+eVd*dVT)*xx + (eV-eL)*xT
+            out['cv'][I] = (eLT+eLd*dLT)*xx1 + (eVT+eVd*dVT)*xx + (eV-eL)*xT
             
             # Density and volume
-            out['v'][I] = xx/dV + (1-xx)/dL
+            out['v'][I] = xx/dV + xx1/dL
             out['d'][I] = 1./out['v'][I]
             
             # Everything else
             out['a'][I] = pm.config['def_oob']
-            out['e'][I] = out['e'][I]*xx + self._e(*argL, diff=0)[0]*(1-xx)
-            out['f'][I] = out['f'][I]*xx + self._f(*argL, diff=0)[0]*(1-xx)
+            out['e'][I] = out['e'][I]*xx + self._e(*argL, diff=0)[0]*xx1
+            out['f'][I] = out['f'][I]*xx + self._f(*argL, diff=0)[0]*xx1
             # g is constant
             out['gam'][I] = np.inf
-            out['h'][I] = out['h'][I]*xx + self._h(*argL, diff=0)[0]*(1-xx)
+            out['h'][I] = out['h'][I]*xx + self._h(*argL, diff=0)[0]*xx1
             # p is constant
-            out['s'][I] = out['s'][I]*xx + self._s(*argL, diff=0)[0]*(1-xx)
+            out['s'][I] = out['s'][I]*xx + self._s(*argL, diff=0)[0]*xx1
             
         # Finish with unit conversions
         pm.units.length(out['a'], from_units='m', inplace=True)

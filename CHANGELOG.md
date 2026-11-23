@@ -229,7 +229,8 @@ The version increments between 2.0.1 and 2.0.4 were primarily spent correcting i
     - Adds correct cv evaluation to `state()`
     - Adds `satstate()`
     - Inner property methods now accept d-less free energy derivatives instead of T,d.  No more redundant EOS evaluations!
-
+    - The _ff() EOS method gracefully handles the zero-density limit without singularity warnings
+    - The _fr() EOS method gracefully ahndles critical density limit without signularity warnings
 - Updated unit definitions to better align with NIST SP811
     - Removed the amu in favor of the Dalton
     - Changed the definition of `u` to be in terms of carbon-12 instead of `units.const_Na`
