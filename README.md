@@ -38,7 +38,7 @@ To get up and running quickly, see the [Introductory Tutorial](http://www.pyroma
 
 ## Contributing
 
-**Consider supporting us** by visiting [pyromat.org/support](http://pyromat.org/support), to see ways you can chip in.
+**Consider supporting us** by visiting [pyromat.org/support.html](http://pyromat.org/support.html), to see ways you can chip in.
 
 As an open source project, PYroMat is better for the participation and engagement of community members.   
 
